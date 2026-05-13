@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Personal financial data — never commit to a public repo
+*.xlsx
+*.xls
+~$*
+
+# Claude AI configuration
+.claude/
+
+# Test / scratch files
+test-*.html
+CALENDAR_FIX_SUMMARY.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.log

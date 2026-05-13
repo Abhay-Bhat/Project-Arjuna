@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0f1f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Project Arjuna - Master Your Path, Conquer UPSC 2026-2028">
+    <title>Project Arjuna — Master Your Path, Conquer UPSC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- ═════════════════════════════════════════════════════ -->
+    <!-- HEADER -->
+    <!-- ═════════════════════════════════════════════════════ -->
+    <header class="app-header">
+        <div class="header-brand">
+            <h1>🏹 Project Arjuna</h1>
+            <div class="header-sub">Master Your Path • 2026–2028</div>
+        </div>
+        <div class="header-center" style="cursor: pointer; position: relative;" id="headerDateToggle" title="Click to view Mission Phases">
+            <div id="dateDisplay"></div>
+            <div id="dayType"></div>
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:2px;">
+                <span style="font-size: 10px; color: var(--text-muted);">📋 Phases</span>
+                <span id="liveClockDisplay" style="font-size: 10px; color: var(--text-muted); font-family: monospace;"></span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-sm" id="todayBtn">🏠 Today</button>
+            <button class="btn btn-sm" id="calendarBtn">📅</button>
+            <button class="btn btn-sm" id="themeToggle">🌙</button>
+        </div>
+        <div id="phaseBadge" style="padding: 4px 12px; border-radius: 20px; font-size: 11px;"></div>
+    </header>
+
+    <!-- ═════════════════════════════════════════════════════ -->
+    <!-- MOTIVATIONAL QUOTE STRIP (persistent across all tabs) -->
+    <!-- ═════════════════════════════════════════════════════ -->
+    <div class="quote-strip" id="quoteStrip">
+        <span class="qs-icon">✦</span>
+        <span id="quoteText" class="qs-text">✨ Loading inspiration...</span>
+        <span id="quoteAuthor" class="qs-author">— Zen Quotes</span>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════ -->
+    <!-- MILESTONE BANNER -->
+    <!-- ═════════════════════════════════════════════════════ -->
+    <div id="milestoneBanner" class="milestone-banner"></div>
+
+    <!-- ═════════════════════════════════════════════════════ -->
+    <!-- TAB NAVIGATION -->
+    <!-- ═════════════════════════════════════════════════════ -->
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="today">🏠 Today</button>
+        <button class="tab-btn" data-tab="upsc">📚 UPSC</button>
+        <button class="tab-btn" data-tab="finance">💰 Finance</button>
+        <button class="tab-btn" data-tab="health">❤️ Health</button>
+        <button class="tab-btn" data-tab="mind">🧠 Mind</button>
+        <button class="tab-btn" data-tab="growth">🌱 Growth</button>
+    </nav>
+
+    <!-- ═════════════════════════════════════════════════════ -->
+    <!-- TAB PANELS -->
+    <!-- ═════════════════════════════════════════════════════ -->
+    <main>
+
+    <!-- ═ TODAY TAB ═ -->
+    <div id="tab-today" class="tab-panel active">
+      <div class="tab-layout-3">
+
+        <!-- ── LEFT PANE: Calendar + Quick Check-Ins ── -->
+        <div class="pane-left">
+
+          <div class="pane-card">
+            <div class="pane-card-title">📅 Date Navigator</div>
+            <div id="calendarNav"></div>
+            <div class="holiday-toggle" id="holidayToggle" style="display:none;margin-top:12px;">
+              <span>📅 Mark as Holiday/Weekend?</span>
+              <div class="toggle-switch" id="holidaySwitch"></div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">⚡ Quick Check-In</div>
+            <div class="qc-sidebar-grid">
+              <div class="qc-card" id="qcSleepCard">
+                <div class="qc-label">Sleep</div>
+                <div class="qc-value" id="qcSleep">—</div>
+              </div>
+              <div class="qc-card" id="qcGymCard">
+                <div class="qc-label">Gym</div>
+                <div class="qc-value" id="qcGymValue">—</div>
+              </div>
+              <div class="qc-card" id="qcPhoneCard">
+                <div class="qc-label">Phone</div>
+                <div class="qc-value" id="qcPhone">—</div>
+              </div>
+              <div class="qc-card" id="qcCACard">
+                <div class="qc-label">CA</div>
+                <div class="qc-value" id="qcCAValue">—</div>
+              </div>
+              <div class="qc-card" id="qcParentsCard">
+                <div class="qc-label">Parents</div>
+                <div class="qc-value" id="qcParentsValue">—</div>
+              </div>
+              <div class="qc-card" id="qcStreakCard">
+                <div class="qc-label">Streak</div>
+                <div class="qc-value" id="qcStreak">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📚 Today's Classes</div>
+            <div id="todayUpscClasses"></div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN PANE: Routine ── -->
+        <div class="pane-main">
+
+          <div class="pro-tip-card">
+            <span class="pro-tip-icon">💡</span>
+            <div class="pro-tip-text" id="proTipText">Loading personalized tip...</div>
+          </div>
+
+          <div class="section-title">Daily Routine</div>
+          <div class="controls-bar">
+            <button class="btn btn-sm" id="resetBtn">🔄 Reset Today</button>
+            <span style="font-size:12px;color:var(--text-muted);">
+              <span id="completedCount">0</span> / <span id="totalCount">0</span> completed
+              (<span id="progressPct">0%</span>)
+            </span>
+          </div>
+          <div class="stat-card" style="margin-bottom:16px;">
+            <div class="stat-card-title">Progress</div>
+            <div class="prog-bar-track" style="height:8px;margin:12px 0;">
+              <div class="prog-bar-fill" id="progressBar" style="width:0%;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);">
+              <span><span id="completedCount2">0</span> / <span id="totalCount2">0</span></span>
+              <span id="completedHours">0h</span>
+              <span><span id="remainingCount">0</span> left</span>
+            </div>
+          </div>
+          <div class="routine-card">
+            <div class="routine-header">
+              <div class="routine-title">Activities</div>
+              <div class="day-indicator" id="dayIndicator"></div>
+            </div>
+            <div id="scheduleContainer"></div>
+          </div>
+
+        </div><!-- end pane-main -->
+
+        <!-- ── RIGHT PANE: Life Dashboard ── -->
+        <div class="pane-right">
+
+          <div class="pane-card">
+            <div class="pane-card-title" style="justify-content:space-between;">
+              <span>📊 Life Dashboard</span>
+              <button class="btn btn-xs" id="dashboardToggle" title="Toggle dashboard view">🔍</button>
+            </div>
+            <div id="dashboardContainer">
+              <div id="phaseHero" style="margin-bottom:12px;"></div>
+              <div class="domains-grid" id="domainsGrid"></div>
+            </div>
+          </div>
+
+        </div><!-- end pane-right -->
+
+      </div><!-- end tab-layout-3 -->
+    </div><!-- end TODAY TAB -->
+
+    <!-- ═ UPSC TAB ═ -->
+    <div id="tab-upsc" class="tab-panel">
+      <div class="tab-layout-2">
+
+        <!-- ── LEFT SIDEBAR: Progress Stats + Today's Schedule ── -->
+        <div class="pane-left">
+
+          <div class="pane-card">
+            <div class="pane-card-title">📊 Progress</div>
+            <div class="stat-card" style="margin-bottom:10px;">
+              <div class="stat-card-title">Overall</div>
+              <div class="stat-card-value" id="upscOverallPct">0%</div>
+              <div class="prog-bar-track"><div class="prog-bar-fill" id="upscOverallBar" style="width:0%;"></div></div>
+              <div class="stat-card-sub"><span id="upscCompletedCount">0</span> / <span id="upscTotalCount">586</span> classes</div>
+            </div>
+            <div class="stat-card" style="margin-bottom:10px;">
+              <div class="stat-card-title">Current Subject</div>
+              <div class="stat-card-value" style="font-size:14px;color:var(--accent-teal);" id="upscCurrentSubject">—</div>
+              <div class="stat-card-sub" id="upscCurrentProgress">—</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="stat-card">
+                <div class="stat-card-title">This Week</div>
+                <div class="stat-card-value" style="font-size:22px;" id="upscWeeklyCount">0</div>
+                <div class="stat-card-sub">classes</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-title">Prelims 2027</div>
+                <div class="stat-card-value" style="font-size:22px;" id="prelims2027Cov">0%</div>
+                <div class="prog-bar-track" style="height:3px;"><div class="prog-bar-fill" id="prelims2027Bar" style="width:0%;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📅 Today's Schedule</div>
+            <div id="upscTodayClasses"></div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📰 CA Stats</div>
+            <div id="caStatsRow"></div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN: Schedule Table + Subjects + CA Log ── -->
+        <div class="pane-main">
+
+          <div class="section-title">Yearlong Schedule</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Subject</th><th>Timeline</th><th>Classes</th>
+                  <th>Track</th><th>Priority</th><th>Progress</th>
+                </tr>
+              </thead>
+              <tbody id="upscScheduleBody">
+                <tr><td colspan="6" class="empty-td">Loading schedule...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-title">Subject Progress</div>
+          <div class="upsc-grid" id="upscSubjectsGrid"></div>
+
+          <div class="section-title">Current Affairs Log</div>
+          <div class="card" style="margin-bottom:16px;padding:18px;">
+            <div class="fin-form-grid" style="grid-template-columns:1fr 2fr;">
+              <div class="form-field">
+                <label>Source</label>
+                <select id="caSource">
+                  <option value="The Hindu">The Hindu</option>
+                  <option value="Indian Express">Indian Express</option>
+                  <option value="PIB">PIB</option>
+                  <option value="Unacademy">Unacademy CA Class</option>
+                  <option value="Yojana">Yojana / Kurukshetra</option>
+                  <option value="PRS">PRS Legislative</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label>Topic / Article Title</label>
+                <input type="text" id="caTitle" placeholder="e.g. India-UAE trade deal, Preamble judgment…">
+              </div>
+              <div class="form-field" style="grid-column:1/-1;">
+                <label>Notes (optional)</label>
+                <input type="text" id="caNotes" placeholder="Key points, GS relevance…">
+              </div>
+              <div class="form-field" style="grid-column:1/-1;">
+                <label>Article URL (optional)</label>
+                <input type="url" id="caUrl" placeholder="https://thehindu.com/...">
+              </div>
+              <div class="form-field" style="grid-column:1/-1;">
+                <label style="display:flex;align-items:center;gap:8px;">
+                  Attachment (PDF/Image — stored locally via IndexedDB)
+                  <span class="info-icon" data-tip="Files are stored securely in your browser's IndexedDB. Max ~500 MB per file. No data leaves your device.">i</span>
+                </label>
+                <input type="file" id="caFile" accept=".pdf,.jpg,.jpeg,.png,.webp" style="padding:6px;">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" style="margin-top:10px;" id="caAddBtn">+ Log Article / Class</button>
+          </div>
+          <div id="caDailyLog"></div>
+
+        </div><!-- end pane-main -->
+
+      </div><!-- end tab-layout-2 -->
+    </div><!-- end UPSC TAB -->
+
+    <!-- ═ FINANCE TAB ═ -->
+    <div id="tab-finance" class="tab-panel">
+      <div class="tab-layout-2">
+
+        <!-- ── LEFT SIDEBAR: Savings targets, quick status, checklist ── -->
+        <div class="pane-left">
+
+          <div class="pane-card">
+            <div class="pane-card-title">🎯 Dubai Savings</div>
+            <div class="finance-hero" style="padding:16px;margin-bottom:0;">
+              <div class="fh-title">AED Target</div>
+              <div class="fh-value" id="finTargetPct" style="font-size:28px;">0%</div>
+              <div class="prog-bar-track" style="height:6px;margin:10px 0;">
+                <div class="prog-bar-fill" id="finTargetBar" style="width:0%;"></div>
+              </div>
+              <div class="fh-target"><span id="finTotalAED">0 AED</span> / <span id="finTargetAED">199,800 AED</span></div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">🏛️ Corpus (India)</div>
+            <div class="finance-hero" style="background:linear-gradient(135deg,rgba(0,212,200,0.06),rgba(0,212,124,0.04));border-color:rgba(0,212,200,0.2);padding:16px;margin-bottom:0;">
+              <div class="fh-value" id="finCorpus" style="font-size:26px;">₹—</div>
+              <div class="prog-bar-track" style="height:6px;margin:10px 0;">
+                <div class="prog-bar-fill green" id="finCorpusBar" style="width:0%;"></div>
+              </div>
+              <div class="fh-target" style="font-size:11px;">₹<span id="finBaseline">0L</span> + ₹<span id="finEstINR">0L</span> = ₹<span id="finGoalINR">59L</span></div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">💎 True Net Worth</div>
+            <div class="net-worth-card">
+              <div class="nw-label">Investment Portfolio</div>
+              <div class="nw-value" id="netWorthValue">₹—</div>
+              <div class="nw-sub">+ 🛡️ Cover: <strong id="totalCoverValue">₹0</strong></div>
+              <div class="nw-breakdown" id="netWorthBreakdown">
+                <div style="color:var(--text-muted);font-size:11px;grid-column:1/-1;text-align:center;padding:6px 0;">Add investments to see breakdown</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📊 Quick Stats</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <div class="stat-card">
+                <div class="stat-card-title">Transferred</div>
+                <div class="stat-card-value" style="font-size:16px;" id="finTransferred">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-title">Dubai Days</div>
+                <div class="stat-card-value" style="font-size:16px;" id="finDubaiDays">0/365</div>
+                <div class="prog-bar-track" style="height:3px;"><div class="prog-bar-fill" id="finDubaiBar" style="width:0%;"></div></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div class="stat-card">
+                <div class="stat-card-title">NRI Account</div>
+                <div class="status-badge done" id="finNRI" style="font-size:11px;">⏳ Pending</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-card-title">SIP</div>
+                <div class="status-badge" id="finSIP" style="font-size:11px;">⏳ Aug 2026</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+              <button class="btn btn-sm" id="btnNRI">Toggle NRI</button>
+              <button class="btn btn-sm" id="btnSIP">Toggle SIP</button>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">⏰ Maturity Alerts</div>
+            <div id="maturityAlertsSidebar">
+              <div style="color:var(--text-muted);font-size:11px;text-align:center;padding:10px 0;">No upcoming maturities.</div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">✅ Dubai Checklist</div>
+            <div id="finChecklist"></div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN: Converter, forms, charts, logs ── -->
+        <div class="pane-main">
+
+          <div class="section-title">Currency Converter</div>
+          <div class="currency-converter-card">
+            <div class="converter-row">
+              <div class="converter-field">
+                <label>From</label>
+                <select id="currencyFrom">
+                  <option value="INR">₹ INR</option>
+                  <option value="AED">د.إ AED</option>
+                  <option value="USD">$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="GBP">£ GBP</option>
+                </select>
+              </div>
+              <div class="converter-field">
+                <label>Amount</label>
+                <input type="number" id="converterAmount" placeholder="Enter amount" step="0.01">
+              </div>
+              <div class="converter-field">
+                <label>To</label>
+                <select id="currencyTo">
+                  <option value="AED">د.إ AED</option>
+                  <option value="INR">₹ INR</option>
+                  <option value="USD">$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="GBP">£ GBP</option>
+                </select>
+              </div>
+            </div>
+            <div class="converter-result" id="converterResult">
+              <div class="result-value" id="convertedAmount">—</div>
+              <div class="result-rate" id="exchangeRate">Exchange rate: —</div>
+            </div>
+          </div>
+
+          <div class="section-title">Monthly Entry</div>
+          <form id="finEntryForm">
+            <div class="fin-form-grid">
+              <div class="form-field"><label>Month</label><input type="month" id="finMonth" required></div>
+              <div class="form-field"><label>Saved (AED)</label><input type="number" id="finAED" step="100" placeholder="16650"></div>
+              <div class="form-field"><label>Transferred (INR)</label><input type="number" id="finINR" step="10000" placeholder="250000"></div>
+              <div class="form-field"><label>Notes</label><input type="text" id="finNotes" placeholder="Optional"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Entry</button>
+          </form>
+
+          <div class="section-title">Transaction Log</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Month</th><th>Saved (AED)</th><th>Transferred (INR)</th><th>Notes</th><th>Action</th></tr></thead>
+              <tbody id="finLogBody"><tr><td colspan="5" class="empty-td">No entries yet.</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="section-title">Monthly Savings Trend</div>
+          <div class="chart-wrap"><canvas id="finSavingsChart"></canvas></div>
+
+          <div class="section-title">Monthly Expenses</div>
+          <form id="expenseForm">
+            <div class="fin-form-grid">
+              <div class="form-field">
+                <label>Month</label>
+                <input type="month" id="expMonth" required>
+              </div>
+              <div class="form-field">
+                <label>Total Income (₹)</label>
+                <input type="number" id="expIncome" step="any" placeholder="80000">
+              </div>
+              <div class="form-field">
+                <label>🏠 Housing & Utilities</label>
+                <input type="number" id="expCat_housing" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>🍽️ Food & Dining</label>
+                <input type="number" id="expCat_food" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>🚗 Transport & Fuel</label>
+                <input type="number" id="expCat_transport" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>💊 Health & Medical</label>
+                <input type="number" id="expCat_health" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>📚 Education & Learning</label>
+                <input type="number" id="expCat_education" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>🎬 Entertainment & Subs</label>
+                <input type="number" id="expCat_entertainment" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>🛍️ Shopping & Personal</label>
+                <input type="number" id="expCat_shopping" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>🛡️ Insurance Premiums</label>
+                <input type="number" id="expCat_insurance" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>💰 Savings & Investments</label>
+                <input type="number" id="expCat_savings" step="any" placeholder="0">
+              </div>
+              <div class="form-field">
+                <label>📦 Other</label>
+                <input type="number" id="expCat_other" step="any" placeholder="0">
+              </div>
+              <div class="form-field" style="grid-column:1/-1;">
+                <label>Notes (optional)</label>
+                <input type="text" id="expNotes" placeholder="e.g. Dubai month, vacation, medical emergency…">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Monthly Expenses</button>
+          </form>
+
+          <div id="expenseSummaryCard" style="margin:16px 0;"></div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-bottom:8px;">
+            <div>
+              <div class="section-title" style="margin-top:16px;">Expense Breakdown</div>
+              <div class="chart-wrap" style="height:260px;"><canvas id="expenseChart"></canvas></div>
+            </div>
+            <div>
+              <div class="section-title" style="margin-top:16px;">Income vs Wealth Overview</div>
+              <div class="chart-wrap" style="height:260px;"><canvas id="finOverviewChart"></canvas></div>
+            </div>
+          </div>
+
+          <div class="section-title">Expense Log</div>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Savings</th><th>Rate / Action</th></tr></thead>
+              <tbody id="expenseLogBody"><tr><td colspan="5" class="empty-td">No expense entries yet.</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="section-title">Investment Portfolio</div>
+          <form id="investmentForm">
+            <div class="fin-form-grid">
+              <!-- Row 1: Type, Bank, Date -->
+              <div class="form-field">
+                <label>Investment Type</label>
+                <select id="invType" required>
+                  <option value="">Select Type</option>
+                  <option value="EPF">EPF (Employee Provident Fund)</option>
+                  <option value="PPF">PPF (Public Provident Fund)</option>
+                  <option value="SIP">SIP — Mutual Fund</option>
+                  <option value="Deposits">Fixed / Recurring Deposit</option>
+                  <option value="Shares">Shares / Direct Stocks</option>
+                  <option value="Bonds">Bonds / Debentures</option>
+                  <option value="Gold">Gold / SGB / Commodities</option>
+                  <option value="RealEstate">Real Estate</option>
+                  <option value="Insurance">Insurance</option>
+                  <option value="Crypto">Crypto</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label id="invBankLabel">Bank / Institution</label>
+                <input type="text" id="invBankAccount" placeholder="e.g. HDFC, SBI, Zerodha, LIC">
+              </div>
+              <div class="form-field">
+                <label>Start Date</label>
+                <input type="date" id="invDate">
+              </div>
+
+              <!-- Row 2: Amount (label changes by type), Tenure, Rate -->
+              <div class="form-field">
+                <label id="invAmountLabel">Amount Invested (₹)</label>
+                <input type="number" id="invAmount" step="0.01" inputmode="decimal" placeholder="50000" min="0" required>
+              </div>
+              <div class="form-field inv-conditional not-shares">
+                <label>Tenure</label>
+                <div style="display:flex;gap:6px;">
+                  <input type="number" id="invTenure" step="1" min="1" placeholder="e.g. 365" style="flex:1;">
+                  <select id="invTenureUnit" style="width:90px;font-size:12px;padding:0 6px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);">
+                    <option value="Years">Years</option>
+                    <option value="Months">Months</option>
+                    <option value="Days">Days</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field inv-conditional not-shares">
+                <label>Rate (% p.a.) <span id="invRateAutoTag" style="font-size:9px;color:var(--accent-teal);font-weight:700;letter-spacing:.05em;background:rgba(0,212,200,0.1);padding:1px 5px;border-radius:3px;">AUTO</span></label>
+                <input type="number" id="invInterestRate" step="0.01" placeholder="Auto-detected">
+              </div>
+
+              <!-- Row 3: Maturity Date, Status -->
+              <div class="form-field inv-conditional not-shares">
+                <label>Maturity Date <span style="font-size:10px;color:var(--text-muted);">(auto-calc or override)</span></label>
+                <input type="date" id="invMaturityDate">
+              </div>
+              <div class="form-field">
+                <label>Status</label>
+                <select id="invStatus">
+                  <option value="active">Active</option>
+                  <option value="withdrawn">Withdrawn / Closed</option>
+                  <option value="matured">Matured (Pending action)</option>
+                </select>
+              </div>
+
+              <!-- Insurance-specific fields (hidden unless type=Insurance) -->
+              <div class="form-field inv-conditional insurance-only hidden" id="invInsuranceTypeField">
+                <label>Insurance Type</label>
+                <select id="invInsuranceType">
+                  <option value="Term">Term Insurance (Pure Protection)</option>
+                  <option value="Health">Health Insurance</option>
+                  <option value="Endowment">Endowment (Traditional)</option>
+                  <option value="ULIP">ULIP (Market-linked)</option>
+                  <option value="MoneyBack">Money-Back Policy</option>
+                  <option value="Accident">Personal Accident</option>
+                </select>
+              </div>
+              <div class="form-field inv-conditional insurance-only hidden" id="invCoverAmountField">
+                <label>Cover / Sum Assured (₹)</label>
+                <input type="number" id="invCoverAmount" step="any" placeholder="1000000">
+              </div>
+              <div class="form-field inv-conditional insurance-only hidden" id="invPremiumFreqField">
+                <label>Premium Frequency</label>
+                <select id="invPremiumFrequency">
+                  <option value="Monthly">Monthly</option>
+                  <option value="Quarterly">Quarterly</option>
+                  <option value="HalfYearly">Half-Yearly</option>
+                  <option value="Annual">Annual</option>
+                  <option value="SinglePay">Single Pay</option>
+                </select>
+              </div>
+
+              <!-- PPF / EPF: Opening Balance / Current Corpus -->
+              <div class="form-field inv-conditional ppf-epf-only hidden" id="invOpenBalField">
+                <label id="invOpenBalLabel">Prior Corpus (₹) <span style="font-size:9px;color:var(--text-muted);">Existing balance before this entry's start date</span></label>
+                <input type="number" id="invOpeningBalance" step="any" placeholder="e.g. 535748">
+              </div>
+
+              <!-- Shares-only: Exchange -->
+              <div class="form-field inv-conditional shares-only hidden" id="invExchangeField">
+                <label>Stock Exchange</label>
+                <select id="invExchange">
+                  <option value="NSE">NSE</option>
+                  <option value="BSE">BSE</option>
+                </select>
+              </div>
+
+              <!-- Shares-only: Ticker -->
+              <div class="form-field inv-conditional shares-only hidden" id="invTickerField">
+                <label>Ticker Symbol <span style="font-size:9px;color:var(--text-muted);">(for live price)</span></label>
+                <input type="text" id="invTicker" placeholder="RELIANCE, INFY, TCS…" style="text-transform:uppercase;">
+              </div>
+
+              <!-- SIP mode: monthly SIP or lump-sum one-time -->
+              <div class="form-field inv-conditional sip-only hidden" id="invSIPModeField">
+                <label>Investment Mode</label>
+                <select id="invSIPMode">
+                  <option value="SIP">SIP — Monthly Recurring</option>
+                  <option value="LumpSum">Lump Sum — One-time</option>
+                </select>
+              </div>
+
+              <!-- SIP-only: AMFI Code -->
+              <div class="form-field inv-conditional sip-only hidden" id="invAmfiCodeField">
+                <label>AMFI Scheme Code <span style="font-size:9px;color:var(--text-muted);">(for live NAV)</span></label>
+                <input type="number" id="invAmfiCode" placeholder="e.g. 119597">
+              </div>
+
+              <!-- Shares + SIP: Units held -->
+              <div class="form-field inv-conditional shares-sip-only hidden" id="invUnitsField">
+                <label id="invUnitsLabel">Number of Shares / Units</label>
+                <input type="number" id="invUnits" step="any" placeholder="e.g. 100">
+              </div>
+
+              <!-- Shares + SIP: Manual price override -->
+              <div class="form-field inv-conditional shares-sip-only hidden" id="invLivePriceField">
+                <label>Current Price / NAV (₹) <span style="font-size:9px;color:var(--text-muted);">manual override or auto-refreshed</span></label>
+                <input type="number" id="invLivePrice" step="any" placeholder="Optional — use Refresh Prices">
+              </div>
+
+              <!-- Notes -->
+              <div class="form-field" style="grid-column:1/-1;">
+                <label>Notes</label>
+                <input type="text" id="invNotes" placeholder="e.g. LIC policy no., HDFC Flexi FD, SBI ELSS, Zerodha folio…">
+              </div>
+            </div>
+
+            <!-- Live Calculation Preview (updated on input) -->
+            <div id="invCalcPreview" class="inv-calc-preview" style="display:none;">
+              <div class="icp-row">
+                <div class="icp-item">
+                  <div class="icp-label">Rate Used</div>
+                  <div class="icp-value" id="icpRate">—</div>
+                </div>
+                <div class="icp-item">
+                  <div class="icp-label">Value Today</div>
+                  <div class="icp-value" id="icpCurrent">—</div>
+                </div>
+                <div class="icp-item">
+                  <div class="icp-label">At Maturity</div>
+                  <div class="icp-value accent" id="icpMaturity">—</div>
+                </div>
+                <div class="icp-item">
+                  <div class="icp-label">Total Gain</div>
+                  <div class="icp-value green" id="icpGain">—</div>
+                </div>
+                <div class="icp-item">
+                  <div class="icp-label">Abs. Return</div>
+                  <div class="icp-value green" id="icpReturn">—</div>
+                </div>
+              </div>
+              <div class="icp-note" id="icpNote"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="margin-top:14px;">Add Investment</button>
+          </form>
+
+          <div class="stat-card" style="margin:20px 0;">
+            <div class="stat-card-title">Total Portfolio Wealth (True Value)</div>
+            <div class="stat-card-value" style="font-size:28px;" id="totalInvested">₹0</div>
+            <div class="stat-card-sub" id="investmentCount">0 investments tracked</div>
+          </div>
+
+          <div class="section-title">Portfolio Summary</div>
+          <div id="portfolioSummaryContainer">
+            <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">Add investments to see your portfolio breakdown.</div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+            <div>
+              <div class="section-title">Investment Breakdown</div>
+              <div class="chart-wrap" style="height:280px;"><canvas id="investmentChart"></canvas></div>
+            </div>
+            <div>
+              <div class="section-title">AI Financial Insight</div>
+              <div class="pro-tip-card" id="finTipCard">
+                <span class="pro-tip-icon">💡</span>
+                <div class="pro-tip-text" id="finTipText">Start adding investments to get personalized AI tips.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Wealth by Nature</div>
+          <div class="wealth-grid" id="wealthGrid">
+            <div class="wealth-card"><div class="wealth-icon">🏦</div><div class="wealth-label">Liquid</div><div class="wealth-amount">₹0</div><div class="wealth-sub">Deposits & savings</div></div>
+            <div class="wealth-card"><div class="wealth-icon">📈</div><div class="wealth-label">Growth</div><div class="wealth-amount">₹0</div><div class="wealth-sub">SIP, Shares, Equity</div></div>
+            <div class="wealth-card"><div class="wealth-icon">🛡️</div><div class="wealth-label">Secured</div><div class="wealth-amount">₹0</div><div class="wealth-sub">PPF, Bonds, Insurance</div></div>
+            <div class="wealth-card"><div class="wealth-icon">🏛️</div><div class="wealth-label">Retirement</div><div class="wealth-amount">₹0</div><div class="wealth-sub">EPF & pension</div></div>
+            <div class="wealth-card"><div class="wealth-icon">🏠</div><div class="wealth-label">Real Assets</div><div class="wealth-amount">₹0</div><div class="wealth-sub">Gold, Real Estate</div></div>
+            <div class="wealth-card"><div class="wealth-icon">⚡</div><div class="wealth-label">Speculative</div><div class="wealth-amount">₹0</div><div class="wealth-sub">Crypto, Other</div></div>
+          </div>
+
+          <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">Maturity &amp; Deadline Reminders<span id="maturityBadge" style="display:none;background:var(--accent-rose);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;"></span></div>
+          <div id="maturityAlertsMain">
+            <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:14px 0;">No maturities within 6 months. Add maturity dates when logging investments.</div>
+          </div>
+
+          <div class="section-title">Investment Portfolio</div>
+          <div id="investmentSections"></div>
+
+          <div class="section-title">AI Financial Tips</div>
+          <div class="ai-tips-grid" id="aiTipsContainer">
+            <div class="ai-tip-item">
+              <span class="ai-tip-icon">💡</span>
+              <div class="ai-tip-content">
+                <div class="ai-tip-title">Getting Started</div>
+                <div class="ai-tip-desc">Add your investments to receive AI-driven personalized financial tips based on your portfolio.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">Finance Help & Education</div>
+          <div id="finHelpContainer"></div>
+
+        </div><!-- end pane-main -->
+
+      </div><!-- end tab-layout-2 -->
+    </div><!-- end FINANCE TAB -->
+
+    <!-- ═ HEALTH TAB ═ -->
+    <div id="tab-health" class="tab-panel">
+      <div class="tab-layout-2">
+
+        <!-- ── LEFT SIDEBAR: Daily form + weekly stats ── -->
+        <div class="pane-left">
+
+          <div class="pane-card">
+            <div class="pane-card-title">❤️ Today's Health</div>
+            <form id="healthTodayForm">
+              <div class="health-form-row">
+                <div class="hf-item">
+                  <label for="hSleep">Sleep (hours)</label>
+                  <input type="number" id="hSleep" step="0.5" min="0" max="12">
+                </div>
+                <div class="hf-item">
+                  <label for="hPhone">Phone (hours)</label>
+                  <input type="number" id="hPhone" step="0.1" min="0" max="24">
+                </div>
+              </div>
+              <div style="display:flex;gap:20px;margin-bottom:8px;">
+                <div class="hf-toggle">
+                  <input type="checkbox" id="hGym">
+                  <label for="hGym">Gym Done</label>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📅 Weekly Summary</div>
+            <div class="health-stats-row" style="grid-template-columns:1fr;">
+              <div class="hs-card">
+                <div><div class="hs-label">Sleep Avg</div><div class="hs-value" id="hAvgSleep">—</div></div>
+                <div class="stat-indicator" id="hSleepStat"></div>
+              </div>
+              <div class="hs-card">
+                <div><div class="hs-label">Gym Sessions</div><div class="hs-value" id="hGymCount">0 / 0</div></div>
+                <div class="stat-indicator" id="hGymStat"></div>
+              </div>
+              <div class="hs-card">
+                <div><div class="hs-label">Phone Avg</div><div class="hs-value" id="hAvgPhone">—</div></div>
+                <div class="stat-indicator" id="hPhoneStat"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">🏋️ Gym Heatmap</div>
+            <div id="gymHeatmap" style="overflow-x:auto;"></div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN: Charts + Cholesterol ── -->
+        <div class="pane-main">
+
+          <div class="section-title">Sleep Trend (14 days)</div>
+          <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+
+          <div class="section-title">Phone Usage Trend (14 days)</div>
+          <div class="chart-wrap"><canvas id="phoneChart"></canvas></div>
+
+          <div class="section-title">Cholesterol Log</div>
+          <form id="cholForm">
+            <div class="fin-form-grid">
+              <div class="form-field"><label>Test Date</label><input type="date" id="cholDate"></div>
+              <div class="form-field"><label>LDL</label><input type="number" id="cholLDL" placeholder="130"></div>
+              <div class="form-field"><label>HDL</label><input type="number" id="cholHDL" placeholder="50"></div>
+              <div class="form-field"><label>Total</label><input type="number" id="cholTotal" placeholder="200"></div>
+              <div class="form-field" style="grid-column:1/-1;"><label>Notes</label><input type="text" id="cholNotes" placeholder="Optional"></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Log Test</button>
+          </form>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>LDL</th><th>HDL</th><th>Total</th><th>Notes</th><th>Action</th></tr></thead>
+              <tbody id="cholBody"><tr><td colspan="6" class="empty-td">No tests logged yet.</td></tr></tbody>
+            </table>
+          </div>
+
+          <div class="section-title">Cholesterol Trend</div>
+          <div class="chart-wrap"><canvas id="cholChart"></canvas></div>
+
+        </div><!-- end pane-main -->
+
+      </div><!-- end tab-layout-2 -->
+    </div><!-- end HEALTH TAB -->
+
+    <!-- ═ MIND TAB ═ -->
+    <div id="tab-mind" class="tab-panel">
+      <div class="tab-layout-2">
+
+        <!-- ── LEFT SIDEBAR: NoFap streak + daily check-in + protocol ── -->
+        <div class="pane-left">
+
+          <div class="pane-card" style="text-align:center;">
+            <div class="nofap-streak-num" id="nofapStreak" style="font-size:52px;">0</div>
+            <div class="nofap-days" id="nofapDays">days</div>
+            <div class="nofap-start" id="nofapStart" style="font-size:11px;margin-top:4px;">Not started</div>
+            <div class="nofap-badges" id="nofapBadges" style="justify-content:center;margin:12px 0;"></div>
+            <div class="nofap-actions">
+              <button class="btn btn-sm btn-primary" id="nofapStartBtn">Start Streak</button>
+              <button class="btn btn-sm btn-danger" id="nofapRelapseBtn" style="display:none;">Log Relapse</button>
+            </div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📋 Today's Check-in</div>
+            <form id="mindTodayForm">
+              <div class="form-field" style="margin-bottom:14px;">
+                <label>Loneliness (1–5)</label>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                  <input type="range" id="mLoneliness" min="1" max="5" value="1" style="flex:1;">
+                  <span id="mLonelinessLbl" style="font-size:11px;color:var(--text-muted);min-width:90px;">Not Lonely 😊</span>
+                </div>
+              </div>
+              <div class="form-field" style="margin-bottom:12px;">
+                <label for="mMeditation">Meditation (min)</label>
+                <input type="number" id="mMeditation" min="0" max="120" value="0">
+              </div>
+              <div class="hf-toggle">
+                <input type="checkbox" id="mParents">
+                <label for="mParents">Called Parents</label>
+              </div>
+            </form>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📖 Protocol</div>
+            <div style="color:var(--text-muted);font-size:12px;line-height:1.8;">
+              <p><strong>❌ Don't</strong> scroll reels. <strong>✅ Do</strong> 10-min action.</p>
+              <p><strong>Evening:</strong> 30-min walk, no phone.</p>
+              <p><strong>Last parents call:</strong><br><span id="lastParentsCall" style="color:var(--accent-teal);">Not logged yet</span></p>
+            </div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN: Charts + Relapse log ── -->
+        <div class="pane-main">
+
+          <div class="section-title">Loneliness Trend (14 days)</div>
+          <div class="chart-wrap"><canvas id="lonelinessChart"></canvas></div>
+
+          <div class="section-title">Meditation Trend (14 days)</div>
+          <div class="chart-wrap"><canvas id="meditationChart"></canvas></div>
+
+          <div class="section-title">Parents Call Frequency</div>
+          <div class="chart-wrap"><canvas id="parentsCallChart"></canvas></div>
+
+          <div class="section-title">Relapse Log</div>
+          <div class="relapse-panel open" id="relapsePanel">
+            <div class="form-field" style="margin-bottom:12px;">
+              <label for="relapseTrigger">Trigger</label>
+              <select id="relapseTrigger">
+                <option value="Loneliness">Loneliness (post-work evening)</option>
+                <option value="Boredom">Boredom (weekend)</option>
+                <option value="Stress">Stress (exam/work)</option>
+                <option value="Phone">Phone scrolling</option>
+                <option value="Isolation">Isolation (night)</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field" style="margin-bottom:12px;">
+              <label for="relapseNote">Note</label>
+              <input type="text" id="relapseNote" placeholder="Optional">
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" id="relapseSubmitBtn">Log & Restart</button>
+          </div>
+          <div class="relapse-log" id="relapseLog"></div>
+
+        </div><!-- end pane-main -->
+
+      </div><!-- end tab-layout-2 -->
+    </div><!-- end MIND TAB -->
+
+    <!-- ═ GROWTH TAB ═ -->
+    <div id="tab-growth" class="tab-panel">
+      <div class="tab-layout-2">
+
+        <!-- ── LEFT SIDEBAR: Career milestones + partner + charts ── -->
+        <div class="pane-left">
+
+          <div class="pane-card">
+            <div class="pane-card-title">🏆 Career Milestones</div>
+            <div id="careerGrid"></div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">💌 Contact Log</div>
+            <form id="partnerForm">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div class="form-field">
+                  <label for="pType">Type</label>
+                  <select id="pType">
+                    <option value="msg">💬 Message</option>
+                    <option value="call">📞 Call</option>
+                    <option value="meet">🤝 Meet</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="pNote">Note</label>
+                  <input type="text" id="pNote" placeholder="Optional context">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-sm btn-primary">Log Contact</button>
+            </form>
+            <div id="partnerLogContainer" style="margin-top:12px;"></div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">💑 Life Partner Framework</div>
+            <div style="color:var(--text-muted);font-size:12px;line-height:1.8;">
+              <p>1️⃣ <strong>Presence</strong> — Consistent, genuine message every 3–4 weeks.</p>
+              <p>2️⃣ <strong>Growth</strong> — Your Dubai + UPSC journey speaks for itself.</p>
+              <p>3️⃣ <strong>Safety</strong> — No pressure. Natural if mutual.</p>
+              <p style="margin-top:8px;color:var(--text-faint);font-size:11px;">Jul 2027 return → Meetings → Marriage window 2028–2029.</p>
+            </div>
+          </div>
+
+        </div><!-- end pane-left -->
+
+        <!-- ── MAIN: Books, Reviews, Summary charts ── -->
+        <div class="pane-main">
+
+          <div class="section-title">Books Queue</div>
+          <div class="books-container" id="booksContainer"></div>
+
+          <div class="section-title">Weekly Review (Sunday)</div>
+          <div id="weeklyReviewForm"></div>
+
+          <div class="section-title">Monthly Review</div>
+          <div id="monthlyReviewForm"></div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-top:28px;">
+            <div>
+              <div class="section-title" style="margin-top:0;">Weekly Review Scores</div>
+              <div class="chart-wrap" style="height:260px;"><canvas id="weeklyReviewChart"></canvas></div>
+            </div>
+            <div>
+              <div class="section-title" style="margin-top:0;">Monthly Growth Summary</div>
+              <div id="monthlyGrowthSummary"></div>
+            </div>
+          </div>
+
+        </div><!-- end pane-main -->
+
+      </div><!-- end tab-layout-2 -->
+    </div><!-- end GROWTH TAB -->
+
+    </main>
+
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- MISSION PHASES MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="calendar-modal" id="phasesModal">
+    <div class="calendar-content" style="max-width:660px;width:95%;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;">
+        <button style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" id="phasesClose">×</button>
+        <div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+            <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">🗺️ Mission Phases — 2026–2028</h2>
+            <p style="font-size:13px;color:var(--text-muted);">Your complete journey from Bangalore exit to UPSC success.</p>
+        </div>
+        <div id="phaseTimeline" style="flex:1;overflow-y:auto;"></div>
+    </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- CALENDAR MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="calendar-modal" id="calendarModal">
+    <div class="calendar-content">
+        <button style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text);" id="calendarClose">×</button>
+        <div class="calendar-header">
+            <button class="calendar-nav-btn" id="prevMonth">← Prev</button>
+            <h2 id="calendarMonthYear"></h2>
+            <button class="calendar-nav-btn" id="nextMonth">Next →</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- ONBOARDING MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="onboarding-modal" id="onboardingModal">
+    <div class="onboarding-content">
+        <button class="onboarding-close" id="onboardingClose">✕</button>
+
+        <div class="onboarding-screen active" data-screen="1">
+            <div class="obs-header">
+                <h1 style="font-size: 32px; margin-bottom: 8px;">🏹 Project Arjuna</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Master Your Path • 2026–2028 Holistic Life Plan</p>
+            </div>
+            <div class="obs-body">
+                <p style="margin-bottom: 16px; line-height: 1.8;">
+                    ATHENA is a comprehensive dashboard designed to help you structure your days, track your progress across six life domains, and conquer your UPSC preparation while building a fulfilling life.
+                </p>
+                <div class="obs-domains-preview">
+                    <div class="odp-item">📚 <strong>UPSC</strong> — Civil Service exam prep (586 classes)</div>
+                    <div class="odp-item">💰 <strong>Finance</strong> — Dubai savings goal (199,800 AED)</div>
+                    <div class="odp-item">❤️ <strong>Health</strong> — Sleep, gym, cholesterol tracking</div>
+                    <div class="odp-item">🧠 <strong>Mind</strong> — NoFap streaks, loneliness tracking</div>
+                    <div class="odp-item">🌱 <strong>Growth</strong> — Career milestones, books, reviews</div>
+                    <div class="odp-item">⏱️ <strong>Routine</strong> — Daily schedule & habit tracking</div>
+                </div>
+            </div>
+            <div class="obs-footer">
+                <button class="btn btn-sm btn-secondary" id="obs-skip">Skip Tour</button>
+                <button class="btn btn-sm btn-primary" id="obs-next-1">Next →</button>
+            </div>
+        </div>
+
+        <div class="onboarding-screen" data-screen="2">
+            <div class="obs-header">
+                <h1 style="font-size: 28px;">How to Use ATHENA</h1>
+            </div>
+            <div class="obs-body">
+                <h3 style="margin-bottom: 12px; color: var(--accent-blue);">📊 Dashboard Overview</h3>
+                <p style="margin-bottom: 16px; font-size: 13px;">
+                    The dashboard shows your progress across all 6 domains at a glance. You can click any domain card to jump to that tab. The dashboard can be toggled (collapsed) to focus on your daily routine.
+                </p>
+                <h3 style="margin-bottom: 12px; color: var(--accent-blue);">📋 Daily Routine</h3>
+                <p style="margin-bottom: 16px; font-size: 13px;">
+                    Each day has a tailored schedule based on your current life phase. Check off activities as you complete them. Your progress is tracked and displayed in real-time.
+                </p>
+                <h3 style="margin-bottom: 12px; color: var(--accent-blue);">⏰ Phase-Based Schedules</h3>
+                <p style="font-size: 13px;">
+                    Your plan spans 8 phases from May 2026 to May 2028. Each phase has its own schedule, tips, and milestones. The system automatically adjusts based on your current phase.
+                </p>
+            </div>
+            <div class="obs-footer">
+                <button class="btn btn-sm btn-secondary" id="obs-back-2">← Back</button>
+                <button class="btn btn-sm btn-primary" id="obs-next-2">Next →</button>
+            </div>
+        </div>
+
+        <div class="onboarding-screen" data-screen="3">
+            <div class="obs-header">
+                <h1 style="font-size: 28px;">Key Concepts</h1>
+            </div>
+            <div class="obs-body">
+                <h3 style="margin-bottom: 12px; color: var(--accent-teal);">🎯 Phases & Milestones</h3>
+                <p style="margin-bottom: 16px; font-size: 13px;">
+                    <strong>Notice Period</strong> (May–Jun 2026) → <strong>Dubai Settle</strong> (Jul–Sep) → <strong>Foundation</strong> (Oct–Mar) → <strong>Prelims Sprint</strong> (Apr–May 2027) and more. Each phase has specific goals.
+                </p>
+                <h3 style="margin-bottom: 12px; color: var(--accent-violet);">🔥 NoFap Streak</h3>
+                <p style="margin-bottom: 16px; font-size: 13px;">
+                    Track your mental discipline with a daily streak counter. The Mind tab logs relapses with triggers (loneliness, stress, etc.) for pattern analysis.
+                </p>
+                <h3 style="margin-bottom: 12px; color: var(--accent-amber);">💎 Data Persistence</h3>
+                <p style="font-size: 13px;">
+                    All your data is saved in your browser's local storage. Your progress persists across sessions. You can export your data anytime from the settings.
+                </p>
+            </div>
+            <div class="obs-footer">
+                <button class="btn btn-sm btn-secondary" id="obs-back-3">← Back</button>
+                <button class="btn btn-sm btn-primary" id="obs-next-3">Next →</button>
+            </div>
+        </div>
+
+        <div class="onboarding-screen" data-screen="4">
+            <div class="obs-header">
+                <h1 style="font-size: 28px;">Quick Start</h1>
+            </div>
+            <div class="obs-body">
+                <p style="margin-bottom: 20px; font-size: 13px;">
+                    <strong>You're all set!</strong> Here's how to get the most from ATHENA:
+                </p>
+                <div style="background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <p style="margin-bottom: 12px;">✅ <strong>Start here:</strong></p>
+                    <ul style="font-size: 13px; line-height: 2; color: var(--text-muted); list-style: none;">
+                        <li>📝 Log today's sleep (Health tab or quick check-in)</li>
+                        <li>✓ Mark completed activities in your routine</li>
+                        <li>📚 Pick an UPSC subject and start a class</li>
+                        <li>🧠 Check the Mind tab to start a NoFap streak</li>
+                    </ul>
+                </div>
+                <p style="font-size: 12px; color: var(--text-faint);">
+                    💡 <strong>Pro tip:</strong> Use the tabs to navigate between domains. Dark/Light theme toggle is in the header. Questions? Look for help icons (?) on each tab.
+                </p>
+            </div>
+            <div class="obs-footer">
+                <button class="btn btn-sm btn-secondary" id="obs-back-4">← Back</button>
+                <button class="btn btn-sm btn-primary" id="obs-finish">Start Using ATHENA →</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GLOSSARY MODAL -->
+<div class="glossary-modal" id="glossaryModal">
+    <div class="glossary-content">
+        <button class="glossary-close" id="glossaryClose">✕</button>
+        <h2>Glossary</h2>
+        <div class="glossary-list">
+            <div class="glos-item">
+                <strong>UPSC</strong> — Union Public Service Commission (Indian Civil Service Exam)
+            </div>
+            <div class="glos-item">
+                <strong>CSAT</strong> — Civil Service Aptitude Test (Paper 2 of UPSC Prelims)
+            </div>
+            <div class="glos-item">
+                <strong>CA</strong> — Current Affairs reading/study
+            </div>
+            <div class="glos-item">
+                <strong>GS</strong> — General Studies (Mains papers)
+            </div>
+            <div class="glos-item">
+                <strong>CKA</strong> — Certified Kubernetes Administrator (cloud certification)
+            </div>
+            <div class="glos-item">
+                <strong>NRI</strong> — Non-Resident Indian (bank account for international transfers)
+            </div>
+            <div class="glos-item">
+                <strong>SIP</strong> — Systematic Investment Plan (monthly investment)
+            </div>
+            <div class="glos-item">
+                <strong>AED</strong> — United Arab Emirates Dirham (currency)
+            </div>
+            <div class="glos-item">
+                <strong>INR</strong> — Indian Rupee (currency)
+            </div>
+            <div class="glos-item">
+                <strong>NoFap</strong> — Abstinence from pornography and masturbation for discipline
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- WITHDRAWAL MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="withdrawalModal">
+  <div class="fin-modal-box">
+    <div class="fin-modal-title">↩ Record Withdrawal</div>
+    <div class="fin-modal-sub" id="wdModalTitle">Investment</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px;" id="wdModalValue"></div>
+    <input type="hidden" id="wdModalInvId">
+    <div class="fin-form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-field">
+        <label>Withdrawal Date</label>
+        <input type="date" id="wdDate">
+      </div>
+      <div class="form-field">
+        <label>Amount Received (₹)</label>
+        <input type="number" id="wdAmount" step="any" placeholder="Enter actual amount">
+      </div>
+    </div>
+    <div class="fin-modal-actions">
+      <button class="btn btn-primary" id="wdConfirmBtn">✅ Confirm Withdrawal</button>
+      <button class="btn" id="wdCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- MATURITY MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="maturityModal">
+  <div class="fin-modal-box">
+    <div class="fin-modal-title">⏰ Investment Matured</div>
+    <div class="fin-modal-sub" id="matModalTitle">Investment</div>
+    <div style="font-size:13px;color:var(--accent-teal);font-weight:600;margin-bottom:16px;" id="matModalValue"></div>
+    <input type="hidden" id="matModalInvId">
+    <div class="fin-form-grid" style="grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-field">
+        <label>Date of Action</label>
+        <input type="date" id="matWithdrawalDate">
+      </div>
+      <div class="form-field">
+        <label>Amount (₹)</label>
+        <input type="number" id="matWithdrawnAmount" step="any" placeholder="Amount received / reinvested">
+      </div>
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-top:4px;margin-bottom:16px;">Enter the amount you received at maturity — for reinvestment this becomes the new principal.</p>
+    <div class="fin-modal-actions">
+      <button class="btn btn-primary" id="matWithdrawBtn">↩ Withdrew Funds</button>
+      <button class="btn" style="background:rgba(91,127,255,0.12);border-color:var(--accent-blue);color:var(--accent-blue);" id="matReinvestBtn">🔄 Reinvested</button>
+      <button class="btn" id="matCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+<!-- EDIT INVESTMENT MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="editInvModal">
+  <div class="fin-modal-box" style="max-width:520px;width:94%;">
+    <div class="fin-modal-title">✏️ Edit Investment</div>
+    <div class="fin-modal-sub" id="editInvTitle"></div>
+    <input type="hidden" id="editInvId">
+    <div class="fin-form-grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;">
+      <div class="form-field">
+        <label id="editInvAmtLabel">Amount (₹)</label>
+        <input type="number" id="editInvAmount" step="0.01" inputmode="decimal" min="0" placeholder="0">
+      </div>
+      <div class="form-field">
+        <label>Rate (% p.a.)</label>
+        <input type="number" id="editInvRate" step="0.01" placeholder="e.g. 7.1">
+      </div>
+      <div class="form-field">
+        <label>Bank / Institution</label>
+        <input type="text" id="editInvBank" placeholder="HDFC, SBI, Zerodha…">
+      </div>
+      <div class="form-field" id="editInvOpenBalRow" style="display:none;">
+        <label>Prior Corpus (₹)</label>
+        <input type="number" id="editInvOpenBal" step="any" placeholder="e.g. 305325">
+      </div>
+      <div class="form-field" id="editInvExchangeRow" style="display:none;">
+        <label>Stock Exchange</label>
+        <select id="editInvExchange">
+          <option value="NSE">NSE</option>
+          <option value="BSE">BSE</option>
+        </select>
+      </div>
+      <div class="form-field" id="editInvTickerRow" style="display:none;">
+        <label>Ticker Symbol</label>
+        <input type="text" id="editInvTicker" placeholder="RELIANCE" style="text-transform:uppercase;">
+      </div>
+      <div class="form-field" id="editInvUnitsRow" style="display:none;">
+        <label id="editInvUnitsLabel">Units / Shares</label>
+        <input type="number" id="editInvUnits" step="any" placeholder="100">
+      </div>
+      <div class="form-field" id="editInvAmfiRow" style="display:none;">
+        <label>AMFI Scheme Code</label>
+        <input type="number" id="editInvAmfi" placeholder="119597">
+      </div>
+      <div class="form-field" id="editInvLivePriceRow" style="display:none;">
+        <label id="editInvLivePriceLabel">Price / Share (₹)</label>
+        <input type="number" id="editInvLivePrice" step="any" placeholder="Current price">
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Notes</label>
+        <input type="text" id="editInvNotes" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="fin-modal-actions">
+      <button class="btn btn-primary" id="editInvSaveBtn">✅ Save Changes</button>
+      <button class="btn" id="editInvCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
+
+<div class="fin-modal-overlay" id="manualPriceModal">
+  <div class="fin-modal-box" style="max-width:560px;width:94%;">
+    <div class="fin-modal-title">&#x270F;&#xFE0F; Update Stock &amp; Fund Prices</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;background:rgba(91,127,255,0.07);padding:8px 10px;border-radius:6px;border-left:3px solid var(--accent-blue);">
+      Auto-fetch is blocked by browser CORS policy when running locally.
+      Enter today's prices from <strong>Zerodha / Groww / NSE India</strong> � saved locally for all calculations.
+    </div>
+    <div class="data-table-wrap" style="max-height:420px;">
+      <table class="data-table" style="font-size:12px;">
+        <thead><tr>
+          <th style="font-size:10px;padding:7px 10px;">Asset</th>
+          <th style="font-size:10px;padding:7px 10px;text-align:right;">Price / NAV (&#x20B9;)</th>
+        </tr></thead>
+        <tbody id="manualPriceRows"></tbody>
+      </table>
+    </div>
+    <div class="fin-modal-actions" style="margin-top:14px;">
+      <button class="btn btn-primary" id="mpSaveBtn">&#x2705; Save All Prices</button>
+      <button class="btn" id="mpCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTS (in order) -->
+<!-- ═════════════════════════════════════════════════════ -->
+<script src="js/phases.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/state.js"></script>
+<script src="js/scheduler.js"></script>
+<script src="js/upsc.js"></script>
+<script src="js/finance.js"></script>
+<script src="js/health.js"></script>
+<script src="js/mind.js"></script>
+<script src="js/growth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/events.js"></script>
+<script src="js/tooltips.js"></script>
+<script src="js/seed-data.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
+
+
