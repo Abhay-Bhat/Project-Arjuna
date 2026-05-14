@@ -1902,21 +1902,31 @@ const FinanceTracker = {
     AppState.investments = AppState.investments || [];
     const type   = formData.type;
     const bank   = formData.bankAccount || '';
-    const tenureRaw  = parseFloat(formData.tenure) || 0;
-    const tenureUnit = formData.tenureUnit || 'Years';
-    const tenure     = tenureRaw || INV_RATE_CONFIG[type]?.tenure || 0;
+    let tenureRaw  = parseFloat(formData.tenure) || 0;
+    let tenureUnit = formData.tenureUnit || 'Years';
+
+    let maturityDate = formData.maturityDate || '';
+
+    // Derive tenure from start → maturity when not explicitly entered
+    if (!tenureRaw && maturityDate && formData.date) {
+      const diffDays = Math.round((new Date(maturityDate) - new Date(formData.date)) / 86400000);
+      if (diffDays > 0) {
+        if (diffDays <= 90)       { tenureRaw = diffDays;                                    tenureUnit = 'Days';   }
+        else if (diffDays <= 730) { tenureRaw = Math.round(diffDays / 30.44);               tenureUnit = 'Months'; }
+        else                      { tenureRaw = parseFloat((diffDays / 365.25).toFixed(2)); tenureUnit = 'Years';  }
+      }
+    }
+
+    const tenure = tenureRaw || INV_RATE_CONFIG[type]?.tenure || 0;
 
     // Auto-detect rate if not provided
     let rate = parseFloat(formData.interestRate) || 0;
     if (!rate) rate = this.getAutoRate(type, bank, tenure).rate;
 
     // Auto-set maturity date if tenure given and maturity not set
-    let maturityDate = formData.maturityDate || '';
     if (!maturityDate && tenure && formData.date) {
       const start = new Date(formData.date);
-      const tenureInYears = this._tenureToYears
-        ? this._tenureToYears(tenure, tenureUnit)
-        : (tenureUnit === 'Days' ? tenure/365 : tenureUnit === 'Months' ? tenure/12 : tenure);
+      const tenureInYears = this._tenureToYears(tenure, tenureUnit);
       start.setDate(start.getDate() + Math.round(tenureInYears * 365));
       maturityDate = start.toISOString().split('T')[0];
     }
@@ -2389,18 +2399,42 @@ const FinanceTracker = {
     if (!form || form.dataset.rateBound) return;
     form.dataset.rateBound = '1';
 
-    const ids = ['invType','invBankAccount','invAmount','invTenure','invTenureUnit','invInterestRate','invDate','invInsuranceType','invTicker','invUnits','invAmfiCode','invOpeningBalance','invSIPMode','invDepositType'];
+    const ids = ['invType','invBankAccount','invAmount','invTenure','invTenureUnit','invInterestRate','invDate','invMaturityDate','invInsuranceType','invTicker','invUnits','invAmfiCode','invOpeningBalance','invSIPMode','invDepositType'];
     const getEl = id => document.getElementById(id);
 
     const update = () => {
-      const type       = getEl('invType')?.value       || '';
-      const bank       = getEl('invBankAccount')?.value || '';
-      const amount     = parseFloat(getEl('invAmount')?.value)  || 0;
-      const tenure     = parseFloat(getEl('invTenure')?.value)  || (INV_RATE_CONFIG[type]?.tenure || 1);
-      const tenureUnit = getEl('invTenureUnit')?.value || 'Years';
-      const sipMode    = getEl('invSIPMode')?.value || 'SIP';
-      const insType    = getEl('invInsuranceType')?.value || '';
-      const dateVal    = getEl('invDate')?.value || new Date().toISOString().split('T')[0];
+      const type           = getEl('invType')?.value       || '';
+      const bank           = getEl('invBankAccount')?.value || '';
+      const amount         = parseFloat(getEl('invAmount')?.value)  || 0;
+      const tenureRawStr   = getEl('invTenure')?.value || '';
+      const tenureRaw      = parseFloat(tenureRawStr) || 0;
+      const sipMode        = getEl('invSIPMode')?.value || 'SIP';
+      const insType        = getEl('invInsuranceType')?.value || '';
+      const dateVal        = getEl('invDate')?.value || new Date().toISOString().split('T')[0];
+      const maturityRaw    = getEl('invMaturityDate')?.value || '';
+
+      // Derive tenure from start → maturity when tenure field is empty
+      let tenure, tenureUnit;
+      if (tenureRaw) {
+        tenure     = tenureRaw;
+        tenureUnit = getEl('invTenureUnit')?.value || 'Years';
+      } else if (maturityRaw && dateVal) {
+        const diffDays = Math.round((new Date(maturityRaw) - new Date(dateVal)) / 86400000);
+        if (diffDays > 0) {
+          if (diffDays <= 90)       { tenure = diffDays;                                        tenureUnit = 'Days';   }
+          else if (diffDays <= 730) { tenure = Math.round(diffDays / 30.44);                   tenureUnit = 'Months'; }
+          else                      { tenure = parseFloat((diffDays / 365.25).toFixed(2));     tenureUnit = 'Years';  }
+          // Show derived value in the tenure field so calculations and preview use it
+          const tEl = getEl('invTenure'); const uEl = getEl('invTenureUnit');
+          if (tEl && !tEl.dataset.userEdited) { tEl.value = tenure; tEl.style.color = 'var(--text-muted)'; }
+          if (uEl && !tEl?.dataset.userEdited) uEl.value = tenureUnit;
+        } else {
+          tenure = INV_RATE_CONFIG[type]?.tenure || 1; tenureUnit = 'Years';
+        }
+      } else {
+        tenure     = INV_RATE_CONFIG[type]?.tenure || 1;
+        tenureUnit = getEl('invTenureUnit')?.value || 'Years';
+      }
 
       // Toggle type-specific fields
       const isIns      = type === 'Insurance';
@@ -2456,14 +2490,17 @@ const FinanceTracker = {
 
       const effectiveRate = userRate > 0 ? userRate : autoInfo.rate;
 
-      // Auto-fill maturity date if not set
+      // Auto-fill maturity date when tenure is explicitly entered and maturity is empty
       const matEl = getEl('invMaturityDate');
-      if (matEl && !matEl.value && tenure && dateVal) {
+      if (matEl && !matEl.value && tenureRaw && dateVal) {
         const start = new Date(dateVal);
         const tenureInYears = this._tenureToYears(tenure, tenureUnit);
         start.setDate(start.getDate() + Math.round(tenureInYears * 365));
         matEl.value = start.toISOString().split('T')[0];
       }
+      // Restore tenure field colour once user edits it directly
+      const tEl2 = getEl('invTenure');
+      if (tEl2 && tEl2.dataset.userEdited) tEl2.style.color = '';
 
       // Update amount label for RD
       if (isDeposits && amtLabel) {
@@ -2509,10 +2546,23 @@ const FinanceTracker = {
       });
     }
 
+    // Track when user manually types into the tenure field (vs. auto-derived)
+    const tenureEl = getEl('invTenure');
+    if (tenureEl) {
+      tenureEl.addEventListener('input', () => {
+        tenureEl.dataset.userEdited = tenureEl.value ? '1' : '';
+        tenureEl.style.color = '';
+        // Clear maturity so it can be re-derived from tenure
+        const mEl = getEl('invMaturityDate');
+        if (mEl && tenureEl.value) mEl.value = '';
+        update();
+      });
+    }
+
     ids.forEach(id => {
       const el = getEl(id);
-      if (el && id !== 'invInterestRate') el.addEventListener('change', update);
-      if (el && id !== 'invInterestRate') el.addEventListener('input',  update);
+      if (el && id !== 'invInterestRate' && id !== 'invTenure') el.addEventListener('change', update);
+      if (el && id !== 'invInterestRate' && id !== 'invTenure') el.addEventListener('input',  update);
     });
 
     update();

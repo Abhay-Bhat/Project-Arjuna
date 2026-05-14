@@ -563,9 +563,9 @@
                 <input type="number" id="invAmount" step="0.01" inputmode="decimal" placeholder="50000" min="0" required>
               </div>
               <div class="form-field inv-conditional not-shares">
-                <label>Tenure</label>
+                <label>Tenure <span style="font-size:9px;color:var(--text-muted);">(optional — set maturity date to auto-derive)</span></label>
                 <div style="display:flex;gap:6px;">
-                  <input type="number" id="invTenure" step="1" min="1" placeholder="e.g. 365" style="flex:1;">
+                  <input type="number" id="invTenure" step="any" min="0" placeholder="auto from dates" style="flex:1;">
                   <select id="invTenureUnit" style="width:90px;font-size:12px;padding:0 6px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);">
                     <option value="Years">Years</option>
                     <option value="Months">Months</option>
@@ -580,7 +580,7 @@
 
               <!-- Row 3: Maturity Date, Status -->
               <div class="form-field inv-conditional not-shares">
-                <label>Maturity Date <span style="font-size:10px;color:var(--text-muted);">(auto-calc or override)</span></label>
+                <label>Maturity Date <span style="font-size:10px;color:var(--text-muted);">(set this OR tenure — each derives the other)</span></label>
                 <input type="date" id="invMaturityDate">
               </div>
               <div class="form-field">
