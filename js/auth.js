@@ -137,7 +137,9 @@ const Auth = {
     const signOutBtn = document.getElementById('signOutBtn');
     if (signOutBtn) signOutBtn.style.display = 'inline-flex';
 
-    // Show local-mode badge if not syncing
+    const syncBtn = document.getElementById('syncNowBtn');
+    if (syncBtn) syncBtn.style.display = 'inline-flex';
+
     const localBadge = document.getElementById('localModeBadge');
     if (localBadge) localBadge.style.display = 'none';
   },
