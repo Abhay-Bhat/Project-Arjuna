@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Already signed in — merge cloud data into the running app
       CloudSync.init();
       await AppState.syncCloud();
+      CloudSync.startListening();
     }
     // If !user: overlay is showing; sign-in is handled by authSignInBtn click.
     // Auth.signInWithGoogle() calls CloudSync.init() + AppState.syncCloud() on success.

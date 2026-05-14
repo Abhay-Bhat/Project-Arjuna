@@ -1,18 +1,24 @@
 // ============================================================
 // ATHENA -- Cloud Sync (Firestore)
 //
-// Strategy: pull-on-load + push-on-save (no real-time listener).
+// Strategy: pull-on-load + push-on-save + real-time listener.
 // - On sign-in: pull() fetches the latest cloud state once.
-// - On every AppState.save(): push() writes to Firestore (debounced).
-// - No onSnapshot listener: eliminates all re-render / reload issues.
-//   Data syncs automatically when the app is opened on another device.
+// - On every AppState.save(): push() writes to Firestore (debounced 2s).
+//   Each push is tagged with a per-session _deviceId.
+// - startListening() registers an onSnapshot listener after the initial pull.
+//   Echo guard: skips snapshots where _deviceId === ours (our own writes).
+//   Staleness guard: skips snapshots older than the current local state.
+//   This combination prevents the re-render loop that plagued earlier attempts.
 // ============================================================
 
 const CloudSync = {
-  _db:        null,
-  _enabled:   false,
-  _pushTimer: null,
-  _hideTimer: null,
+  _db:          null,
+  _enabled:     false,
+  _pushTimer:   null,
+  _hideTimer:   null,
+  _deviceId:    Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+  _unsubscribe: null,
+  _lastPulledAt: null,
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -41,6 +47,7 @@ const CloudSync = {
       if (!snap.exists) return null;
       const data = snap.data();
       delete data._ts;
+      this._lastPulledAt = data._savedAt || null;
       return data;
     } catch (e) {
       console.warn('CloudSync: pull failed --', e.message);
@@ -57,6 +64,7 @@ const CloudSync = {
       this._setSyncStatus('syncing');
       this._ref
         .set(Object.assign({}, payload, {
+          _deviceId: this._deviceId,
           _ts: firebase.firestore.FieldValue.serverTimestamp()
         }))
         .then(() => this._setSyncStatus('synced'))
@@ -66,6 +74,47 @@ const CloudSync = {
         });
       this._pushTimer = null;
     }, 2000);
+  },
+
+  startListening() {
+    if (!this._enabled || !this._ref || this._unsubscribe) return;
+    this._unsubscribe = this._ref.onSnapshot(
+      { includeMetadataChanges: true },
+      async (snap) => {
+        // Layer 1: skip in-flight optimistic writes from local cache
+        if (!snap.exists || snap.metadata.hasPendingWrites) return;
+
+        const cloudData = snap.data();
+        delete cloudData._ts;
+
+        // Layer 2: skip our own confirmed writes (device-ID echo guard)
+        if (cloudData._deviceId === this._deviceId) return;
+        delete cloudData._deviceId;
+
+        // Layer 3: skip if not newer than current local state
+        const localData = await Storage.load();
+        const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
+        const cloudTs = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime() : 0;
+        if (cloudTs <= localTs) return;
+
+        // Genuine update from another device — apply without triggering a push
+        AppState._applyLoaded(cloudData);
+        Storage.save(cloudData);
+        if (typeof UI !== 'undefined') {
+          UI.updateAll();
+          UI.showToast('Updated from another device');
+        }
+        this._setSyncStatus('synced');
+      },
+      (err) => { console.warn('CloudSync: listener error --', err.message); }
+    );
+  },
+
+  stopListening() {
+    if (this._unsubscribe) {
+      this._unsubscribe();
+      this._unsubscribe = null;
+    }
   },
 
   _setSyncStatus(status) {
