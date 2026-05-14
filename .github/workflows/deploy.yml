@@ -33,6 +33,10 @@ jobs:
           printf '  messagingSenderId: "%s",\n' "$FIREBASE_MESSAGING_SENDER_ID"      >> js/firebase-config.js
           printf '  appId:             "%s"\n'  "$FIREBASE_APP_ID"                   >> js/firebase-config.js
           printf '};\n'                                                               >> js/firebase-config.js
+          # Allow the deploy action to include this generated file.
+          # peaceiris/actions-gh-pages uses git internally and respects .gitignore,
+          # so firebase-config.js would be silently excluded without this line.
+          sed -i '/firebase-config\.js/d' .gitignore
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
