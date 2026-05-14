@@ -16,7 +16,14 @@ const CloudSync = {
   _enabled:     false,
   _pushTimer:   null,
   _hideTimer:   null,
-  _deviceId:         Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+  // Stored in localStorage so every tab in the same browser shares one ID.
+  // Prevents cross-tab echo: Tab A saves → Tab B sees its own deviceId → skips.
+  _deviceId: (() => {
+    const KEY = 'athena_device_id';
+    let id = localStorage.getItem(KEY);
+    if (!id) { id = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2); localStorage.setItem(KEY, id); }
+    return id;
+  })(),
   _unsubscribe:      null,
   _lastPulledAt:     null,
   _lastSeenServerMs: 0,
