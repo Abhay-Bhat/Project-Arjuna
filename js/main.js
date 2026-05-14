@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     SeedData.apply();
     UI.init();
     Events.init();
+    CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
     // Live clock + day-change watcher
     const clockEl = document.getElementById('liveClockDisplay');

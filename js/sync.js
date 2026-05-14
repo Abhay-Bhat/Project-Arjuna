@@ -27,6 +27,8 @@ const CloudSync = {
   _unsubscribe:      null,
   _lastPulledAt:     null,
   _lastSeenServerMs: 0,
+  // BroadcastChannel: same-browser, cross-tab sync (no Firestore round-trip needed)
+  _bc: (() => { try { return new BroadcastChannel('athena_sync'); } catch { return null; } })(),
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -69,6 +71,7 @@ const CloudSync = {
   // Debounced push -- coalesces rapid saves into one Firestore write.
   // Fires 2 s after the LAST save, so checking 10 items in a row = 1 write.
   push(payload) {
+    this._broadcastToTabs(payload); // notify other tabs immediately (works even in local-only mode)
     if (!this._enabled || !this._ref) return;
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
@@ -131,6 +134,29 @@ const CloudSync = {
       this._unsubscribe();
       this._unsubscribe = null;
     }
+    if (this._bc) this._bc.onmessage = null;
+  },
+
+  // Starts BroadcastChannel listener for same-browser, cross-tab sync.
+  // Safe to call unconditionally — works in local-only mode too.
+  startBroadcastListening() {
+    if (!this._bc) return;
+    this._bc.onmessage = (ev) => {
+      const data = ev.data;
+      if (!data) return;
+      AppState._applyLoaded(data);
+      Storage.save(data);
+      if (typeof UI !== 'undefined') {
+        UI.updateAll();
+        UI.showToast('Updated from another tab');
+      }
+      this._setSyncStatus('synced');
+    };
+  },
+
+  _broadcastToTabs(payload) {
+    if (!this._bc) return;
+    try { this._bc.postMessage(payload); } catch {}
   },
 
   _setSyncStatus(status) {
