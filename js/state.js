@@ -52,28 +52,27 @@ const AppState = {
 
   // ─────────────────────────────────────────────────────────
 
+  // Phase 1 — always runs first, uses only local IndexedDB/localStorage
   async init() {
     await Storage.init();
-    const localData = await Storage.load();
-
-    // Pull from cloud — if cloud data is available and the user is signed in,
-    // use whichever copy is newer (cloud wins if timestamps are equal or missing).
-    const cloudData = await CloudSync.pull();
-    let data = localData;
-
-    if (cloudData) {
-      const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
-      const cloudTs = cloudData?._savedAt ? new Date(cloudData._savedAt).getTime() : 1;
-      if (cloudTs >= localTs) {
-        data = cloudData;
-        Storage.save(cloudData); // Persist cloud data locally
-      }
-    }
-
+    const data = await Storage.load();
     if (data) this._applyLoaded(data);
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
+  },
 
-    // Start real-time listener for changes pushed from other devices
+  // Phase 2 — runs after auth is confirmed; merges cloud data and starts listener
+  async syncCloud() {
+    const cloudData = await CloudSync.pull();
+    if (cloudData) {
+      const localData = await Storage.load();
+      const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
+      const cloudTs  = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime()  : 1;
+      if (cloudTs >= localTs) {
+        this._applyLoaded(cloudData);
+        Storage.save(cloudData);
+        if (typeof UI !== 'undefined') UI.updateAll();
+      }
+    }
     CloudSync.startListener();
   },
 

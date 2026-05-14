@@ -8,7 +8,6 @@ const Auth = {
   _user:       null,
   _localOnly:  false,
   _configured: false,
-  _signInResolvers: [],
 
   // Call once before anything else. Returns a Promise that
   // resolves when the initial auth state is known.
@@ -87,9 +86,9 @@ const Auth = {
       this._applyUserUI(this._user);
       this._hideOverlay();
 
-      // Resolve any pending waitForSignIn() callers
-      this._signInResolvers.forEach(r => r(this._user));
-      this._signInResolvers = [];
+      // Init cloud sync and merge cloud data into the already-running app
+      CloudSync.init();
+      AppState.syncCloud();
     } catch (e) {
       console.error('ATHENA: Sign-in failed:', e);
       if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
@@ -101,14 +100,6 @@ const Auth = {
         errEl.style.display = 'block';
       }
     }
-  },
-
-  // Returns a Promise that resolves only when the user successfully signs in.
-  waitForSignIn() {
-    if (this._user || this._localOnly) return Promise.resolve(this._user);
-    return new Promise((resolve) => {
-      this._signInResolvers.push(resolve);
-    });
   },
 
   // ── Sign-out ──────────────────────────────────────────────
