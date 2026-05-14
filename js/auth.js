@@ -57,12 +57,12 @@ const Auth = {
           return;
         }
 
-        // Subsequent state changes (e.g. signed out on another tab)
+        // Subsequent state changes (sign-out)
         if (user) {
           this._applyUserUI(user);
           this._hideOverlay();
         } else {
-          location.reload();
+          this._showOverlay();
         }
       });
     });
