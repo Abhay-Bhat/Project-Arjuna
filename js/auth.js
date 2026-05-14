@@ -15,7 +15,8 @@ const Auth = {
     return new Promise((resolve) => {
 
       const cfg = (typeof FIREBASE_CONFIG !== 'undefined') ? FIREBASE_CONFIG : null;
-      const isPlaceholder = !cfg || cfg.apiKey === 'YOUR_API_KEY';
+      // Also catch empty-string keys that occur when GitHub Actions secrets are not set
+      const isPlaceholder = !cfg || !cfg.apiKey || cfg.apiKey === 'YOUR_API_KEY';
 
       if (isPlaceholder || typeof firebase === 'undefined') {
         console.warn('ATHENA: Firebase not configured — running in local-only mode.');
@@ -38,6 +39,17 @@ const Auth = {
         resolve(null);
         return;
       }
+
+      // Consume any pending redirect sign-in result (mobile flow).
+      // Errors here are non-fatal — the auth state listener below handles the user.
+      firebase.auth().getRedirectResult().catch((e) => {
+        console.warn('ATHENA: redirect sign-in error --', e.code);
+        const errEl = document.getElementById('authError');
+        if (errEl && e.code !== 'auth/no-auth-event') {
+          errEl.textContent = 'Sign-in failed. Please try again.';
+          errEl.style.display = 'block';
+        }
+      });
 
       // Single listener handles both the initial state and subsequent changes.
       // initialFire flag prevents the sign-out reload from triggering on startup.
@@ -76,19 +88,34 @@ const Auth = {
   // ── Sign-in ───────────────────────────────────────────────
   async signInWithGoogle() {
     if (!this._configured) return;
-    const btn = document.getElementById('authSignInBtn');
+    const btn    = document.getElementById('authSignInBtn');
+    const errEl  = document.getElementById('authError');
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
+    if (errEl) errEl.style.display = 'none';
+
+    const provider  = new firebase.auth.GoogleAuthProvider();
+    const isMobile  = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+
+    // Mobile: redirect is more reliable than popup (popups are frequently
+    // blocked by Android Chrome, Samsung Internet, and iOS Safari).
+    // Desktop: popup first, redirect as fallback if popup is blocked.
+    if (isMobile) {
+      await firebase.auth().signInWithRedirect(provider);
+      return; // page navigates away — onAuthStateChanged handles the return
+    }
 
     try {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      const result   = await firebase.auth().signInWithPopup(provider);
-      // Reload once — Firebase persists the session so the user stays
-      // signed in, the app boots fresh and pulls cloud data cleanly.
+      await firebase.auth().signInWithPopup(provider);
       location.reload();
     } catch (e) {
+      if (e.code === 'auth/popup-blocked' ||
+          e.code === 'auth/operation-not-supported-in-this-environment') {
+        // Popup was blocked by the browser — silently fall back to redirect
+        await firebase.auth().signInWithRedirect(provider);
+        return;
+      }
       console.error('ATHENA: Sign-in failed:', e);
       if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
-      const errEl = document.getElementById('authError');
       if (errEl) {
         errEl.textContent = e.code === 'auth/popup-closed-by-user'
           ? 'Sign-in cancelled.'
