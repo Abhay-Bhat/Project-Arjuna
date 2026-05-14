@@ -16,9 +16,19 @@ const CloudSync = {
   _enabled:     false,
   _pushTimer:   null,
   _hideTimer:   null,
-  _deviceId:    Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
-  _unsubscribe: null,
-  _lastPulledAt: null,
+  // Stored in localStorage so every tab in the same browser shares one ID.
+  // Prevents cross-tab echo: Tab A saves → Tab B sees its own deviceId → skips.
+  _deviceId: (() => {
+    const KEY = 'athena_device_id';
+    let id = localStorage.getItem(KEY);
+    if (!id) { id = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2); localStorage.setItem(KEY, id); }
+    return id;
+  })(),
+  _unsubscribe:      null,
+  _lastPulledAt:     null,
+  _lastSeenServerMs: 0,
+  // BroadcastChannel: same-browser, cross-tab sync (no Firestore round-trip needed)
+  _bc: (() => { try { return new BroadcastChannel('athena_sync'); } catch { return null; } })(),
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -46,7 +56,10 @@ const CloudSync = {
       const snap = await this._ref.get();
       if (!snap.exists) return null;
       const data = snap.data();
+      // Record server timestamp as baseline for the real-time listener
+      this._lastSeenServerMs = data._ts?.toMillis?.() || 0;
       delete data._ts;
+      delete data._deviceId;
       this._lastPulledAt = data._savedAt || null;
       return data;
     } catch (e) {
@@ -58,6 +71,7 @@ const CloudSync = {
   // Debounced push -- coalesces rapid saves into one Firestore write.
   // Fires 2 s after the LAST save, so checking 10 items in a row = 1 write.
   push(payload) {
+    this._broadcastToTabs(payload); // notify other tabs immediately (works even in local-only mode)
     if (!this._enabled || !this._ref) return;
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
@@ -80,22 +94,27 @@ const CloudSync = {
     if (!this._enabled || !this._ref || this._unsubscribe) return;
     this._unsubscribe = this._ref.onSnapshot(
       { includeMetadataChanges: true },
-      async (snap) => {
+      (snap) => {
         // Layer 1: skip in-flight optimistic writes from local cache
         if (!snap.exists || snap.metadata.hasPendingWrites) return;
 
         const cloudData = snap.data();
-        delete cloudData._ts;
+        const serverMs  = cloudData._ts?.toMillis?.() || 0;
+
+        // Always advance our server-timestamp baseline (even for own writes),
+        // so future updates are compared against the latest known server time.
+        const prevServerMs = this._lastSeenServerMs;
+        this._lastSeenServerMs = Math.max(this._lastSeenServerMs, serverMs);
 
         // Layer 2: skip our own confirmed writes (device-ID echo guard)
         if (cloudData._deviceId === this._deviceId) return;
+
+        delete cloudData._ts;
         delete cloudData._deviceId;
 
-        // Layer 3: skip if not newer than current local state
-        const localData = await Storage.load();
-        const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
-        const cloudTs = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime() : 0;
-        if (cloudTs <= localTs) return;
+        // Layer 3: skip if not newer than last server timestamp we've seen.
+        // Uses Firestore server time — immune to device clock differences.
+        if (serverMs <= prevServerMs) return;
 
         // Genuine update from another device — apply without triggering a push
         AppState._applyLoaded(cloudData);
@@ -115,6 +134,29 @@ const CloudSync = {
       this._unsubscribe();
       this._unsubscribe = null;
     }
+    if (this._bc) this._bc.onmessage = null;
+  },
+
+  // Starts BroadcastChannel listener for same-browser, cross-tab sync.
+  // Safe to call unconditionally — works in local-only mode too.
+  startBroadcastListening() {
+    if (!this._bc) return;
+    this._bc.onmessage = (ev) => {
+      const data = ev.data;
+      if (!data) return;
+      AppState._applyLoaded(data);
+      Storage.save(data);
+      if (typeof UI !== 'undefined') {
+        UI.updateAll();
+        UI.showToast('Updated from another tab');
+      }
+      this._setSyncStatus('synced');
+    };
+  },
+
+  _broadcastToTabs(payload) {
+    if (!this._bc) return;
+    try { this._bc.postMessage(payload); } catch {}
   },
 
   _setSyncStatus(status) {

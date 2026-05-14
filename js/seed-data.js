@@ -89,6 +89,7 @@ const SeedData = {
     const before = AppState.investments.length;
 
     // Build sets of what is seeded
+    const seededTypes    = new Set(this._investments.map(s => s.type));
     const seededTickers  = new Set(this._investments.filter(s => s.type === 'Shares').map(s => s.ticker));
     const seededSIPNames = new Set(this._investments.filter(s => s.type === 'SIP').map(s => s.bankAccount));
     const seededInsNames = new Set(this._investments.filter(s => s.type === 'Insurance').map(s => s.bankAccount));
@@ -96,8 +97,9 @@ const SeedData = {
     AppState.investments = AppState.investments.filter(inv => {
       if (inv.seedId) return true;          // already seeded → keep
       const t = inv.type;
-      // Single-account types: remove any entry without a seedId
-      if (t === 'PPF' || t === 'EPF') return false;
+      // Single-account types: only remove if a seed exists for that type.
+      // PPF has no seed entry, so user-created PPF is always preserved.
+      if ((t === 'PPF' || t === 'EPF') && seededTypes.has(t)) return false;
       // Shares: remove if same ticker is seeded
       if (t === 'Shares' && seededTickers.has(inv.ticker)) return false;
       // SIP: remove if same fund name is seeded
