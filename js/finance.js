@@ -1302,7 +1302,7 @@ const FinanceTracker = {
   const sipInvs = all.filter(i => i.type === 'SIP');
   const sipTbl = tbl(sipInvs, [
     { h: 'Fund / Platform', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
-    { h: 'Amount', v: i => `<div style="font-weight:700;">₹${L(i.amount)}<span style="font-size:9px;color:var(--text-muted);">/mo</span></div>`, s: 'text-align:right;' },
+    { h: 'Amount', v: i => `<div style="font-weight:700;">₹${L(i.amount)}${i.sipMode !== 'LumpSum' ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`, s: 'text-align:right;' },
     { h: 'AMFI Code', v: i => i.amfiCode ? `<span style="font-family:'Space Mono',monospace;font-size:10px;">${i.amfiCode}</span>` : '<span style="color:var(--text-muted);">—</span>' },
     { h: 'Units', v: i => i.units ? `<span style="font-family:'Space Mono',monospace;font-size:11px;">${i.units.toFixed(3)}</span>` : '—', s: 'text-align:right;' },
     { h: 'Live NAV', v: i => i.livePrice ? `<span style="color:var(--accent-teal);">₹${i.livePrice.toFixed(4)}</span>` : '—', s: 'text-align:right;font-size:11px;' },
