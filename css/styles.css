@@ -2961,3 +2961,10 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   color: var(--text-muted);
   cursor: help;
 }
+.sync-now-btn { min-width: 72px; font-size: 12px; padding: 5px 10px; gap: 4px; }
+.sync-now-btn.syncing { border-color: var(--accent-amber); color: var(--accent-amber); }
+.sync-now-btn.synced  { border-color: var(--accent-green); color: var(--accent-green); }
+.sync-now-btn.error   { border-color: var(--accent-rose);  color: var(--accent-rose);  }
+.sync-now-icon { display: inline-block; }
+@keyframes spin-icon { to { transform: rotate(360deg); } }
+.sync-now-btn.syncing .sync-now-icon { animation: spin-icon 0.8s linear infinite; }

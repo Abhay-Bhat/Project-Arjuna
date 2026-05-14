@@ -29,6 +29,7 @@ const CloudSync = {
   _lastSeenServerMs: 0,
   // BroadcastChannel: same-browser, cross-tab sync (no Firestore round-trip needed)
   _bc: (() => { try { return new BroadcastChannel('athena_sync'); } catch { return null; } })(),
+  _btnResetTimer: null,
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -160,21 +161,47 @@ const CloudSync = {
   },
 
   _setSyncStatus(status) {
+    // ── brief flash badge (write activity indicator) ──────────────────────
     const el = document.getElementById('syncStatus');
-    if (!el) return;
-    const map = {
-      syncing: { text: 'Syncing...', cls: 'syncing' },
-      synced:  { text: 'Synced',     cls: 'synced'  },
-      error:   { text: 'Sync error', cls: 'error'   }
-    };
-    const s = map[status] || map.synced;
-    el.textContent   = s.text;
-    el.className     = 'sync-badge ' + s.cls;
-    el.style.display = 'inline-flex';
+    if (el) {
+      const map = {
+        syncing: { text: 'Syncing...', cls: 'syncing' },
+        synced:  { text: 'Synced',     cls: 'synced'  },
+        error:   { text: 'Sync error', cls: 'error'   }
+      };
+      const s = map[status] || map.synced;
+      el.textContent   = s.text;
+      el.className     = 'sync-badge ' + s.cls;
+      el.style.display = 'inline-flex';
+      if (status === 'synced') {
+        clearTimeout(this._hideTimer);
+        this._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+      }
+    }
 
-    if (status === 'synced') {
-      clearTimeout(this._hideTimer);
-      this._hideTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    // ── persistent sync button (reflects live activity) ───────────────────
+    const btn  = document.getElementById('syncNowBtn');
+    const icon = document.getElementById('syncNowIcon');
+    if (!btn || btn.disabled) return; // don't override a manual click in progress
+    clearTimeout(this._btnResetTimer);
+    btn.classList.remove('syncing', 'synced', 'error');
+    if (status === 'syncing') {
+      btn.classList.add('syncing');
+      if (icon) icon.textContent = '⟳';
+    } else if (status === 'synced') {
+      btn.classList.add('synced');
+      if (icon) icon.textContent = '✓';
+      this._btnResetTimer = setTimeout(() => {
+        btn.classList.remove('synced');
+        if (icon) icon.textContent = '☁';
+      }, 3000);
+    } else if (status === 'error') {
+      btn.classList.add('error');
+      if (icon) icon.textContent = '!';
+      this._btnResetTimer = setTimeout(() => {
+        btn.classList.remove('error');
+        if (icon) icon.textContent = '☁';
+      }, 4000);
     }
   }
 };

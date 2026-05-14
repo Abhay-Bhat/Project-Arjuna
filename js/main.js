@@ -53,6 +53,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('signOutBtn')?.addEventListener('click', async () => {
       if (confirm('Sign out of ATHENA?')) await Auth.signOut();
     });
+    document.getElementById('syncNowBtn')?.addEventListener('click', async () => {
+      const btn  = document.getElementById('syncNowBtn');
+      const icon = document.getElementById('syncNowIcon');
+      if (!btn || btn.disabled) return;
+      btn.disabled = true;
+      btn.classList.add('syncing');
+      if (icon) icon.textContent = '⟳';
+      await AppState.syncCloud();
+      btn.classList.remove('syncing');
+      btn.classList.add('synced');
+      if (icon) icon.textContent = '✓';
+      setTimeout(() => {
+        btn.classList.remove('synced');
+        if (icon) icon.textContent = '☁';
+        btn.disabled = false;
+      }, 2000);
+    });
 
     // Auth.init() resolves with the current user (or null).
     // It shows the sign-in overlay if the user is not authenticated.
