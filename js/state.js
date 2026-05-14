@@ -60,20 +60,16 @@ const AppState = {
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
   },
 
-  // Phase 2 -- runs once after sign-in; merges cloud data if it is newer
+  // Phase 2 -- runs once after sign-in; applies cloud data unconditionally.
+  // No timestamp comparison: UI.init() renders immediately and calls AppState.save()
+  // which stamps _savedAt = NOW, making any cloud data look stale.  Cloud wins on
+  // load because it represents the latest state across all devices.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
     if (!cloudData) return;
-
-    const localData = await Storage.load();
-    const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
-    const cloudTs = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime() : 1;
-
-    if (cloudTs >= localTs) {
-      this._applyLoaded(cloudData);
-      Storage.save(cloudData);
-      if (typeof UI !== 'undefined') UI.updateAll();
-    }
+    this._applyLoaded(cloudData);
+    Storage.save(cloudData);
+    if (typeof UI !== 'undefined') UI.updateAll();
   },
 
   _applyLoaded(d) {
