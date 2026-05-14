@@ -16,9 +16,10 @@ const CloudSync = {
   _enabled:     false,
   _pushTimer:   null,
   _hideTimer:   null,
-  _deviceId:    Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
-  _unsubscribe: null,
-  _lastPulledAt: null,
+  _deviceId:         Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+  _unsubscribe:      null,
+  _lastPulledAt:     null,
+  _lastSeenServerMs: 0,
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -46,7 +47,10 @@ const CloudSync = {
       const snap = await this._ref.get();
       if (!snap.exists) return null;
       const data = snap.data();
+      // Record server timestamp as baseline for the real-time listener
+      this._lastSeenServerMs = data._ts?.toMillis?.() || 0;
       delete data._ts;
+      delete data._deviceId;
       this._lastPulledAt = data._savedAt || null;
       return data;
     } catch (e) {
@@ -80,22 +84,27 @@ const CloudSync = {
     if (!this._enabled || !this._ref || this._unsubscribe) return;
     this._unsubscribe = this._ref.onSnapshot(
       { includeMetadataChanges: true },
-      async (snap) => {
+      (snap) => {
         // Layer 1: skip in-flight optimistic writes from local cache
         if (!snap.exists || snap.metadata.hasPendingWrites) return;
 
         const cloudData = snap.data();
-        delete cloudData._ts;
+        const serverMs  = cloudData._ts?.toMillis?.() || 0;
+
+        // Always advance our server-timestamp baseline (even for own writes),
+        // so future updates are compared against the latest known server time.
+        const prevServerMs = this._lastSeenServerMs;
+        this._lastSeenServerMs = Math.max(this._lastSeenServerMs, serverMs);
 
         // Layer 2: skip our own confirmed writes (device-ID echo guard)
         if (cloudData._deviceId === this._deviceId) return;
+
+        delete cloudData._ts;
         delete cloudData._deviceId;
 
-        // Layer 3: skip if not newer than current local state
-        const localData = await Storage.load();
-        const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
-        const cloudTs = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime() : 0;
-        if (cloudTs <= localTs) return;
+        // Layer 3: skip if not newer than last server timestamp we've seen.
+        // Uses Firestore server time — immune to device clock differences.
+        if (serverMs <= prevServerMs) return;
 
         // Genuine update from another device — apply without triggering a push
         AppState._applyLoaded(cloudData);
