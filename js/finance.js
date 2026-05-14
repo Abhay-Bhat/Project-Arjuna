@@ -383,6 +383,17 @@ const FinanceTracker = {
     return t; // default: Years
   },
 
+  // For RD: derive actual tenure in months from maturity date when available.
+  // Maturity date is always more accurate than the stored tenure field, which
+  // can be stale (e.g. user entered "1 Year" but the FD receipt says 18 months).
+  _rdTenureMonths(inv) {
+    if (inv.maturityDate && inv.date) {
+      const diffDays = Math.round((new Date(inv.maturityDate) - new Date(inv.date)) / 86400000);
+      if (diffDays > 0) return Math.max(Math.round(diffDays / 30.44), 1);
+    }
+    return Math.round(this._tenureToYears(inv.tenure || 1, inv.tenureUnit || 'Years') * 12) || 12;
+  },
+
   // Months elapsed since startDate
   _monthsElapsed(startDate) {
     const start = new Date(startDate);
@@ -493,11 +504,10 @@ const FinanceTracker = {
       }
       case 'Deposits': {
         if (inv.depositType === 'RD') {
-          // Recurring Deposit: monthly instalments, monthly compounding
+          // Recurring Deposit: monthly instalments, monthly compounding.
+          // Cap at the actual RD tenure (derived from maturity date if stored).
           if (!start) return P;
-          const tenureYrs    = this._tenureToYears(inv.tenure || 1, inv.tenureUnit || 'Years');
-          const tenureMonths = Math.round(tenureYrs * 12) || 12;
-          // Cap at tenure — once the RD matures the instalment stream stops
+          const tenureMonths = this._rdTenureMonths(inv);
           const m  = Math.min(Math.max(this._monthsElapsed(start), 1), tenureMonths);
           if (r === 0) return P * m;
           const mr = r / 12;
@@ -589,15 +599,15 @@ const FinanceTracker = {
         return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
       }
       case 'Deposits': {
-        const tenureYrs = this._tenureToYears(n, inv.tenureUnit || 'Years');
         if (inv.depositType === 'RD') {
-          // RD maturity: monthly instalments over full tenure
-          const m  = Math.round(tenureYrs * 12) || 1;
+          // RD maturity: use actual tenure derived from maturity date when available
+          const m  = this._rdTenureMonths(inv);
           if (r === 0) return P * m;
           const mr = r / 12;
           return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
         }
         // FD: lump-sum quarterly compounding
+        const tenureYrs = this._tenureToYears(n, inv.tenureUnit || 'Years');
         return Math.round(P * Math.pow(1 + r / 4, 4 * tenureYrs));
       }
       case 'Gold': {
@@ -625,8 +635,7 @@ const FinanceTracker = {
       }
       case 'Deposits': {
         if (inv.depositType === 'RD') {
-          const tenureYrs    = this._tenureToYears(inv.tenure || 1, inv.tenureUnit || 'Years');
-          const tenureMonths = Math.round(tenureYrs * 12) || 12;
+          const tenureMonths = this._rdTenureMonths(inv);
           const m = Math.min(this._monthsElapsed(start), tenureMonths);
           return P * Math.max(m, 1);
         }
