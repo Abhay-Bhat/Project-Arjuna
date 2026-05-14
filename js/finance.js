@@ -68,7 +68,7 @@ const INV_RATE_CONFIG = {
   PPF:        { rate: 7.1,  tenure: 15, compound: 'annual_fy',  amtLabel: 'Annual Contribution (₹)',  max: 150000, note: 'Govt. rate revised quarterly. Interest credited Mar 31 each FY. Max ₹1.5L/yr. Enter "Prior Corpus" if account pre-existed your start date.' },
   EPF:        { rate: 8.25, tenure: 30, compound: 'monthly_ann',amtLabel: 'Monthly Employee Contribution (₹)', note: 'EPFO rate FY 2023-24. Includes 3.67% employer match to EPF.' },
   SIP:        { rate: 12.0, tenure: 10, compound: 'monthly',    amtLabel: 'Monthly SIP Amount (₹)',   note: 'Historical Nifty 50 CAGR. Not guaranteed — market-linked. Use 12% as baseline.' },
-  Deposits:   { rate: 7.0,  tenure: 1,  compound: 'quarterly',  amtLabel: 'Principal Amount (₹)',     note: 'Rate auto-detected from bank name. Compounded quarterly.' },
+  Deposits:   { rate: 7.0,  tenure: 1,  compound: 'quarterly',  amtLabel: 'Principal Amount (₹)',     note: 'FD: lump-sum, quarterly compounding. RD: monthly instalment, monthly compounding. Rate auto-detected from bank name.' },
   Shares:     { rate: 12.0, tenure: 10, compound: 'annual',     amtLabel: 'Amount Invested (₹)',      note: 'Historical Nifty 50 CAGR. Not guaranteed.' },
   Bonds:      { rate: 7.2,  tenure: 5,  compound: 'annual',     amtLabel: 'Investment Amount (₹)',    note: 'Avg. Govt. savings bond yield. Use actual coupon rate for corporate bonds.' },
   Gold:       { rate: 10.5, tenure: 8,  compound: 'annual',     amtLabel: 'Investment Amount (₹)',    note: 'SGB: 2.5% fixed interest + ~8% gold price CAGR = ~10.5% total est.' },
@@ -492,7 +492,16 @@ const FinanceTracker = {
         return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
       }
       case 'Deposits': {
-        // Quarterly compounding from start date
+        if (inv.depositType === 'RD') {
+          // Recurring Deposit: monthly instalments, monthly compounding
+          if (!start) return P;
+          const m  = Math.max(this._monthsElapsed(start), 1);
+          if (r === 0) return P * m;
+          const mr = r / 12;
+          // Value of m equal monthly instalments of P, each compounded for remaining months
+          return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
+        }
+        // FD: lump-sum quarterly compounding
         if (!start || r === 0) return P;
         const t = this._yearsElapsed(start);
         return Math.round(P * Math.pow(1 + r / 4, 4 * t));
@@ -579,6 +588,14 @@ const FinanceTracker = {
       }
       case 'Deposits': {
         const tenureYrs = this._tenureToYears(n, inv.tenureUnit || 'Years');
+        if (inv.depositType === 'RD') {
+          // RD maturity: monthly instalments over full tenure
+          const m  = Math.round(tenureYrs * 12) || 1;
+          if (r === 0) return P * m;
+          const mr = r / 12;
+          return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
+        }
+        // FD: lump-sum quarterly compounding
         return Math.round(P * Math.pow(1 + r / 4, 4 * tenureYrs));
       }
       case 'Gold': {
@@ -603,6 +620,13 @@ const FinanceTracker = {
         const fys    = this._completedFYs(start);
         const openBal = inv.openingBalance || 0;
         return openBal + (fys + 1) * P; // +1 for current ongoing year's deposit
+      }
+      case 'Deposits': {
+        if (inv.depositType === 'RD') {
+          const m = this._monthsElapsed(start);
+          return P * Math.max(m, 1);
+        }
+        return P; // FD: one lump-sum deposit
       }
       case 'SIP': {
         if (inv.sipMode === 'LumpSum') return P; // one-time investment
@@ -1277,9 +1301,10 @@ const FinanceTracker = {
   const fdInvs = all.filter(i => i.type === 'Deposits').sort((a, b) => (a.maturityDate || '').localeCompare(b.maturityDate || ''));
   const fdTbl = tbl(fdInvs, [
     { h: 'Bank', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
-    { h: 'Principal', v: i => `₹${L(i.amount)}`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
+    { h: 'Type', v: i => { const isRD = i.depositType === 'RD'; return `<span style="font-size:11px;font-weight:700;color:${isRD ? 'var(--accent-violet)' : 'var(--accent-teal)'};">${isRD ? 'RD' : 'FD'}</span>`; } },
+    { h: 'Amount', v: i => { const isRD = i.depositType === 'RD'; return `<div style="font-weight:700;">₹${L(i.amount)}${isRD ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`; }, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.getTotalInvestedAmount(i), 0))} inv` },
     { h: 'Rate', v: i => `${i.interestRate || '—'}%` },
-    { h: 'Tenure', v: i => i.tenure ? `${i.tenure}yr` : '—' },
+    { h: 'Tenure', v: i => i.tenure ? `${i.tenure} ${i.tenureUnit || 'yr'}` : '—' },
     { h: 'Start', v: i => `<span style="color:var(--text-muted);font-size:10px;">${i.date || '—'}</span>` },
     { h: 'Maturity Date', v: matDateHtml },
     { h: 'Value Today', v: i => `<span style="font-weight:700;">₹${L(this.calculateInvestmentWealth(i))}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.calculateInvestmentWealth(i), 0))}` },
@@ -1903,6 +1928,7 @@ const FinanceTracker = {
       tenureUnit,
       maturityDate,
       status:           formData.status || 'active',
+      depositType:      formData.depositType || 'FD',
       insuranceType:    formData.insuranceType || '',
       sipMode:          formData.sipMode || 'SIP',
       coverAmount:      parseFloat(formData.coverAmount) || 0,
@@ -2256,13 +2282,19 @@ const FinanceTracker = {
     document.getElementById('editInvLivePrice').value   = inv.livePrice || '';
     document.getElementById('editInvOpenBal').value     = inv.openingBalance || '';
 
+    const isDeposits = inv.type === 'Deposits';
     const show = (id, vis) => { const el = document.getElementById(id); if (el) el.style.display = vis ? '' : 'none'; };
+    show('editInvDepositTypeRow', isDeposits);
     show('editInvExchangeRow', isShares);
     show('editInvTickerRow',    isShares);
     show('editInvUnitsRow',     isShares || isSIP);
     show('editInvAmfiRow',      isSIP);
     show('editInvLivePriceRow', isShares || isSIP);
     show('editInvOpenBalRow',   isPPF);
+    if (isDeposits) {
+      const dtEl = document.getElementById('editInvDepositType');
+      if (dtEl) dtEl.value = inv.depositType || 'FD';
+    }
     document.getElementById('editInvUnitsLabel').textContent     = isShares ? 'Number of Shares' : 'Units Held';
     document.getElementById('editInvLivePriceLabel').textContent = isShares ? 'Price / Share (₹)' : 'Current NAV (₹)';
     document.getElementById('editInvModal').classList.add('open');
@@ -2288,6 +2320,9 @@ const FinanceTracker = {
     upd('notes',         'editInvNotes',     v => v || '');
     upd('openingBalance','editInvOpenBal',   v => parseFloat(v) || 0);
 
+    if (inv.type === 'Deposits') {
+      inv.depositType = document.getElementById('editInvDepositType')?.value || 'FD';
+    }
     if (inv.type === 'Shares' || inv.type === 'SIP') {
       inv.ticker    = (document.getElementById('editInvTicker')?.value || '').toUpperCase().replace(/[^A-Z0-9&]/g, '');
       inv.units     = parseFloat(document.getElementById('editInvUnits')?.value) || 0;
@@ -2350,7 +2385,7 @@ const FinanceTracker = {
     if (!form || form.dataset.rateBound) return;
     form.dataset.rateBound = '1';
 
-    const ids = ['invType','invBankAccount','invAmount','invTenure','invTenureUnit','invInterestRate','invDate','invInsuranceType','invTicker','invUnits','invAmfiCode','invOpeningBalance','invSIPMode'];
+    const ids = ['invType','invBankAccount','invAmount','invTenure','invTenureUnit','invInterestRate','invDate','invInsuranceType','invTicker','invUnits','invAmfiCode','invOpeningBalance','invSIPMode','invDepositType'];
     const getEl = id => document.getElementById(id);
 
     const update = () => {
@@ -2364,14 +2399,16 @@ const FinanceTracker = {
       const dateVal    = getEl('invDate')?.value || new Date().toISOString().split('T')[0];
 
       // Toggle type-specific fields
-      const isIns    = type === 'Insurance';
-      const isShares = type === 'Shares';
-      const isSIP    = type === 'SIP';
-      const isPPF    = type === 'PPF';
+      const isIns      = type === 'Insurance';
+      const isShares   = type === 'Shares';
+      const isSIP      = type === 'SIP';
+      const isPPF      = type === 'PPF';
+      const isDeposits = type === 'Deposits';
       document.querySelectorAll('.insurance-only').forEach(el => el.classList.toggle('hidden', !isIns));
       document.querySelectorAll('.shares-only').forEach(el => el.classList.toggle('hidden', !isShares));
       document.querySelectorAll('.sip-only').forEach(el => el.classList.toggle('hidden', !isSIP));
       document.querySelectorAll('.shares-sip-only').forEach(el => el.classList.toggle('hidden', !isShares && !isSIP));
+      document.querySelectorAll('.deposits-only').forEach(el => el.classList.toggle('hidden', !isDeposits));
       const isEPF = type === 'EPF';
       document.querySelectorAll('.ppf-only').forEach(el => el.classList.toggle('hidden', !isPPF));
       document.querySelectorAll('.ppf-epf-only').forEach(el => el.classList.toggle('hidden', !isPPF && !isEPF));
@@ -2424,9 +2461,16 @@ const FinanceTracker = {
         matEl.value = start.toISOString().split('T')[0];
       }
 
+      // Update amount label for RD
+      if (isDeposits && amtLabel) {
+        const depType = getEl('invDepositType')?.value || 'FD';
+        amtLabel.textContent = depType === 'RD' ? 'Monthly Instalment (₹)' : 'Principal Amount (₹)';
+      }
+
       // Show preview (not applicable for Shares — value comes from live price)
       if (amount > 0 && !isShares) {
-        const mockInv = { type, amount, bankAccount: bank, interestRate: effectiveRate, tenure, tenureUnit, sipMode, date: dateVal, insuranceType: insType };
+        const depositType = getEl('invDepositType')?.value || 'FD';
+        const mockInv = { type, amount, bankAccount: bank, interestRate: effectiveRate, tenure, tenureUnit, sipMode, date: dateVal, insuranceType: insType, depositType };
         const currentVal  = this.calculateCurrentValue(mockInv);
         const maturityVal = this.calculateMaturityAmount(mockInv);
         const totalInv    = this.getTotalInvestedAmount(mockInv);
