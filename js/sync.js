@@ -29,7 +29,9 @@ const CloudSync = {
   _lastSeenServerMs: 0,
   // BroadcastChannel: same-browser, cross-tab sync (no Firestore round-trip needed)
   _bc: (() => { try { return new BroadcastChannel('athena_sync'); } catch { return null; } })(),
-  _btnResetTimer: null,
+  _btnResetTimer:   null,
+  _suppressBC:      false,   // true while applying a received BC message — breaks the re-broadcast loop
+  _suppressBCTimer: null,
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -145,6 +147,13 @@ const CloudSync = {
     this._bc.onmessage = (ev) => {
       const data = ev.data;
       if (!data) return;
+      // Suppress re-broadcasting for long enough to outlast the save (300ms)
+      // + push (2000ms) debounce chain that UI.updateAll() will trigger.
+      // Without this, Tab A → BC → Tab B → UI.updateAll() → save → push →
+      // broadcastToTabs → Tab A → loop.
+      this._suppressBC = true;
+      clearTimeout(this._suppressBCTimer);
+      this._suppressBCTimer = setTimeout(() => { this._suppressBC = false; }, 2500);
       AppState._applyLoaded(data);
       Storage.save(data);
       if (typeof UI !== 'undefined') {
@@ -156,7 +165,7 @@ const CloudSync = {
   },
 
   _broadcastToTabs(payload) {
-    if (!this._bc) return;
+    if (!this._bc || this._suppressBC) return;
     try { this._bc.postMessage(payload); } catch {}
   },
 
