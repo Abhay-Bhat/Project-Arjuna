@@ -39,31 +39,31 @@ const Auth = {
         return;
       }
 
-      // onAuthStateChanged fires immediately with the cached auth state
-      const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-        unsubscribe(); // We only need the first emission for init
+      // Single listener handles both the initial state and subsequent changes.
+      // initialFire flag prevents the sign-out reload from triggering on startup.
+      let initialFire = true;
+      firebase.auth().onAuthStateChanged((user) => {
         this._user = user;
 
+        if (initialFire) {
+          initialFire = false;
+          if (user) {
+            this._applyUserUI(user);
+            this._hideOverlay();
+          } else {
+            this._showOverlay();
+          }
+          resolve(user);
+          return;
+        }
+
+        // Subsequent state changes (e.g. signed out on another tab)
         if (user) {
           this._applyUserUI(user);
           this._hideOverlay();
         } else {
-          this._showOverlay();
+          location.reload();
         }
-
-        resolve(user);
-
-        // Keep watching for subsequent changes (sign-out from another tab)
-        firebase.auth().onAuthStateChanged((u) => {
-          this._user = u;
-          if (u) {
-            this._applyUserUI(u);
-            this._hideOverlay();
-          } else {
-            // User signed out — reload so the app resets cleanly
-            location.reload();
-          }
-        });
       });
     });
   },
