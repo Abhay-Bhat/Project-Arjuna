@@ -13,6 +13,7 @@ const UI = {
     this._bindGlossary();
     this._bindKeyboardShortcuts();
     MindTracker.bindEvents();
+    this._fetchQuote(); // Fetch once per session — not on every updateAll()
     this.updateAll();
   },
 
@@ -186,7 +187,6 @@ const UI = {
   updateAll() {
     this._renderHeader();
     this._renderMilestoneBanner();
-    this._fetchQuote();          // Quote strip is persistent across all tabs
     this._renderTab(AppState.currentTab);
     this._setActiveTab(AppState.currentTab);
   },
