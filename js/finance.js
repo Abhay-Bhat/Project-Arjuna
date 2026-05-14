@@ -495,10 +495,12 @@ const FinanceTracker = {
         if (inv.depositType === 'RD') {
           // Recurring Deposit: monthly instalments, monthly compounding
           if (!start) return P;
-          const m  = Math.max(this._monthsElapsed(start), 1);
+          const tenureYrs    = this._tenureToYears(inv.tenure || 1, inv.tenureUnit || 'Years');
+          const tenureMonths = Math.round(tenureYrs * 12) || 12;
+          // Cap at tenure — once the RD matures the instalment stream stops
+          const m  = Math.min(Math.max(this._monthsElapsed(start), 1), tenureMonths);
           if (r === 0) return P * m;
           const mr = r / 12;
-          // Value of m equal monthly instalments of P, each compounded for remaining months
           return Math.round(P * ((Math.pow(1 + mr, m) - 1) / mr) * (1 + mr));
         }
         // FD: lump-sum quarterly compounding
@@ -623,7 +625,9 @@ const FinanceTracker = {
       }
       case 'Deposits': {
         if (inv.depositType === 'RD') {
-          const m = this._monthsElapsed(start);
+          const tenureYrs    = this._tenureToYears(inv.tenure || 1, inv.tenureUnit || 'Years');
+          const tenureMonths = Math.round(tenureYrs * 12) || 12;
+          const m = Math.min(this._monthsElapsed(start), tenureMonths);
           return P * Math.max(m, 1);
         }
         return P; // FD: one lump-sum deposit
