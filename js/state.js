@@ -60,20 +60,20 @@ const AppState = {
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
   },
 
-  // Phase 2 — runs after auth is confirmed; merges cloud data and starts listener
+  // Phase 2 -- runs once after sign-in; merges cloud data if it is newer
   async syncCloud() {
     const cloudData = await CloudSync.pull();
-    if (cloudData) {
-      const localData = await Storage.load();
-      const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
-      const cloudTs  = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime()  : 1;
-      if (cloudTs >= localTs) {
-        this._applyLoaded(cloudData);
-        Storage.save(cloudData);
-        if (typeof UI !== 'undefined') UI.updateAll();
-      }
+    if (!cloudData) return;
+
+    const localData = await Storage.load();
+    const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
+    const cloudTs = cloudData._savedAt  ? new Date(cloudData._savedAt).getTime() : 1;
+
+    if (cloudTs >= localTs) {
+      this._applyLoaded(cloudData);
+      Storage.save(cloudData);
+      if (typeof UI !== 'undefined') UI.updateAll();
     }
-    CloudSync.startListener();
   },
 
   _applyLoaded(d) {
