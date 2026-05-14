@@ -101,6 +101,7 @@ const Auth = {
   // ── Sign-out ──────────────────────────────────────────────
   async signOut() {
     if (!this._configured) return;
+    CloudSync.stopListening();
     await firebase.auth().signOut();
     location.reload();
   },
