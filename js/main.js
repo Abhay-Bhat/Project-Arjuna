@@ -1,41 +1,62 @@
 // ============================================================
 // ATHENA — Bootstrap
+// Auth gate → Cloud Sync init → State load → UI boot
 // ============================================================
 
-console.log('🏹 Project Arjuna starting...');
+console.log('🏹 Project Arjuna starting…');
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // AppState.init() is now async — it waits for IndexedDB to open and loads data
+    // 1. Resolve auth state (resolves immediately if Firebase is not configured)
+    const user = await Auth.init();
+
+    // 2. Bind the sign-in button on the overlay
+    document.getElementById('authSignInBtn')?.addEventListener('click', () => {
+      Auth.signInWithGoogle();
+    });
+
+    // 3. Bind the sign-out button in the header
+    document.getElementById('signOutBtn')?.addEventListener('click', async () => {
+      if (confirm('Sign out of ATHENA?')) {
+        await Auth.signOut();
+      }
+    });
+
+    // 4. If Firebase is configured and user is not yet signed in, wait
+    if (!user && !Auth.isLocalOnly) {
+      await Auth.waitForSignIn();
+    }
+
+    // 5. Show local-mode badge if running without Firebase
+    if (Auth.isLocalOnly) Auth.applyLocalModeUI();
+
+    // 6. Init cloud sync (no-op when local-only)
+    CloudSync.init();
+
+    // 7. Load AppState (merges local + cloud, starts real-time listener)
     await AppState.init();
 
-    // Seed pre-populated data (runs once; skips already-inserted entries)
+    // 8. Seed pre-populated data (runs once; skips already-inserted entries)
     SeedData.apply();
 
-    // Initialize UPSC schedule only if explicitly needed
-    // UPSCTracker.initSchedule(false);
-
-    // Boot UI
+    // 9. Boot UI
     UI.init();
     Events.init();
 
-    // Live clock + day-change watcher
+    // 10. Live clock + day-change watcher
     const clockEl = document.getElementById('liveClockDisplay');
     let _lastDay = new Date().toDateString();
 
     function tickClock() {
-      const now = new Date();
+      const now    = new Date();
       const nowDay = now.toDateString();
 
-      // Update live clock
       if (clockEl) {
         clockEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
       }
 
-      // If the day has changed, re-sync
       if (nowDay !== _lastDay) {
         _lastDay = nowDay;
-        // Advance selectedDate only if it was tracking "yesterday"
         const yesterday = new Date(now);
         yesterday.setDate(yesterday.getDate() - 1);
         if (AppState.selectedDate.toDateString() === yesterday.toDateString()) {
@@ -47,21 +68,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    tickClock(); // run immediately
-    setInterval(tickClock, 30000); // refresh every 30s
+    tickClock();
+    setInterval(tickClock, 30000);
 
     console.log('✅ ATHENA ready');
-  } catch(err) {
+  } catch (err) {
     console.error('❌ Boot error:', err);
   }
 });
 
-// Debug helpers
+// Debug helpers (available in browser console as ATHENA.*)
 window.ATHENA = {
-  state:          () => AppState,
-  phase:          () => PhaseManager.getPhase(),
-  regenSchedule:  () => { UPSCTracker.initSchedule(true); UI.updateAll(); },
-  clearState:     () => { localStorage.removeItem('athena_v2'); location.reload(); },
-  dumpUPSC:       (date) => UPSCTracker.getForDate(date || AppState.getTodayKey()),
-  milestones:     () => PhaseManager.getUpcomingMilestones(5)
+  state:         () => AppState,
+  phase:         () => PhaseManager.getPhase(),
+  regenSchedule: () => { UPSCTracker.initSchedule(true); UI.updateAll(); },
+  clearState:    () => { localStorage.removeItem('athena_v2'); location.reload(); },
+  dumpUPSC:      (date) => UPSCTracker.getForDate(date || AppState.getTodayKey()),
+  milestones:    () => PhaseManager.getUpcomingMilestones(5),
+  syncNow:       () => AppState._doSave(),
+  authUser:      () => Auth.user
 };

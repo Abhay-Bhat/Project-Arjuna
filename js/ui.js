@@ -293,7 +293,7 @@ const UI = {
     const grid = document.getElementById('domainsGrid');
     if (!grid) return;
 
-    const upscDone = AppState.upscProgress?.classes_done || 0;
+    const upscDone = Object.values(AppState.upscSubjectProgress || {}).reduce((s, n) => s + n, 0);
     const upscTotal = 586;
     const upscPct = Math.round((upscDone / upscTotal) * 100);
 
@@ -385,25 +385,34 @@ const UI = {
     if (!textEl || !authorEl) return;
 
     const fallbacks = [
-      { q: 'Discipline beats motivation when motivation fades.',                   a: 'Anonymous' },
-      { q: 'The man who moves a mountain begins by carrying away small stones.',   a: 'Confucius' },
-      { q: 'It is not that I am smart, it is just that I stay with problems longer.', a: 'Einstein' },
+      { q: 'Discipline beats motivation when motivation fades.',                       a: 'Anonymous' },
+      { q: 'The man who moves a mountain begins by carrying away small stones.',       a: 'Confucius' },
+      { q: 'It is not that I am smart, it is just that I stay with problems longer.',  a: 'Einstein' },
       { q: 'A small daily task, if it be really daily, will beat the labours of a spasmodic Hercules.', a: 'Anthony Trollope' },
-      { q: 'Every expert was once a beginner.',                                    a: 'Helen Hayes' }
+      { q: 'Every expert was once a beginner.',                                         a: 'Helen Hayes' }
     ];
+
+    const apply = (q, a) => {
+      textEl.textContent   = '"' + q + '"';
+      authorEl.textContent = '— ' + a;
+    };
+
+    // Cache quote for the day — avoid a network hit on every tab switch
+    const today     = new Date().toDateString();
+    const cached    = JSON.parse(localStorage.getItem('athena_quote') || 'null');
+    if (cached?.date === today) { apply(cached.q, cached.a); return; }
 
     fetch('https://zenquotes.io/api/random', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const q = data?.[0]?.q; const a = data?.[0]?.a;
         if (!q) throw new Error();
-        textEl.textContent   = '"' + q + '"';
-        authorEl.textContent = '— ' + a;
+        localStorage.setItem('athena_quote', JSON.stringify({ date: today, q, a }));
+        apply(q, a);
       })
       .catch(() => {
         const f = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-        textEl.textContent   = '"' + f.q + '"';
-        authorEl.textContent = '— ' + f.a;
+        apply(f.q, f.a);
       });
   },
 
@@ -694,7 +703,7 @@ const UI = {
     const tbody = document.getElementById('upscScheduleBody');
     if (!tbody) return;
 
-    const completed = AppState.upscProgress || {};
+    const completed = AppState.upscSubjectProgress || {};
 
     const getDateRange = (subj) => {
       if (subj.priority === 1) {

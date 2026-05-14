@@ -53,11 +53,28 @@ const AppState = {
   // ─────────────────────────────────────────────────────────
 
   async init() {
-    // Initialise IndexedDB storage engine first, then load state
     await Storage.init();
-    const d = await Storage.load();
-    if (d) this._applyLoaded(d);
+    const localData = await Storage.load();
+
+    // Pull from cloud — if cloud data is available and the user is signed in,
+    // use whichever copy is newer (cloud wins if timestamps are equal or missing).
+    const cloudData = await CloudSync.pull();
+    let data = localData;
+
+    if (cloudData) {
+      const localTs = localData?._savedAt ? new Date(localData._savedAt).getTime() : 0;
+      const cloudTs = cloudData?._savedAt ? new Date(cloudData._savedAt).getTime() : 1;
+      if (cloudTs >= localTs) {
+        data = cloudData;
+        Storage.save(cloudData); // Persist cloud data locally
+      }
+    }
+
+    if (data) this._applyLoaded(data);
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
+
+    // Start real-time listener for changes pushed from other devices
+    CloudSync.startListener();
   },
 
   _applyLoaded(d) {
@@ -97,13 +114,6 @@ const AppState = {
     }
   },
 
-  _load() {
-    const raw = localStorage.getItem('athena_v2');
-    if (!raw) return;
-    try { this._applyLoaded(JSON.parse(raw)); }
-    catch(e) { console.error('State load error:', e); }
-  },
-
   save() {
     // Debounce saves to reduce localStorage writes
     if (this._savePending) clearTimeout(this._savePending);
@@ -115,6 +125,7 @@ const AppState = {
 
   _doSave() {
     const payload = {
+      _savedAt: new Date().toISOString(), // Timestamp for cloud conflict resolution
       selectedDate: this.selectedDate.toISOString(),
       calendarMonth: this.calendarMonth.toISOString(),
       currentTab: this.currentTab,
@@ -144,8 +155,8 @@ const AppState = {
       partnerLog: this.partnerLog,
       dubaiChecklist: this.dubaiChecklist
     };
-    // Primary: IndexedDB (GiB capacity). Automatic fallback to localStorage inside Storage.save()
     Storage.save(payload);
+    CloudSync.push(payload); // Push to Firestore (no-op when not configured)
   },
 
   // ── Date helpers ─────────────────────────────────────────
@@ -338,6 +349,7 @@ const AppState = {
       monthlyExpenses: this.monthlyExpenses,
       healthLog: this.healthLog,
       cholesterol: this.cholesterol,
+      caLog: this.caLog,
       nofapLog: this.nofapLog,
       mindLog: this.mindLog,
       careerLog: this.careerLog,
