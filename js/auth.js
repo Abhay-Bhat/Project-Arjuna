@@ -15,7 +15,8 @@ const Auth = {
     return new Promise((resolve) => {
 
       const cfg = (typeof FIREBASE_CONFIG !== 'undefined') ? FIREBASE_CONFIG : null;
-      const isPlaceholder = !cfg || cfg.apiKey === 'YOUR_API_KEY';
+      // Also catch empty-string keys that occur when GitHub Actions secrets are not set
+      const isPlaceholder = !cfg || !cfg.apiKey || cfg.apiKey === 'YOUR_API_KEY';
 
       if (isPlaceholder || typeof firebase === 'undefined') {
         console.warn('ATHENA: Firebase not configured — running in local-only mode.');
