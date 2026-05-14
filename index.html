@@ -619,6 +619,15 @@
                 </select>
               </div>
 
+              <!-- Deposits-only: FD vs RD -->
+              <div class="form-field inv-conditional deposits-only hidden" id="invDepositTypeField">
+                <label>Deposit Type</label>
+                <select id="invDepositType">
+                  <option value="FD">FD — Fixed Deposit (lump sum)</option>
+                  <option value="RD">RD — Recurring Deposit (monthly)</option>
+                </select>
+              </div>
+
               <!-- PPF / EPF: Opening Balance / Current Corpus -->
               <div class="form-field inv-conditional ppf-epf-only hidden" id="invOpenBalField">
                 <label id="invOpenBalLabel">Prior Corpus (₹) <span style="font-size:9px;color:var(--text-muted);">Existing balance before this entry's start date</span></label>
@@ -1272,6 +1281,13 @@
       <div class="form-field">
         <label>Bank / Institution</label>
         <input type="text" id="editInvBank" placeholder="HDFC, SBI, Zerodha…">
+      </div>
+      <div class="form-field" id="editInvDepositTypeRow" style="display:none;">
+        <label>Deposit Type</label>
+        <select id="editInvDepositType">
+          <option value="FD">FD — Fixed Deposit</option>
+          <option value="RD">RD — Recurring Deposit</option>
+        </select>
       </div>
       <div class="form-field" id="editInvOpenBalRow" style="display:none;">
         <label>Prior Corpus (₹)</label>

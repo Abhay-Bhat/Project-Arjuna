@@ -58,6 +58,7 @@ const Events = {
         tenure:           parseFloat(document.getElementById('invTenure')?.value) || 0,
         tenureUnit:       document.getElementById('invTenureUnit')?.value || 'Years',
         status:           document.getElementById('invStatus')?.value || 'active',
+        depositType:      document.getElementById('invDepositType')?.value || 'FD',
         insuranceType:    type === 'Insurance' ? (document.getElementById('invInsuranceType')?.value || '') : '',
         sipMode:          document.getElementById('invSIPMode')?.value || 'SIP',
         coverAmount:      document.getElementById('invCoverAmount')?.value || 0,
@@ -75,7 +76,7 @@ const Events = {
       ['invType','invAmount','invNotes','invDate','invBankAccount','invMaturityDate',
        'invTenure','invTenureUnit','invInsuranceType','invCoverAmount','invInterestRate',
        'invOpeningBalance','invExchange','invTicker','invUnits','invAmfiCode','invLivePrice',
-       'invSIPMode'].forEach(id => {
+       'invSIPMode','invDepositType'].forEach(id => {
         const el = document.getElementById(id);
         if (el) { el.value = ''; delete el.dataset.userEdited; }
       });
