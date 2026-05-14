@@ -82,13 +82,9 @@ const Auth = {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
       const result   = await firebase.auth().signInWithPopup(provider);
-      this._user = result.user;
-      this._applyUserUI(this._user);
-      this._hideOverlay();
-
-      // Init cloud sync and merge cloud data into the already-running app
-      CloudSync.init();
-      AppState.syncCloud();
+      // Reload once — Firebase persists the session so the user stays
+      // signed in, the app boots fresh and pulls cloud data cleanly.
+      location.reload();
     } catch (e) {
       console.error('ATHENA: Sign-in failed:', e);
       if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
@@ -106,7 +102,7 @@ const Auth = {
   async signOut() {
     if (!this._configured) return;
     await firebase.auth().signOut();
-    // onAuthStateChanged will reload the page
+    location.reload();
   },
 
   // ── UI helpers ────────────────────────────────────────────
