@@ -1312,10 +1312,30 @@ const FinanceTracker = {
   ]);
 
   const insInvs = all.filter(i => i.type === 'Insurance');
+  const _annualPremium = i => {
+    const f = (i.premiumFrequency || '').toLowerCase();
+    if (f === 'monthly')     return (i.amount || 0) * 12;
+    if (f === 'quarterly')   return (i.amount || 0) * 4;
+    if (f === 'half-yearly' || f === 'half yearly') return (i.amount || 0) * 2;
+    return i.amount || 0; // annual or unset — stored amount IS the annual premium
+  };
+  const _premLabel = i => {
+    const f = (i.premiumFrequency || '').toLowerCase();
+    if (f === 'monthly')     return '/mo';
+    if (f === 'quarterly')   return '/qtr';
+    if (f === 'half-yearly' || f === 'half yearly') return '/6mo';
+    return '/yr';
+  };
   const insTbl = tbl(insInvs, [
     { h: 'Company', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
     { h: 'Sub-type', v: i => { const p = INS_PROTECTION_TYPES.includes(i.insuranceType || 'Term'); return `<span style="font-size:11px;font-weight:600;color:${p ? 'var(--accent-rose)' : 'var(--accent-blue)'};">${i.insuranceType || '—'}</span>`; } },
-    { h: 'Annual Premium', v: i => `₹${L(i.amount)}`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}/yr` },
+    { h: 'Premium', v: i => {
+        const lbl = _premLabel(i);
+        const ann = _annualPremium(i);
+        const showAnn = lbl !== '/yr';
+        return `<div>₹${L(i.amount)}<span style="font-size:9px;color:var(--text-muted);">${lbl}</span></div>` +
+               (showAnn ? `<div style="font-size:9px;color:var(--text-muted);">₹${L(ann)}/yr</div>` : '');
+      }, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + _annualPremium(i), 0))}/yr` },
     { h: 'Frequency', v: i => `<span style="font-size:10px;">${i.premiumFrequency || '—'}</span>` },
     { h: 'Cover / Sum Assured', v: i => i.coverAmount ? `<span style="color:var(--accent-violet);font-weight:700;">₹${L(i.coverAmount)}</span>` : '—', s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.coverAmount || 0), 0))} cover` },
     { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${i.date || '—'}</span>` },
