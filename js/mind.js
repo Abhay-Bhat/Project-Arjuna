@@ -256,8 +256,8 @@ const MindTracker = {
       <div class="relapse-item ${e.type}">
         <span class="ri-date">${e.date}</span>
         <span class="ri-type ${e.type}">${e.type === 'relapse' ? '❌ Relapse' : '✅ Check-in'}</span>
-        <span class="ri-trigger">${e.trigger || '—'}</span>
-        <span class="ri-note">${e.note || ''}</span>
+        <span class="ri-trigger">${esc(e.trigger) || '—'}</span>
+        <span class="ri-note">${esc(e.note)}</span>
         <button class="btn-xs btn-danger" data-del-relapse="${e.date}">✕</button>
       </div>`).join('');
 

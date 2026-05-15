@@ -150,7 +150,12 @@ const Auth = {
 
     if (avatar) {
       if (user.photoURL) {
-        avatar.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}" referrerpolicy="no-referrer">`;
+        const img = document.createElement('img');
+        img.src = user.photoURL;
+        img.alt = user.displayName || '';
+        img.referrerPolicy = 'no-referrer';
+        avatar.innerHTML = '';
+        avatar.appendChild(img);
       } else {
         avatar.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
       }
