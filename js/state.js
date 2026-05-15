@@ -50,6 +50,10 @@ const AppState = {
   // ── Dubai Checklist ──────────────────────────────────────
   dubaiChecklist:  {},   // { item_id: true }
 
+  // ── Tasks (Planner) ──────────────────────────────────────
+  taskBuckets:     [],   // [{ id, title, color }]
+  tasks:           [],   // [{ id, bucketId, title, dueDate, priority, done, createdAt }]
+
   // ─────────────────────────────────────────────────────────
 
   // Phase 1 — always runs first, uses only local IndexedDB/localStorage
@@ -104,6 +108,8 @@ const AppState = {
       this.monthlyReviews       = pick('monthlyReviews',  {});
       this.partnerLog           = pick('partnerLog',      []);
       this.dubaiChecklist       = pick('dubaiChecklist',  {});
+      this.taskBuckets          = pick('taskBuckets',     []);
+      this.tasks                = pick('tasks',           []);
     } catch(e) {
       console.error('State load error:', e);
     }
@@ -148,7 +154,9 @@ const AppState = {
       weeklyReviews: this.weeklyReviews,
       monthlyReviews: this.monthlyReviews,
       partnerLog: this.partnerLog,
-      dubaiChecklist: this.dubaiChecklist
+      dubaiChecklist: this.dubaiChecklist,
+      taskBuckets:    this.taskBuckets,
+      tasks:          this.tasks
     };
     Storage.save(payload);
     CloudSync.push(payload); // Push to Firestore (no-op when not configured)

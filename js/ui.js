@@ -41,7 +41,8 @@ const UI = {
           'f': 'finance',
           'h': 'health',
           'm': 'mind',
-          'g': 'growth'
+          'g': 'growth',
+          'k': 'tasks'
         };
         const tab = tabMap[e.key.toLowerCase()];
         if (tab) {
@@ -236,6 +237,7 @@ const UI = {
       case 'health':   this._renderHealth();  break;
       case 'mind':     this._renderMind();    break;
       case 'growth':   this._renderGrowth();  break;
+      case 'tasks':    this._renderTasks();   break;
     }
   },
 
@@ -829,6 +831,11 @@ const UI = {
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
     GrowthTracker.render();
+  },
+
+  // ── Tasks tab ────────────────────────────────────────────
+  _renderTasks() {
+    TasksTracker.render();
   },
 
   // ── Tab navigation ───────────────────────────────────────
