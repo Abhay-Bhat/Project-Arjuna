@@ -3,6 +3,17 @@
 // Manages all persisted data across 6 domains.
 // ============================================================
 
+// Global HTML-escaping utility — call before inserting any user text into innerHTML.
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const AppState = {
   // ── Navigation ───────────────────────────────────────────
   selectedDate:   new Date(),

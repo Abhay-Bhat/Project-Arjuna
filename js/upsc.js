@@ -425,8 +425,8 @@ const UPSCTracker = {
                   ${dateFmt}${isToday ? ' <span style="color:var(--accent-green);font-size:10px;">Today</span>' : ''}
                 </td>
                 <td><span class="ca-source-badge">${a.source}</span></td>
-                <td style="font-weight:500;">${a.title}</td>
-                <td style="color:var(--text-muted);font-size:12px;">${a.notes || '—'}</td>
+                <td style="font-weight:500;">${esc(a.title)}</td>
+                <td style="color:var(--text-muted);font-size:12px;">${esc(a.notes) || '—'}</td>
                 <td style="white-space:nowrap;">${urlLink}${attachBtn || '—'}</td>
                 <td><button class="btn-xs btn-danger" data-del-ca="${a.id}" data-del-ca-date="${a.date}" data-del-ca-attach="${a.attachmentKey || ''}">✕</button></td>
               </tr>`;

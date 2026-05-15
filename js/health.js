@@ -249,7 +249,7 @@ const HealthTracker = {
         <td class="num ${r.ldl && r.ldl > 130 ? 'warn' : 'good'}">${r.ldl ?? '—'}</td>
         <td class="num ${r.hdl && r.hdl < 40  ? 'warn' : 'good'}">${r.hdl ?? '—'}</td>
         <td class="num">${r.total ?? '—'}</td>
-        <td class="notes-td">${r.notes || '—'}</td>
+        <td class="notes-td">${esc(r.notes) || '—'}</td>
         <td><button class="btn-xs btn-danger" data-del-chol="${r.date}">✕</button></td>
       </tr>`).join('');
 

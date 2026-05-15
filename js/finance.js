@@ -263,7 +263,7 @@ const FinanceTracker = {
         <td>${e.month}</td>
         <td class="num">${(e.saved_aed || 0).toLocaleString()} AED</td>
         <td class="num">₹${this._lakh(e.transferred_inr || 0)}</td>
-        <td class="notes-td">${e.notes || '—'}</td>
+        <td class="notes-td">${esc(e.notes) || '—'}</td>
         <td><button class="btn-xs btn-danger" data-del="${e.id}">✕</button></td>
       </tr>`).join('');
 
@@ -1076,7 +1076,7 @@ const FinanceTracker = {
         return `
           <div class="maturity-alert ${urgency}">
             <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${inv.type}${inv.bankAccount ? ' · ' + inv.bankAccount : ''}</div>
+              <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(inv.type)}${inv.bankAccount ? ' · ' + esc(inv.bankAccount) : ''}</div>
               <div style="font-size:10px;color:var(--text-muted);">₹${this._lakh(val)} · ${inv.maturityDate}</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
@@ -1205,7 +1205,7 @@ const FinanceTracker = {
 
   const ppfInvs = all.filter(i => i.type === 'PPF');
   const ppfTbl = tbl(ppfInvs, [
-    { h: 'Bank', v: i => `<span style="font-weight:600;">${i.bankAccount || '—'}</span>` },
+    { h: 'Bank', v: i => `<span style="font-weight:600;">${esc(i.bankAccount) || '—'}</span>` },
     { h: 'Start Date', v: i => `<span style="color:var(--text-muted);font-size:11px;">${i.date || '—'}</span>` },
     { h: 'Annual Contribution', v: i => `<span style="font-weight:700;">₹${L(i.amount)}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
     { h: 'Prior Corpus', v: i => i.openingBalance ? `₹${L(i.openingBalance)}` : '<span style="color:var(--text-muted);">—</span>', s: 'text-align:right;' },
@@ -1236,7 +1236,7 @@ const FinanceTracker = {
             <td style="padding:5px 8px;text-align:right;font-size:11px;">₹${L(e.employee || 0)}</td>
             <td style="padding:5px 8px;text-align:right;font-size:11px;">₹${L(e.employer || 0)}</td>
             <td style="padding:5px 8px;text-align:right;font-size:11px;font-weight:600;">₹${L((e.employee || 0) + (e.employer || 0))}</td>
-            <td style="padding:5px 8px;font-size:10px;color:var(--text-muted);">${e.note || ''}</td>
+            <td style="padding:5px 8px;font-size:10px;color:var(--text-muted);">${esc(e.note)}</td>
             <td style="padding:5px 8px;">
               <button class="btn btn-xs btn-danger" onclick="FinanceTracker.deleteEPFLogEntry(${inv.id}, '${e.month}', '${e.type}')" style="font-size:9px;">✕</button>
             </td>
@@ -1246,8 +1246,8 @@ const FinanceTracker = {
           <div style="border-top:1px solid var(--border);padding:12px 16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
               <div>
-                <div style="font-weight:700;font-size:13px;">${inv.bankAccount || 'EPF Account'}</div>
-                <div style="font-size:10px;color:var(--text-muted);">${inv.notes || ''} · Rate: ${inv.interestRate || 8.25}% · Status: <span style="color:${(inv.status||'active')==='active'?'var(--accent-green)':'var(--accent-amber)'};">${inv.status||'active'}</span></div>
+                <div style="font-weight:700;font-size:13px;">${esc(inv.bankAccount) || 'EPF Account'}</div>
+                <div style="font-size:10px;color:var(--text-muted);">${esc(inv.notes)} · Rate: ${inv.interestRate || 8.25}% · Status: <span style="color:${(inv.status||'active')==='active'?'var(--accent-green)':'var(--accent-amber)'};">${esc(inv.status||'active')}</span></div>
               </div>
               <div style="display:flex;gap:10px;align-items:center;">
                 <div style="text-align:right;">
@@ -1313,7 +1313,7 @@ const FinanceTracker = {
 
   const fdInvs = all.filter(i => i.type === 'Deposits').sort((a, b) => (a.maturityDate || '').localeCompare(b.maturityDate || ''));
   const fdTbl = tbl(fdInvs, [
-    { h: 'Bank', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
+    { h: 'Bank', v: i => `<div style="font-weight:600;">${esc(i.bankAccount) || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${esc(i.notes)}</div>` : ''}` },
     { h: 'Type', v: i => { const isRD = i.depositType === 'RD'; return `<span style="font-size:11px;font-weight:700;color:${isRD ? 'var(--accent-violet)' : 'var(--accent-teal)'};">${isRD ? 'RD' : 'FD'}</span>`; } },
     { h: 'Amount', v: i => { const isRD = i.depositType === 'RD'; return `<div style="font-weight:700;">₹${L(i.amount)}${isRD ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`; }, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.getTotalInvestedAmount(i), 0))} inv` },
     { h: 'Rate', v: i => `${i.interestRate || '—'}%` },
@@ -1327,19 +1327,19 @@ const FinanceTracker = {
 
   const shareInvs = all.filter(i => i.type === 'Shares').sort((a, b) => (a.ticker || a.bankAccount || '').localeCompare(b.ticker || b.bankAccount || ''));
   const shareTbl = tbl(shareInvs, [
-    { h: 'Ticker', v: i => `<span style="font-weight:700;font-size:12px;font-family:'Space Mono',monospace;">${i.ticker || i.bankAccount || '—'}</span>` },
+    { h: 'Ticker', v: i => `<span style="font-weight:700;font-size:12px;font-family:'Space Mono',monospace;">${esc(i.ticker || i.bankAccount) || '—'}</span>` },
     { h: 'Qty', v: i => i.units ? `<span style="font-weight:600;">${i.units}</span>` : '—', s: 'text-align:right;' },
     { h: 'Invested', v: i => `₹${L(i.amount)}`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
     { h: 'Avg Buy', v: i => (i.units && i.amount) ? `₹${(i.amount / i.units).toFixed(2)}` : '—', s: 'text-align:right;font-size:11px;' },
     { h: 'Live Price', v: i => i.livePrice > 0 ? `<span style="color:var(--accent-teal);font-weight:600;">₹${i.livePrice.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>` : '<span style="color:var(--text-muted);font-size:10px;">—</span>', s: 'text-align:right;' },
     { h: 'Value Today', v: i => `<span style="font-weight:700;">₹${L(this.calculateInvestmentWealth(i))}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.calculateInvestmentWealth(i), 0))}` },
     { h: 'P&L', v: i => { const v = this.calculateInvestmentWealth(i), g = v - (i.amount || 0), pct = i.amount ? ((g / i.amount) * 100).toFixed(1) : 0, c = g >= 0 ? 'var(--accent-green)' : 'var(--accent-rose)'; return `<div style="color:${c};font-weight:600;">${g >= 0 ? '+' : ''}₹${L(Math.abs(g))}</div><div style="font-size:9px;color:${c};">${g >= 0 ? '+' : ''}${pct}%</div>`; }, s: 'text-align:right;', tot: is => { const tg = is.reduce((s, i) => s + this.calculateInvestmentWealth(i) - (i.amount || 0), 0), ti = is.reduce((s, i) => s + (i.amount || 0), 0), pct = ti ? ((tg / ti) * 100).toFixed(1) : 0, c = tg >= 0 ? 'var(--accent-green)' : 'var(--accent-rose)'; return `<span style="color:${c};">${tg >= 0 ? '+' : ''}₹${L(Math.abs(tg))} (${tg >= 0 ? '+' : ''}${pct}%)</span>`; } },
-    { h: 'Broker', v: i => `<span style="font-size:10px;color:var(--text-muted);">${i.bankAccount || '—'}</span>` },
+    { h: 'Broker', v: i => `<span style="font-size:10px;color:var(--text-muted);">${esc(i.bankAccount) || '—'}</span>` },
   ]);
 
   const sipInvs = all.filter(i => i.type === 'SIP');
   const sipTbl = tbl(sipInvs, [
-    { h: 'Fund / Platform', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
+    { h: 'Fund / Platform', v: i => `<div style="font-weight:600;">${esc(i.bankAccount) || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${esc(i.notes)}</div>` : ''}` },
     { h: 'Amount', v: i => `<div style="font-weight:700;">₹${L(i.amount)}${i.sipMode !== 'LumpSum' ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`, s: 'text-align:right;' },
     { h: 'AMFI Code', v: i => i.amfiCode ? `<span style="font-family:'Space Mono',monospace;font-size:10px;">${i.amfiCode}</span>` : '<span style="color:var(--text-muted);">—</span>' },
     { h: 'Units', v: i => i.units ? `<span style="font-family:'Space Mono',monospace;font-size:11px;">${i.units.toFixed(3)}</span>` : '—', s: 'text-align:right;' },
@@ -1365,7 +1365,7 @@ const FinanceTracker = {
     return '/yr';
   };
   const insTbl = tbl(insInvs, [
-    { h: 'Company', v: i => `<div style="font-weight:600;">${i.bankAccount || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${i.notes}</div>` : ''}` },
+    { h: 'Company', v: i => `<div style="font-weight:600;">${esc(i.bankAccount) || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${esc(i.notes)}</div>` : ''}` },
     { h: 'Sub-type', v: i => { const p = INS_PROTECTION_TYPES.includes(i.insuranceType || 'Term'); return `<span style="font-size:11px;font-weight:600;color:${p ? 'var(--accent-rose)' : 'var(--accent-blue)'};">${i.insuranceType || '—'}</span>`; } },
     { h: 'Premium', v: i => {
         const lbl = _premLabel(i);
@@ -1384,7 +1384,7 @@ const FinanceTracker = {
   const otherInvs = all.filter(i => ['Gold', 'Bonds', 'RealEstate', 'Crypto', 'Other'].includes(i.type)).sort((a, b) => a.type.localeCompare(b.type));
   const otherTbl = tbl(otherInvs, [
     { h: 'Type', v: i => `<span style="font-weight:700;">${i.type}</span>` },
-    { h: 'Name / Description', v: i => `<span>${i.bankAccount || i.notes || '—'}</span>` },
+    { h: 'Name / Description', v: i => `<span>${esc(i.bankAccount || i.notes) || '—'}</span>` },
     { h: 'Amount Invested', v: i => `₹${L(i.amount)}`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
     { h: 'Rate', v: i => `${i.interestRate || '—'}%` },
     { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${i.date || '—'}</span>` },

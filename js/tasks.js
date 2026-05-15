@@ -103,12 +103,10 @@ const TasksTracker = {
         <div class="tasks-empty">
           <div style="font-size:48px;margin-bottom:12px;">📋</div>
           <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;">No buckets yet</div>
-          <div style="font-size:13px;color:var(--text-muted);">Click <strong>+ Add Bucket</strong> above to create your first task group.</div>
+          <div style="font-size:13px;color:var(--text-muted);">Type a name below and click <strong>+ Create Bucket</strong> to get started.</div>
         </div>`;
-      return;
-    }
-
-    board.innerHTML = buckets.map(bucket => {
+    } else {
+      board.innerHTML = buckets.map(bucket => {
       const bucketTasks  = allTasks.filter(t => t.bucketId === bucket.id);
       const filtered     = this._filterTasks(bucketTasks);
       const doneCnt      = bucketTasks.filter(t => t.done).length;
@@ -143,7 +141,8 @@ const TasksTracker = {
           </div>
           <button class="task-add-btn" data-bid="${bucket.id}">+ Add task</button>
         </div>`;
-    }).join('');
+      }).join('');
+    }
 
     // Add "new bucket" card at the end
     board.innerHTML += `

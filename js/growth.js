@@ -145,12 +145,13 @@ const GrowthTracker = {
             background: var(--border);
             position: relative; overflow: hidden;">
             ${coverSrc
-              ? `<img src="${coverSrc}" alt="${b.title} cover"
+              ? `<img src="${esc(coverSrc)}" alt="${esc(b.title)} cover"
+                   data-title="${esc(b.title)}"
                    style="width:100%; height:100%; object-fit:cover; display:block;"
-                   onerror="this.parentElement.innerHTML='<div style=\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--surface));padding:8px;text-align:center;\'><span style=\'font-size:11px;color:var(--text-muted);\'>${b.title}</span></div>'">`
+                   onerror="GrowthTracker._bookImgFallback(this)">`
               : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
                              background:linear-gradient(160deg,var(--card),var(--surface));padding:8px;text-align:center;">
-                   <span style="font-size:11px;color:var(--text-muted);">${b.title}</span>
+                   <span style="font-size:11px;color:var(--text-muted);"></span>
                  </div>`}
             ${isDone ? '<div style="position:absolute;top:6px;right:6px;background:var(--accent-green);color:#fff;font-size:11px;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">✓</div>' : ''}
             ${isThisMonth && !isDone ? '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(77,121,255,0.9);color:#fff;font-size:10px;text-align:center;padding:3px 0;font-weight:700;">READING</div>' : ''}
@@ -161,7 +162,7 @@ const GrowthTracker = {
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
               <span class="book-month">${this._fmtMonth(b.month)}</span>
             </div>
-            <div class="book-title" style="font-size:15px;line-height:1.3;">${b.title}</div>
+            <div class="book-title" style="font-size:15px;line-height:1.3;">${esc(b.title)}</div>
             <div class="book-author">— ${b.author}</div>
             <div class="book-why">${b.why}</div>
             <div class="book-progress" style="margin-top:auto;">
@@ -365,7 +366,7 @@ const GrowthTracker = {
         <span class="pe-icon">${icons[e.type] || '·'}</span>
         <span class="pe-date">${e.date}</span>
         <span class="pe-type">${e.type}</span>
-        <span class="pe-note">${e.note || '—'}</span>
+        <span class="pe-note">${esc(e.note) || '—'}</span>
         <button class="btn-xs btn-danger" data-del-partner="${e.id}">✕</button>
       </div>`).join('');
 
@@ -376,6 +377,18 @@ const GrowthTracker = {
         this.render();
       });
     });
+  },
+
+  _bookImgFallback(img) {
+    const parent = img.parentElement;
+    const div = document.createElement('div');
+    div.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--card),var(--surface));padding:8px;text-align:center;';
+    const span = document.createElement('span');
+    span.style.cssText = 'font-size:11px;color:var(--text-muted);';
+    span.textContent = img.dataset.title || '';
+    div.appendChild(span);
+    parent.innerHTML = '';
+    parent.appendChild(div);
   },
 
   // ── Helpers ──────────────────────────────────────────────
@@ -482,7 +495,7 @@ const GrowthTracker = {
           <div style="background:var(--border);border-radius:3px;height:4px;overflow:hidden;">
             <div style="width:${pct}%;height:100%;background:${color};transition:width 0.4s ease;"></div>
           </div>
-          ${entry?.note ? `<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">${entry.note}</div>` : ''}
+          ${entry?.note ? `<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">${esc(entry.note)}</div>` : ''}
         </div>`;
       }).join('');
 
