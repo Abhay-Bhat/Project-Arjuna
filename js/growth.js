@@ -97,10 +97,10 @@ const GrowthTracker = {
           <div class="cc-label">${m.label}</div>
           <div class="cc-why">${m.why}</div>
           ${saved.done
-            ? `<div class="cc-done-date">Completed ${saved.date || ''}</div>`
+            ? `<div class="cc-done-date">Completed ${esc(saved.date || '')}</div>`
             : `<div class="cc-actions">
-                <input type="text" class="cc-note-input" placeholder="Add note..." value="${saved.note || ''}">
-                <button class="btn-xs btn-primary cc-done-btn" data-id="${m.id}">Mark Done</button>
+                <input type="text" class="cc-note-input" placeholder="Add note..." value="${esc(saved.note || '')}">
+                <button class="btn-xs btn-primary cc-done-btn" data-id="${esc(m.id)}">Mark Done</button>
                </div>`
           }
         </div>`;
@@ -363,11 +363,11 @@ const GrowthTracker = {
     const icons = { msg: '💬', call: '📞', meet: '🤝' };
     container.innerHTML = log.map(e => `
       <div class="partner-entry">
-        <span class="pe-icon">${icons[e.type] || '·'}</span>
-        <span class="pe-date">${e.date}</span>
-        <span class="pe-type">${e.type}</span>
+        <span class="pe-icon">${icons[esc(e.type)] || '·'}</span>
+        <span class="pe-date">${esc(e.date)}</span>
+        <span class="pe-type">${esc(e.type)}</span>
         <span class="pe-note">${esc(e.note) || '—'}</span>
-        <button class="btn-xs btn-danger" data-del-partner="${e.id}">✕</button>
+        <button class="btn-xs btn-danger" data-del-partner="${esc(e.id)}">✕</button>
       </div>`).join('');
 
     container.querySelectorAll('[data-del-partner]').forEach(btn => {
