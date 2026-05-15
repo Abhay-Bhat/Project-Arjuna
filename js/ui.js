@@ -229,7 +229,6 @@ const UI = {
   // ── Tab rendering ────────────────────────────────────────
   _renderTab(tab) {
     AppState.currentTab = tab;
-    AppState.save();
     switch (tab) {
       case 'today':    this._renderToday();   break;
       case 'upsc':     this._renderUPSC();    break;
@@ -875,6 +874,8 @@ const UI = {
         e.preventDefault();
         const tab = btn.dataset.tab;
         this._setActiveTab(tab);
+        AppState.currentTab = tab;
+        AppState.save();
         this._renderTab(tab);
       });
     });
