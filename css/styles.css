@@ -3151,6 +3151,103 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .task-color-dot:hover { transform: scale(1.2); }
 .task-color-dot.selected { border-color: var(--text); transform: scale(1.15); }
 
+/* Edit task button */
+.task-edit-btn {
+  opacity: 0; font-size: 13px; background: none; border: none;
+  cursor: pointer; color: var(--text-faint); padding: 0 2px;
+  transition: opacity 0.15s, color 0.15s; flex-shrink: 0;
+}
+.task-item:hover .task-edit-btn { opacity: 1; }
+.task-edit-btn:hover { color: var(--accent-blue); }
+.task-item-editing { border-color: var(--accent-blue) !important; background: var(--card-hover) !important; }
+
+/* Inline edit area */
+.task-edit-area {
+  background: var(--surface); border: 1px solid var(--accent-blue);
+  border-top: none; border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  padding: 10px; display: flex; flex-direction: column; gap: 8px;
+}
+.task-edit-title {
+  width: 100%; font-size: 13px; padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--text); box-sizing: border-box;
+}
+.task-edit-title:focus { outline: none; border-color: var(--accent-blue); }
+.task-edit-fields { display: flex; gap: 6px; flex-wrap: wrap; }
+.task-edit-date,
+.task-edit-pri,
+.task-edit-bucket {
+  flex: 1; min-width: 100px; font-size: 11px; padding: 5px 8px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--card); color: var(--text);
+}
+.task-edit-date:focus,
+.task-edit-pri:focus,
+.task-edit-bucket:focus { outline: none; border-color: var(--accent-blue); }
+.task-edit-actions { display: flex; gap: 6px; }
+
+/* Bucket drag handle */
+.task-bucket-drag-handle {
+  cursor: grab; font-size: 15px; color: var(--text-faint);
+  padding: 0 2px; user-select: none; line-height: 1; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.task-bucket-drag-handle:hover { color: var(--text-muted); }
+.task-bucket-drag-handle:active { cursor: grabbing; }
+
+/* Drag-and-drop states — tasks */
+.task-item.task-dragging {
+  opacity: 0.4; border-style: dashed;
+}
+.task-list.task-list-dragover {
+  background: rgba(91,127,255,0.04); border-radius: var(--radius-sm);
+}
+.task-item.task-drop-before {
+  border-top: 2px solid var(--accent-blue) !important;
+}
+.task-item.task-drop-after {
+  border-bottom: 2px solid var(--accent-blue) !important;
+}
+
+/* Drag-and-drop states — buckets */
+.task-bucket.bucket-dragging {
+  opacity: 0.35; border-style: dashed;
+}
+.task-bucket.bucket-dragover-left {
+  border-left: 2px solid var(--accent-blue);
+}
+.task-bucket.bucket-dragover-right {
+  border-right: 2px solid var(--accent-blue);
+}
+
+/* Today's due tasks banner */
+.tasks-due-banner {
+  background: linear-gradient(135deg, rgba(255,153,51,0.08), rgba(255,92,128,0.06));
+  border: 1px solid rgba(255,153,51,0.3); border-radius: var(--radius);
+  padding: 12px 14px; margin-bottom: 14px; display: flex;
+  flex-direction: column; gap: 8px;
+}
+.tasks-due-banner-title {
+  font-size: 12px; font-weight: 700; color: var(--accent-amber);
+  text-transform: uppercase; letter-spacing: .05em; display: flex;
+  align-items: center; gap: 6px;
+}
+.tasks-due-list {
+  display: flex; flex-direction: column; gap: 5px;
+}
+.tasks-due-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text);
+}
+.tasks-due-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.tasks-due-title-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tasks-due-badge-sm {
+  font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 600;
+  flex-shrink: 0;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   .task-bucket { flex: 0 0 240px; }

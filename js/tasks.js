@@ -95,7 +95,7 @@ const TasksTracker = {
     const board = document.getElementById('tasksBoard');
     if (!board) return;
 
-    const buckets = this._buckets();
+    const buckets  = this._buckets();
     const allTasks = this._tasks();
 
     if (!buckets.length) {
@@ -107,44 +107,45 @@ const TasksTracker = {
         </div>`;
     } else {
       board.innerHTML = buckets.map(bucket => {
-      const bucketTasks  = allTasks.filter(t => t.bucketId === bucket.id);
-      const filtered     = this._filterTasks(bucketTasks);
-      const doneCnt      = bucketTasks.filter(t => t.done).length;
-      const col          = bucket.color || this.BUCKET_COLORS[0];
-      return `
-        <div class="task-bucket" data-bucket-id="${bucket.id}">
-          <div class="task-bucket-header" style="border-top:3px solid ${col};">
-            <div class="task-bucket-title-row">
-              <input class="task-bucket-title-input" value="${this._esc(bucket.title)}"
-                     data-bid="${bucket.id}" placeholder="Bucket name" title="Click to rename">
-              <div style="display:flex;align-items:center;gap:4px;">
-                <span class="task-count-badge">${bucketTasks.length - doneCnt} / ${bucketTasks.length}</span>
-                <button class="task-bucket-del btn btn-xs" data-bid="${bucket.id}" title="Delete bucket">✕</button>
+        const bucketTasks = allTasks.filter(t => t.bucketId === bucket.id);
+        const filtered    = this._filterTasks(bucketTasks);
+        const doneCnt     = bucketTasks.filter(t => t.done).length;
+        const col         = bucket.color || this.BUCKET_COLORS[0];
+        return `
+          <div class="task-bucket" data-bucket-id="${bucket.id}">
+            <div class="task-bucket-header" style="border-top:3px solid ${col};">
+              <div class="task-bucket-title-row">
+                <span class="task-bucket-drag-handle" draggable="true" data-bid="${bucket.id}" title="Drag to reorder bucket">⠿</span>
+                <input class="task-bucket-title-input" value="${this._esc(bucket.title)}"
+                       data-bid="${bucket.id}" placeholder="Bucket name" title="Click to rename">
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <span class="task-count-badge">${bucketTasks.length - doneCnt} / ${bucketTasks.length}</span>
+                  <button class="task-bucket-del btn btn-xs" data-bid="${bucket.id}" title="Delete bucket">✕</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="task-list" id="taskList-${bucket.id}">
-            ${filtered.length ? filtered.map(t => this._taskHTML(t)).join('') : '<div class="task-list-empty">No tasks match filter</div>'}
-          </div>
-          <div class="task-add-area" id="taskAddArea-${bucket.id}" style="display:none;">
-            <input class="task-add-input" id="taskAddInput-${bucket.id}" placeholder="Task title…" maxlength="200">
-            <div class="task-add-fields">
-              <input type="date" class="task-add-date" id="taskAddDate-${bucket.id}" title="Due date">
-              <select class="task-add-pri" id="taskAddPri-${bucket.id}" title="Priority">
-                ${this.PRIORITIES.map(p => `<option value="${p.value}">${p.icon} ${p.label}</option>`).join('')}
-              </select>
+            <div class="task-list" id="taskList-${bucket.id}">
+              ${filtered.length ? filtered.map(t => this._taskHTML(t)).join('') : '<div class="task-list-empty">No tasks match filter</div>'}
             </div>
-            <div class="task-add-actions">
-              <button class="btn btn-xs btn-primary task-add-save" data-bid="${bucket.id}">Add Task</button>
-              <button class="btn btn-xs task-add-cancel" data-bid="${bucket.id}">Cancel</button>
+            <div class="task-add-area" id="taskAddArea-${bucket.id}" style="display:none;">
+              <input class="task-add-input" id="taskAddInput-${bucket.id}" placeholder="Task title…" maxlength="200">
+              <div class="task-add-fields">
+                <input type="date" class="task-add-date" id="taskAddDate-${bucket.id}" title="Due date">
+                <select class="task-add-pri" id="taskAddPri-${bucket.id}" title="Priority">
+                  ${this.PRIORITIES.map(p => `<option value="${p.value}">${p.icon} ${p.label}</option>`).join('')}
+                </select>
+              </div>
+              <div class="task-add-actions">
+                <button class="btn btn-xs btn-primary task-add-save" data-bid="${bucket.id}">Add Task</button>
+                <button class="btn btn-xs task-add-cancel" data-bid="${bucket.id}">Cancel</button>
+              </div>
             </div>
-          </div>
-          <button class="task-add-btn" data-bid="${bucket.id}">+ Add task</button>
-        </div>`;
+            <button class="task-add-btn" data-bid="${bucket.id}">+ Add task</button>
+          </div>`;
       }).join('');
     }
 
-    // Add "new bucket" card at the end
+    // Always add "new bucket" card at the end
     board.innerHTML += `
       <div class="task-bucket task-bucket-new" id="taskNewBucketCard">
         <div class="task-new-bucket-inner">
@@ -157,13 +158,14 @@ const TasksTracker = {
       </div>`;
 
     this._bindBoardEvents();
+    this._bindDragDrop(board);
   },
 
   _taskHTML(t) {
-    const pri   = this._priorityMeta(t.priority);
-    const due   = this._dueMeta(t.dueDate);
+    const pri = this._priorityMeta(t.priority);
+    const due = this._dueMeta(t.dueDate);
     return `
-      <div class="task-item${t.done ? ' task-done' : ''}" data-tid="${t.id}">
+      <div class="task-item${t.done ? ' task-done' : ''}" data-tid="${t.id}" draggable="true">
         <label class="task-checkbox-wrap" title="${t.done ? 'Mark incomplete' : 'Mark complete'}">
           <input type="checkbox" class="task-cb" data-tid="${t.id}" ${t.done ? 'checked' : ''}>
           <span class="task-cb-visual"></span>
@@ -176,12 +178,74 @@ const TasksTracker = {
             ${due ? `<span class="task-due-badge ${due.cls}" title="Due: ${t.dueDate}">${due.label}</span>` : ''}
           </div>
         </div>
+        <button class="task-edit-btn" data-edit-tid="${t.id}" title="Edit task">✏️</button>
         <button class="task-del-btn" data-tid="${t.id}" title="Delete task">🗑</button>
       </div>`;
   },
 
   _esc(str) {
     return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  },
+
+  // ── Inline task editor ────────────────────────────────────
+  _openEditTask(tid) {
+    // Close any other open edit areas
+    document.querySelectorAll('.task-edit-area').forEach(a => a.remove());
+    document.querySelectorAll('.task-item-editing').forEach(el => el.classList.remove('task-item-editing'));
+
+    const t = (AppState.tasks || []).find(x => x.id === tid);
+    if (!t) return;
+    const el = document.querySelector(`.task-item[data-tid="${tid}"]`);
+    if (!el) return;
+
+    el.classList.add('task-item-editing');
+
+    const editDiv = document.createElement('div');
+    editDiv.className = 'task-edit-area';
+    editDiv.innerHTML = `
+      <input class="task-edit-title" value="${this._esc(t.title)}" placeholder="Task title" maxlength="200">
+      <div class="task-edit-fields">
+        <input type="date" class="task-edit-date" value="${this._esc(t.dueDate || '')}" title="Due date">
+        <select class="task-edit-pri" title="Priority">
+          ${this.PRIORITIES.map(p => `<option value="${p.value}" ${t.priority === p.value ? 'selected' : ''}>${p.icon} ${p.label}</option>`).join('')}
+        </select>
+        <select class="task-edit-bucket" title="Move to bucket">
+          ${(AppState.taskBuckets || []).map(b => `<option value="${b.id}" ${t.bucketId === b.id ? 'selected' : ''}>${this._esc(b.title)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="task-edit-actions">
+        <button class="btn btn-xs btn-primary task-edit-save">Save</button>
+        <button class="btn btn-xs task-edit-cancel">Cancel</button>
+      </div>`;
+
+    el.after(editDiv);
+    const titleInput = editDiv.querySelector('.task-edit-title');
+    titleInput.focus();
+    titleInput.select();
+
+    const save = () => {
+      const newTitle = editDiv.querySelector('.task-edit-title').value.trim();
+      if (!newTitle) { editDiv.querySelector('.task-edit-title').focus(); return; }
+      t.title    = newTitle;
+      t.dueDate  = editDiv.querySelector('.task-edit-date').value   || '';
+      t.priority = editDiv.querySelector('.task-edit-pri').value;
+      t.bucketId = parseInt(editDiv.querySelector('.task-edit-bucket').value);
+      AppState.save();
+      this.render();
+      UI.showToast('✅ Task updated');
+    };
+
+    const cancel = () => {
+      editDiv.remove();
+      el.classList.remove('task-item-editing');
+    };
+
+    editDiv.querySelector('.task-edit-save').addEventListener('click', save);
+    editDiv.querySelector('.task-edit-cancel').addEventListener('click', cancel);
+    titleInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter')  save();
+      if (e.key === 'Escape') cancel();
+    });
   },
 
   // ── Event binding ─────────────────────────────────────────
@@ -196,6 +260,11 @@ const TasksTracker = {
         const t  = (AppState.tasks || []).find(x => x.id === id);
         if (t) { t.done = cb.checked; AppState.save(); this.render(); }
       });
+    });
+
+    // Edit task
+    board.querySelectorAll('.task-edit-btn').forEach(btn => {
+      btn.addEventListener('click', () => this._openEditTask(parseInt(btn.dataset.editTid)));
     });
 
     // Delete task
@@ -222,10 +291,10 @@ const TasksTracker = {
     // Cancel add-task
     board.querySelectorAll('.task-add-cancel').forEach(btn => {
       btn.addEventListener('click', () => {
-        const bid  = btn.dataset.bid;
-        const area = document.getElementById(`taskAddArea-${bid}`);
+        const bid    = btn.dataset.bid;
+        const area   = document.getElementById(`taskAddArea-${bid}`);
         const addBtn = board.querySelector(`.task-add-btn[data-bid="${bid}"]`);
-        if (area) { area.style.display = 'none'; }
+        if (area)   { area.style.display = 'none'; }
         if (addBtn) addBtn.style.display = '';
       });
     });
@@ -235,7 +304,7 @@ const TasksTracker = {
       btn.addEventListener('click', () => this._saveNewTask(btn.dataset.bid));
     });
 
-    // Enter key in add input
+    // Enter / Escape in add input
     board.querySelectorAll('.task-add-input').forEach(inp => {
       inp.addEventListener('keydown', e => {
         if (e.key === 'Enter') this._saveNewTask(inp.id.replace('taskAddInput-', ''));
@@ -279,7 +348,7 @@ const TasksTracker = {
       });
     });
 
-    // Color dot selector
+    // Color dot selector for new bucket
     let selectedColor = this.BUCKET_COLORS[0];
     board.querySelectorAll('.task-color-dot').forEach(dot => {
       dot.addEventListener('click', () => {
@@ -288,7 +357,6 @@ const TasksTracker = {
         selectedColor = dot.dataset.color;
       });
     });
-    // Default-select first dot
     const firstDot = board.querySelector('.task-color-dot');
     if (firstDot) firstDot.classList.add('selected');
 
@@ -306,6 +374,189 @@ const TasksTracker = {
     document.getElementById('taskNewBucketSave')?.addEventListener('click', saveNewBucket);
     document.getElementById('taskNewBucketInput')?.addEventListener('keydown', e => {
       if (e.key === 'Enter') saveNewBucket();
+    });
+  },
+
+  // ── Drag and drop (tasks between buckets, bucket reorder) ─
+  _bindDragDrop(board) {
+    let dragTaskId   = null;
+    let dragBucketId = null;
+
+    const clearTaskDragStyles = () => {
+      board.querySelectorAll('.task-dragging').forEach(el => el.classList.remove('task-dragging'));
+      board.querySelectorAll('.task-list-dragover').forEach(el => el.classList.remove('task-list-dragover'));
+      board.querySelectorAll('.task-drop-before').forEach(el => el.classList.remove('task-drop-before'));
+    };
+
+    const clearBucketDragStyles = () => {
+      board.querySelectorAll('.bucket-dragging').forEach(el => el.classList.remove('bucket-dragging'));
+      board.querySelectorAll('.bucket-dragover-left,.bucket-dragover-right').forEach(el => {
+        el.classList.remove('bucket-dragover-left', 'bucket-dragover-right');
+      });
+    };
+
+    // ── Task item drag ──────────────────────────────────────
+    board.querySelectorAll('.task-item').forEach(el => {
+      el.addEventListener('dragstart', e => {
+        // Don't drag if interaction started from a button/checkbox/input
+        if (e.target.closest('button, input, label')) { e.preventDefault(); return; }
+        dragTaskId   = parseInt(el.dataset.tid);
+        dragBucketId = null;
+        setTimeout(() => el.classList.add('task-dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(dragTaskId));
+      });
+
+      el.addEventListener('dragend', () => {
+        clearTaskDragStyles();
+        dragTaskId = null;
+      });
+
+      // Show "insert before" indicator when hovering over another task
+      el.addEventListener('dragover', e => {
+        if (dragTaskId == null) return;
+        e.preventDefault();
+        e.stopPropagation(); // prevent task-list handler from also running
+        e.dataTransfer.dropEffect = 'move';
+        board.querySelectorAll('.task-drop-before').forEach(i => i.classList.remove('task-drop-before'));
+        const rect = el.getBoundingClientRect();
+        if (e.clientY < rect.top + rect.height / 2) {
+          el.classList.add('task-drop-before');
+        }
+        // Mark the containing task-list as dragover for styling
+        const list = el.closest('.task-list');
+        if (list) list.classList.add('task-list-dragover');
+      });
+
+      el.addEventListener('dragleave', () => {
+        el.classList.remove('task-drop-before');
+      });
+
+      // Drop: insert before or after the target task
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (dragTaskId == null) return;
+        const targetTid = parseInt(el.dataset.tid);
+        if (dragTaskId === targetTid) { clearTaskDragStyles(); return; }
+
+        const tasks    = AppState.tasks || [];
+        const fromIdx  = tasks.findIndex(t => t.id === dragTaskId);
+        if (fromIdx === -1) return;
+
+        const [dragged] = tasks.splice(fromIdx, 1);
+        // Update bucket if dropped in a different column
+        const targetBid = parseInt(el.closest('.task-bucket')?.dataset.bucketId);
+        if (targetBid) dragged.bucketId = targetBid;
+
+        const rect        = el.getBoundingClientRect();
+        const insertBefore = e.clientY < rect.top + rect.height / 2;
+        const newToIdx    = tasks.findIndex(t => t.id === targetTid);
+        tasks.splice(insertBefore ? newToIdx : newToIdx + 1, 0, dragged);
+
+        AppState.tasks = tasks;
+        AppState.save();
+        this.render();
+        dragTaskId = null;
+      });
+    });
+
+    // ── Task-list drop zone (drop at end of a bucket) ───────
+    board.querySelectorAll('.task-list').forEach(list => {
+      const bid = parseInt(list.id.replace('taskList-', ''));
+
+      list.addEventListener('dragover', e => {
+        if (dragTaskId == null) return;
+        if (e.target.closest('.task-item')) return; // handled by item
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        list.classList.add('task-list-dragover');
+      });
+
+      list.addEventListener('dragleave', e => {
+        if (!list.contains(e.relatedTarget)) list.classList.remove('task-list-dragover');
+      });
+
+      list.addEventListener('drop', e => {
+        e.preventDefault();
+        list.classList.remove('task-list-dragover');
+        if (dragTaskId == null) return;
+        if (e.target.closest('.task-item')) return; // handled by item drop
+
+        const t = (AppState.tasks || []).find(x => x.id === dragTaskId);
+        if (t) {
+          t.bucketId = bid;
+          // Move to end of this bucket's tasks
+          AppState.tasks = [...(AppState.tasks || []).filter(x => x.id !== t.id), t];
+          AppState.save();
+          this.render();
+        }
+        dragTaskId = null;
+      });
+    });
+
+    // ── Bucket drag handle ──────────────────────────────────
+    board.querySelectorAll('.task-bucket-drag-handle').forEach(handle => {
+      const bid = parseInt(handle.dataset.bid);
+      const col = handle.closest('.task-bucket');
+      if (!col) return;
+
+      handle.addEventListener('dragstart', e => {
+        dragBucketId = bid;
+        dragTaskId   = null;
+        // Use the whole bucket column as the drag image
+        e.dataTransfer.setDragImage(col, 30, 20);
+        setTimeout(() => col.classList.add('bucket-dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', 'bucket:' + bid);
+        e.stopPropagation();
+      });
+
+      handle.addEventListener('dragend', () => {
+        clearBucketDragStyles();
+        dragBucketId = null;
+      });
+    });
+
+    // ── Bucket drop targets ─────────────────────────────────
+    board.querySelectorAll('.task-bucket[data-bucket-id]').forEach(col => {
+      const bid = parseInt(col.dataset.bucketId);
+
+      col.addEventListener('dragover', e => {
+        if (dragBucketId == null || dragBucketId === bid) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        clearBucketDragStyles();
+        col.querySelector('.bucket-dragging')?.classList.remove('bucket-dragging'); // keep source dim
+        const rect = col.getBoundingClientRect();
+        col.classList.add(e.clientX < rect.left + rect.width / 2 ? 'bucket-dragover-left' : 'bucket-dragover-right');
+      });
+
+      col.addEventListener('dragleave', e => {
+        if (!col.contains(e.relatedTarget)) {
+          col.classList.remove('bucket-dragover-left', 'bucket-dragover-right');
+        }
+      });
+
+      col.addEventListener('drop', e => {
+        e.preventDefault();
+        col.classList.remove('bucket-dragover-left', 'bucket-dragover-right');
+        if (dragBucketId == null || dragBucketId === bid) return;
+
+        const buckets = AppState.taskBuckets || [];
+        const fromIdx = buckets.findIndex(b => b.id === dragBucketId);
+        if (fromIdx === -1) return;
+        const [moved]  = buckets.splice(fromIdx, 1);
+        const rect     = col.getBoundingClientRect();
+        const toIdx    = buckets.findIndex(b => b.id === bid);
+        const insertBefore = e.clientX < rect.left + rect.width / 2;
+        buckets.splice(insertBefore ? toIdx : toIdx + 1, 0, moved);
+
+        AppState.taskBuckets = buckets;
+        AppState.save();
+        this.render();
+        dragBucketId = null;
+      });
     });
   },
 
