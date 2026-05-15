@@ -251,6 +251,36 @@ const UI = {
     this._renderRoutine();
     this._renderCalendarNav();
     this._renderHolidayToggle();
+    this._renderTasksDueBanner();
+  },
+
+  _renderTasksDueBanner() {
+    const banner = document.getElementById('tasksDueBanner');
+    if (!banner) return;
+
+    const today = AppState.getTodayKey();
+    const tasks = (AppState.tasks || []).filter(t => !t.done && t.dueDate && t.dueDate <= today);
+    if (!tasks.length) { banner.style.display = 'none'; return; }
+
+    tasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
+
+    const priColor = { high: '#ff5c80', medium: '#ffb230', low: '#5b7fff' };
+    const itemsHtml = tasks.map(t => {
+      const overdue = t.dueDate < today;
+      const badgeClass = overdue ? 'due-overdue' : 'due-today';
+      const badgeText  = overdue ? 'Overdue' : 'Today';
+      const dotColor   = priColor[t.priority] || '#697098';
+      return `<div class="tasks-due-item">
+        <span class="tasks-due-dot" style="background:${dotColor};"></span>
+        <span class="tasks-due-title-text">${esc(t.title)}</span>
+        <span class="tasks-due-badge-sm ${badgeClass}">${badgeText}</span>
+      </div>`;
+    }).join('');
+
+    banner.style.display = '';
+    banner.innerHTML = `
+      <div class="tasks-due-banner-title">⚠️ Tasks due</div>
+      <div class="tasks-due-list">${itemsHtml}</div>`;
   },
 
   _renderDashboard() {
