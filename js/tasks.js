@@ -107,10 +107,21 @@ const TasksTracker = {
         </div>`;
     } else {
       board.innerHTML = buckets.map(bucket => {
-        const bucketTasks = allTasks.filter(t => t.bucketId === bucket.id);
-        const filtered    = this._filterTasks(bucketTasks);
-        const doneCnt     = bucketTasks.filter(t => t.done).length;
-        const col         = bucket.color || this.BUCKET_COLORS[0];
+        const bucketTasks  = allTasks.filter(t => t.bucketId === bucket.id);
+        const activeTasks  = bucketTasks.filter(t => !t.done);
+        const doneTasks    = bucketTasks.filter(t => t.done);
+        const filtered     = this._filterTasks(activeTasks);
+        const col          = bucket.color || this.BUCKET_COLORS[0];
+        const completedHtml = doneTasks.length ? `
+          <details class="task-completed-section" id="taskCompleted-${bucket.id}">
+            <summary class="task-completed-header">
+              <span class="task-completed-label">✓ Completed</span>
+              <span class="task-count-badge">${doneTasks.length}</span>
+            </summary>
+            <div class="task-completed-list">
+              ${doneTasks.map(t => this._taskHTML(t)).join('')}
+            </div>
+          </details>` : '';
         return `
           <div class="task-bucket" data-bucket-id="${bucket.id}">
             <div class="task-bucket-header" style="border-top:3px solid ${col};">
@@ -119,14 +130,15 @@ const TasksTracker = {
                 <input class="task-bucket-title-input" value="${this._esc(bucket.title)}"
                        data-bid="${bucket.id}" placeholder="Bucket name" title="Click to rename">
                 <div style="display:flex;align-items:center;gap:4px;">
-                  <span class="task-count-badge">${bucketTasks.length - doneCnt} / ${bucketTasks.length}</span>
+                  <span class="task-count-badge">${activeTasks.length} / ${bucketTasks.length}</span>
                   <button class="task-bucket-del btn btn-xs" data-bid="${bucket.id}" title="Delete bucket">✕</button>
                 </div>
               </div>
             </div>
             <div class="task-list" id="taskList-${bucket.id}">
-              ${filtered.length ? filtered.map(t => this._taskHTML(t)).join('') : '<div class="task-list-empty">No tasks match filter</div>'}
+              ${filtered.length ? filtered.map(t => this._taskHTML(t)).join('') : '<div class="task-list-empty">No active tasks</div>'}
             </div>
+            ${completedHtml}
             <div class="task-add-area" id="taskAddArea-${bucket.id}" style="display:none;">
               <input class="task-add-input" id="taskAddInput-${bucket.id}" placeholder="Task title…" maxlength="200">
               <div class="task-add-fields">
