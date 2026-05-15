@@ -32,6 +32,7 @@ const CloudSync = {
   _btnResetTimer:   null,
   _suppressBC:      false,   // true while applying a received BC message — breaks the re-broadcast loop
   _suppressBCTimer: null,
+  _pendingPayload:  null,    // most-recent unsent payload; used by flushPush()
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -72,25 +73,48 @@ const CloudSync = {
   },
 
   // Debounced push -- coalesces rapid saves into one Firestore write.
-  // Fires 2 s after the LAST save, so checking 10 items in a row = 1 write.
+  // Fires 800 ms after the LAST save, so checking 10 items in a row = 1 write.
   push(payload) {
+    this._pendingPayload = payload; // keep the latest payload for flushPush()
     this._broadcastToTabs(payload); // notify other tabs immediately (works even in local-only mode)
     if (!this._enabled || !this._ref) return;
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
       this._setSyncStatus('syncing');
       this._ref
-        .set(Object.assign({}, payload, {
+        .set(Object.assign({}, this._pendingPayload, {
           _deviceId: this._deviceId,
           _ts: firebase.firestore.FieldValue.serverTimestamp()
         }))
-        .then(() => this._setSyncStatus('synced'))
+        .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
         .catch((e) => {
           console.warn('CloudSync: push failed --', e.message);
           this._setSyncStatus('error');
         });
       this._pushTimer = null;
-    }, 2000);
+    }, 800);
+  },
+
+  // Immediately writes any queued push — call on pagehide/visibilitychange:hidden.
+  flushPush() {
+    if (!this._pendingPayload || !this._enabled || !this._ref) return;
+    clearTimeout(this._pushTimer);
+    this._pushTimer = null;
+    const payload = this._pendingPayload;
+    this._ref
+      .set(Object.assign({}, payload, {
+        _deviceId: this._deviceId,
+        _ts: firebase.firestore.FieldValue.serverTimestamp()
+      }))
+      .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
+      .catch(e => console.warn('CloudSync: flush failed --', e.message));
+  },
+
+  // Cancel any queued push (called when cloud data is newer and just applied).
+  cancelPush() {
+    clearTimeout(this._pushTimer);
+    this._pushTimer = null;
+    this._pendingPayload = null;
   },
 
   startListening() {

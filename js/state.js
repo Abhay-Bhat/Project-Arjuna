@@ -75,13 +75,28 @@ const AppState = {
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
   },
 
-  // Phase 2 -- runs once after sign-in; applies cloud data unconditionally.
-  // No timestamp comparison: UI.init() renders immediately and calls AppState.save()
-  // which stamps _savedAt = NOW, making any cloud data look stale.  Cloud wins on
-  // load because it represents the latest state across all devices.
+  // Phase 2 -- runs once after sign-in.
+  // Compares local _savedAt with cloud _savedAt:
+  //   local newer  → push local data to Firestore (e.g. push debounce was cut short by shutdown)
+  //   cloud newer  → apply cloud data and cancel any pre-sync pending push
+  //   no cloud doc → seed Firestore with current local state
   async syncCloud() {
     const cloudData = await CloudSync.pull();
-    if (!cloudData) return;
+    if (!cloudData) {
+      // No document yet — seed Firestore with local state
+      this._doSave();
+      return;
+    }
+    const localTs = this._savedAt ? new Date(this._savedAt).getTime() : 0;
+    const cloudTs = cloudData._savedAt ? new Date(cloudData._savedAt).getTime() : 0;
+    if (localTs > cloudTs) {
+      // Local IndexedDB is newer (e.g. push debounce never fired before shutdown)
+      // Push it immediately so other devices can pick it up.
+      this._doSave();
+      return;
+    }
+    // Cloud is newer — cancel any pending push from before this sync, then apply
+    CloudSync.cancelPush();
     this._applyLoaded(cloudData);
     Storage.save(cloudData);
     if (typeof UI !== 'undefined') UI.updateAll();
@@ -90,6 +105,7 @@ const AppState = {
   _applyLoaded(d) {
     if (!d) return;
     try {
+      this._savedAt             = d._savedAt             || null;
       this.currentTab           = d.currentTab           || 'today';
       this.theme                = d.theme                || 'dark';
       this.dashboardCollapsed   = d.dashboardCollapsed   || false;

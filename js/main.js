@@ -17,6 +17,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     Events.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
+    // Flush any queued Firestore push when the tab is hidden or unloaded.
+    // This covers: closing the tab, navigating away, and going to background on mobile.
+    const _flushOnExit = () => CloudSync.flushPush();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') _flushOnExit();
+    });
+    window.addEventListener('pagehide', _flushOnExit);
+
     // Live clock + day-change watcher
     const clockEl = document.getElementById('liveClockDisplay');
     let _lastDay = new Date().toDateString();
