@@ -245,12 +245,12 @@ const HealthTracker = {
     }
     tbody.innerHTML = rows.map(r => `
       <tr>
-        <td>${r.date}</td>
+        <td>${esc(r.date)}</td>
         <td class="num ${r.ldl && r.ldl > 130 ? 'warn' : 'good'}">${r.ldl ?? '—'}</td>
         <td class="num ${r.hdl && r.hdl < 40  ? 'warn' : 'good'}">${r.hdl ?? '—'}</td>
         <td class="num">${r.total ?? '—'}</td>
         <td class="notes-td">${esc(r.notes) || '—'}</td>
-        <td><button class="btn-xs btn-danger" data-del-chol="${r.date}">✕</button></td>
+        <td><button class="btn-xs btn-danger" data-del-chol="${esc(r.date)}">✕</button></td>
       </tr>`).join('');
 
     tbody.querySelectorAll('[data-del-chol]').forEach(btn => {

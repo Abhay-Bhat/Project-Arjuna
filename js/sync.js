@@ -145,8 +145,12 @@ const CloudSync = {
   startBroadcastListening() {
     if (!this._bc) return;
     this._bc.onmessage = (ev) => {
-      const data = ev.data;
-      if (!data) return;
+      const raw = ev.data;
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return;
+      // Sanitize via JSON round-trip to strip any prototype chain pollution
+      // (__proto__, constructor, etc.) that a malformed message might carry.
+      let data;
+      try { data = JSON.parse(JSON.stringify(raw)); } catch { return; }
       // Suppress re-broadcasting for long enough to outlast the save (300ms)
       // + push (2000ms) debounce chain that UI.updateAll() will trigger.
       // Without this, Tab A → BC → Tab B → UI.updateAll() → save → push →

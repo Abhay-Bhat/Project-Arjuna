@@ -253,12 +253,12 @@ const MindTracker = {
     }
 
     container.innerHTML = log.map(e => `
-      <div class="relapse-item ${e.type}">
-        <span class="ri-date">${e.date}</span>
-        <span class="ri-type ${e.type}">${e.type === 'relapse' ? '❌ Relapse' : '✅ Check-in'}</span>
+      <div class="relapse-item ${esc(e.type)}">
+        <span class="ri-date">${esc(e.date)}</span>
+        <span class="ri-type ${esc(e.type)}">${e.type === 'relapse' ? '❌ Relapse' : '✅ Check-in'}</span>
         <span class="ri-trigger">${esc(e.trigger) || '—'}</span>
         <span class="ri-note">${esc(e.note)}</span>
-        <button class="btn-xs btn-danger" data-del-relapse="${e.date}">✕</button>
+        <button class="btn-xs btn-danger" data-del-relapse="${esc(e.date)}">✕</button>
       </div>`).join('');
 
     container.querySelectorAll('[data-del-relapse]').forEach(btn => {

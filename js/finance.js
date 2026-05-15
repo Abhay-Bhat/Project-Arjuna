@@ -260,7 +260,7 @@ const FinanceTracker = {
     }
     tbody.innerHTML = entries.map(e => `
       <tr>
-        <td>${e.month}</td>
+        <td>${esc(e.month)}</td>
         <td class="num">${(e.saved_aed || 0).toLocaleString()} AED</td>
         <td class="num">₹${this._lakh(e.transferred_inr || 0)}</td>
         <td class="notes-td">${esc(e.notes) || '—'}</td>
@@ -1077,7 +1077,7 @@ const FinanceTracker = {
           <div class="maturity-alert ${urgency}">
             <div style="flex:1;min-width:0;">
               <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(inv.type)}${inv.bankAccount ? ' · ' + esc(inv.bankAccount) : ''}</div>
-              <div style="font-size:10px;color:var(--text-muted);">₹${this._lakh(val)} · ${inv.maturityDate}</div>
+              <div style="font-size:10px;color:var(--text-muted);">₹${this._lakh(val)} · ${esc(inv.maturityDate)}</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
               <span style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:${color};">${isOverdue ? '⚠ DUE' : dayLabel}</span>
@@ -1129,7 +1129,7 @@ const FinanceTracker = {
   const matDateHtml = inv => {
     if (!inv.maturityDate) return '<span style="color:var(--text-muted);">—</span>';
     const over = new Date(inv.maturityDate) < new Date();
-    return `<span style="font-size:10px;${over ? 'color:var(--accent-amber);font-weight:600;' : 'color:var(--text-muted);'}">${inv.maturityDate}${over ? ' ⚠' : ''}</span>`;
+    return `<span style="font-size:10px;${over ? 'color:var(--accent-amber);font-weight:600;' : 'color:var(--text-muted);'}">${esc(inv.maturityDate)}${over ? ' ⚠' : ''}</span>`;
   };
 
   const actionBtns = inv => {
@@ -1206,7 +1206,7 @@ const FinanceTracker = {
   const ppfInvs = all.filter(i => i.type === 'PPF');
   const ppfTbl = tbl(ppfInvs, [
     { h: 'Bank', v: i => `<span style="font-weight:600;">${esc(i.bankAccount) || '—'}</span>` },
-    { h: 'Start Date', v: i => `<span style="color:var(--text-muted);font-size:11px;">${i.date || '—'}</span>` },
+    { h: 'Start Date', v: i => `<span style="color:var(--text-muted);font-size:11px;">${esc(i.date) || '—'}</span>` },
     { h: 'Annual Contribution', v: i => `<span style="font-weight:700;">₹${L(i.amount)}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
     { h: 'Prior Corpus', v: i => i.openingBalance ? `₹${L(i.openingBalance)}` : '<span style="color:var(--text-muted);">—</span>', s: 'text-align:right;' },
     { h: 'FYs Credited', v: i => i.date ? `<span style="font-weight:700;color:var(--accent-teal);">${this._completedFYs(i.date)}</span>` : '—', s: 'text-align:center;' },
@@ -1318,7 +1318,7 @@ const FinanceTracker = {
     { h: 'Amount', v: i => { const isRD = i.depositType === 'RD'; return `<div style="font-weight:700;">₹${L(i.amount)}${isRD ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`; }, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.getTotalInvestedAmount(i), 0))} inv` },
     { h: 'Rate', v: i => `${i.interestRate || '—'}%` },
     { h: 'Tenure', v: i => i.tenure ? `${i.tenure} ${i.tenureUnit || 'yr'}` : '—' },
-    { h: 'Start', v: i => `<span style="color:var(--text-muted);font-size:10px;">${i.date || '—'}</span>` },
+    { h: 'Start', v: i => `<span style="color:var(--text-muted);font-size:10px;">${esc(i.date) || '—'}</span>` },
     { h: 'Maturity Date', v: matDateHtml },
     { h: 'Value Today', v: i => `<span style="font-weight:700;">₹${L(this.calculateInvestmentWealth(i))}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.calculateInvestmentWealth(i), 0))}` },
     { h: 'At Maturity', v: i => (i.status || 'active') === 'active' ? `<span style="color:var(--accent-blue);">₹${L(this.calculateMaturityAmount(i))}</span>` : '—', s: 'text-align:right;', tot: is => `₹${L(is.filter(i => (i.status || 'active') === 'active').reduce((s, i) => s + this.calculateMaturityAmount(i), 0))}` },
@@ -1341,7 +1341,7 @@ const FinanceTracker = {
   const sipTbl = tbl(sipInvs, [
     { h: 'Fund / Platform', v: i => `<div style="font-weight:600;">${esc(i.bankAccount) || '—'}</div>${i.notes ? `<div style="font-size:9px;color:var(--text-muted);">${esc(i.notes)}</div>` : ''}` },
     { h: 'Amount', v: i => `<div style="font-weight:700;">₹${L(i.amount)}${i.sipMode !== 'LumpSum' ? '<span style="font-size:9px;color:var(--text-muted);">/mo</span>' : ''}</div>`, s: 'text-align:right;' },
-    { h: 'AMFI Code', v: i => i.amfiCode ? `<span style="font-family:'Space Mono',monospace;font-size:10px;">${i.amfiCode}</span>` : '<span style="color:var(--text-muted);">—</span>' },
+    { h: 'AMFI Code', v: i => i.amfiCode ? `<span style="font-family:'Space Mono',monospace;font-size:10px;">${esc(i.amfiCode)}</span>` : '<span style="color:var(--text-muted);">—</span>' },
     { h: 'Units', v: i => i.units ? `<span style="font-family:'Space Mono',monospace;font-size:11px;">${i.units.toFixed(3)}</span>` : '—', s: 'text-align:right;' },
     { h: 'Live NAV', v: i => i.livePrice ? `<span style="color:var(--accent-teal);">₹${i.livePrice.toFixed(4)}</span>` : '—', s: 'text-align:right;font-size:11px;' },
     { h: 'Value Today', v: i => `<span style="font-weight:700;color:var(--accent-teal);">₹${L(this.calculateInvestmentWealth(i))}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.calculateInvestmentWealth(i), 0))}` },
@@ -1376,18 +1376,18 @@ const FinanceTracker = {
       }, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + _annualPremium(i), 0))}/yr` },
     { h: 'Frequency', v: i => `<span style="font-size:10px;">${i.premiumFrequency || '—'}</span>` },
     { h: 'Cover / Sum Assured', v: i => i.coverAmount ? `<span style="color:var(--accent-violet);font-weight:700;">₹${L(i.coverAmount)}</span>` : '—', s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.coverAmount || 0), 0))} cover` },
-    { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${i.date || '—'}</span>` },
+    { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${esc(i.date) || '—'}</span>` },
     { h: 'Maturity / Expiry', v: matDateHtml },
     { h: 'Status', v: statusBadge },
   ]);
 
   const otherInvs = all.filter(i => ['Gold', 'Bonds', 'RealEstate', 'Crypto', 'Other'].includes(i.type)).sort((a, b) => a.type.localeCompare(b.type));
   const otherTbl = tbl(otherInvs, [
-    { h: 'Type', v: i => `<span style="font-weight:700;">${i.type}</span>` },
+    { h: 'Type', v: i => `<span style="font-weight:700;">${esc(i.type)}</span>` },
     { h: 'Name / Description', v: i => `<span>${esc(i.bankAccount || i.notes) || '—'}</span>` },
     { h: 'Amount Invested', v: i => `₹${L(i.amount)}`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + (i.amount || 0), 0))}` },
     { h: 'Rate', v: i => `${i.interestRate || '—'}%` },
-    { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${i.date || '—'}</span>` },
+    { h: 'Start', v: i => `<span style="font-size:10px;color:var(--text-muted);">${esc(i.date) || '—'}</span>` },
     { h: 'Maturity', v: matDateHtml },
     { h: 'Value Today', v: i => `<span style="font-weight:700;">₹${L(this.calculateInvestmentWealth(i))}</span>`, s: 'text-align:right;', tot: is => `₹${L(is.reduce((s, i) => s + this.calculateInvestmentWealth(i), 0))}` },
     { h: 'Status', v: statusBadge },
@@ -2674,7 +2674,7 @@ const FinanceTracker = {
       const savColor   = savings >= 0 ? 'var(--accent-green)' : 'var(--accent-rose)';
       return `
         <tr>
-          <td>${e.month}</td>
+          <td>${esc(e.month)}</td>
           <td class="num">₹${this._lakh(e.income || 0)}</td>
           <td class="num" style="color:var(--accent-rose);">₹${this._lakh(totalExp)}</td>
           <td class="num" style="color:${savColor};font-weight:600;">₹${this._lakh(Math.abs(savings))}${savings < 0 ? ' <span style="font-size:10px;">(deficit)</span>' : ''}</td>

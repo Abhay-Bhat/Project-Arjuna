@@ -412,23 +412,24 @@ const UPSCTracker = {
               const dateFmt  = new Date(a.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
               const rowStyle = isSel ? 'background:rgba(77,121,255,0.06);' : '';
 
-              // Build links column
-              const urlLink = a.url
-                ? `<a href="${a.url}" target="_blank" rel="noopener" class="btn-xs" style="display:inline-flex;align-items:center;gap:3px;margin-right:4px;" title="Open article URL">🔗</a>`
+              // Build links column — validate URL scheme to block javascript: / data: URIs
+              const isSafeUrl = (u) => { try { const p = new URL(u).protocol; return p === 'https:' || p === 'http:'; } catch { return false; } };
+              const urlLink = a.url && isSafeUrl(a.url)
+                ? `<a href="${esc(a.url)}" target="_blank" rel="noopener noreferrer" class="btn-xs" style="display:inline-flex;align-items:center;gap:3px;margin-right:4px;" title="Open article URL">🔗</a>`
                 : '';
               const attachBtn = a.attachmentKey
-                ? `<button class="btn-xs" data-open-attach="${a.attachmentKey}" data-attach-name="${a.fileName || 'attachment'}" title="Download/view attachment">📎 ${a.fileName || 'File'}</button>`
+                ? `<button class="btn-xs" data-open-attach="${esc(a.attachmentKey)}" data-attach-name="${esc(a.fileName || 'attachment')}" title="Download/view attachment">📎 ${esc(a.fileName || 'File')}</button>`
                 : '';
 
               return `<tr style="${rowStyle}">
                 <td style="font-family:'Space Mono',monospace;font-size:11px;white-space:nowrap;">
                   ${dateFmt}${isToday ? ' <span style="color:var(--accent-green);font-size:10px;">Today</span>' : ''}
                 </td>
-                <td><span class="ca-source-badge">${a.source}</span></td>
+                <td><span class="ca-source-badge">${esc(a.source)}</span></td>
                 <td style="font-weight:500;">${esc(a.title)}</td>
                 <td style="color:var(--text-muted);font-size:12px;">${esc(a.notes) || '—'}</td>
                 <td style="white-space:nowrap;">${urlLink}${attachBtn || '—'}</td>
-                <td><button class="btn-xs btn-danger" data-del-ca="${a.id}" data-del-ca-date="${a.date}" data-del-ca-attach="${a.attachmentKey || ''}">✕</button></td>
+                <td><button class="btn-xs btn-danger" data-del-ca="${a.id}" data-del-ca-date="${esc(a.date)}" data-del-ca-attach="${esc(a.attachmentKey || '')}">✕</button></td>
               </tr>`;
             }).join('')}
           </tbody>
