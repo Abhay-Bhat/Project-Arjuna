@@ -259,7 +259,7 @@ const CloudSync = {
   },
 
   _setSyncStatus(status) {
-    // ── brief flash badge (write activity indicator) ──────────────────────
+    // ── brief flash badge in header (write activity indicator) ────────────
     const el = document.getElementById('syncStatus');
     if (el) {
       const map = {
@@ -277,7 +277,27 @@ const CloudSync = {
       }
     }
 
-    // ── persistent sync button (reflects live activity) ───────────────────
+    // ── persistent status row inside dropdown ─────────────────────────────
+    const row   = document.getElementById('syncStatusRow');
+    const dot   = document.getElementById('syncStatusDot');
+    const label = document.getElementById('syncStatusLabel');
+    if (row && dot && label) {
+      row.style.display = 'flex';
+      dot.className = 'sync-dot ' + (status === 'synced' ? 'synced' : status === 'syncing' ? 'syncing' : 'error');
+      if (status === 'syncing') {
+        label.textContent = 'Syncing…';
+      } else if (status === 'synced') {
+        const t = new Date();
+        const hh = String(t.getHours()).padStart(2,'0');
+        const mm = String(t.getMinutes()).padStart(2,'0');
+        label.textContent = `Synced at ${hh}:${mm}`;
+        dot.className = 'sync-dot synced';
+      } else {
+        label.textContent = 'Sync error — check connection';
+      }
+    }
+
+    // ── sync button in dropdown (reflects live activity) ──────────────────
     const btn  = document.getElementById('syncNowBtn');
     const icon = document.getElementById('syncNowIcon');
     if (!btn || btn.disabled) return; // don't override a manual click in progress

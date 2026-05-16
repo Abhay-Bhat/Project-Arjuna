@@ -171,6 +171,8 @@ const Auth = {
 
     const syncBtn = document.getElementById('syncNowBtn');
     if (syncBtn) syncBtn.style.display = 'inline-flex';
+    const syncRow = document.getElementById('syncStatusRow');
+    if (syncRow) syncRow.style.display = 'flex';
 
     const localBadge = document.getElementById('localModeBadge');
     if (localBadge) localBadge.style.display = 'none';
