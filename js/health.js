@@ -138,10 +138,10 @@ const HealthTracker = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 12 } } } },
+        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 12 } } } },
         scales: {
-          x: { ticks: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 11 } }, grid: { color: gridColor } },
-          y: { min: 0, max: 10, ticks: { color: textColor, stepSize: 1, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 11 } }, grid: { color: gridColor } }
+          x: { ticks: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 11 } }, grid: { color: gridColor } },
+          y: { min: 0, max: 10, ticks: { color: textColor, stepSize: 1, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 11 } }, grid: { color: gridColor } }
         }
       }
     });
@@ -200,10 +200,10 @@ const HealthTracker = {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 12 } } } },
+        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 12 } } } },
         scales: {
-          x: { ticks: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 11 } }, grid: { color: gridColor } },
-          y: { min: 0, max: 4, ticks: { color: textColor, stepSize: 1, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 11 } }, grid: { color: gridColor } }
+          x: { ticks: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 11 } }, grid: { color: gridColor } },
+          y: { min: 0, max: 4, ticks: { color: textColor, stepSize: 1, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 11 } }, grid: { color: gridColor } }
         }
       }
     });
@@ -342,7 +342,7 @@ const HealthTracker = {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif } } } },
+        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif' } } } },
         scales: {
           x: { ticks: { color: textColor }, grid: { color: gridColor } },
           y: { ticks: { color: textColor }, grid: { color: gridColor } }
