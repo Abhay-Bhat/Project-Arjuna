@@ -260,11 +260,17 @@ const UI = {
     if (!banner) return;
     const milestones = PhaseManager.getUpcomingMilestones(3);
     if (!milestones.length) { banner.innerHTML = ''; return; }
-    banner.innerHTML = milestones.map(m => `
-      <div class="milestone-item">
-        <span class="ms-days">${m.days === 0 ? 'TODAY' : m.days + 'd'}</span>
+    banner.innerHTML = milestones.map(m => {
+      const cls = m.days === 0 ? 'ms-days ms-today'
+                : m.days <= 7  ? 'ms-days ms-urgent'
+                : m.days <= 30 ? 'ms-days ms-soon'
+                               : 'ms-days';
+      const label = m.days === 0 ? 'TODAY' : m.days + 'd';
+      return `<div class="milestone-item">
+        <span class="${cls}">${label}</span>
         <span class="ms-label">${m.label}</span>
-      </div>`).join('<span class="ms-sep">·</span>');
+      </div>`;
+    }).join('<span class="ms-sep">·</span>');
   },
 
   // ── Tab rendering ────────────────────────────────────────
@@ -287,11 +293,31 @@ const UI = {
     this._renderProTip();
     this._bindQCCards();
     this.syncQuickCheckins();
+    this._syncTodayHabits();
     this._renderTodayUPSC();
     this._renderRoutine();
     this._renderCalendarNav();
     this._renderHolidayToggle();
     this._renderTasksDueBanner();
+  },
+
+  _syncTodayHabits() {
+    if (!window.ArjunaHealth) return;
+    const log   = ArjunaHealth.getTodayNutritionLog();
+    const done  = log.filter(i => i.checked).length;
+    const total = log.length;
+    const bar   = document.getElementById('todayHabitsBar');
+    const score = document.getElementById('todayHabitsScore');
+    if (bar)   bar.style.width   = Math.round((done / total) * 100) + '%';
+    if (score) score.textContent = `${done} / ${total} habits`;
+    log.forEach(item => {
+      const el = document.getElementById(`th-${item.id}`);
+      if (!el) return;
+      el.classList.toggle('th-done', item.checked);
+      el.title = item.label + (item.checked ? ' ✓' : '');
+    });
+    // Also refresh Health tab checklist if it's already rendered
+    if (typeof updateNutritionScore === 'function') updateNutritionScore();
   },
 
   _renderTasksDueBanner() {
