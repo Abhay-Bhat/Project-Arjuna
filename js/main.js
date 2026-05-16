@@ -170,7 +170,15 @@ window.ATHENA = {
   // device that shows stale/empty data to recover without a page reload.
   async forcePull() {
     if (!CloudSync._enabled || !CloudSync._ref) {
-      console.warn('CloudSync not enabled'); return;
+      console.warn('CloudSync not enabled — diagnosis:', {
+        enabled:         CloudSync._enabled,
+        db:              !!CloudSync._db,
+        uid:             Auth.uid,
+        isAuthenticated: Auth.isAuthenticated,
+        isLocalOnly:     Auth.isLocalOnly,
+        firestoreDefined: typeof firebase !== 'undefined' && typeof firebase.firestore === 'function',
+      });
+      return;
     }
     try {
       const snap = await CloudSync._ref.get();
