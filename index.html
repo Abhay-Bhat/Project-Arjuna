@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=19">
+    <link rel="stylesheet" href="css/styles.css?v=20">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -888,6 +888,325 @@
         <!-- ── MAIN: Charts + Cholesterol ── -->
         <div class="pane-main">
 
+          <!-- ═══════════════════════════════════════════════════════
+               MODULE 1: BLOOD MARKERS PANEL
+               ═══════════════════════════════════════════════════════ -->
+<section class="section-card" id="blood-markers-panel">
+  <div class="section-header">
+    <h3>🩸 Blood Markers</h3>
+    <span class="section-meta" id="retest-countdown">Retest in — days</span>
+  </div>
+
+  <!-- Risk summary chips -->
+  <div class="marker-risk-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <span class="chip chip-critical">🔴 Vit D — Deficient</span>
+    <span class="chip chip-critical">🔴 B12 — Below range</span>
+    <span class="chip chip-critical">🔴 LDL — High</span>
+    <span class="chip chip-critical">🔴 HDL — Low</span>
+    <span class="chip chip-border">🟡 HbA1c — Borderline</span>
+    <span class="chip chip-ok">🟢 Kidney — Optimal</span>
+    <span class="chip chip-ok">🟢 Thyroid — Optimal</span>
+    <span class="chip chip-ok">🟢 Liver — Optimal</span>
+  </div>
+
+  <!-- Key markers with progress bars -->
+  <div class="markers-list" id="blood-markers-list">
+
+    <!-- Vitamin D -->
+    <div class="marker-row" data-marker="vitaminD">
+      <div class="marker-info">
+        <span class="marker-label">Vitamin D</span>
+        <span class="marker-value critical" id="marker-vitd-val">9.17 ng/mL</span>
+      </div>
+      <div class="marker-bar-wrap">
+        <div class="marker-bar">
+          <div class="marker-bar-fill critical" style="width:9%" id="marker-vitd-bar"></div>
+          <div class="marker-bar-target" style="left:30%" title="Target: 30 ng/mL"></div>
+        </div>
+        <div class="marker-bar-labels">
+          <span>0</span><span>Target: 30</span><span>100 ng/mL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vitamin B12 -->
+    <div class="marker-row" data-marker="vitaminB12">
+      <div class="marker-info">
+        <span class="marker-label">Vitamin B12</span>
+        <span class="marker-value critical" id="marker-b12-val">&lt;148 pg/mL</span>
+      </div>
+      <div class="marker-bar-wrap">
+        <div class="marker-bar">
+          <div class="marker-bar-fill critical" style="width:17%" id="marker-b12-bar"></div>
+          <div class="marker-bar-target" style="left:34%" title="Target: 300 pg/mL"></div>
+        </div>
+        <div class="marker-bar-labels">
+          <span>0</span><span>Target: 300</span><span>883 pg/mL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LDL -->
+    <div class="marker-row" data-marker="ldl">
+      <div class="marker-info">
+        <span class="marker-label">LDL Cholesterol</span>
+        <span class="marker-value critical" id="marker-ldl-val">155.6 mg/dL</span>
+      </div>
+      <div class="marker-bar-wrap">
+        <div class="marker-bar">
+          <!-- LDL: lower = better, so bar fills from right -->
+          <div class="marker-bar-fill critical" style="width:78%" id="marker-ldl-bar"></div>
+          <div class="marker-bar-target" style="left:50%" title="Target: &lt;100 mg/dL"></div>
+        </div>
+        <div class="marker-bar-labels">
+          <span>0 (best)</span><span>Target: 100</span><span>200 mg/dL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HDL -->
+    <div class="marker-row" data-marker="hdl">
+      <div class="marker-info">
+        <span class="marker-label">HDL Cholesterol</span>
+        <span class="marker-value critical" id="marker-hdl-val">36 mg/dL</span>
+      </div>
+      <div class="marker-bar-wrap">
+        <div class="marker-bar">
+          <div class="marker-bar-fill warning" style="width:45%" id="marker-hdl-bar"></div>
+          <div class="marker-bar-target" style="left:62%" title="Target: &gt;50 mg/dL"></div>
+        </div>
+        <div class="marker-bar-labels">
+          <span>0</span><span>Target: 50</span><span>80 mg/dL</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HbA1c -->
+    <div class="marker-row" data-marker="hba1c">
+      <div class="marker-info">
+        <span class="marker-label">HbA1c</span>
+        <span class="marker-value warning" id="marker-hba1c-val">5.7%</span>
+      </div>
+      <div class="marker-bar-wrap">
+        <div class="marker-bar">
+          <div class="marker-bar-fill warning" style="width:73%" id="marker-hba1c-bar"></div>
+          <div class="marker-bar-target" style="left:67%" title="Target: 5.4%"></div>
+        </div>
+        <div class="marker-bar-labels">
+          <span>4%</span><span>Target: 5.4%</span><span>7.8%</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.markers-list -->
+
+  <!-- Log new test reading -->
+  <details class="log-new-test" style="margin-top:12px">
+    <summary style="cursor:pointer;font-size:13px;color:var(--accent)">+ Log new blood test reading</summary>
+    <div class="log-form" style="margin-top:10px;display:grid;gap:8px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label class="form-label">Test Date</label>
+          <input type="date" id="new-test-date" class="form-input">
+        </div>
+        <div>
+          <label class="form-label">Vitamin D (ng/mL)</label>
+          <input type="number" id="new-test-vitd" placeholder="e.g. 24.5" class="form-input" step="0.01">
+        </div>
+        <div>
+          <label class="form-label">Vitamin B12 (pg/mL)</label>
+          <input type="number" id="new-test-b12" placeholder="e.g. 250" class="form-input">
+        </div>
+        <div>
+          <label class="form-label">HbA1c (%)</label>
+          <input type="number" id="new-test-hba1c" placeholder="e.g. 5.5" class="form-input" step="0.1">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveBloodTestLog()">Save Reading</button>
+    </div>
+  </details>
+</section>
+
+
+          <!-- ═══════════════════════════════════════════════════════
+               MODULE 2: DAILY NUTRITION CHECKLIST
+               ═══════════════════════════════════════════════════════ -->
+<section class="section-card" id="nutrition-checklist">
+  <div class="section-header">
+    <h3>✅ Nutrition Checklist</h3>
+    <span class="section-meta">Streak: <strong id="nutrition-streak-val">—</strong> days</span>
+  </div>
+  <p class="section-subtext">These 7 habits directly target your out-of-range markers. Log daily.</p>
+
+  <div class="checklist-grid" id="nutrition-checklist-items">
+    <!-- Rendered by JS: renderNutritionChecklist() -->
+    <!-- Each item is a toggleable card: icon + label + target marker badge -->
+
+    <!-- STATIC FALLBACK (replace with JS render) -->
+    <div class="checklist-item" data-id="eggs" onclick="handleNutritionToggle('eggs')">
+      <span class="checklist-icon">🥚</span>
+      <div class="checklist-text">
+        <span class="checklist-label">2 eggs eaten</span>
+        <span class="checklist-tag tag-b12">B12</span>
+      </div>
+      <span class="checklist-check" id="check-eggs">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="fish" onclick="handleNutritionToggle('fish')">
+      <span class="checklist-icon">🐟</span>
+      <div class="checklist-text">
+        <span class="checklist-label">Fish meal today</span>
+        <span class="checklist-tag tag-hdl">HDL</span>
+      </div>
+      <span class="checklist-check" id="check-fish">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="nuts" onclick="handleNutritionToggle('nuts')">
+      <span class="checklist-icon">🌰</span>
+      <div class="checklist-text">
+        <span class="checklist-label">Almonds + walnut</span>
+        <span class="checklist-tag tag-hdl">HDL</span>
+      </div>
+      <span class="checklist-check" id="check-nuts">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="sun" onclick="handleNutritionToggle('sun')">
+      <span class="checklist-icon">☀️</span>
+      <div class="checklist-text">
+        <span class="checklist-label">15 min morning sun</span>
+        <span class="checklist-tag tag-vitd">Vit D</span>
+      </div>
+      <span class="checklist-check" id="check-sun">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="water" onclick="handleNutritionToggle('water')">
+      <span class="checklist-icon">💧</span>
+      <div class="checklist-text">
+        <span class="checklist-label">3L water</span>
+        <span class="checklist-tag tag-kidney">Kidneys</span>
+      </div>
+      <span class="checklist-check" id="check-water">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="noFried" onclick="handleNutritionToggle('noFried')">
+      <span class="checklist-icon">🚫</span>
+      <div class="checklist-text">
+        <span class="checklist-label">Zero fried food</span>
+        <span class="checklist-tag tag-ldl">LDL↓</span>
+      </div>
+      <span class="checklist-check" id="check-noFried">○</span>
+    </div>
+
+    <div class="checklist-item" data-id="earlyDinner" onclick="handleNutritionToggle('earlyDinner')">
+      <span class="checklist-icon">🌙</span>
+      <div class="checklist-text">
+        <span class="checklist-label">Dinner before 8 PM</span>
+        <span class="checklist-tag tag-sugar">HbA1c</span>
+      </div>
+      <span class="checklist-check" id="check-earlyDinner">○</span>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+      <span>Today's score</span>
+      <span id="nutrition-score-label">0 / 7</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="nutrition-score-bar" style="width:0%"></div>
+    </div>
+  </div>
+</section>
+
+
+          <!-- ═══════════════════════════════════════════════════════
+               MODULE 3: TODAY'S MEAL PLAN
+               ═══════════════════════════════════════════════════════ -->
+<section class="section-card" id="todays-meal-plan">
+  <div class="section-header">
+    <h3>🍽️ Today's Meals</h3>
+    <span class="section-meta" id="meal-day-label">— Day</span>
+  </div>
+  <p class="section-subtext" id="meal-theme-label" style="margin-bottom:12px">Loading...</p>
+
+  <!-- Fish day banner (shown only on Tue/Thu/Sat) -->
+  <div id="fish-day-banner" style="display:none;background:var(--info-bg);border:1px solid var(--info-border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--info-text)">
+    🐟 <strong>Fish day</strong> — eat fish at lunch or dinner today. This is your most important HDL-boosting habit.
+  </div>
+
+  <div id="meal-plan-list">
+    <!-- Rendered dynamically by JS: renderTodayMealPlan() -->
+    <!-- Each slot: time + item + where + tag chips + swap (collapsed) -->
+  </div>
+
+  <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+    💡 Tap any meal to see a swap option. All meals orderable on Swiggy/Zomato or from nearby eateries.
+  </div>
+</section>
+
+
+          <!-- ═══════════════════════════════════════════════════════
+               MODULE 4: SUPPLEMENT TRACKER
+               ═══════════════════════════════════════════════════════ -->
+<section class="section-card" id="supplement-tracker">
+  <div class="section-header">
+    <h3>💊 Supplements</h3>
+    <span class="section-meta">Doctor visit first for D3 + B12</span>
+  </div>
+
+  <div class="supplement-list">
+
+    <div class="supplement-row" id="supp-vitd3">
+      <div class="supp-icon">☀️</div>
+      <div class="supp-info">
+        <div class="supp-name">Vitamin D3 — 60,000 IU</div>
+        <div class="supp-meta">Weekly · Sunday with fatty meal · Rx required</div>
+        <div class="supp-progress">
+          <span class="supp-week" id="vitd-weeks">Week — of 8</span>
+          <div class="progress-bar-bg" style="width:120px"><div class="progress-bar-fill" id="vitd-progress" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="supp-action">
+        <button class="btn-small" id="btn-start-vitd" onclick="startSupplement('vitd3')">Set start date</button>
+        <button class="btn-small btn-check" id="btn-log-vitd" onclick="logSupplement('vitd3')" style="display:none">✓ Taken today</button>
+      </div>
+    </div>
+
+    <div class="supplement-row" id="supp-b12">
+      <div class="supp-icon">🔴</div>
+      <div class="supp-info">
+        <div class="supp-name">Vitamin B12 — 1500 mcg (Methylcobalamin)</div>
+        <div class="supp-meta">Daily · Sublingual tablet · Morning</div>
+        <div class="supp-progress">
+          <span class="supp-week" id="b12-days">Day — of 84</span>
+          <div class="progress-bar-bg" style="width:120px"><div class="progress-bar-fill" id="b12-progress" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="supp-action">
+        <button class="btn-small" id="btn-start-b12" onclick="startSupplement('b12')">Set start date</button>
+        <button class="btn-small btn-check" id="btn-log-b12" onclick="logSupplement('b12')" style="display:none">✓ Taken today</button>
+      </div>
+    </div>
+
+    <div class="supplement-row" id="supp-omega3">
+      <div class="supp-icon">🐟</div>
+      <div class="supp-info">
+        <div class="supp-name">Omega-3 Fish Oil — 1000 mg (EPA+DHA)</div>
+        <div class="supp-meta">Daily · With lunch · Ongoing</div>
+        <div class="supp-progress">
+          <span class="supp-week" id="omega3-days">Day — (ongoing)</span>
+        </div>
+      </div>
+      <div class="supp-action">
+        <button class="btn-small" id="btn-start-omega3" onclick="startSupplement('omega3')">Set start date</button>
+        <button class="btn-small btn-check" id="btn-log-omega3" onclick="logSupplement('omega3')" style="display:none">✓ Taken today</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
           <div class="section-title">Sleep Trend (14 days)</div>
           <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
 
@@ -1525,25 +1844,26 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=19"></script>
-<script defer src="js/auth.js?v=19"></script>
-<script defer src="js/sync.js?v=19"></script>
-<script defer src="js/phases.js?v=19"></script>
-<script defer src="js/storage.js?v=19"></script>
-<script defer src="js/state.js?v=19"></script>
-<script defer src="js/scheduler.js?v=19"></script>
-<script defer src="js/upsc.js?v=19"></script>
-<script defer src="js/finance.js?v=19"></script>
-<script defer src="js/health.js?v=19"></script>
-<script defer src="js/mind.js?v=19"></script>
-<script defer src="js/growth.js?v=19"></script>
-<script defer src="js/tasks.js?v=19"></script>
-<script defer src="js/ui.js?v=19"></script>
-<script defer src="js/events.js?v=19"></script>
-<script defer src="js/tooltips.js?v=19"></script>
-<script defer src="js/seed-data.js?v=19"></script>
-<script defer src="js/backup.js?v=19"></script>
-<script defer src="js/main.js?v=19"></script>
+<script defer src="js/firebase-config.js?v=20"></script>
+<script defer src="js/auth.js?v=20"></script>
+<script defer src="js/sync.js?v=20"></script>
+<script defer src="js/phases.js?v=20"></script>
+<script defer src="js/storage.js?v=20"></script>
+<script defer src="js/state.js?v=20"></script>
+<script defer src="js/scheduler.js?v=20"></script>
+<script defer src="js/upsc.js?v=20"></script>
+<script defer src="js/finance.js?v=20"></script>
+<script defer src="js/health-data.js?v=20"></script>
+<script defer src="js/health.js?v=20"></script>
+<script defer src="js/mind.js?v=20"></script>
+<script defer src="js/growth.js?v=20"></script>
+<script defer src="js/tasks.js?v=20"></script>
+<script defer src="js/ui.js?v=20"></script>
+<script defer src="js/events.js?v=20"></script>
+<script defer src="js/tooltips.js?v=20"></script>
+<script defer src="js/seed-data.js?v=20"></script>
+<script defer src="js/backup.js?v=20"></script>
+<script defer src="js/main.js?v=20"></script>
 
 </body>
 </html>

@@ -11,6 +11,34 @@ const HealthTracker = {
     this.renderPhoneChart();
     this.renderCholesterolLog();
     this.renderGymHeatmap();
+    this._initHealthModules();
+  },
+
+  // ── Health Modules init (blood markers, nutrition, meal plan, supplements) ──
+  _initHealthModules() {
+    if (!window.ArjunaHealth) return;
+    this._seedBloodTestOnce();
+    const retestEl = document.getElementById('retest-countdown');
+    if (retestEl) retestEl.textContent = `Retest in ${ArjunaHealth.getDaysToRetest()} days`;
+    renderTodayMealPlan();
+    updateNutritionScore();
+    renderSupplementTracker();
+  },
+
+  _seedBloodTestOnce() {
+    const FLAG = 'arjuna_cholesterol_seeded_v1';
+    if (localStorage.getItem(FLAG)) return;
+    const already = (AppState.cholesterol || []).some(r => r.id === 'seed_20260510');
+    if (!already) {
+      AppState.cholesterol = AppState.cholesterol || [];
+      AppState.cholesterol.unshift({
+        id: 'seed_20260510', date: '2026-05-10',
+        ldl: 155.6, hdl: 36, total: 221,
+        notes: 'Redcliffe Labs full body checkup. LDL high, HDL low, Vit D/B12 critical.',
+      });
+      AppState.save();
+    }
+    localStorage.setItem(FLAG, 'true');
   },
 
   renderTodayForm() {
@@ -351,3 +379,149 @@ const HealthTracker = {
     });
   }
 };
+
+// ── Global functions required by onclick= attributes in health-modules.html ──
+
+function renderTodayMealPlan() {
+  if (!window.ArjunaHealth) return;
+  const plan = ArjunaHealth.getTodayMealPlan();
+  const dayEl   = document.getElementById('meal-day-label');
+  const themeEl = document.getElementById('meal-theme-label');
+  const fishEl  = document.getElementById('fish-day-banner');
+  const listEl  = document.getElementById('meal-plan-list');
+  if (!listEl) return;
+  if (dayEl)   dayEl.textContent   = plan.day;
+  if (themeEl) themeEl.textContent = plan.theme;
+  if (fishEl)  fishEl.style.display = plan.fish ? 'block' : 'none';
+
+  const slotEmojis = { wake:'🌅', breakfast:'🍳', midMorning:'🥤', lunch:'🍽️', evening:'🫖', dinner:'🌙' };
+  const mealKeys = ['wake','breakfast','midMorning','lunch','evening','dinner'];
+  listEl.innerHTML = mealKeys.map(k => {
+    const m = plan.meals.find ? plan.meals.find(x => x.slot === k) : plan.meals[k];
+    if (!m) return '';
+    const tagsHtml = (m.tags || []).map(t => `<span class="tag-${t.toLowerCase().replace(/[^a-z0-9]/g,'')}">${t}</span>`).join('');
+    const swapHtml = m.swap ? `<div class="meal-swap">↔ ${m.swap}</div>` : '';
+    return `<div class="meal-row" onclick="this.classList.toggle('open')">
+      <div class="meal-row-inner">
+        <span class="meal-time">${slotEmojis[k] || '●'} ${m.time || ''}</span>
+        <div class="meal-body">
+          <div class="meal-item">${m.item || ''}</div>
+          ${m.where ? `<div class="meal-where">📍 ${m.where}</div>` : ''}
+          <div class="meal-tags">${tagsHtml}</div>
+          ${swapHtml}
+        </div>
+        ${m.swap ? '<span class="meal-caret">▼</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function handleNutritionToggle(itemId) {
+  if (!window.ArjunaHealth) return;
+  const newState = ArjunaHealth.toggleNutritionItem(itemId);
+  const el    = document.querySelector(`[data-id="${itemId}"]`);
+  const check = document.getElementById(`check-${itemId}`);
+  if (el)    el.classList.toggle('done', newState);
+  if (check) check.textContent = newState ? '✓' : '○';
+  updateNutritionScore();
+}
+
+function updateNutritionScore() {
+  if (!window.ArjunaHealth) return;
+  const log   = ArjunaHealth.getTodayNutritionLog();
+  const done  = log.filter(i => i.checked).length;
+  const total = log.length;
+  const scoreEl = document.getElementById('nutrition-score-label');
+  const barEl   = document.getElementById('nutrition-score-bar');
+  const streakEl= document.getElementById('nutrition-streak-val');
+  if (scoreEl)  scoreEl.textContent = `${done} / ${total}`;
+  if (barEl)    barEl.style.width   = Math.round((done / total) * 100) + '%';
+  if (streakEl) streakEl.textContent = ArjunaHealth.getNutritionStreak();
+  log.forEach(item => {
+    const el    = document.querySelector(`[data-id="${item.id}"]`);
+    const check = document.getElementById(`check-${item.id}`);
+    if (el)    el.classList.toggle('done', item.checked);
+    if (check) check.textContent = item.checked ? '✓' : '○';
+  });
+}
+
+function startSupplement(suppId) {
+  const today = new Date().toISOString().split('T')[0];
+  localStorage.setItem(`arjuna_supp_${suppId}_start`, today);
+  renderSupplementTracker();
+}
+
+function logSupplement(suppId) {
+  const today = new Date().toISOString().split('T')[0];
+  const key   = `arjuna_supp_${suppId}_log`;
+  const log   = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!log.includes(today)) { log.push(today); localStorage.setItem(key, JSON.stringify(log)); }
+  renderSupplementTracker();
+}
+
+function renderSupplementTracker() {
+  const today = new Date().toISOString().split('T')[0];
+  const supps = [
+    { id: 'vitd3',  totalDays: 56,  prefix: 'vitd',   weekly: true  },
+    { id: 'b12',    totalDays: 84,  prefix: 'b12',    weekly: false },
+    { id: 'omega3', totalDays: null, prefix: 'omega3', weekly: false },
+  ];
+  supps.forEach(s => {
+    const startDate = localStorage.getItem(`arjuna_supp_${s.id}_start`);
+    const log       = JSON.parse(localStorage.getItem(`arjuna_supp_${s.id}_log`) || '[]');
+    const startBtn  = document.getElementById(`btn-start-${s.prefix}`);
+    const logBtn    = document.getElementById(`btn-log-${s.prefix}`);
+    const daysEl    = document.getElementById(`${s.prefix}-days`) || document.getElementById(`${s.prefix}-weeks`);
+    const progEl    = document.getElementById(`${s.prefix}-progress`);
+    if (!startBtn) return;
+    if (!startDate) {
+      startBtn.style.display = 'inline-block';
+      if (logBtn) logBtn.style.display = 'none';
+      return;
+    }
+    startBtn.style.display = 'none';
+    if (logBtn) { logBtn.style.display = 'inline-block'; }
+    if (logBtn && log.includes(today)) { logBtn.textContent = '✓ Done'; logBtn.disabled = true; }
+    const dayNum = Math.ceil((new Date(today) - new Date(startDate)) / 86400000) + 1;
+    if (daysEl) {
+      daysEl.textContent = s.totalDays
+        ? (s.weekly ? `Week ${Math.ceil(dayNum/7)} of ${s.totalDays/7}` : `Day ${dayNum} of ${s.totalDays}`)
+        : `Day ${dayNum} (ongoing)`;
+    }
+    if (progEl && s.totalDays) progEl.style.width = Math.min(100, Math.round(dayNum / s.totalDays * 100)) + '%';
+  });
+}
+
+function saveBloodTestLog() {
+  const date  = document.getElementById('new-test-date')?.value;
+  const vitd  = parseFloat(document.getElementById('new-test-vitd')?.value);
+  const b12   = parseFloat(document.getElementById('new-test-b12')?.value);
+  const hba1c = parseFloat(document.getElementById('new-test-hba1c')?.value);
+  if (!date) return;
+
+  // Persist into AppState.cholesterol so it appears in the cholesterol log + chart
+  AppState.cholesterol = AppState.cholesterol || [];
+  AppState.cholesterol.push({
+    id: Date.now(), date,
+    ldl: null, hdl: null, total: null,
+    notes: [vitd ? `Vit D: ${vitd}` : '', b12 ? `B12: ${b12}` : '', hba1c ? `HbA1c: ${hba1c}%` : '']
+      .filter(Boolean).join(' | '),
+  });
+  AppState.cholesterol.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+  AppState.save();
+
+  // Update displayed markers
+  if (!isNaN(vitd))  { document.getElementById('marker-vitd-val').textContent  = `${vitd} ng/mL`; }
+  if (!isNaN(b12))   { document.getElementById('marker-b12-val').textContent   = `${b12} pg/mL`; }
+  if (!isNaN(hba1c)) { document.getElementById('marker-hba1c-val').textContent = `${hba1c}%`; }
+
+  // Refresh cholesterol table & chart
+  HealthTracker.renderCholesterolTable();
+  HealthTracker.renderCholesterolChart();
+
+  // Clear form
+  ['new-test-date','new-test-vitd','new-test-b12','new-test-hba1c'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+}

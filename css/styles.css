@@ -3577,3 +3577,212 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 @keyframes al-spin    { to { transform: rotate(360deg); } }
 @keyframes al-pulse   { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+
+
+/* ═══════════════════════════════════════════════════════════
+   HEALTH MODULES — Blood Markers, Nutrition, Meal Plan,
+   Supplements (from health-modules.html integration)
+   ═══════════════════════════════════════════════════════════ */
+
+/* CSS variables needed by health modules */
+:root {
+  --progress-bg: var(--border);
+  --info-bg: rgba(91,127,255,0.10);
+  --info-border: rgba(91,127,255,0.30);
+  --info-text: var(--accent-blue);
+  --accent: var(--accent-violet);
+}
+[data-theme="light"] {
+  --info-bg: rgba(61,92,245,0.06);
+  --info-border: rgba(61,92,245,0.20);
+  --info-text: var(--accent-blue);
+}
+
+/* section-card — visual equivalent of pane-card */
+.section-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.section-header h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin: 0;
+}
+.section-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.section-subtext {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* ── Marker chips ── */
+.chip {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.chip-critical { background: rgba(220,38,38,0.15);  color: #f87171; }
+.chip-border   { background: rgba(234,179,8,0.15);  color: #fcd34d; }
+.chip-ok       { background: rgba(34,197,94,0.12);  color: #4ade80; }
+
+/* ── Blood marker rows ── */
+.marker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.marker-row:last-child { border-bottom: none; }
+.marker-info { display: flex; flex-direction: column; min-width: 160px; }
+.marker-label { font-size: 12px; color: var(--text-muted); }
+.marker-value { font-size: 15px; font-weight: 600; color: var(--text); }
+.marker-value.critical { color: #f87171; }
+.marker-value.warning  { color: #fbbf24; }
+.marker-value.ok       { color: #4ade80; }
+.marker-bar-wrap { flex: 1; min-width: 0; }
+.marker-bar {
+  position: relative; height: 6px;
+  background: var(--border); border-radius: 3px;
+}
+.marker-bar-fill {
+  height: 6px; border-radius: 3px; transition: width 0.5s ease;
+}
+.marker-bar-fill.critical { background: #ef4444; }
+.marker-bar-fill.warning  { background: #f59e0b; }
+.marker-bar-fill.ok       { background: #22c55e; }
+.marker-bar-target {
+  position: absolute; top: -3px; width: 2px; height: 12px;
+  background: #60a5fa; border-radius: 1px;
+}
+.marker-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-muted); margin-top: 2px;
+}
+
+/* ── Log new test form within <details> ── */
+.log-new-test > summary { user-select: none; color: var(--accent-teal); }
+.form-label {
+  display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px;
+}
+.form-input {
+  width: 100%; padding: 6px 10px; font-size: 13px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+}
+.form-input:focus { outline: none; border-color: var(--accent-blue); }
+
+/* ── Nutrition checklist ── */
+.checklist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+@media (max-width: 480px) { .checklist-grid { grid-template-columns: 1fr; } }
+.checklist-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--border);
+  cursor: pointer; transition: background var(--transition);
+}
+.checklist-item:hover { background: var(--card-hover); }
+.checklist-item.done {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.3);
+}
+.checklist-icon { font-size: 18px; }
+.checklist-text { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.checklist-label { font-size: 13px; color: var(--text); }
+.checklist-tag { display: inline-block; }
+.checklist-check { font-size: 18px; color: var(--text-muted); flex-shrink: 0; }
+.checklist-item.done .checklist-check { color: #22c55e; }
+
+/* ── Progress bar (health modules alias) ── */
+.progress-bar-bg {
+  background: var(--border); border-radius: 3px; height: 6px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* ── Nutrition / meal tag badges ── */
+.tag-b12      { background: rgba(239,68,68,0.15);    color: #f87171;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-hdl      { background: rgba(34,197,94,0.12);    color: #4ade80;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-vitd     { background: rgba(251,191,36,0.15);   color: #fcd34d;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-ldl      { background: rgba(96,165,250,0.15);   color: #93c5fd;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-sugar    { background: rgba(167,139,250,0.15);  color: #c4b5fd;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-kidney   { background: rgba(45,212,191,0.15);   color: #5eead4;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-gut      { background: rgba(139,92,246,0.12);   color: #a78bfa;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-protein  { background: rgba(249,115,22,0.12);   color: #fb923c;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-fiber    { background: rgba(132,204,22,0.12);   color: #a3e635;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-antiinflam { background: rgba(244,63,94,0.10); color: #fb7185;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+.tag-omega3   { background: rgba(20,184,166,0.12);   color: #2dd4bf;  font-size: 10px; padding: 1px 6px; border-radius: 4px; }
+
+/* ── Meal plan rows ── */
+.meal-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.meal-row:last-child { border-bottom: none; }
+.meal-row-inner { display: flex; gap: 10px; align-items: flex-start; }
+.meal-time { font-size: 11px; color: var(--text-muted); font-weight: 500; white-space: nowrap; }
+.meal-body { flex: 1; min-width: 0; }
+.meal-item { font-size: 13.5px; font-weight: 500; color: var(--text); line-height: 1.4; margin-top: 2px; }
+.meal-where { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.meal-tags  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.meal-swap  {
+  display: none;
+  margin-top: 8px; font-size: 12px; color: var(--text-muted);
+  background: var(--surface); padding: 8px 10px; border-radius: 6px;
+  border-left: 3px solid var(--accent-teal); line-height: 1.5;
+}
+.meal-row.open .meal-swap { display: block; }
+.meal-caret { font-size: 10px; color: var(--text-muted); margin-top: 14px; flex-shrink: 0; }
+
+/* ── Supplement tracker ── */
+.supplement-list { }
+.supplement-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.supplement-row:last-child { border-bottom: none; }
+.supp-icon  { font-size: 20px; flex-shrink: 0; }
+.supp-info  { flex: 1; min-width: 0; }
+.supp-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+.supp-meta  { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.supp-progress { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.supp-week  { font-size: 11px; color: var(--text-muted); }
+.supp-action { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+.btn-small {
+  font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+  transition: all var(--transition); white-space: nowrap;
+}
+.btn-small:hover { background: var(--card-hover); }
+.btn-check { border-color: #22c55e; color: #4ade80; }
+.btn-check:hover { background: rgba(34,197,94,0.08); }
