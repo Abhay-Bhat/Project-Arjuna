@@ -484,16 +484,21 @@ const UI = {
       authorEl.textContent = '— ' + a;
     };
 
-    // Use a cached quote for the day
-    const today  = new Date().toDateString();
-    const cached = JSON.parse(localStorage.getItem('athena_quote') || 'null');
-    if (cached?.date === today) { apply(cached.q, cached.a); return; }
-
-    // Pick a random fallback immediately so the user sees something
-    const immediate = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    // Pick a fresh random fallback every refresh — avoid repeating the previous one
+    const lastQ = sessionStorage.getItem('athena_last_quote') || '';
+    let pool = fallbacks.filter(f => f.q !== lastQ);
+    if (!pool.length) pool = fallbacks;
+    const immediate = pool[Math.floor(Math.random() * pool.length)];
     apply(immediate.q, immediate.a);
+    sessionStorage.setItem('athena_last_quote', immediate.q);
 
-    // Try multiple public quote APIs in sequence
+    // Try public quote APIs for variety; if they succeed, swap in the fresh quote
+    const tryZen = () =>
+      fetch('https://zenquotes.io/api/random', { signal: AbortSignal.timeout(4000) })
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(d => { const x = Array.isArray(d) ? d[0] : null; if (!x?.q) throw new Error();
+          return { q: x.q, a: x.a || 'Unknown' }; });
+
     const tryQuotable = () =>
       fetch('https://api.quotable.io/random?maxLength=150', { signal: AbortSignal.timeout(4000) })
         .then(r => { if (!r.ok) throw new Error(); return r.json(); })
@@ -504,16 +509,14 @@ const UI = {
         .then(r => { if (!r.ok) throw new Error(); return r.json(); })
         .then(d => { if (!d?.quoteText) throw new Error(); return { q: d.quoteText.trim(), a: d.quoteAuthor?.trim() || 'Unknown' }; });
 
-    tryQuotable()
+    tryZen()
+      .catch(() => tryQuotable())
       .catch(() => tryForismatic())
       .then(({ q, a }) => {
-        localStorage.setItem('athena_quote', JSON.stringify({ date: today, q, a }));
         apply(q, a);
+        sessionStorage.setItem('athena_last_quote', q);
       })
-      .catch(() => {
-        // Both APIs failed — keep the fallback already shown, cache it for the day
-        localStorage.setItem('athena_quote', JSON.stringify({ date: today, q: immediate.q, a: immediate.a }));
-      });
+      .catch(() => { /* keep the fresh fallback already shown */ });
   },
 
   _renderProTip() {

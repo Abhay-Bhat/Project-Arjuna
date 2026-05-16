@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=18">
+    <link rel="stylesheet" href="css/styles.css?v=19">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -249,6 +249,7 @@
 
     <!-- ═ UPSC TAB ═ -->
     <div id="tab-upsc" class="tab-panel">
+      <div id="upscLagBanner" class="upsc-lag-banner" style="display:none;" role="alert"></div>
       <div class="tab-layout-2">
 
         <!-- ── LEFT SIDEBAR: Progress Stats + Today's Schedule ── -->
@@ -1524,25 +1525,25 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=18"></script>
-<script defer src="js/auth.js?v=18"></script>
-<script defer src="js/sync.js?v=18"></script>
-<script defer src="js/phases.js?v=18"></script>
-<script defer src="js/storage.js?v=18"></script>
-<script defer src="js/state.js?v=18"></script>
-<script defer src="js/scheduler.js?v=18"></script>
-<script defer src="js/upsc.js?v=18"></script>
-<script defer src="js/finance.js?v=18"></script>
-<script defer src="js/health.js?v=18"></script>
-<script defer src="js/mind.js?v=18"></script>
-<script defer src="js/growth.js?v=18"></script>
-<script defer src="js/tasks.js?v=18"></script>
-<script defer src="js/ui.js?v=18"></script>
-<script defer src="js/events.js?v=18"></script>
-<script defer src="js/tooltips.js?v=18"></script>
-<script defer src="js/seed-data.js?v=18"></script>
-<script defer src="js/backup.js?v=18"></script>
-<script defer src="js/main.js?v=18"></script>
+<script defer src="js/firebase-config.js?v=19"></script>
+<script defer src="js/auth.js?v=19"></script>
+<script defer src="js/sync.js?v=19"></script>
+<script defer src="js/phases.js?v=19"></script>
+<script defer src="js/storage.js?v=19"></script>
+<script defer src="js/state.js?v=19"></script>
+<script defer src="js/scheduler.js?v=19"></script>
+<script defer src="js/upsc.js?v=19"></script>
+<script defer src="js/finance.js?v=19"></script>
+<script defer src="js/health.js?v=19"></script>
+<script defer src="js/mind.js?v=19"></script>
+<script defer src="js/growth.js?v=19"></script>
+<script defer src="js/tasks.js?v=19"></script>
+<script defer src="js/ui.js?v=19"></script>
+<script defer src="js/events.js?v=19"></script>
+<script defer src="js/tooltips.js?v=19"></script>
+<script defer src="js/seed-data.js?v=19"></script>
+<script defer src="js/backup.js?v=19"></script>
+<script defer src="js/main.js?v=19"></script>
 
 </body>
 </html>
