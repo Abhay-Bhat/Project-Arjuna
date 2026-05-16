@@ -270,7 +270,29 @@ const UPSCTracker = {
     set('prelims2027Cov', covPct + '%');
     setW('prelims2027Bar', covPct);
 
+    this.renderLagBanner(totalCompleted, totalClasses);
     this.renderSubjectGrid();
+  },
+
+  // ── Lag banner: expected vs completed (irrespective of phase/schedule) ──
+  renderLagBanner(totalCompleted, totalClasses) {
+    const banner = document.getElementById('upscLagBanner');
+    if (!banner) return;
+    const todayKey = AppState.getTodayKey();
+    const expected = (AppState.upscSchedule || [])
+      .filter(e => e.date <= todayKey).length;
+    const deficit = expected - totalCompleted;
+    if (deficit > 0) {
+      banner.innerHTML =
+        `<span class="ulb-icon">⚠️</span>` +
+        `<span class="ulb-text">Expected to complete <b>${expected}</b> classes out of <b>${totalClasses}</b> by today, ` +
+        `but you completed only <b>${totalCompleted}</b>. ` +
+        `You are lagging behind by <b>${deficit}</b> ${deficit === 1 ? 'class' : 'classes'}.</span>`;
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+      banner.innerHTML = '';
+    }
   },
 
   renderSubjectGrid() {
