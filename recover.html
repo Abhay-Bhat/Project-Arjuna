@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Athena — Data Recovery</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0a0f1f;
+      color: #c9d1e0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 760px; margin: 0 auto; }
+
+    h1 {
+      font-size: 1.6rem;
+      color: #7eb8f7;
+      margin-bottom: 0.25rem;
+    }
+    .subtitle { color: #6b7a99; font-size: 0.9rem; margin-bottom: 2rem; }
+
+    .card {
+      background: #111827;
+      border: 1px solid #1e2d45;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card h2 {
+      font-size: 1rem;
+      color: #7eb8f7;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Status banner */
+    #statusBanner {
+      display: none;
+      padding: 0.85rem 1.2rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    #statusBanner.info    { display:block; background:#0d2240; border:1px solid #1e4a80; color:#7eb8f7; }
+    #statusBanner.success { display:block; background:#0d2b1a; border:1px solid #1a5c35; color:#4caf7d; }
+    #statusBanner.error   { display:block; background:#2b0d0d; border:1px solid #5c1a1a; color:#f47c7c; }
+    #statusBanner.warning { display:block; background:#2b1f0d; border:1px solid #5c400d; color:#f0b429; }
+
+    /* Summary grid */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .summary-item {
+      background: #0d1628;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+    }
+    .summary-item .label { font-size: 0.78rem; color: #6b7a99; margin-bottom: 0.2rem; }
+    .summary-item .value { font-size: 1.3rem; font-weight: 600; color: #e2e8f0; }
+    .summary-item .value.nonzero { color: #4caf7d; }
+
+    /* Saved-at display */
+    #savedAtDisplay {
+      font-size: 0.85rem;
+      color: #6b7a99;
+      margin-top: 0.75rem;
+    }
+    #savedAtDisplay span { color: #c9d1e0; }
+
+    /* Action buttons */
+    .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.65rem 1.2rem;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary   { background: #1a56db; color: #fff; }
+    .btn-success   { background: #1a7a45; color: #fff; }
+    .btn-warning   { background: #b45309; color: #fff; }
+    .btn-danger    { background: #9b1c1c; color: #fff; }
+    .btn-secondary { background: #1e2d45; color: #c9d1e0; }
+
+    .btn-primary:hover   { background: #2563eb; }
+    .btn-success:hover   { background: #15803d; }
+    .btn-warning:hover   { background: #d97706; }
+    .btn-danger:hover    { background: #b91c1c; }
+    .btn-secondary:hover { background: #253858; }
+
+    /* Firestore section */
+    .firestore-note {
+      font-size: 0.82rem;
+      color: #6b7a99;
+      margin-top: 0.75rem;
+      line-height: 1.5;
+    }
+    .firestore-note code {
+      background: #0d1628;
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #93c5fd;
+    }
+
+    /* Log */
+    #logBox {
+      display: none;
+      background: #060b17;
+      border: 1px solid #1e2d45;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #8899b8;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 1rem;
+      white-space: pre-wrap;
+    }
+
+    /* Step indicator */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      margin-bottom: 0.6rem;
+      font-size: 0.88rem;
+      color: #8899b8;
+      line-height: 1.5;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      background: #1e2d45;
+      color: #7eb8f7;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step strong { color: #c9d1e0; }
+
+    hr { border: none; border-top: 1px solid #1e2d45; margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🏹 Athena — Data Recovery</h1>
+  <p class="subtitle">Reads your IndexedDB snapshot and restores it cleanly — no sign-in required.</p>
+
+  <div id="statusBanner"></div>
+
+  <!-- ── Step-by-step guide ───────────────────────────── -->
+  <div class="card">
+    <h2>Recovery Steps</h2>
+    <div class="steps">
+      <div class="step"><strong>Read</strong> — loads <code>athena_db › state › athena_v2</code> from this browser's IndexedDB.</div>
+      <div class="step"><strong>Inspect</strong> — review the data summary below; confirm the counts look right.</div>
+      <div class="step"><strong>Stamp &amp; restore</strong> — bumps <code>_savedAt</code> to <em>right now</em> and writes the data back to IndexedDB so it wins the next cloud conflict check.</div>
+      <div class="step"><strong>Download backup</strong> — saves a <code>.json</code> file you can re-import any time via Settings → Import.</div>
+      <div class="step"><strong>Open the main app</strong> — it loads from the restored IndexedDB first, then the local timestamp beats Firestore's stale one and pushes up the good data.</div>
+    </div>
+  </div>
+
+  <!-- ── Data Summary ──────────────────────────────────── -->
+  <div class="card" id="summaryCard">
+    <h2>Data Found in IndexedDB</h2>
+    <div class="summary-grid" id="summaryGrid">
+      <div class="summary-item"><div class="label">Status</div><div class="value" id="readStatus">Scanning…</div></div>
+    </div>
+    <div id="savedAtDisplay"></div>
+  </div>
+
+  <!-- ── Primary Actions ──────────────────────────────── -->
+  <div class="card">
+    <h2>Recovery Actions</h2>
+    <div class="actions">
+      <button class="btn-success" id="btnRestore" disabled>
+        ✅ Stamp &amp; Restore to IndexedDB
+      </button>
+      <button class="btn-primary" id="btnDownload" disabled>
+        ⬇ Download Backup JSON
+      </button>
+      <button class="btn-secondary" id="btnOpenApp">
+        ↗ Open Main App
+      </button>
+    </div>
+    <p class="firestore-note" style="margin-top:0.75rem;">
+      <strong style="color:#c9d1e0">Stamp &amp; Restore</strong> sets <code>_savedAt</code> to now and writes the data back to IndexedDB.
+      When you open the main app, the local timestamp will be newer than Firestore's, so the good data gets pushed back to the cloud automatically.
+    </p>
+    <div id="logBox"></div>
+  </div>
+
+  <!-- ── Manual JSON Import fallback ─────────────────── -->
+  <div class="card">
+    <h2>Manual Import (Fallback)</h2>
+    <p class="firestore-note">
+      If the automatic restore doesn't work, download the backup JSON above, then open the main app →
+      <strong style="color:#c9d1e0">Settings → Import Data</strong> and select the downloaded file.
+      The import sets a fresh <code>_savedAt</code> and triggers a Firestore push automatically.
+    </p>
+  </div>
+</div>
+
+<script>
+// ── Constants ────────────────────────────────────────────────
+const DB_NAME  = 'athena_db';
+const DB_VER   = 2;
+const STORE    = 'state';
+const KEY      = 'athena_v2';
+
+// ── State ────────────────────────────────────────────────────
+let _recoveredData = null;
+
+// ── Utilities ────────────────────────────────────────────────
+function setStatus(msg, type = 'info') {
+  const el = document.getElementById('statusBanner');
+  el.className = type;
+  el.textContent = msg;
+}
+
+function log(msg) {
+  const box = document.getElementById('logBox');
+  box.style.display = 'block';
+  box.textContent += msg + '\n';
+  box.scrollTop = box.scrollHeight;
+}
+
+function count(val) {
+  if (!val) return 0;
+  if (Array.isArray(val)) return val.length;
+  if (typeof val === 'object') return Object.keys(val).length;
+  return 0;
+}
+
+// ── Open IndexedDB ───────────────────────────────────────────
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = (e) => {
+      // If the DB didn't exist we just created an empty one — no data to recover.
+      e.target.transaction.abort();
+      reject(new Error('IndexedDB was empty or missing — nothing to recover.'));
+    };
+    req.onsuccess  = (e) => resolve(e.target.result);
+    req.onerror    = (e) => reject(e.target.error);
+    req.onblocked  = ()  => reject(new Error('IndexedDB blocked — close all other Athena tabs and retry.'));
+  });
+}
+
+// ── Read athena_v2 ───────────────────────────────────────────
+function readState(db) {
+  return new Promise((resolve, reject) => {
+    const tx  = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).get(KEY);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+// ── Write athena_v2 back ─────────────────────────────────────
+function writeState(db, data) {
+  return new Promise((resolve, reject) => {
+    const json = JSON.stringify(data);
+    const tx   = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(json, KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror    = () => reject(tx.error);
+  });
+}
+
+// ── Render summary grid ──────────────────────────────────────
+function renderSummary(data) {
+  const fields = [
+    { label: 'Tasks',             val: count(data.tasks) },
+    { label: 'Task Buckets',      val: count(data.taskBuckets) },
+    { label: 'Finance Entries',   val: count(data.financeEntries) },
+    { label: 'Investments',       val: count(data.investments) },
+    { label: 'Monthly Expenses',  val: count(data.monthlyExpenses) },
+    { label: 'Health Log Days',   val: count(data.healthLog) },
+    { label: 'CA Log Days',       val: count(data.caLog) },
+    { label: 'Mind Log Days',     val: count(data.mindLog) },
+    { label: 'Routine Days',      val: count(data.checkedItems) },
+    { label: 'NoFap Log',         val: count(data.nofapLog) },
+    { label: 'Weekly Reviews',    val: count(data.weeklyReviews) },
+    { label: 'Monthly Reviews',   val: count(data.monthlyReviews) },
+    { label: 'Books Log',         val: count(data.booksLog) },
+    { label: 'Career Log',        val: count(data.careerLog) },
+    { label: 'Partner Log',       val: count(data.partnerLog) },
+    { label: 'Dubai Checklist',   val: count(data.dubaiChecklist) },
+    { label: 'Cholesterol',       val: count(data.cholesterol) },
+    { label: 'UPSC Schedule',     val: count(data.upscSchedule) },
+  ];
+
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = fields.map(f => `
+    <div class="summary-item">
+      <div class="label">${f.label}</div>
+      <div class="value ${f.val > 0 ? 'nonzero' : ''}">${f.val}</div>
+    </div>
+  `).join('');
+
+  const tsEl = document.getElementById('savedAtDisplay');
+  if (data._savedAt) {
+    const d = new Date(data._savedAt);
+    tsEl.innerHTML = `Last saved: <span>${d.toLocaleString()}</span>`;
+  } else {
+    tsEl.innerHTML = `<span style="color:#f0b429">No _savedAt timestamp found in data.</span>`;
+  }
+}
+
+// ── Boot: read IDB on page load ──────────────────────────────
+(async function boot() {
+  try {
+    setStatus('Opening IndexedDB…', 'info');
+    const db  = await openDB();
+    log('Opened athena_db v' + db.version);
+
+    const raw = await readState(db);
+    log('Read key: ' + KEY + (raw ? ' (' + raw.length + ' bytes)' : ' — empty'));
+
+    if (!raw) {
+      setStatus('No data found under "' + KEY + '" in athena_db › state.', 'warning');
+      document.getElementById('summaryGrid').innerHTML =
+        '<p style="color:#f0b429;font-size:0.9rem;">Nothing to recover — IndexedDB entry is empty.</p>';
+      return;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (e) {
+      setStatus('Data found but JSON is corrupt: ' + e.message, 'error');
+      log('Parse error: ' + e.message);
+      return;
+    }
+
+    _recoveredData = data;
+    log('Parsed successfully. _savedAt: ' + (data._savedAt || 'none'));
+
+    renderSummary(data);
+    setStatus('Data found in IndexedDB. Review the summary, then click "Stamp & Restore".', 'success');
+
+    document.getElementById('btnRestore').disabled  = false;
+    document.getElementById('btnDownload').disabled = false;
+
+    db.close();
+  } catch (err) {
+    setStatus(err.message, 'error');
+    log('Error: ' + err.message);
+  }
+})();
+
+// ── Stamp & Restore ──────────────────────────────────────────
+document.getElementById('btnRestore').addEventListener('click', async () => {
+  if (!_recoveredData) return;
+
+  const btn = document.getElementById('btnRestore');
+  btn.disabled = true;
+  btn.textContent = 'Restoring…';
+
+  try {
+    const stamped = Object.assign({}, _recoveredData, {
+      _savedAt: new Date().toISOString()   // bump to now — local wins the conflict check
+    });
+
+    setStatus('Opening IndexedDB for write…', 'info');
+    log('Stamping _savedAt: ' + stamped._savedAt);
+
+    const db = await openDB();
+    await writeState(db, stamped);
+    db.close();
+
+    _recoveredData = stamped;
+    renderSummary(stamped);
+
+    log('Write complete.');
+    setStatus(
+      'Done! IndexedDB updated with fresh timestamp. Open the main app — it will load this data and push it back to Firestore automatically.',
+      'success'
+    );
+
+    btn.textContent = '✅ Restored!';
+    btn.classList.replace('btn-success', 'btn-secondary');
+  } catch (err) {
+    setStatus('Restore failed: ' + err.message, 'error');
+    log('Restore error: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = '✅ Stamp & Restore to IndexedDB';
+  }
+});
+
+// ── Download Backup ──────────────────────────────────────────
+document.getElementById('btnDownload').addEventListener('click', () => {
+  if (!_recoveredData) return;
+
+  const exportData = Object.assign({}, _recoveredData, {
+    _savedAt:       new Date().toISOString(),
+    _recoveredFrom: 'IndexedDB recovery tool — ' + new Date().toLocaleString()
+  });
+
+  const json = JSON.stringify(exportData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'athena-recovery-' + new Date().toISOString().split('T')[0] + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  log('Backup downloaded: ' + a.download);
+});
+
+// ── Open Main App ────────────────────────────────────────────
+document.getElementById('btnOpenApp').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+</script>
+</body>
+</html>
