@@ -2699,6 +2699,23 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .ai-tip-priority.medium { background: rgba(255,153,51,0.14); color: var(--accent-amber); }
 .ai-tip-priority.low    { background: rgba(0,212,124,0.14);  color: var(--accent-green); }
 
+/* ── Universal collapsible section-titles ───────────────── */
+.sec-title-btn { cursor: pointer; user-select: none; }
+.sec-title-btn::after {
+  content: '▶';
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+  /* Override the invisible flex-spacer from base .section-title::after */
+  flex: 0 0 auto;
+  height: auto;
+  background: none;
+}
+.sec-title-btn.st-open::after { transform: rotate(90deg); }
+.sec-body { display: none; }
+.sec-body.open { display: block; }
+
 /* ── Help Accordion ─────────────────────────────────────── */
 .fin-help-accordion {
   border: 1px solid var(--border); border-radius: var(--radius-md);
