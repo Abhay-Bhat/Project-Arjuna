@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     Events.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
-    // Snapshot state on every startup and every hour while the tab is open
-    BackupManager.create('startup');
+    // Defer startup backup until after first paint so it doesn't compete with render.
+    // Hourly scheduled backup runs while the tab stays open.
+    setTimeout(() => BackupManager.create('startup'), 3000);
     setInterval(() => BackupManager.create('scheduled'), 60 * 60 * 1000);
 
     // Flush any queued Firestore push when the tab is hidden or unloaded.

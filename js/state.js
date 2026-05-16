@@ -458,35 +458,8 @@ const AppState = {
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target.result);
-        // Restore all data fields
-        this.selectedDate = new Date(data.selectedDate || new Date());
-        this.calendarMonth = new Date(data.calendarMonth || new Date());
-        this.currentTab = data.currentTab || 'today';
-        this.theme = data.theme || 'dark';
-        this.dashboardCollapsed = data.dashboardCollapsed || false;
-        this.nriAccountLive = data.nriAccountLive || false;
-        this.sipActive = data.sipActive || false;
-        this.nofapStart = data.nofapStart || null;
-        this.checkedItems = data.checkedItems || {};
-        this.holidayOverrides = data.holidayOverrides || {};
-        this.dailyHistory = data.dailyHistory || {};
-        this.upscSubjectProgress = data.upscSubjectProgress || {};
-        this.upscSchedule = data.upscSchedule || [];
-        this.upscProgress = data.upscProgress || 0;
-        this.financeEntries  = data.financeEntries   || [];
-        this.investments     = data.investments      || [];
-        this.monthlyExpenses = data.monthlyExpenses  || [];
-        this.healthLog = data.healthLog || {};
-        this.cholesterol = data.cholesterol || [];
-        this.caLog = data.caLog || {};
-        this.nofapLog = data.nofapLog || [];
-        this.mindLog = data.mindLog || {};
-        this.careerLog = data.careerLog || {};
-        this.booksLog = data.booksLog || {};
-        this.weeklyReviews = data.weeklyReviews || {};
-        this.monthlyReviews = data.monthlyReviews || {};
-        this.partnerLog = data.partnerLog || [];
-        this.dubaiChecklist = data.dubaiChecklist || {};
+        // _applyLoaded handles all fields (including taskBuckets/tasks) in one place
+        this._applyLoaded(data);
         this.save();
         if (typeof UI !== 'undefined' && UI.showToast) {
           UI.showToast('✅ Data imported successfully!');
