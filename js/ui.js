@@ -11,6 +11,7 @@ const UI = {
     this._bindHolidayToggle();
     this._initOnboarding();
     this._bindGlossary();
+    this._bindHeaderMenu();
     this._bindKeyboardShortcuts();
     MindTracker.bindEvents();
     this._fetchQuote(); // Fetch once per session — not on every updateAll()
@@ -56,6 +57,7 @@ const UI = {
         document.getElementById('calendarModal')?.classList.remove('active');
         document.getElementById('onboardingModal')?.classList.remove('show');
         document.getElementById('glossaryModal')?.classList.remove('show');
+        document.getElementById('headerDropdown')?.classList.remove('open');
       }
     });
   },
@@ -99,6 +101,45 @@ const UI = {
     document.getElementById('obs-back-2').addEventListener('click', () => showScreen(1));
     document.getElementById('obs-back-3').addEventListener('click', () => showScreen(2));
     document.getElementById('obs-back-4').addEventListener('click', () => showScreen(3));
+  },
+
+  // ── Header dropdown menu ─────────────────────────────────
+  _bindHeaderMenu() {
+    const menuBtn  = document.getElementById('headerMenuBtn');
+    const dropdown = document.getElementById('headerDropdown');
+    const menuIcon = document.getElementById('hdrMenuIcon');
+    const avatar   = document.getElementById('userAvatar');
+    if (!menuBtn || !dropdown) return;
+
+    const close = () => {
+      dropdown.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded', 'false');
+    };
+
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    // Clicks inside dropdown don't bubble to document (prevent instant re-close)
+    // but still close after clicking a menu item
+    dropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (e.target.closest('.hdr-dd-item')) close();
+    });
+
+    document.addEventListener('click', close);
+
+    // Watch avatar display so ☰ hides when avatar is shown
+    if (avatar && menuIcon) {
+      const syncIcon = () => {
+        const visible = avatar.style.display && avatar.style.display !== 'none';
+        menuIcon.style.display = visible ? 'none' : 'flex';
+      };
+      new MutationObserver(syncIcon).observe(avatar, { attributes: true, attributeFilter: ['style'] });
+      syncIcon();
+    }
   },
 
   // ── Glossary ────────────────────────────────────────────
