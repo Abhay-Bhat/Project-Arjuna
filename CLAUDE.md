@@ -1,9 +1,10 @@
 # Project Arjuna — Claude Instructions
 
 ## Git workflow
-- After completing any set of changes: commit, push, and merge to main automatically — no confirmation needed.
+- After completing any set of changes: commit, push, merge to main, and delete the remote branch — all automatically, no confirmation needed.
 - Always develop on the designated feature branch (`claude/…`).
 - Use squash merge when merging PRs.
+- Delete the remote branch after merging: `git push origin --delete <branch>`.
 - Bump the `?v=N` cache-busting query string on any CSS/JS file you touch.
 
 ## Stack
