@@ -76,10 +76,11 @@ const AppState = {
   },
 
   // Phase 2 -- runs once after sign-in.
-  // Compares local _savedAt with cloud _savedAt:
-  //   local newer  → push local data to Firestore (e.g. push debounce was cut short by shutdown)
-  //   cloud newer  → apply cloud data and cancel any pre-sync pending push
-  //   no cloud doc → seed Firestore with current local state
+  // Winner: whichever side has a newer _savedAt timestamp.
+  // Safety net: even when cloud wins, any local tasks/buckets not found in the
+  // cloud document are merged in before applying — guards against the echo-loop
+  // scenario where another device wrote a stale Firestore document with a newer
+  // timestamp but missing tasks that were only saved locally.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
     if (!cloudData) {
@@ -90,15 +91,33 @@ const AppState = {
     const localTs = this._savedAt ? new Date(this._savedAt).getTime() : 0;
     const cloudTs = cloudData._savedAt ? new Date(cloudData._savedAt).getTime() : 0;
     if (localTs > cloudTs) {
-      // Local IndexedDB is newer (e.g. push debounce never fired before shutdown)
-      // Push it immediately so other devices can pick it up.
+      // Local IndexedDB is newer — push it up so other devices see it
       this._doSave();
       return;
     }
-    // Cloud is newer — cancel any pending push from before this sync, then apply
+    // Cloud wins — but first rescue any local tasks absent from cloud to prevent
+    // silent data loss (caused when a stale echo bumped cloud's _savedAt ahead).
+    const cloudTaskIds = new Set((cloudData.tasks || []).map(t => t.id));
+    const orphanTasks  = (AppState.tasks || []).filter(t => !cloudTaskIds.has(t.id));
+    let merged = cloudData;
+    if (orphanTasks.length > 0) {
+      const cloudBucketIds  = new Set((cloudData.taskBuckets || []).map(b => b.id));
+      const orphanBucketIds = new Set(orphanTasks.map(t => t.bucketId));
+      const orphanBuckets   = (AppState.taskBuckets || []).filter(
+        b => orphanBucketIds.has(b.id) && !cloudBucketIds.has(b.id)
+      );
+      merged = Object.assign({}, cloudData, {
+        tasks:       [...(cloudData.tasks       || []), ...orphanTasks],
+        taskBuckets: orphanBuckets.length
+          ? [...(cloudData.taskBuckets || []), ...orphanBuckets]
+          : cloudData.taskBuckets
+      });
+    }
     CloudSync.cancelPush();
-    this._applyLoaded(cloudData);
-    Storage.save(cloudData);
+    this._applyLoaded(merged);
+    Storage.save(merged);
+    // If we rescued orphan tasks, push the merged state back to Firestore
+    if (orphanTasks.length > 0) this._doSave();
     if (typeof UI !== 'undefined') UI.updateAll();
   },
 
