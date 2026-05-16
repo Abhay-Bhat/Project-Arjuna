@@ -197,7 +197,6 @@ const CloudSync = {
         if (CloudSync._localContributed(mergedData, cloudData)) AppState._doSave();
         if (typeof UI !== 'undefined') {
           UI.updateAll();
-          UI.showToast('Updated from another device');
         }
         this._setSyncStatus('synced');
       },
