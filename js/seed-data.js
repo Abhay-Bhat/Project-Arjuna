@@ -61,6 +61,7 @@ const SeedData = {
         { month: '2026-02', employee:  8795, employer:  8795, type: 'contribution', note: 'Salary increment' },
         { month: '2026-03', employee:  8795, employer:  8795, type: 'contribution', note: '' },
         { month: '2026-04', employee:  8795, employer:  8795, type: 'contribution', note: '' },
+        { month: '2026-05', employee:  8795, employer:  8795, type: 'contribution', note: '' },
       ],
     },
   ],
@@ -145,29 +146,49 @@ const SeedData = {
       AppState.save();
     }
 
-    // ── EPF migration: upgrade old openingBalance entry to epfLog ─────
+    // ── EPF migration + log sync ──────────────────────────────────────
     const epfSeed = this._investments.find(s => s.seedId === 'epf_gxs_2022');
     if (epfSeed) {
       const existingEPF = AppState.investments.find(i => i.seedId === 'epf_gxs_2022');
-      if (existingEPF && (!existingEPF.epfLog || existingEPF.epfLog.length === 0)) {
-        existingEPF.epfLog         = epfSeed.epfLog;
-        existingEPF.openingBalance = 0;
-        existingEPF.amount         = epfSeed.amount;
-        console.log('SeedData: migrated EPF to monthly log');
+      if (existingEPF) {
+        if (!existingEPF.epfLog || existingEPF.epfLog.length === 0) {
+          // Old openingBalance style → migrate to monthly log
+          existingEPF.epfLog         = epfSeed.epfLog;
+          existingEPF.openingBalance = 0;
+          existingEPF.amount         = epfSeed.amount;
+          console.log('SeedData: migrated EPF to monthly log');
+        } else {
+          // Sync any new seed months that are absent from the stored log
+          const existingKeys = new Set(
+            existingEPF.epfLog.map(e => `${e.month}|${e.type}|${e.employee}`)
+          );
+          const newEntries = epfSeed.epfLog.filter(
+            e => !existingKeys.has(`${e.month}|${e.type}|${e.employee}`)
+          );
+          if (newEntries.length) {
+            existingEPF.epfLog = [...existingEPF.epfLog, ...newEntries];
+            existingEPF.amount = epfSeed.amount;
+            console.log(`SeedData: added ${newEntries.length} new EPF log entries`);
+            AppState.save();
+          }
+        }
       }
     }
 
-    // ── Sync ledger with any seeds already in AppState (e.g. from prior sessions) ─
-    AppState.investments.forEach(i => { if (i.seedId) applied.add(i.seedId); });
-
-    // ── Insert only seeds NOT yet applied ────────────────────────────
-    // Once a seedId is in applied, it is NEVER re-inserted — user deletes are final.
+    // ── Ensure each seed is present — re-insert if missing ───────────
+    // Checks actual presence in AppState rather than the applied ledger so that
+    // data lost during sync is automatically restored on next page load.
     let added = 0;
     for (const entry of this._investments) {
-      if (applied.has(entry.seedId)) continue;
+      const present = AppState.investments.some(i => i.seedId === entry.seedId);
+      if (present) {
+        applied.add(entry.seedId); // keep ledger consistent
+        continue;
+      }
       AppState.investments.push({ id: this._stableId(entry.seedId), ...entry });
       applied.add(entry.seedId);
       added++;
+      console.log(`SeedData: inserted/re-seeded ${entry.seedId}`);
     }
 
     if (added > 0) {
@@ -175,7 +196,7 @@ const SeedData = {
       console.log(`SeedData: inserted ${added} investment(s)`);
     }
 
-    // Always persist the applied ledger so user deletions survive refresh
+    // Always persist the applied ledger
     this._saveApplied(applied);
   },
 };

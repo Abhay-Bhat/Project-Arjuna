@@ -6,9 +6,10 @@
 const Storage = {
   _db: null,
   _DB_NAME: 'athena_db',
-  _DB_VERSION: 2,          // bumped to add attachments store
+  _DB_VERSION: 3,          // v3: added backups store
   _STORE:      'state',
   _ATTACH:     'attachments',  // blob store for CA article files
+  _BACKUP:     'backups',      // rolling auto-snapshots
   _KEY:        'athena_v2',
   _ready:      false,
   _queue:      [],
@@ -33,6 +34,10 @@ const Storage = {
         // Attachments store: key = attachment ID, value = { name, type, data (ArrayBuffer) }
         if (!db.objectStoreNames.contains(this._ATTACH)) {
           db.createObjectStore(this._ATTACH);
+        }
+        // Backups store: key = 'backup_<timestamp>', value = { key, timestamp, trigger, deviceId, data }
+        if (!db.objectStoreNames.contains(this._BACKUP)) {
+          db.createObjectStore(this._BACKUP);
         }
       };
 
@@ -136,6 +141,73 @@ const Storage = {
   _parse(raw) {
     try { return JSON.parse(raw); }
     catch(e) { return null; }
+  },
+
+  // ── Backup storage ───────────────────────────────────────
+
+  // Save a backup snapshot. record = { timestamp, trigger, deviceId, data }
+  saveBackup(key, record) {
+    return new Promise((resolve) => {
+      if (!this._db) { resolve(); return; }
+      const rec = { ...record, key };
+      try {
+        const tx = this._db.transaction(this._BACKUP, 'readwrite');
+        tx.objectStore(this._BACKUP).put(rec, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror    = () => resolve();
+      } catch(e) { resolve(); }
+    });
+  },
+
+  // List all backups sorted newest-first. Returns full records (including data).
+  listBackups() {
+    return new Promise((resolve) => {
+      if (!this._db) { resolve([]); return; }
+      try {
+        const tx  = this._db.transaction(this._BACKUP, 'readonly');
+        const req = tx.objectStore(this._BACKUP).getAll();
+        req.onsuccess = () => {
+          const all = req.result || [];
+          all.sort((a, b) => (b.key > a.key ? 1 : b.key < a.key ? -1 : 0));
+          resolve(all);
+        };
+        req.onerror = () => resolve([]);
+      } catch(e) { resolve([]); }
+    });
+  },
+
+  // Load a single backup by its key.
+  loadBackup(key) {
+    return new Promise((resolve) => {
+      if (!this._db) { resolve(null); return; }
+      try {
+        const tx  = this._db.transaction(this._BACKUP, 'readonly');
+        const req = tx.objectStore(this._BACKUP).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror   = () => resolve(null);
+      } catch(e) { resolve(null); }
+    });
+  },
+
+  // Delete a single backup.
+  deleteBackup(key) {
+    return new Promise((resolve) => {
+      if (!this._db) { resolve(); return; }
+      try {
+        const tx = this._db.transaction(this._BACKUP, 'readwrite');
+        tx.objectStore(this._BACKUP).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror    = () => resolve();
+      } catch(e) { resolve(); }
+    });
+  },
+
+  // Delete oldest backups beyond maxCount. listBackups() returns newest-first.
+  async pruneBackups(maxCount) {
+    const all = await this.listBackups();
+    if (all.length <= maxCount) return;
+    const toDelete = all.slice(maxCount);
+    for (const b of toDelete) await this.deleteBackup(b.key);
   },
 
   // ── Attachment (file blob) storage ───────────────────────

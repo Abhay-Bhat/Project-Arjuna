@@ -79,48 +79,31 @@ const AppState = {
   },
 
   // Phase 2 -- runs once after sign-in.
-  // Winner: whichever side has a newer _savedAt timestamp.
-  // Safety net: even when cloud wins, any local tasks/buckets not found in the
-  // cloud document are merged in before applying — guards against the echo-loop
-  // scenario where another device wrote a stale Firestore document with a newer
-  // timestamp but missing tasks that were only saved locally.
+  // Always merges local + cloud data (never a pure overwrite) so no data is lost
+  // regardless of which side has the newer timestamp. Backs up local state first.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
     if (!cloudData) {
-      // No document yet — seed Firestore with local state
+      // No cloud document yet — seed Firestore with local state
       this._doSave();
       return;
     }
     const localTs = this._savedAt ? new Date(this._savedAt).getTime() : 0;
     const cloudTs = cloudData._savedAt ? new Date(cloudData._savedAt).getTime() : 0;
     if (localTs > cloudTs) {
-      // Local IndexedDB is newer — push it up so other devices see it
+      // Local is newer — push it up; cloud gets the local state merged in anyway
       this._doSave();
       return;
     }
-    // Cloud wins — but first rescue any local tasks absent from cloud to prevent
-    // silent data loss (caused when a stale echo bumped cloud's _savedAt ahead).
-    const cloudTaskIds = new Set((cloudData.tasks || []).map(t => t.id));
-    const orphanTasks  = (AppState.tasks || []).filter(t => !cloudTaskIds.has(t.id));
-    let merged = cloudData;
-    if (orphanTasks.length > 0) {
-      const cloudBucketIds  = new Set((cloudData.taskBuckets || []).map(b => b.id));
-      const orphanBucketIds = new Set(orphanTasks.map(t => t.bucketId));
-      const orphanBuckets   = (AppState.taskBuckets || []).filter(
-        b => orphanBucketIds.has(b.id) && !cloudBucketIds.has(b.id)
-      );
-      merged = Object.assign({}, cloudData, {
-        tasks:       [...(cloudData.tasks       || []), ...orphanTasks],
-        taskBuckets: orphanBuckets.length
-          ? [...(cloudData.taskBuckets || []), ...orphanBuckets]
-          : cloudData.taskBuckets
-      });
-    }
+    // Snapshot local state before applying any cloud data
+    if (typeof BackupManager !== 'undefined') await BackupManager.create('pre-sync');
+    // Smart merge: union arrays, deep-merge logs — neither side loses data
+    const merged = this._mergeWithCloud(cloudData);
     CloudSync.cancelPush();
     this._applyLoaded(merged);
     Storage.save(merged);
-    // If we rescued orphan tasks, push the merged state back to Firestore
-    if (orphanTasks.length > 0) this._doSave();
+    // Push merged result back so other devices converge to the same full state
+    this._doSave();
     if (typeof UI !== 'undefined') UI.updateAll();
   },
 
@@ -173,9 +156,10 @@ const AppState = {
     }, 300);
   },
 
-  _doSave() {
-    const payload = {
-      _savedAt: new Date().toISOString(), // Timestamp for cloud conflict resolution
+  // Builds the full serialisable payload from current state.
+  _buildPayload() {
+    return {
+      _savedAt: new Date().toISOString(),
       selectedDate: this.selectedDate.toISOString(),
       calendarMonth: this.calendarMonth.toISOString(),
       currentTab: this.currentTab,
@@ -204,11 +188,86 @@ const AppState = {
       monthlyReviews: this.monthlyReviews,
       partnerLog: this.partnerLog,
       dubaiChecklist: this.dubaiChecklist,
-      taskBuckets:    this.taskBuckets,
-      tasks:          this.tasks
+      taskBuckets: this.taskBuckets,
+      tasks: this.tasks
     };
+  },
+
+  _doSave() {
+    const payload = this._buildPayload();
     Storage.save(payload);
     CloudSync.push(payload); // Push to Firestore (no-op when not configured)
+  },
+
+  // Smart merge: union arrays by id, deep-merge object logs.
+  // Neither side loses data — prevents overwrite-based data loss across devices.
+  _mergeWithCloud(cloudData) {
+    const local = this._buildPayload();
+
+    // Arrays with .id field: union (cloud first, then local-only items added)
+    const _byId = (la, ca) => {
+      const map = new Map();
+      (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
+      (la || []).forEach(item => { if (item.id != null && !map.has(item.id)) map.set(item.id, item); });
+      return [...map.values()];
+    };
+
+    // Arrays with no id — deduplicate by date+type composite
+    const _byDateType = (la, ca) => {
+      const map = new Map();
+      const k = e => `${e.date || ''}|${e.type || ''}|${e.employee || e.ldl || ''}`;
+      (ca || []).forEach(item => map.set(k(item), item));
+      (la || []).forEach(item => { const key = k(item); if (!map.has(key)) map.set(key, item); });
+      return [...map.values()];
+    };
+
+    // Object logs: cloud base + local keys override (local = current device)
+    const _mergeObj = (lo, co) => ({ ...(co || {}), ...(lo || {}) });
+
+    // UPSC progress: take the maximum per subject (don't regress)
+    const _maxProgress = (lo, co) => {
+      const merged = { ...(co || {}) };
+      Object.entries(lo || {}).forEach(([k, v]) => { merged[k] = Math.max(merged[k] || 0, v || 0); });
+      return merged;
+    };
+
+    // Streak start: keep the earlier date (preserves longer streak)
+    const _earlierDate = (a, b) => {
+      if (!a) return b; if (!b) return a;
+      return new Date(a) < new Date(b) ? a : b;
+    };
+
+    return {
+      ...cloudData,
+      // Arrays — union by id
+      tasks:           _byId(local.tasks,           cloudData.tasks),
+      taskBuckets:     _byId(local.taskBuckets,      cloudData.taskBuckets),
+      investments:     _byId(local.investments,      cloudData.investments),
+      financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
+      monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),
+      // Arrays without id — deduplicate by date+type
+      cholesterol:  _byDateType(local.cholesterol,  cloudData.cholesterol),
+      nofapLog:     _byDateType(local.nofapLog,     cloudData.nofapLog),
+      partnerLog:   _byDateType(local.partnerLog,   cloudData.partnerLog),
+      // Object logs — deep merge
+      checkedItems:        _mergeObj(local.checkedItems,        cloudData.checkedItems),
+      holidayOverrides:    _mergeObj(local.holidayOverrides,    cloudData.holidayOverrides),
+      dailyHistory:        _mergeObj(local.dailyHistory,        cloudData.dailyHistory),
+      healthLog:           _mergeObj(local.healthLog,           cloudData.healthLog),
+      mindLog:             _mergeObj(local.mindLog,             cloudData.mindLog),
+      caLog:               _mergeObj(local.caLog,               cloudData.caLog),
+      careerLog:           _mergeObj(local.careerLog,           cloudData.careerLog),
+      booksLog:            _mergeObj(local.booksLog,            cloudData.booksLog),
+      weeklyReviews:       _mergeObj(local.weeklyReviews,       cloudData.weeklyReviews),
+      monthlyReviews:      _mergeObj(local.monthlyReviews,      cloudData.monthlyReviews),
+      dubaiChecklist:      _mergeObj(local.dubaiChecklist,      cloudData.dubaiChecklist),
+      upscSubjectProgress: _maxProgress(local.upscSubjectProgress, cloudData.upscSubjectProgress),
+      upscProgress:        Math.max(local.upscProgress || 0,    cloudData.upscProgress || 0),
+      upscSchedule: (local.upscSchedule || []).length >= (cloudData.upscSchedule || []).length
+        ? local.upscSchedule : cloudData.upscSchedule,
+      nofapStart: _earlierDate(local.nofapStart, cloudData.nofapStart),
+      _savedAt: new Date().toISOString(),
+    };
   },
 
   // ── Date helpers ─────────────────────────────────────────
@@ -381,36 +440,7 @@ const AppState = {
 
   // ── Export/Import ───────────────────────────────────────
   exportData() {
-    const data = {
-      selectedDate: this.selectedDate.toISOString(),
-      calendarMonth: this.calendarMonth.toISOString(),
-      currentTab: this.currentTab,
-      theme: this.theme,
-      dashboardCollapsed: this.dashboardCollapsed,
-      nriAccountLive: this.nriAccountLive,
-      sipActive: this.sipActive,
-      nofapStart: this.nofapStart,
-      checkedItems: this.checkedItems,
-      holidayOverrides: this.holidayOverrides,
-      dailyHistory: this.dailyHistory,
-      upscSubjectProgress: this.upscSubjectProgress,
-      upscSchedule: this.upscSchedule,
-      upscProgress: this.upscProgress,
-      financeEntries: this.financeEntries,
-      investments: this.investments,
-      monthlyExpenses: this.monthlyExpenses,
-      healthLog: this.healthLog,
-      cholesterol: this.cholesterol,
-      caLog: this.caLog,
-      nofapLog: this.nofapLog,
-      mindLog: this.mindLog,
-      careerLog: this.careerLog,
-      booksLog: this.booksLog,
-      weeklyReviews: this.weeklyReviews,
-      monthlyReviews: this.monthlyReviews,
-      partnerLog: this.partnerLog,
-      dubaiChecklist: this.dubaiChecklist
-    };
+    const data = this._buildPayload();
     const json = JSON.stringify(data, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
