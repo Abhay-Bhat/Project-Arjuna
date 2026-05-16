@@ -3,7 +3,7 @@
    Mission Control Aesthetic | Dark/Light Themes | Responsive
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
 
 :root {
   /* ── Dark theme (default) ── */
@@ -15,7 +15,8 @@
   --shadow-sm: 0 2px 10px rgba(0,0,0,0.45); --shadow-md: 0 6px 24px rgba(0,0,0,0.55);
   --shadow-lg: 0 12px 48px rgba(0,0,0,0.65);
   --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --transition: 0.2s ease;
-  font-family: 'Outfit', sans-serif;
+  --font-main: 'Aptos', 'Aptos Display', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-main);
 }
 
 [data-theme="light"] {
@@ -32,8 +33,9 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif;
-  font-size: 16px; line-height: 1.65; min-height: 100vh;
+  background: var(--bg); color: var(--text); font-family: var(--font-main);
+  font-size: 15px; line-height: 1.6; min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
   transition: background var(--transition), color var(--transition);
 }
 
@@ -144,7 +146,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   flex-shrink: 0;
   opacity: 0.9;
   font-style: italic;
-  font-family: Georgia, serif;
+  font-family: var(--font-main);
   line-height: 1;
 }
 
@@ -1763,7 +1765,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   padding: 8px 12px;
   font-size: 14px;
   font-style: normal;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-main);
   font-weight: 400;
   color: var(--text);
   white-space: normal;
@@ -2698,23 +2700,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .ai-tip-priority.high   { background: rgba(255,92,128,0.14); color: var(--accent-rose); }
 .ai-tip-priority.medium { background: rgba(255,153,51,0.14); color: var(--accent-amber); }
 .ai-tip-priority.low    { background: rgba(0,212,124,0.14);  color: var(--accent-green); }
-
-/* ── Universal collapsible section-titles ───────────────── */
-.sec-title-btn { cursor: pointer; user-select: none; }
-.sec-title-btn::after {
-  content: '▶';
-  font-size: 10px;
-  color: var(--text-muted);
-  transition: transform 0.2s;
-  flex-shrink: 0;
-  /* Override the invisible flex-spacer from base .section-title::after */
-  flex: 0 0 auto;
-  height: auto;
-  background: none;
-}
-.sec-title-btn.st-open::after { transform: rotate(90deg); }
-.sec-body { display: none; }
-.sec-body.open { display: block; }
 
 /* ── Help Accordion ─────────────────────────────────────── */
 .fin-help-accordion {
