@@ -72,6 +72,9 @@ const AppState = {
     await Storage.init();
     const data = await Storage.load();
     if (data) this._applyLoaded(data);
+    // Always open on today regardless of what was stored last session
+    this.selectedDate  = new Date();
+    this.calendarMonth = new Date();
     document.documentElement.setAttribute('data-theme', this.theme || 'dark');
   },
 

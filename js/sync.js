@@ -143,14 +143,34 @@ const CloudSync = {
         // Uses Firestore server time — immune to device clock differences.
         if (serverMs <= prevServerMs) return;
 
-        // Genuine update from another device — apply without triggering a push
-        AppState._applyLoaded(cloudData);
-        Storage.save(cloudData);
+        // Genuine update from another device.
+        // Rescue any tasks that exist locally but are absent in the cloud update
+        // (guards against a stale write from a device that had fewer tasks).
+        const cloudTaskIds = new Set((cloudData.tasks || []).map(t => t.id));
+        const orphanTasks  = (AppState.tasks || []).filter(t => !cloudTaskIds.has(t.id));
+        let mergedData = cloudData;
+        if (orphanTasks.length > 0) {
+          const cloudBucketIds  = new Set((cloudData.taskBuckets || []).map(b => b.id));
+          const orphanBucketIds = new Set(orphanTasks.map(t => t.bucketId));
+          const orphanBuckets   = (AppState.taskBuckets || []).filter(
+            b => orphanBucketIds.has(b.id) && !cloudBucketIds.has(b.id)
+          );
+          mergedData = Object.assign({}, cloudData, {
+            tasks: [...(cloudData.tasks || []), ...orphanTasks],
+            taskBuckets: orphanBuckets.length
+              ? [...(cloudData.taskBuckets || []), ...orphanBuckets]
+              : cloudData.taskBuckets
+          });
+        }
+        AppState._applyLoaded(mergedData);
+        Storage.save(mergedData);
         if (typeof UI !== 'undefined') {
           UI.updateAll();
           UI.showToast('Updated from another device');
         }
         this._setSyncStatus('synced');
+        // If orphan tasks were rescued, push the merged state back so other devices converge
+        if (orphanTasks.length > 0) AppState._doSave();
       },
       (err) => { console.warn('CloudSync: listener error --', err.message); }
     );

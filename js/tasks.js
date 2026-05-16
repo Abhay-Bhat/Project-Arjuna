@@ -48,15 +48,21 @@ const TasksTracker = {
   _activeFilter() {
     return {
       priority: document.getElementById('taskFilterPriority')?.value || 'all',
+      status:   document.getElementById('taskFilterStatus')?.value   || 'all',
       due:      document.getElementById('taskFilterDue')?.value      || 'all',
+      sort:     document.getElementById('taskSort')?.value           || 'default',
     };
   },
 
   _filterTasks(tasks) {
-    const { priority, due } = this._activeFilter();
+    const { priority, status, due } = this._activeFilter();
     const now = new Date();
     return tasks.filter(t => {
       if (priority !== 'all' && t.priority !== priority) return false;
+      if (status !== 'all') {
+        const tStatus = t.status || 'todo';
+        if (tStatus !== status) return false;
+      }
       if (due === 'overdue') {
         if (!t.dueDate) return false;
         return new Date(t.dueDate) < now;
@@ -72,6 +78,26 @@ const TasksTracker = {
       }
       return true;
     });
+  },
+
+  _applySort(tasks) {
+    const { sort } = this._activeFilter();
+    if (sort === 'priority') {
+      const order = ['urgent', 'high', 'medium', 'low'];
+      return [...tasks].sort((a, b) => order.indexOf(a.priority) - order.indexOf(b.priority));
+    }
+    if (sort === 'due') {
+      return [...tasks].sort((a, b) => {
+        if (!a.dueDate && !b.dueDate) return 0;
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+    }
+    if (sort === 'title') {
+      return [...tasks].sort((a, b) => a.title.localeCompare(b.title));
+    }
+    return tasks;
   },
 
   // ── Stats strip ──────────────────────────────────────────
@@ -110,7 +136,7 @@ const TasksTracker = {
         const bucketTasks  = allTasks.filter(t => t.bucketId === bucket.id);
         const activeTasks  = bucketTasks.filter(t => !t.done);
         const doneTasks    = bucketTasks.filter(t => t.done);
-        const filtered     = this._filterTasks(activeTasks);
+        const filtered     = this._applySort(this._filterTasks(activeTasks));
         const col          = bucket.color || this.BUCKET_COLORS[0];
         const completedHtml = doneTasks.length ? `
           <details class="task-completed-section" id="taskCompleted-${bucket.id}">
@@ -141,6 +167,7 @@ const TasksTracker = {
             ${completedHtml}
             <div class="task-add-area" id="taskAddArea-${bucket.id}" style="display:none;">
               <input class="task-add-input" id="taskAddInput-${bucket.id}" placeholder="Task title…" maxlength="200">
+              <textarea class="task-add-desc" id="taskAddDesc-${bucket.id}" placeholder="Description (optional)" rows="2" maxlength="1000"></textarea>
               <div class="task-add-fields">
                 <input type="date" class="task-add-date" id="taskAddDate-${bucket.id}" title="Due date">
                 <select class="task-add-pri" id="taskAddPri-${bucket.id}" title="Priority">
@@ -174,8 +201,18 @@ const TasksTracker = {
   },
 
   _taskHTML(t) {
-    const pri = this._priorityMeta(t.priority);
-    const due = this._dueMeta(t.dueDate);
+    const pri    = this._priorityMeta(t.priority);
+    const due    = this._dueMeta(t.dueDate);
+    const status = t.status || 'todo';
+    const statusBadge = !t.done
+      ? `<span class="task-status-badge ${status === 'in-progress' ? 'status-inprogress' : 'status-todo'}"
+             data-status-tid="${t.id}" title="Click to toggle status">
+           ${status === 'in-progress' ? '⏳ In Progress' : '○ Todo'}
+         </span>`
+      : '';
+    const descHtml = t.description
+      ? `<div class="task-desc">${this._esc(t.description)}</div>`
+      : '';
     return `
       <div class="task-item${t.done ? ' task-done' : ''}" data-tid="${t.id}" draggable="true">
         <label class="task-checkbox-wrap" title="${t.done ? 'Mark incomplete' : 'Mark complete'}">
@@ -184,10 +221,12 @@ const TasksTracker = {
         </label>
         <div class="task-body">
           <div class="task-title">${this._esc(t.title)}</div>
+          ${descHtml}
           <div class="task-meta">
             <span class="task-pri-dot" style="background:${pri.color};" title="Priority: ${pri.label}"></span>
             <span class="task-pri-label" style="color:${pri.color};">${pri.label}</span>
             ${due ? `<span class="task-due-badge ${due.cls}" title="Due: ${t.dueDate}">${due.label}</span>` : ''}
+            ${statusBadge}
           </div>
         </div>
         <button class="task-edit-btn" data-edit-tid="${t.id}" title="Edit task">✏️</button>
@@ -216,10 +255,15 @@ const TasksTracker = {
     editDiv.className = 'task-edit-area';
     editDiv.innerHTML = `
       <input class="task-edit-title" value="${this._esc(t.title)}" placeholder="Task title" maxlength="200">
+      <textarea class="task-edit-desc" placeholder="Description (optional)" rows="2" maxlength="1000">${this._esc(t.description || '')}</textarea>
       <div class="task-edit-fields">
         <input type="date" class="task-edit-date" value="${this._esc(t.dueDate || '')}" title="Due date">
         <select class="task-edit-pri" title="Priority">
           ${this.PRIORITIES.map(p => `<option value="${p.value}" ${t.priority === p.value ? 'selected' : ''}>${p.icon} ${p.label}</option>`).join('')}
+        </select>
+        <select class="task-edit-status" title="Status">
+          <option value="todo" ${(t.status || 'todo') === 'todo' ? 'selected' : ''}>○ Todo</option>
+          <option value="in-progress" ${t.status === 'in-progress' ? 'selected' : ''}>⏳ In Progress</option>
         </select>
         <select class="task-edit-bucket" title="Move to bucket">
           ${(AppState.taskBuckets || []).map(b => `<option value="${b.id}" ${t.bucketId === b.id ? 'selected' : ''}>${this._esc(b.title)}</option>`).join('')}
@@ -238,10 +282,12 @@ const TasksTracker = {
     const save = () => {
       const newTitle = editDiv.querySelector('.task-edit-title').value.trim();
       if (!newTitle) { editDiv.querySelector('.task-edit-title').focus(); return; }
-      t.title    = newTitle;
-      t.dueDate  = editDiv.querySelector('.task-edit-date').value   || '';
-      t.priority = editDiv.querySelector('.task-edit-pri').value;
-      t.bucketId = parseInt(editDiv.querySelector('.task-edit-bucket').value);
+      t.title       = newTitle;
+      t.description = editDiv.querySelector('.task-edit-desc').value.trim();
+      t.dueDate     = editDiv.querySelector('.task-edit-date').value   || '';
+      t.priority    = editDiv.querySelector('.task-edit-pri').value;
+      t.status      = editDiv.querySelector('.task-edit-status').value;
+      t.bucketId    = parseInt(editDiv.querySelector('.task-edit-bucket').value);
       AppState.save();
       this.render();
       UI.showToast('✅ Task updated');
@@ -270,7 +316,25 @@ const TasksTracker = {
       cb.addEventListener('change', () => {
         const id = parseInt(cb.dataset.tid);
         const t  = (AppState.tasks || []).find(x => x.id === id);
-        if (t) { t.done = cb.checked; AppState.save(); this.render(); }
+        if (t) {
+          t.done = cb.checked;
+          if (!t.done) t.status = 'todo'; // reset status when un-completing
+          AppState.save();
+          this.render();
+        }
+      });
+    });
+
+    // Status badge toggle (todo ↔ in-progress)
+    board.querySelectorAll('.task-status-badge').forEach(badge => {
+      badge.addEventListener('click', () => {
+        const id = parseInt(badge.dataset.statusTid);
+        const t  = (AppState.tasks || []).find(x => x.id === id);
+        if (t && !t.done) {
+          t.status = (t.status === 'in-progress') ? 'todo' : 'in-progress';
+          AppState.save();
+          this.render();
+        }
       });
     });
 
@@ -576,17 +640,20 @@ const TasksTracker = {
     const titleEl = document.getElementById(`taskAddInput-${bid}`);
     const dateEl  = document.getElementById(`taskAddDate-${bid}`);
     const priEl   = document.getElementById(`taskAddPri-${bid}`);
+    const descEl  = document.getElementById(`taskAddDesc-${bid}`);
     const title   = titleEl?.value.trim();
     if (!title) { titleEl?.focus(); return; }
     AppState.tasks = AppState.tasks || [];
     AppState.tasks.push({
-      id:        Date.now(),
-      bucketId:  parseInt(bid),
+      id:          Date.now(),
+      bucketId:    parseInt(bid),
       title,
-      dueDate:   dateEl?.value  || '',
-      priority:  priEl?.value   || 'medium',
-      done:      false,
-      createdAt: new Date().toISOString(),
+      description: descEl?.value.trim() || '',
+      dueDate:     dateEl?.value  || '',
+      priority:    priEl?.value   || 'medium',
+      status:      'todo',
+      done:        false,
+      createdAt:   new Date().toISOString(),
     });
     AppState.save();
     this.render();
@@ -597,6 +664,8 @@ const TasksTracker = {
   _bindFilters() {
     const rerender = () => this._renderBoard();
     document.getElementById('taskFilterPriority')?.addEventListener('change', rerender);
+    document.getElementById('taskFilterStatus')?.addEventListener('change',   rerender);
     document.getElementById('taskFilterDue')?.addEventListener('change',      rerender);
+    document.getElementById('taskSort')?.addEventListener('change',           rerender);
   },
 };
