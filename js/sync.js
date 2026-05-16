@@ -75,7 +75,11 @@ const CloudSync = {
     return this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/state`);
   },
 
-  // One-time read on sign-in -- returns cloud payload or null
+  // One-time read on sign-in.
+  // Returns:
+  //   Object  — cloud data (merge and use)
+  //   null    — doc does not exist yet (safe to seed from local)
+  //   undefined — error (network/permissions): do NOT overwrite cloud
   async pull() {
     if (!this._enabled || !this._ref) return null;
     try {
@@ -89,8 +93,9 @@ const CloudSync = {
       this._lastPulledAt = data._savedAt || null;
       return data;
     } catch (e) {
-      console.warn('CloudSync: pull failed --', e.message);
-      return null;
+      console.error('CloudSync: pull failed —', e.code || e.message);
+      this._setSyncStatus('error');
+      return undefined; // distinct from null — caller must NOT push on this
     }
   },
 

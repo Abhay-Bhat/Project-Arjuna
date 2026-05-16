@@ -18,7 +18,13 @@
 //   rules_version = '2';
 //   service cloud.firestore {
 //     match /databases/{database}/documents {
+//       // Master state doc — read/written by all devices
 //       match /users/{userId}/data/{doc} {
+//         allow read, write: if request.auth != null
+//                            && request.auth.uid == userId;
+//       }
+//       // Per-device state + presence docs — isolated per device
+//       match /users/{userId}/devices/{deviceId}/{doc} {
 //         allow read, write: if request.auth != null
 //                            && request.auth.uid == userId;
 //       }

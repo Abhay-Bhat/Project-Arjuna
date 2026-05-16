@@ -85,6 +85,7 @@ const AppState = {
   // overwrite additive data written on other devices while it was offline.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
+    if (cloudData === undefined) return; // pull error — do NOT overwrite cloud with local
     if (!cloudData) {
       this._doSave(); // no cloud doc yet — seed Firestore from local
       return;
