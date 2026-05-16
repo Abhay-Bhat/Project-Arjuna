@@ -184,6 +184,9 @@ const CloudSync = {
         const mergedData = AppState._mergeWithCloud(cloudData);
         AppState._applyLoaded(mergedData);
         Storage.save(mergedData);
+        // If there's a queued push (from boot sync), refresh its payload to include
+        // this device's changes — prevents the stale push from overwriting B's data.
+        if (this._pendingPayload) this._pendingPayload = mergedData;
         if (typeof UI !== 'undefined') {
           UI.updateAll();
           UI.showToast('Updated from another device');
