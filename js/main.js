@@ -131,4 +131,58 @@ window.ATHENA = {
   backup:         () => BackupManager.create('manual'),
   listBackups:    () => BackupManager.list().then(console.table),
   restoreBackup:  (key) => BackupManager.restore(key),
+
+  // Sync diagnostics — run ATHENA.syncDiag() in console to see sync state
+  syncDiag() {
+    const cs = CloudSync;
+    const info = {
+      enabled:         cs._enabled,
+      deviceId:        cs._deviceId,
+      uid:             Auth.uid,
+      isLocalOnly:     Auth.isLocalOnly,
+      isAuthenticated: Auth.isAuthenticated,
+      lastPulledAt:    cs._lastPulledAt,
+      lastSeenServerMs: cs._lastSeenServerMs,
+      listenerActive:  !!cs._unsubscribe,
+      pendingPush:     !!cs._pendingPayload,
+      localBuckets:    AppState.taskBuckets?.length,
+      localTasks:      AppState.tasks?.length,
+      localSavedAt:    AppState._savedAt,
+    };
+    console.table(info);
+    if (cs._enabled && Auth.uid) {
+      cs._ref?.get().then(snap => {
+        if (!snap.exists) { console.warn('Firestore doc does NOT exist'); return; }
+        const d = snap.data();
+        console.log('Firestore doc:', {
+          _deviceId: d._deviceId,
+          _ts: d._ts?.toMillis?.(),
+          taskBuckets: d.taskBuckets?.length,
+          tasks: d.tasks?.length,
+          _savedAt: d._savedAt,
+        });
+      }).catch(e => console.error('Firestore read error:', e.code, e.message));
+    }
+    return info;
+  },
+
+  // Force-pull from Firestore and apply, bypassing all guards. Run on the
+  // device that shows stale/empty data to recover without a page reload.
+  async forcePull() {
+    if (!CloudSync._enabled || !CloudSync._ref) {
+      console.warn('CloudSync not enabled'); return;
+    }
+    try {
+      const snap = await CloudSync._ref.get();
+      if (!snap.exists) { console.warn('No cloud doc'); return; }
+      const data = snap.data();
+      delete data._ts; delete data._deviceId;
+      AppState._applyLoaded(data);
+      Storage.save(data);
+      UI.updateAll();
+      console.log('Force pull applied:', { buckets: data.taskBuckets?.length, tasks: data.tasks?.length });
+    } catch(e) {
+      console.error('Force pull failed:', e.code, e.message);
+    }
+  },
 };
