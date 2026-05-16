@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=9">
+    <link rel="stylesheet" href="css/styles.css?v=10">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -1083,37 +1083,54 @@
 
     <!-- ═ TASKS TAB ═══════════════════════════════════════════ -->
     <div id="tab-tasks" class="tab-panel">
-      <div class="tasks-toolbar">
-        <div class="tasks-stats-strip" id="tasksStats"></div>
-        <div class="tasks-filters">
-          <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority">
-            <option value="all">All priorities</option>
-            <option value="urgent">🔴 Urgent</option>
-            <option value="high">🟠 High</option>
-            <option value="medium">🔵 Medium</option>
-            <option value="low">🟢 Low</option>
-          </select>
-          <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status">
-            <option value="all">All statuses</option>
-            <option value="todo">○ Todo</option>
-            <option value="in-progress">⏳ In Progress</option>
-          </select>
-          <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date">
-            <option value="all">All dates</option>
-            <option value="overdue">⚠️ Overdue</option>
-            <option value="today">📅 Due today</option>
-            <option value="week">📆 Due this week</option>
-          </select>
-          <select id="taskSort" class="tasks-filter-select" title="Sort tasks">
-            <option value="default">Sort: Default</option>
-            <option value="priority">Sort: Priority</option>
-            <option value="due">Sort: Due date</option>
-            <option value="title">Sort: Title</option>
-          </select>
+      <div class="tasks-layout">
+
+        <!-- LEFT: Stats, filters, new bucket -->
+        <aside class="tasks-left-pane">
+          <div class="tasks-pane-section">
+            <div class="tasks-pane-label">Overview</div>
+            <div class="tasks-stats-strip" id="tasksStats"></div>
+          </div>
+          <div class="tasks-pane-section">
+            <div class="tasks-pane-label">Filter &amp; Sort</div>
+            <div class="tasks-filters">
+              <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority">
+                <option value="all">All priorities</option>
+                <option value="urgent">🔴 Urgent</option>
+                <option value="high">🟠 High</option>
+                <option value="medium">🔵 Medium</option>
+                <option value="low">🟢 Low</option>
+              </select>
+              <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status">
+                <option value="all">All statuses</option>
+                <option value="todo">○ Todo</option>
+                <option value="in-progress">⏳ In Progress</option>
+              </select>
+              <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date">
+                <option value="all">All dates</option>
+                <option value="overdue">⚠️ Overdue</option>
+                <option value="today">📅 Due today</option>
+                <option value="week">📆 Due this week</option>
+              </select>
+              <select id="taskSort" class="tasks-filter-select" title="Sort tasks">
+                <option value="default">Sort: Default</option>
+                <option value="priority">Sort: Priority</option>
+                <option value="due">Sort: Due date</option>
+                <option value="title">Sort: Title</option>
+              </select>
+            </div>
+          </div>
+          <div class="tasks-pane-section">
+            <div class="tasks-pane-label">New Bucket</div>
+            <div id="tasksNewBucketPane"></div>
+          </div>
+        </aside>
+
+        <!-- RIGHT: Kanban board -->
+        <div class="tasks-board-wrap">
+          <div class="tasks-board" id="tasksBoard"></div>
         </div>
-      </div>
-      <div class="tasks-board-wrap">
-        <div class="tasks-board" id="tasksBoard"></div>
+
       </div>
     </div><!-- end TASKS TAB -->
 
@@ -1507,25 +1524,25 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=9"></script>
-<script defer src="js/auth.js?v=9"></script>
-<script defer src="js/sync.js?v=9"></script>
-<script defer src="js/phases.js?v=9"></script>
-<script defer src="js/storage.js?v=9"></script>
-<script defer src="js/state.js?v=9"></script>
-<script defer src="js/scheduler.js?v=9"></script>
-<script defer src="js/upsc.js?v=9"></script>
-<script defer src="js/finance.js?v=9"></script>
-<script defer src="js/health.js?v=9"></script>
-<script defer src="js/mind.js?v=9"></script>
-<script defer src="js/growth.js?v=9"></script>
-<script defer src="js/tasks.js?v=9"></script>
-<script defer src="js/ui.js?v=9"></script>
-<script defer src="js/events.js?v=9"></script>
-<script defer src="js/tooltips.js?v=9"></script>
-<script defer src="js/seed-data.js?v=9"></script>
-<script defer src="js/backup.js?v=9"></script>
-<script defer src="js/main.js?v=9"></script>
+<script defer src="js/firebase-config.js?v=10"></script>
+<script defer src="js/auth.js?v=10"></script>
+<script defer src="js/sync.js?v=10"></script>
+<script defer src="js/phases.js?v=10"></script>
+<script defer src="js/storage.js?v=10"></script>
+<script defer src="js/state.js?v=10"></script>
+<script defer src="js/scheduler.js?v=10"></script>
+<script defer src="js/upsc.js?v=10"></script>
+<script defer src="js/finance.js?v=10"></script>
+<script defer src="js/health.js?v=10"></script>
+<script defer src="js/mind.js?v=10"></script>
+<script defer src="js/growth.js?v=10"></script>
+<script defer src="js/tasks.js?v=10"></script>
+<script defer src="js/ui.js?v=10"></script>
+<script defer src="js/events.js?v=10"></script>
+<script defer src="js/tooltips.js?v=10"></script>
+<script defer src="js/seed-data.js?v=10"></script>
+<script defer src="js/backup.js?v=10"></script>
+<script defer src="js/main.js?v=10"></script>
 
 </body>
 </html>
