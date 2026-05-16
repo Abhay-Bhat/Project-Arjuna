@@ -46,8 +46,6 @@ const SELECTOR_TIPS = [
 function injectInfoIcon(el, tip) {
   if (!el || el.dataset.tipInjected) return;
 
-  // Skip elements that are direct children of grid/flex containers where
-  // an extra sibling element would break layout (e.g. domains-grid)
   const parent = el.parentElement;
   if (parent?.classList.contains('domains-grid') ||
       parent?.classList.contains('tab-nav') ||
@@ -60,7 +58,16 @@ function injectInfoIcon(el, tip) {
   icon.className = 'info-icon';
   icon.setAttribute('data-tip', tip);
   icon.textContent = 'i';
-  el.insertAdjacentElement('afterend', icon);
+
+  // Inside the header dropdown the parent IS .hdr-dropdown (flex-column).
+  // Inserting after the button creates a separate row — instead append inside
+  // the button so it stays on the same line, pushed right via margin-left:auto.
+  if (parent?.classList.contains('hdr-dropdown')) {
+    icon.style.marginLeft = 'auto';
+    el.appendChild(icon);
+  } else {
+    el.insertAdjacentElement('afterend', icon);
+  }
 }
 
 function injectAllTooltips() {

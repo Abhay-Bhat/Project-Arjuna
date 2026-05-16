@@ -939,7 +939,7 @@ const UI = {
       document.documentElement.setAttribute('data-theme', next);
       AppState.theme = next;
       AppState.save();
-      btn.textContent = next === 'dark' ? '☀️' : '🌙';
+      btn.textContent = next === 'dark' ? '☀️ Theme' : '🌙 Theme';
 
       // Mark all chart caches as dirty so next render forces recreation
       if (typeof HealthTracker !== 'undefined') HealthTracker._themeChanged = true;
@@ -961,7 +961,7 @@ const UI = {
       if (tab === 'finance')  FinanceTracker.renderCharts();
       if (tab === 'growth')   GrowthTracker.renderWeeklyReviewChart();
     });
-    btn.textContent = AppState.theme === 'dark' ? '☀️' : '🌙';
+    btn.textContent = AppState.theme === 'dark' ? '☀️ Theme' : '🌙 Theme';
   },
 
   // ── Calendar modal ───────────────────────────────────────
