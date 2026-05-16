@@ -419,11 +419,14 @@ function renderTodayMealPlan() {
 function handleNutritionToggle(itemId) {
   if (!window.ArjunaHealth) return;
   const newState = ArjunaHealth.toggleNutritionItem(itemId);
+  // Update Health tab checklist
   const el    = document.querySelector(`[data-id="${itemId}"]`);
   const check = document.getElementById(`check-${itemId}`);
   if (el)    el.classList.toggle('done', newState);
   if (check) check.textContent = newState ? '✓' : '○';
   updateNutritionScore();
+  // Update Today tab habits icons
+  if (typeof UI !== 'undefined') UI._syncTodayHabits();
 }
 
 function updateNutritionScore() {

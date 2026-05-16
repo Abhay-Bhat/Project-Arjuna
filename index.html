@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=20">
+    <link rel="stylesheet" href="css/styles.css?v=21">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -153,7 +153,10 @@
           </div>
 
           <div class="pane-card">
-            <div class="pane-card-title">⚡ Quick Check-In</div>
+            <div class="pane-card-title">⚡ Today's Log</div>
+
+            <!-- Health vitals row -->
+            <div class="today-log-section-label">Health</div>
             <div class="qc-sidebar-grid">
               <div class="qc-card" id="qcSleepCard">
                 <div class="qc-label">Sleep</div>
@@ -179,6 +182,22 @@
                 <div class="qc-label">Streak</div>
                 <div class="qc-value" id="qcStreak">—</div>
               </div>
+            </div>
+
+            <!-- Nutrition habits — same data as Health tab checklist -->
+            <div class="today-log-section-label" style="margin-top:10px;">Nutrition habits</div>
+            <div class="today-habits-icons" id="todayHabitsIcons">
+              <span class="th-chip" id="th-eggs"       onclick="handleNutritionToggle('eggs')"       title="2 eggs eaten">🥚</span>
+              <span class="th-chip" id="th-fish"       onclick="handleNutritionToggle('fish')"       title="Fish meal today">🐟</span>
+              <span class="th-chip" id="th-nuts"       onclick="handleNutritionToggle('nuts')"       title="Almonds + walnut">🌰</span>
+              <span class="th-chip" id="th-sun"        onclick="handleNutritionToggle('sun')"        title="15 min morning sun">☀️</span>
+              <span class="th-chip" id="th-water"      onclick="handleNutritionToggle('water')"      title="3L water">💧</span>
+              <span class="th-chip" id="th-noFried"    onclick="handleNutritionToggle('noFried')"    title="Zero fried food">🚫</span>
+              <span class="th-chip" id="th-earlyDinner" onclick="handleNutritionToggle('earlyDinner')" title="Dinner before 8 PM">🌙</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+              <div class="prog-bar-track" style="flex:1;height:4px;margin:0;"><div class="prog-bar-fill" id="todayHabitsBar" style="width:0%"></div></div>
+              <span id="todayHabitsScore" style="font-size:10px;color:var(--text-muted);white-space:nowrap;">0 / 7 habits</span>
             </div>
           </div>
 
@@ -1844,26 +1863,26 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=20"></script>
-<script defer src="js/auth.js?v=20"></script>
-<script defer src="js/sync.js?v=20"></script>
-<script defer src="js/phases.js?v=20"></script>
-<script defer src="js/storage.js?v=20"></script>
-<script defer src="js/state.js?v=20"></script>
-<script defer src="js/scheduler.js?v=20"></script>
-<script defer src="js/upsc.js?v=20"></script>
-<script defer src="js/finance.js?v=20"></script>
-<script defer src="js/health-data.js?v=20"></script>
-<script defer src="js/health.js?v=20"></script>
-<script defer src="js/mind.js?v=20"></script>
-<script defer src="js/growth.js?v=20"></script>
-<script defer src="js/tasks.js?v=20"></script>
-<script defer src="js/ui.js?v=20"></script>
-<script defer src="js/events.js?v=20"></script>
-<script defer src="js/tooltips.js?v=20"></script>
-<script defer src="js/seed-data.js?v=20"></script>
-<script defer src="js/backup.js?v=20"></script>
-<script defer src="js/main.js?v=20"></script>
+<script defer src="js/firebase-config.js?v=21"></script>
+<script defer src="js/auth.js?v=21"></script>
+<script defer src="js/sync.js?v=21"></script>
+<script defer src="js/phases.js?v=21"></script>
+<script defer src="js/storage.js?v=21"></script>
+<script defer src="js/state.js?v=21"></script>
+<script defer src="js/scheduler.js?v=21"></script>
+<script defer src="js/upsc.js?v=21"></script>
+<script defer src="js/finance.js?v=21"></script>
+<script defer src="js/health-data.js?v=21"></script>
+<script defer src="js/health.js?v=21"></script>
+<script defer src="js/mind.js?v=21"></script>
+<script defer src="js/growth.js?v=21"></script>
+<script defer src="js/tasks.js?v=21"></script>
+<script defer src="js/ui.js?v=21"></script>
+<script defer src="js/events.js?v=21"></script>
+<script defer src="js/tooltips.js?v=21"></script>
+<script defer src="js/seed-data.js?v=21"></script>
+<script defer src="js/backup.js?v=21"></script>
+<script defer src="js/main.js?v=21"></script>
 
 </body>
 </html>
