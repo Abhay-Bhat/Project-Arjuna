@@ -15,6 +15,7 @@ const UI = {
     MindTracker.bindEvents();
     this._fetchQuote(); // Fetch once per session — not on every updateAll()
     this.updateAll();
+    this._initSectionCollapse();
   },
 
   // ── Toast Notifications ─────────────────────────────────
@@ -57,6 +58,43 @@ const UI = {
         document.getElementById('onboardingModal')?.classList.remove('show');
         document.getElementById('glossaryModal')?.classList.remove('show');
       }
+    });
+  },
+
+  // ── Collapsible section-titles (all pane-main sections) ─
+  _initSectionCollapse() {
+    if (document.querySelector('.sec-body')) return; // already initialised
+
+    document.querySelectorAll('.pane-main > .section-title').forEach((title, i) => {
+      // Collect all following siblings until the next direct .section-title
+      const siblings = [];
+      let next = title.nextElementSibling;
+      while (next && !next.classList.contains('section-title')) {
+        siblings.push(next);
+        next = next.nextElementSibling;
+      }
+      if (!siblings.length) return;
+
+      const hasChart = siblings.some(el => el.querySelector && el.querySelector('canvas'));
+
+      // Wrap siblings in a collapsible body div
+      const body = document.createElement('div');
+      body.className = 'sec-body';
+      body.dataset.secIdx = i;
+      title.parentNode.insertBefore(body, siblings[0]);
+      siblings.forEach(el => body.appendChild(el));
+
+      // Make title clickable
+      title.classList.add('sec-title-btn');
+
+      title.addEventListener('click', () => {
+        const opening = body.classList.toggle('open');
+        title.classList.toggle('st-open', opening);
+        // Re-render so Chart.js can size to the now-visible canvas
+        if (opening && hasChart) {
+          requestAnimationFrame(() => UI._renderTab(AppState.currentTab));
+        }
+      });
     });
   },
 
