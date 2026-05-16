@@ -1177,7 +1177,7 @@ const FinanceTracker = {
     const active = invs.filter(i => (i.status || 'active') === 'active').length;
     const closed = invs.length - active;
     return `
-      <div class="inv-section" id="invSec_${id}">
+      <div class="inv-section collapsed" id="invSec_${id}">
         <div class="inv-section-hdr" onclick="document.getElementById('invSec_${id}').classList.toggle('collapsed')">
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-size:18px;line-height:1;">${icon}</span>
@@ -1889,7 +1889,7 @@ const FinanceTracker = {
     ];
 
     container.innerHTML = sections.map((s, i) => `
-      <div class="fin-help-accordion${i === 0 ? ' open' : ''}" id="helpAccordion${i}">
+      <div class="fin-help-accordion" id="helpAccordion${i}">
         <div class="fin-help-header" onclick="FinanceTracker.toggleHelpSection(${i})">
           <div class="fin-help-header-left">
             <span class="fin-help-icon">${s.icon}</span>
