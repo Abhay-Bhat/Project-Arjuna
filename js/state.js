@@ -85,16 +85,24 @@ const AppState = {
   // overwrite additive data written on other devices while it was offline.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
+    if (cloudData === undefined) return; // pull error — do NOT overwrite cloud with local
     if (!cloudData) {
-      this._doSave(); // no cloud doc yet — seed Firestore from local
+      // No cloud doc yet. Only seed Firestore if this device has previously saved
+      // data (_savedAt is set). A brand-new device with empty local state must NOT
+      // create an empty cloud doc — that would wipe another device's data in Firestore.
+      if (this._savedAt) this._doSave();
       return;
     }
     // Snapshot local state before touching anything
     if (typeof BackupManager !== 'undefined') await BackupManager.create('pre-sync');
+    // Preserve the user's active tab — _applyLoaded() will overwrite currentTab
+    // from cloud data, causing updateAll() to switch and hide the visible panel.
+    const activeTab = this.currentTab;
     // Merge every domain from both sides — union arrays, deep-merge logs
     const merged = this._mergeWithCloud(cloudData);
     CloudSync.cancelPush();
     this._applyLoaded(merged);
+    this.currentTab = activeTab; // don't switch the user's active tab on sync
     Storage.save(merged);
     this._doSave(); // push merged result back so all devices converge
     if (typeof UI !== 'undefined') UI.updateAll();
@@ -199,8 +207,10 @@ const AppState = {
   _mergeWithCloud(cloudData) {
     const local = this._buildPayload();
 
-    // Arrays with .id: union. Same-ID items are field-merged (local overrides cloud).
-    // 'done' is OR'd so a completion on any device is never silently un-done.
+    // Arrays with .id: union by id, conflict resolved by modifiedAt/createdAt timestamp.
+    // The newer version of each item wins. 'done' is always OR'd so a completion on
+    // any device is never un-done even when an older version of the item is present.
+    const _itemMs = item => new Date(item.modifiedAt || item.createdAt || 0).getTime();
     const _byId = (la, ca) => {
       const map = new Map();
       (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
@@ -209,10 +219,12 @@ const AppState = {
         if (!map.has(item.id)) {
           map.set(item.id, item);
         } else {
-          const base = map.get(item.id);
-          const m = { ...base, ...item }; // local overrides cloud fields
-          if (base.done === true) m.done = true; // preserve any prior completion
-          map.set(item.id, m);
+          const cloud = map.get(item.id);
+          // Newer timestamp wins; if equal, local wins (active device assumption)
+          const useLocal = _itemMs(item) >= _itemMs(cloud);
+          const winner = useLocal ? { ...cloud, ...item } : { ...item, ...cloud };
+          if (cloud.done === true || item.done === true) winner.done = true;
+          map.set(item.id, winner);
         }
       });
       return [...map.values()];

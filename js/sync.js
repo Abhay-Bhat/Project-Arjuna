@@ -75,7 +75,11 @@ const CloudSync = {
     return this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/state`);
   },
 
-  // One-time read on sign-in -- returns cloud payload or null
+  // One-time read on sign-in.
+  // Returns:
+  //   Object  — cloud data (merge and use)
+  //   null    — doc does not exist yet (safe to seed from local)
+  //   undefined — error (network/permissions): do NOT overwrite cloud
   async pull() {
     if (!this._enabled || !this._ref) return null;
     try {
@@ -89,8 +93,9 @@ const CloudSync = {
       this._lastPulledAt = data._savedAt || null;
       return data;
     } catch (e) {
-      console.warn('CloudSync: pull failed --', e.message);
-      return null;
+      console.error('CloudSync: pull failed —', e.code || e.message);
+      this._setSyncStatus('error');
+      return undefined; // distinct from null — caller must NOT push on this
     }
   },
 
@@ -175,10 +180,20 @@ const CloudSync = {
         // Genuine update from another device.
         // Snapshot local state before applying (fire-and-forget — captures current state).
         if (typeof BackupManager !== 'undefined') BackupManager.create('pre-sync');
+        const activeTab = AppState.currentTab; // preserve before _applyLoaded changes it
         // Smart merge: union all arrays, deep-merge all logs — never loses local data.
         const mergedData = AppState._mergeWithCloud(cloudData);
         AppState._applyLoaded(mergedData);
+        AppState.currentTab = activeTab; // don't switch the user's active tab on remote update
         Storage.save(mergedData);
+        // If there's a queued push (from boot sync), refresh its payload to include
+        // this device's changes — prevents the stale push from overwriting B's data.
+        if (this._pendingPayload) this._pendingPayload = mergedData;
+        // Convergence push: if local had data the sender lacked, push the merged
+        // result back so other devices (including the sender) catch up.
+        // Array/object length comparison stops the loop — once both sides are equal
+        // the merged result equals cloud, so this branch never fires again.
+        if (CloudSync._localContributed(mergedData, cloudData)) AppState._doSave();
         if (typeof UI !== 'undefined') {
           UI.updateAll();
           UI.showToast('Updated from another device');
@@ -225,13 +240,26 @@ const CloudSync = {
     };
   },
 
+  // Returns true if merged has more items than cloud — meaning local contributed
+  // data the sender lacked, so we should push the merged result back for convergence.
+  // Loop-safe: once both sides are equal, merged === cloud → returns false.
+  _localContributed(merged, cloud) {
+    const arrs = ['tasks','taskBuckets','investments','financeEntries',
+                  'monthlyExpenses','cholesterol','nofapLog','partnerLog'];
+    const objs = ['checkedItems','dailyHistory','healthLog','mindLog',
+                  'caLog','careerLog','booksLog','weeklyReviews',
+                  'monthlyReviews','dubaiChecklist','upscSubjectProgress'];
+    return arrs.some(k => (merged[k]||[]).length > (cloud[k]||[]).length) ||
+           objs.some(k => Object.keys(merged[k]||{}).length > Object.keys(cloud[k]||{}).length);
+  },
+
   _broadcastToTabs(payload) {
     if (!this._bc || this._suppressBC) return;
     try { this._bc.postMessage(payload); } catch {}
   },
 
   _setSyncStatus(status) {
-    // ── brief flash badge (write activity indicator) ──────────────────────
+    // ── brief flash badge in header (write activity indicator) ────────────
     const el = document.getElementById('syncStatus');
     if (el) {
       const map = {
@@ -249,7 +277,27 @@ const CloudSync = {
       }
     }
 
-    // ── persistent sync button (reflects live activity) ───────────────────
+    // ── persistent status row inside dropdown ─────────────────────────────
+    const row   = document.getElementById('syncStatusRow');
+    const dot   = document.getElementById('syncStatusDot');
+    const label = document.getElementById('syncStatusLabel');
+    if (row && dot && label) {
+      row.style.display = 'flex';
+      dot.className = 'sync-dot ' + (status === 'synced' ? 'synced' : status === 'syncing' ? 'syncing' : 'error');
+      if (status === 'syncing') {
+        label.textContent = 'Syncing…';
+      } else if (status === 'synced') {
+        const t = new Date();
+        const hh = String(t.getHours()).padStart(2,'0');
+        const mm = String(t.getMinutes()).padStart(2,'0');
+        label.textContent = `Synced at ${hh}:${mm}`;
+        dot.className = 'sync-dot synced';
+      } else {
+        label.textContent = 'Sync error — check connection';
+      }
+    }
+
+    // ── sync button in dropdown (reflects live activity) ──────────────────
     const btn  = document.getElementById('syncNowBtn');
     const icon = document.getElementById('syncNowIcon');
     if (!btn || btn.disabled) return; // don't override a manual click in progress
