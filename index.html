@@ -21,7 +21,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=5">
+    <link rel="stylesheet" href="css/styles.css?v=6">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -62,32 +62,39 @@
     <!-- HEADER -->
     <!-- ═════════════════════════════════════════════════════ -->
     <header class="app-header">
+        <!-- LEFT: Date + Phase stacked -->
+        <div class="header-left" id="headerDateToggle" title="Click to view Mission Phases">
+            <div id="dateDisplay"></div>
+            <div id="phaseBadge"></div>
+            <div id="dayType" style="display:none;"></div>
+        </div>
+
+        <!-- CENTER: Brand (truly centred via CSS grid) -->
         <div class="header-brand">
             <h1>🏹 Project Arjuna</h1>
             <div class="header-sub">Master Your Path • 2026–2028</div>
         </div>
-        <div class="header-center" style="cursor: pointer; position: relative;" id="headerDateToggle" title="Click to view Mission Phases">
-            <div id="dateDisplay"></div>
-            <div id="dayType"></div>
-            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:2px;">
-                <span style="font-size: 10px; color: var(--text-muted);">📋 Phases</span>
-                <span id="liveClockDisplay" style="font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace;"></span>
+
+        <!-- RIGHT: Clock + Actions -->
+        <div class="header-right">
+            <div class="header-clock">
+                <span style="font-size:10px;color:var(--text-muted);">📋 Phases</span>
+                <span id="liveClockDisplay" style="font-size:10px;color:var(--text-muted);font-family:'Space Mono',monospace;"></span>
+            </div>
+            <div class="header-actions">
+                <span id="syncStatus" class="sync-badge" style="display:none;"></span>
+                <span id="localModeBadge" class="sync-badge local" style="display:none;" title="Running in local-only mode — set up Firebase to sync across devices">📴 Local</span>
+                <button id="syncNowBtn" class="btn btn-sm sync-now-btn" style="display:none;" title="Pull latest data from all your devices">
+                  <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync
+                </button>
+                <button class="btn btn-sm" id="backupBtn" title="Backup Manager — view and restore snapshots" onclick="BackupManager.openModal()">💾</button>
+                <button class="btn btn-sm" id="todayBtn">🏠 Today</button>
+                <button class="btn btn-sm" id="calendarBtn">📅</button>
+                <button class="btn btn-sm" id="themeToggle">🌙</button>
+                <div id="userAvatar" class="user-avatar" style="display:none;"></div>
+                <button class="btn btn-sm" id="signOutBtn" style="display:none;" title="Sign out">Sign out</button>
             </div>
         </div>
-        <div class="header-actions">
-            <span id="syncStatus" class="sync-badge" style="display:none;"></span>
-            <span id="localModeBadge" class="sync-badge local" style="display:none;" title="Running in local-only mode — set up Firebase to sync across devices">📴 Local</span>
-            <button id="syncNowBtn" class="btn btn-sm sync-now-btn" style="display:none;" title="Pull latest data from all your devices">
-              <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync
-            </button>
-            <button class="btn btn-sm" id="backupBtn" title="Backup Manager — view and restore snapshots" onclick="BackupManager.openModal()">💾</button>
-            <button class="btn btn-sm" id="todayBtn">🏠 Today</button>
-            <button class="btn btn-sm" id="calendarBtn">📅</button>
-            <button class="btn btn-sm" id="themeToggle">🌙</button>
-            <div id="userAvatar" class="user-avatar" style="display:none;"></div>
-            <button class="btn btn-sm" id="signOutBtn" style="display:none;" title="Sign out">Sign out</button>
-        </div>
-        <div id="phaseBadge" style="padding: 4px 12px; border-radius: 20px; font-size: 11px;"></div>
     </header>
 
     <!-- ═════════════════════════════════════════════════════ -->
@@ -1493,25 +1500,25 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=5"></script>
-<script defer src="js/auth.js?v=5"></script>
-<script defer src="js/sync.js?v=5"></script>
-<script defer src="js/phases.js?v=5"></script>
-<script defer src="js/storage.js?v=5"></script>
-<script defer src="js/state.js?v=5"></script>
-<script defer src="js/scheduler.js?v=5"></script>
-<script defer src="js/upsc.js?v=5"></script>
-<script defer src="js/finance.js?v=5"></script>
-<script defer src="js/health.js?v=5"></script>
-<script defer src="js/mind.js?v=5"></script>
-<script defer src="js/growth.js?v=5"></script>
-<script defer src="js/tasks.js?v=5"></script>
-<script defer src="js/ui.js?v=5"></script>
-<script defer src="js/events.js?v=5"></script>
-<script defer src="js/tooltips.js?v=5"></script>
-<script defer src="js/seed-data.js?v=5"></script>
-<script defer src="js/backup.js?v=5"></script>
-<script defer src="js/main.js?v=5"></script>
+<script defer src="js/firebase-config.js?v=6"></script>
+<script defer src="js/auth.js?v=6"></script>
+<script defer src="js/sync.js?v=6"></script>
+<script defer src="js/phases.js?v=6"></script>
+<script defer src="js/storage.js?v=6"></script>
+<script defer src="js/state.js?v=6"></script>
+<script defer src="js/scheduler.js?v=6"></script>
+<script defer src="js/upsc.js?v=6"></script>
+<script defer src="js/finance.js?v=6"></script>
+<script defer src="js/health.js?v=6"></script>
+<script defer src="js/mind.js?v=6"></script>
+<script defer src="js/growth.js?v=6"></script>
+<script defer src="js/tasks.js?v=6"></script>
+<script defer src="js/ui.js?v=6"></script>
+<script defer src="js/events.js?v=6"></script>
+<script defer src="js/tooltips.js?v=6"></script>
+<script defer src="js/seed-data.js?v=6"></script>
+<script defer src="js/backup.js?v=6"></script>
+<script defer src="js/main.js?v=6"></script>
 
 </body>
 </html>
