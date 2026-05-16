@@ -277,6 +277,7 @@ const TasksTracker = {
       t.priority    = editDiv.querySelector('.task-edit-pri').value;
       t.status      = editDiv.querySelector('.task-edit-status').value;
       t.bucketId    = parseInt(editDiv.querySelector('.task-edit-bucket').value);
+      t.modifiedAt  = new Date().toISOString();
       AppState.save();
       this.render();
       UI.showToast('✅ Task updated');
@@ -325,7 +326,7 @@ const TasksTracker = {
       const title = inp?.value.trim();
       if (!title) { inp?.focus(); return; }
       AppState.taskBuckets = AppState.taskBuckets || [];
-      AppState.taskBuckets.push({ id: Date.now(), title, color: selectedColor });
+      AppState.taskBuckets.push({ id: Date.now(), title, color: selectedColor, createdAt: new Date().toISOString() });
       AppState.save();
       if (inp) inp.value = '';
       this.render();
@@ -350,6 +351,7 @@ const TasksTracker = {
         if (t) {
           t.done = cb.checked;
           if (!t.done) t.status = 'todo'; // reset status when un-completing
+          t.modifiedAt = new Date().toISOString();
           AppState.save();
           this.render();
         }
@@ -363,6 +365,7 @@ const TasksTracker = {
         const t  = (AppState.tasks || []).find(x => x.id === id);
         if (t && !t.done) {
           t.status = (t.status === 'in-progress') ? 'todo' : 'in-progress';
+          t.modifiedAt = new Date().toISOString();
           AppState.save();
           this.render();
         }

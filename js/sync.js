@@ -180,9 +180,11 @@ const CloudSync = {
         // Genuine update from another device.
         // Snapshot local state before applying (fire-and-forget — captures current state).
         if (typeof BackupManager !== 'undefined') BackupManager.create('pre-sync');
+        const activeTab = AppState.currentTab; // preserve before _applyLoaded changes it
         // Smart merge: union all arrays, deep-merge all logs — never loses local data.
         const mergedData = AppState._mergeWithCloud(cloudData);
         AppState._applyLoaded(mergedData);
+        AppState.currentTab = activeTab; // don't switch the user's active tab on remote update
         Storage.save(mergedData);
         // If there's a queued push (from boot sync), refresh its payload to include
         // this device's changes — prevents the stale push from overwriting B's data.
