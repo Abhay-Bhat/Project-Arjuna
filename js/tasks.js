@@ -23,6 +23,7 @@ const TasksTracker = {
     this._renderBoard();
     this._renderStats();
     this._bindFilters();
+    this._renderNewBucketPane();
   },
 
   // ── Helpers ──────────────────────────────────────────────
@@ -184,18 +185,6 @@ const TasksTracker = {
       }).join('');
     }
 
-    // Always add "new bucket" card at the end
-    board.innerHTML += `
-      <div class="task-bucket task-bucket-new" id="taskNewBucketCard">
-        <div class="task-new-bucket-inner">
-          <input class="task-new-bucket-input" id="taskNewBucketInput" placeholder="Bucket name…" maxlength="80">
-          <div class="task-new-bucket-colors">
-            ${this.BUCKET_COLORS.map(c => `<button class="task-color-dot" data-color="${c}" style="background:${c};" title="${c}"></button>`).join('')}
-          </div>
-          <button class="btn btn-primary btn-xs" id="taskNewBucketSave" style="margin-top:8px;width:100%;">+ Create Bucket</button>
-        </div>
-      </div>`;
-
     this._bindBoardEvents();
     this._bindDragDrop(board);
   },
@@ -303,6 +292,48 @@ const TasksTracker = {
     titleInput.addEventListener('keydown', e => {
       if (e.key === 'Enter')  save();
       if (e.key === 'Escape') cancel();
+    });
+  },
+
+  // ── New bucket left-pane form ────────────────────────────
+  _renderNewBucketPane() {
+    const pane = document.getElementById('tasksNewBucketPane');
+    if (!pane || pane.dataset.init) return;
+    pane.dataset.init = '1';
+
+    pane.innerHTML = `
+      <input class="task-new-bucket-input" id="taskNewBucketInput" placeholder="Bucket name…" maxlength="80">
+      <div class="task-new-bucket-colors" style="margin-top:10px;">
+        ${this.BUCKET_COLORS.map(c => `<button class="task-color-dot" data-color="${c}" style="background:${c};" title="${c}"></button>`).join('')}
+      </div>
+      <button class="btn btn-primary btn-xs" id="taskNewBucketSave" style="margin-top:10px;width:100%;">+ Create Bucket</button>`;
+
+    let selectedColor = this.BUCKET_COLORS[0];
+    const firstDot = pane.querySelector('.task-color-dot');
+    if (firstDot) firstDot.classList.add('selected');
+
+    pane.querySelectorAll('.task-color-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        pane.querySelectorAll('.task-color-dot').forEach(d => d.classList.remove('selected'));
+        dot.classList.add('selected');
+        selectedColor = dot.dataset.color;
+      });
+    });
+
+    const saveNewBucket = () => {
+      const inp   = document.getElementById('taskNewBucketInput');
+      const title = inp?.value.trim();
+      if (!title) { inp?.focus(); return; }
+      AppState.taskBuckets = AppState.taskBuckets || [];
+      AppState.taskBuckets.push({ id: Date.now(), title, color: selectedColor });
+      AppState.save();
+      if (inp) inp.value = '';
+      this.render();
+    };
+
+    document.getElementById('taskNewBucketSave')?.addEventListener('click', saveNewBucket);
+    document.getElementById('taskNewBucketInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') saveNewBucket();
     });
   },
 
@@ -424,33 +455,6 @@ const TasksTracker = {
       });
     });
 
-    // Color dot selector for new bucket
-    let selectedColor = this.BUCKET_COLORS[0];
-    board.querySelectorAll('.task-color-dot').forEach(dot => {
-      dot.addEventListener('click', () => {
-        board.querySelectorAll('.task-color-dot').forEach(d => d.classList.remove('selected'));
-        dot.classList.add('selected');
-        selectedColor = dot.dataset.color;
-      });
-    });
-    const firstDot = board.querySelector('.task-color-dot');
-    if (firstDot) firstDot.classList.add('selected');
-
-    // Create new bucket
-    const saveNewBucket = () => {
-      const inp   = document.getElementById('taskNewBucketInput');
-      const title = inp?.value.trim();
-      if (!title) { inp?.focus(); return; }
-      AppState.taskBuckets = AppState.taskBuckets || [];
-      AppState.taskBuckets.push({ id: Date.now(), title, color: selectedColor });
-      AppState.save();
-      this.render();
-    };
-
-    document.getElementById('taskNewBucketSave')?.addEventListener('click', saveNewBucket);
-    document.getElementById('taskNewBucketInput')?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') saveNewBucket();
-    });
   },
 
   // ── Drag and drop (tasks between buckets, bucket reorder) ─

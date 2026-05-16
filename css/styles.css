@@ -3092,24 +3092,48 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
    ═══════════════════════════════════════════════════════════ */
 
 /* Toolbar */
-.tasks-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; padding: 14px 0 10px; flex-wrap: wrap;
+/* ── Tasks two-pane layout ──────────────────────────────── */
+.tasks-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: flex-start;
 }
+
+.tasks-left-pane {
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md); overflow: hidden;
+  position: sticky; top: 72px;
+}
+
+.tasks-pane-section {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.tasks-pane-section:last-child { border-bottom: none; }
+
+.tasks-pane-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
 .tasks-stats-strip {
-  display: flex; gap: 16px; align-items: center;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
 }
 .tasks-stat {
   display: flex; flex-direction: column; align-items: center;
-  min-width: 48px;
+  background: var(--surface); border-radius: 8px; padding: 8px 4px;
 }
-.tasks-stat-n { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
-.tasks-stat-l { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
-.tasks-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.tasks-stat-n { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text); line-height: 1; }
+.tasks-stat-l { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
+
+.tasks-filters { display: flex; flex-direction: column; gap: 6px; }
 .tasks-filter-select {
-  font-size: 12px; padding: 5px 10px; border-radius: var(--radius-sm);
-  border: 1px solid var(--border); background: var(--card); color: var(--text);
-  cursor: pointer;
+  font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  cursor: pointer; width: 100%;
 }
 .tasks-filter-select:focus { outline: none; border-color: var(--accent-blue); }
 
@@ -3428,7 +3452,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* Mobile responsiveness */
 @media (max-width: 600px) {
   .task-bucket { flex: 0 0 240px; }
-  .tasks-toolbar { flex-direction: column; align-items: flex-start; }
+  .tasks-layout { grid-template-columns: 1fr; }
+  .tasks-left-pane { position: static; }
 }
 
 /* ── Backup Manager ─────────────────────────────────────── */
