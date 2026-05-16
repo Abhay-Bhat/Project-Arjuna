@@ -17,6 +17,12 @@
     <meta http-equiv="Content-Security-Policy"
           content="object-src 'none'; base-uri 'self'; form-action 'self';">
 
+    <!-- Preconnect to CDN so DNS + TLS are resolved before scripts are requested -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+    <link rel="stylesheet" href="css/styles.css">
+
     <!-- All CDN scripts served via jsDelivr (npm mirror) with Subresource Integrity.
          Hashes computed from firebase@10.14.0 and chart.js@3.9.1 npm package files.
          If a hash mismatch occurs the browser blocks execution, protecting against CDN compromise. -->
@@ -35,7 +41,6 @@
             crossorigin="anonymous"
             integrity="sha384-DRaDw8zunay8Id8djbfyBTcL38QknHkXONVwo0TBWCAQGSpIANj+4OSCTdxxaY5T"></script>
 
-    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
@@ -1061,11 +1066,22 @@
             <option value="medium">🔵 Medium</option>
             <option value="low">🟢 Low</option>
           </select>
+          <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="todo">○ Todo</option>
+            <option value="in-progress">⏳ In Progress</option>
+          </select>
           <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date">
             <option value="all">All dates</option>
             <option value="overdue">⚠️ Overdue</option>
             <option value="today">📅 Due today</option>
             <option value="week">📆 Due this week</option>
+          </select>
+          <select id="taskSort" class="tasks-filter-select" title="Sort tasks">
+            <option value="default">Sort: Default</option>
+            <option value="priority">Sort: Priority</option>
+            <option value="due">Sort: Due date</option>
+            <option value="title">Sort: Title</option>
           </select>
         </div>
       </div>
