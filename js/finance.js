@@ -881,6 +881,7 @@ const FinanceTracker = {
               <th>Value Today</th>
               <th>At Maturity</th>
               <th>Total Gain</th>
+              <th>Post-Tax Est.</th>
               <th>% Now</th>
               <th>Category</th>
             </tr>
@@ -939,6 +940,13 @@ const FinanceTracker = {
                       ? `<span style="font-size:12px;font-weight:600;color:${matGainCol};">${matGain >= 0 ? '+' : ''}₹${this._lakh(Math.abs(matGain))}</span>`
                       : '<span style="color:var(--text-faint);">—</span>'}
                   </td>
+                  <td class="num">
+                    ${isPure ? '<span style="color:var(--text-faint);">—</span>' : (() => {
+                      const tax      = this._calcTax(curGain, t.type);
+                      const postTax  = t.value - tax;
+                      return `<div style="color:var(--accent-teal);font-weight:600;">₹${this._lakh(postTax)}</div><div style="font-size:10px;color:var(--text-muted);">tax ~₹${this._lakh(tax)}</div>`;
+                    })()}
+                  </td>
                   <td>
                     ${isPure ? '<span style="color:var(--text-faint);">—</span>' : `
                       <div style="display:flex;align-items:center;gap:5px;">
@@ -981,6 +989,7 @@ const FinanceTracker = {
                   return `<span style="font-size:12px;font-weight:700;color:${c};">${g >= 0 ? '+' : ''}₹${this._lakh(Math.abs(g))} (${g >= 0 ? '+' : ''}${p}%)</span>`;
                 })()}
               </td>
+              <td></td>
               <td></td>
               <td></td>
             </tr>
@@ -2808,10 +2817,32 @@ const FinanceTracker = {
   // ═══ Helpers ══════════════════════════════════════════════
 
   _lakh(n) {
-    if (!n && n !== 0) return '0';
-    const abs = Math.abs(Math.round(n));
-    if (abs >= 1e7) return (n / 1e7).toFixed(1) + 'Cr';
-    if (abs >= 1e5) return (n / 1e5).toFixed(1) + 'L';
-    return Math.round(n).toLocaleString('en-IN');
+    if (!n || isNaN(n)) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 10000000) return (n / 10000000).toFixed(2).replace(/\.?0+$/, '') + ' Cr';
+    if (abs >= 100000)   return (n / 100000).toFixed(2).replace(/\.?0+$/, '') + ' L';
+    if (abs >= 1000)     return (n / 1000).toFixed(2).replace(/\.?0+$/, '') + ' K';
+    return n.toFixed(2).replace(/\.?0+$/, '');
+  },
+
+  _calcTax(gains, type) {
+    // Returns estimated tax on capital gains (new regime FY 2024-25 onwards)
+    // LTCG: equity/MF > 1yr → 10% above ₹1L; debt/others > 3yr → 20% with indexation
+    // STCG: equity < 1yr → 15%; others → slab (assumed 30% for high earners)
+    if (!gains || gains <= 0) return 0;
+    const equityTypes = ['SIP', 'Shares'];
+    const debtTypes   = ['Deposits', 'Bonds', 'PPF', 'EPF'];
+    if (equityTypes.includes(type)) {
+      // Equity LTCG: 10% above ₹1L exemption (assume long-term)
+      const taxable = Math.max(0, gains - 100000);
+      return Math.round(taxable * 0.10);
+    }
+    if (type === 'PPF' || type === 'EPF') return 0; // EEE instruments — fully exempt
+    if (debtTypes.includes(type)) {
+      // Debt LTCG: 20% with indexation (simplified: 20% flat on gains)
+      return Math.round(gains * 0.20);
+    }
+    // Gold, Crypto, RealEstate, Other: 20% LTCG (assume long-term)
+    return Math.round(gains * 0.20);
   },
 };

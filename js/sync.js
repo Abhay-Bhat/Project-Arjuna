@@ -42,24 +42,25 @@ const CloudSync = {
     try {
       this._db      = firebase.firestore();
       this._enabled = true;
-      this._registerDevice(); // record this device's metadata for visibility
     } catch (e) {
       console.warn('CloudSync: Firestore unavailable --', e.message);
       this._enabled = false;
+      return;
     }
+    this._registerDevice();
   },
 
   // Register device presence so the user can see which devices have synced.
-  // Firestore rule needed: match /users/{uid}/devices/{did}/meta { allow r/w if uid == auth.uid }
+  // Writes to users/{uid}/devices/{did} (4 segments — valid Firestore document path).
   _registerDevice() {
     if (!this._db || !Auth.uid) return;
-    this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/meta`)
+    this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}`)
       .set({
         lastSeen:  firebase.firestore.FieldValue.serverTimestamp(),
         userAgent: navigator.userAgent.slice(0, 200),
         deviceId:  this._deviceId,
       }, { merge: true })
-      .catch(() => {}); // best-effort, silent failure
+      .catch(() => {});
   },
 
   // Master state doc — authoritative merged state read by all devices
@@ -69,10 +70,10 @@ const CloudSync = {
   },
 
   // Per-device state doc — isolated write space; never overwrites another device.
-  // Firestore rule needed: match /users/{uid}/devices/{did}/state { allow r/w if uid == auth.uid }
+  // Writes to users/{uid}/deviceStates/{did} (4 segments — valid Firestore document path).
   get _deviceRef() {
     if (!this._db || !Auth.uid) return null;
-    return this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/state`);
+    return this._db.doc(`users/${Auth.uid}/deviceStates/${this._deviceId}`);
   },
 
   // One-time read on sign-in.

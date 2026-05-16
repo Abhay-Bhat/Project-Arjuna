@@ -461,7 +461,22 @@ const UI = {
       { q: 'The man who moves a mountain begins by carrying away small stones.',       a: 'Confucius' },
       { q: 'It is not that I am smart, it is just that I stay with problems longer.',  a: 'Einstein' },
       { q: 'A small daily task, if it be really daily, will beat the labours of a spasmodic Hercules.', a: 'Anthony Trollope' },
-      { q: 'Every expert was once a beginner.',                                         a: 'Helen Hayes' }
+      { q: 'Every expert was once a beginner.',                                        a: 'Helen Hayes' },
+      { q: 'Success is not final, failure is not fatal: it is the courage to continue that counts.', a: 'Winston Churchill' },
+      { q: 'The secret of getting ahead is getting started.',                          a: 'Mark Twain' },
+      { q: 'It always seems impossible until it is done.',                             a: 'Nelson Mandela' },
+      { q: 'Hard work beats talent when talent does not work hard.',                   a: 'Tim Notke' },
+      { q: 'The future belongs to those who believe in the beauty of their dreams.',   a: 'Eleanor Roosevelt' },
+      { q: 'Do not watch the clock. Do what it does — keep going.',                    a: 'Sam Levenson' },
+      { q: 'Opportunities are usually disguised as hard work, so most people do not recognise them.', a: 'Ann Landers' },
+      { q: 'Act as if what you do makes a difference. It does.',                       a: 'William James' },
+      { q: 'Excellence is not a destination; it is a continuous journey that never ends.', a: 'Brian Tracy' },
+      { q: 'Strength does not come from physical capacity. It comes from an indomitable will.', a: 'Mahatma Gandhi' },
+      { q: 'The only way to do great work is to love what you do.',                    a: 'Steve Jobs' },
+      { q: 'You miss 100% of the shots you don\'t take.',                              a: 'Wayne Gretzky' },
+      { q: 'Start where you are. Use what you have. Do what you can.',                 a: 'Arthur Ashe' },
+      { q: 'Believe you can and you\'re halfway there.',                               a: 'Theodore Roosevelt' },
+      { q: 'No one saves us but ourselves. No one can and no one may. We ourselves must walk the path.', a: 'Buddha' },
     ];
 
     const apply = (q, a) => {
@@ -469,22 +484,35 @@ const UI = {
       authorEl.textContent = '— ' + a;
     };
 
-    // Cache quote for the day — avoid a network hit on every tab switch
-    const today     = new Date().toDateString();
-    const cached    = JSON.parse(localStorage.getItem('athena_quote') || 'null');
+    // Use a cached quote for the day
+    const today  = new Date().toDateString();
+    const cached = JSON.parse(localStorage.getItem('athena_quote') || 'null');
     if (cached?.date === today) { apply(cached.q, cached.a); return; }
 
-    fetch('https://zenquotes.io/api/random', { cache: 'no-store' })
-      .then(r => r.ok ? r.json() : Promise.reject())
-      .then(data => {
-        const q = data?.[0]?.q; const a = data?.[0]?.a;
-        if (!q) throw new Error();
+    // Pick a random fallback immediately so the user sees something
+    const immediate = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    apply(immediate.q, immediate.a);
+
+    // Try multiple public quote APIs in sequence
+    const tryQuotable = () =>
+      fetch('https://api.quotable.io/random?maxLength=150', { signal: AbortSignal.timeout(4000) })
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(d => { if (!d?.content) throw new Error(); return { q: d.content, a: d.author }; });
+
+    const tryForismatic = () =>
+      fetch('https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=en', { signal: AbortSignal.timeout(4000) })
+        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+        .then(d => { if (!d?.quoteText) throw new Error(); return { q: d.quoteText.trim(), a: d.quoteAuthor?.trim() || 'Unknown' }; });
+
+    tryQuotable()
+      .catch(() => tryForismatic())
+      .then(({ q, a }) => {
         localStorage.setItem('athena_quote', JSON.stringify({ date: today, q, a }));
         apply(q, a);
       })
       .catch(() => {
-        const f = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-        apply(f.q, f.a);
+        // Both APIs failed — keep the fallback already shown, cache it for the day
+        localStorage.setItem('athena_quote', JSON.stringify({ date: today, q: immediate.q, a: immediate.a }));
       });
   },
 

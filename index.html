@@ -8,6 +8,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Project Arjuna - Master Your Path, Conquer UPSC 2026-2028">
     <title>Project Arjuna — Master Your Path, Conquer UPSC</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏹</text></svg>">
 
     <!-- Security headers (GitHub Pages cannot set HTTP headers, so we use meta equivalents) -->
     <!-- Referrer-Policy: don't leak URL fragments to external sites -->
@@ -21,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=17">
+    <link rel="stylesheet" href="css/styles.css?v=18">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -88,6 +89,7 @@
                     <button class="hdr-dd-item" id="calendarBtn" role="menuitem">📅 Calendar</button>
                     <button class="hdr-dd-item" id="themeToggle" role="menuitem">🌙 Theme</button>
                     <button class="hdr-dd-item" id="backupBtn" role="menuitem" onclick="BackupManager.openModal()">💾 Backups</button>
+                    <a class="hdr-dd-item" href="help.html" target="_blank" rel="noopener" role="menuitem">❓ Help & Guide</a>
                     <div class="hdr-dd-divider"></div>
                     <button class="hdr-dd-item sync-now-btn" id="syncNowBtn" style="display:none;" role="menuitem">
                         <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync Now
@@ -1522,25 +1524,25 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=17"></script>
-<script defer src="js/auth.js?v=17"></script>
-<script defer src="js/sync.js?v=17"></script>
-<script defer src="js/phases.js?v=17"></script>
-<script defer src="js/storage.js?v=17"></script>
-<script defer src="js/state.js?v=17"></script>
-<script defer src="js/scheduler.js?v=17"></script>
-<script defer src="js/upsc.js?v=17"></script>
-<script defer src="js/finance.js?v=17"></script>
-<script defer src="js/health.js?v=17"></script>
-<script defer src="js/mind.js?v=17"></script>
-<script defer src="js/growth.js?v=17"></script>
-<script defer src="js/tasks.js?v=17"></script>
-<script defer src="js/ui.js?v=17"></script>
-<script defer src="js/events.js?v=17"></script>
-<script defer src="js/tooltips.js?v=17"></script>
-<script defer src="js/seed-data.js?v=17"></script>
-<script defer src="js/backup.js?v=17"></script>
-<script defer src="js/main.js?v=17"></script>
+<script defer src="js/firebase-config.js?v=18"></script>
+<script defer src="js/auth.js?v=18"></script>
+<script defer src="js/sync.js?v=18"></script>
+<script defer src="js/phases.js?v=18"></script>
+<script defer src="js/storage.js?v=18"></script>
+<script defer src="js/state.js?v=18"></script>
+<script defer src="js/scheduler.js?v=18"></script>
+<script defer src="js/upsc.js?v=18"></script>
+<script defer src="js/finance.js?v=18"></script>
+<script defer src="js/health.js?v=18"></script>
+<script defer src="js/mind.js?v=18"></script>
+<script defer src="js/growth.js?v=18"></script>
+<script defer src="js/tasks.js?v=18"></script>
+<script defer src="js/ui.js?v=18"></script>
+<script defer src="js/events.js?v=18"></script>
+<script defer src="js/tooltips.js?v=18"></script>
+<script defer src="js/seed-data.js?v=18"></script>
+<script defer src="js/backup.js?v=18"></script>
+<script defer src="js/main.js?v=18"></script>
 
 </body>
 </html>

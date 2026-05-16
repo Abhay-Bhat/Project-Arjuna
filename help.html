@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help & Guide — Project Arjuna</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏹</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0a0f1f;
+      --bg-card:     #111827;
+      --bg-card2:    #1a2235;
+      --border:      rgba(255,255,255,0.08);
+      --text:        #c9d1e0;
+      --text-muted:  #697098;
+      --text-head:   #e8eaf6;
+      --accent:      #00d4c8;
+      --accent2:     #7c6af7;
+      --amber:       #ffb230;
+      --green:       #22d07a;
+      --rose:        #f44;
+      --radius:      10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 0 0 60px;
+    }
+
+    /* ── Header ── */
+    .help-header {
+      background: linear-gradient(135deg, #0d1630 0%, #111827 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .help-header a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 12px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .help-header a:hover { background: rgba(0,212,200,0.1); }
+    .help-header h1 { font-size: 20px; color: var(--text-head); flex: 1; }
+
+    /* ── Layout ── */
+    .help-wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    /* ── TOC ── */
+    .toc {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 36px;
+    }
+    .toc h2 { color: var(--accent); font-size: 14px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .toc ol { padding-left: 18px; }
+    .toc li { margin: 6px 0; }
+    .toc a { color: var(--text); text-decoration: none; }
+    .toc a:hover { color: var(--accent); }
+
+    /* ── Sections ── */
+    .help-section {
+      margin-bottom: 48px;
+    }
+    .help-section h2 {
+      font-size: 22px;
+      color: var(--text-head);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .help-section h3 {
+      font-size: 16px;
+      color: var(--accent);
+      margin: 24px 0 10px;
+    }
+    .help-section p { margin-bottom: 12px; color: var(--text); }
+    .help-section ul, .help-section ol { padding-left: 20px; margin-bottom: 14px; }
+    .help-section li { margin: 6px 0; }
+    .help-section strong { color: var(--text-head); }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-head);
+      margin-bottom: 8px;
+    }
+
+    /* ── Steps ── */
+    .steps { counter-reset: step; }
+    .step {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+    }
+    .step-num {
+      counter-increment: step;
+      background: var(--accent2);
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .step-body { flex: 1; }
+    .step-body strong { color: var(--text-head); }
+
+    /* ── Code blocks ── */
+    pre, code {
+      font-family: 'Consolas', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+    pre {
+      background: #0d1630;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 12px 0;
+      color: #a8d8b9;
+    }
+    code {
+      background: rgba(0,212,200,0.08);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Alert boxes ── */
+    .alert {
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 14px;
+    }
+    .alert-info   { background: rgba(0,212,200,0.08); border-left: 3px solid var(--accent); }
+    .alert-warn   { background: rgba(255,178,48,0.08); border-left: 3px solid var(--amber); color: var(--amber); }
+    .alert-danger { background: rgba(255,68,68,0.08);  border-left: 3px solid var(--rose);  color: var(--rose); }
+
+    /* ── Tab grid ── */
+    .tab-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .tab-card {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .tab-card .icon { font-size: 22px; margin-bottom: 6px; }
+    .tab-card h4 { font-size: 14px; color: var(--text-head); margin-bottom: 4px; }
+    .tab-card p { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    /* ── Troubleshooting table ── */
+    .trouble-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+    .trouble-table th {
+      background: var(--bg-card2);
+      color: var(--accent);
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .trouble-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .trouble-table tr:last-child td { border-bottom: none; }
+    .trouble-table td:first-child { color: var(--amber); font-weight: 500; white-space: nowrap; }
+    .trouble-table td:last-child { color: var(--text); }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  </style>
+</head>
+<body>
+
+<div class="help-header">
+  <a href="index.html">← Back to App</a>
+  <h1>🏹 Project Arjuna — Help & Guide</h1>
+</div>
+
+<div class="help-wrap">
+
+  <!-- TABLE OF CONTENTS -->
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#firebase-setup">Firebase & Sync Setup (Step-by-step)</a></li>
+      <li><a href="#dashboard-tabs">Dashboard Tabs Overview</a></li>
+      <li><a href="#sync-guide">Cross-Device Sync Guide</a></li>
+      <li><a href="#backup-restore">Backup & Restore Guide</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#manual-actions">Manual Actions You May Need to Take</a></li>
+    </ol>
+  </nav>
+
+  <!-- ── 1. GETTING STARTED ── -->
+  <section class="help-section" id="getting-started">
+    <h2>1 Getting Started</h2>
+
+    <p><strong>Project Arjuna</strong> is a personal productivity dashboard built for UPSC preparation (2026–2028). It tracks your daily routine, study progress, finances, health, mind, growth, and tasks — all in one place.</p>
+
+    <h3>Two operating modes</h3>
+    <div class="card">
+      <div class="card-title">🌐 Cloud Mode (recommended)</div>
+      <p>Sign in with Google. Your data syncs automatically across all browsers and devices via Firebase Firestore. All changes on any device appear on every other device within seconds.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📴 Local-Only Mode</div>
+      <p>No sign-in required. Data is stored only in your browser's IndexedDB + localStorage. You'll see a <strong>📴 Local</strong> badge in the header. Data is not synced across devices. Use the Backup feature to manually transfer data.</p>
+    </div>
+
+    <h3>First launch</h3>
+    <ol>
+      <li>Open the app — it loads instantly from local storage (no network needed).</li>
+      <li>If Firebase is configured, a Google sign-in overlay will appear.</li>
+      <li>Click <strong>Sign in with Google</strong> and complete the auth flow.</li>
+      <li>The app merges any local data with your cloud data automatically.</li>
+    </ol>
+  </section>
+
+  <!-- ── 2. FIREBASE SETUP ── -->
+  <section class="help-section" id="firebase-setup">
+    <h2>2 Firebase & Sync Setup</h2>
+
+    <div class="alert alert-info">This is a one-time setup. Once done, sync is fully automatic — no further action required.</div>
+
+    <h3>Step-by-step: Create a Firebase project</h3>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener" style="color:var(--accent)">console.firebase.google.com</a></strong> and click <em>Add project</em>. Give it a name (e.g. "project-arjuna"). Disable Google Analytics if you don't need it.</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Enable Google Sign-In:</strong> In the left sidebar go to <em>Build → Authentication → Sign-in method</em>. Click <em>Google</em>, toggle it <em>Enabled</em>, add your support email, and click <em>Save</em>.</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Authorise your domain:</strong> Still in Authentication, click the <em>Settings</em> tab → <em>Authorised domains</em>. Add your GitHub Pages domain, e.g. <code>abhay-bhat.github.io</code>. Also add <code>localhost</code> for local testing.</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Create a Firestore database:</strong> Go to <em>Build → Firestore Database → Create database</em>. Choose <em>Start in production mode</em> (we'll set proper rules next). Pick a region close to you (e.g. <code>asia-south1</code> for India).</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Apply security rules:</strong> In Firestore, click the <em>Rules</em> tab. Replace the default rules with the rules below and click <em>Publish</em>.</div></div>
+    </div>
+
+    <h3>Firestore Security Rules (copy-paste exactly)</h3>
+    <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Master state document — all devices read/write here
+    match /users/{userId}/data/state {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Device presence documents — one per device, records last-seen time
+    match /users/{userId}/devices/{deviceId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // Per-device state backups — isolated copy, never overwritten by other devices
+    match /users/{userId}/deviceStates/{deviceId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+  }
+}</pre>
+
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Get your Firebase config:</strong> Go to <em>Project Settings</em> (gear icon) → <em>General</em> → scroll to <em>Your apps</em>. If no web app exists, click the <code>&lt;/&gt;</code> icon to add one (no need to set up Firebase Hosting). Copy the <code>firebaseConfig</code> object shown.</div></div>
+
+    <h3>Configure the app</h3>
+    <p>Create (or edit) <code>js/firebase-config.js</code> in your repository with this content:</p>
+    <pre>// js/firebase-config.js
+// Replace ALL values below with your actual Firebase project values.
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};</pre>
+
+    <div class="alert alert-warn">Never commit your real firebase-config.js to a public repository. Add it to <code>.gitignore</code> or use GitHub Actions secrets to inject it at deploy time.</div>
+
+    <p>After saving and deploying, refresh the app. The sign-in overlay will appear and sync will be fully enabled.</p>
+  </section>
+
+  <!-- ── 3. DASHBOARD TABS ── -->
+  <section class="help-section" id="dashboard-tabs">
+    <h2>3 Dashboard Tabs Overview</h2>
+    <div class="tab-grid">
+      <div class="tab-card"><div class="icon">🏠</div><h4>Today</h4><p>Daily routine checklist, calendar, UPSC current affairs log, and quick check-ins for health and mind.</p></div>
+      <div class="tab-card"><div class="icon">📚</div><h4>UPSC</h4><p>Subject-wise syllabus progress tracker, study schedule, and phase milestone overview.</p></div>
+      <div class="tab-card"><div class="icon">💰</div><h4>Finance</h4><p>Dubai savings tracker, investment portfolio with maturity projections, monthly expense log, and financial checklist.</p></div>
+      <div class="tab-card"><div class="icon">❤️</div><h4>Health</h4><p>Sleep, gym, and screen-time log with charts. Cholesterol tracker and health history.</p></div>
+      <div class="tab-card"><div class="icon">🧠</div><h4>Mind</h4><p>NoFap streak tracker, meditation log, loneliness rating, and partner connection log.</p></div>
+      <div class="tab-card"><div class="icon">🌱</div><h4>Growth</h4><p>Career milestones, book reading tracker, weekly & monthly review journal.</p></div>
+      <div class="tab-card"><div class="icon">✅</div><h4>Tasks</h4><p>Kanban-style task planner with buckets (categories), priorities, due dates, and completion tracking.</p></div>
+    </div>
+  </section>
+
+  <!-- ── 4. SYNC GUIDE ── -->
+  <section class="help-section" id="sync-guide">
+    <h2>4 Cross-Device Sync Guide</h2>
+
+    <h3>How automatic sync works</h3>
+    <ol>
+      <li><strong>On load:</strong> The app reads Firestore once and merges cloud data with local data.</li>
+      <li><strong>On every save:</strong> Any change (checking a task, logging data) is pushed to Firestore within ~800 ms.</li>
+      <li><strong>Real-time listener:</strong> The app watches Firestore for changes from other devices and applies them instantly (echo-guarded — it ignores its own writes).</li>
+      <li><strong>Cross-tab sync:</strong> Tabs in the same browser sync via BroadcastChannel — no Firestore round-trip needed.</li>
+    </ol>
+
+    <h3>Manual sync</h3>
+    <p>Open the header menu (☰) → click <strong>Sync Now</strong>. The button shows ⟳ while syncing and ✓ when done. The status row below it shows the last sync time.</p>
+
+    <h3>Merge strategy (data is never deleted)</h3>
+    <ul>
+      <li>Arrays (tasks, investments, etc.): items are unioned by ID. If the same item exists on two devices, the one with the newer <code>modifiedAt</code> timestamp wins.</li>
+      <li>Object logs (health, mind, UPSC progress): keys from both sides are merged — local keys override cloud only for the same date key.</li>
+      <li><code>done: true</code> is sticky — a completed task stays completed regardless of which version wins.</li>
+      <li>UPSC progress takes the maximum per subject — study progress never regresses.</li>
+    </ul>
+
+    <h3>Checking sync status (developer console)</h3>
+    <p>Open browser DevTools (F12) → Console tab and run:</p>
+    <pre>ATHENA.syncDiag()</pre>
+    <p>The table shows: <code>enabled</code> (must be <code>true</code>), <code>isAuthenticated</code>, <code>pendingPush</code>, <code>listenerActive</code>, etc.</p>
+    <p>If data is missing on a device, run:</p>
+    <pre>ATHENA.forcePull()</pre>
+    <p>This bypasses all guards and directly applies the latest Firestore state.</p>
+  </section>
+
+  <!-- ── 5. BACKUP & RESTORE ── -->
+  <section class="help-section" id="backup-restore">
+    <h2>5 Backup & Restore Guide</h2>
+
+    <h3>Auto-backups</h3>
+    <p>The app creates backups automatically at three points:</p>
+    <ul>
+      <li><strong>startup</strong> — once per session when the page loads (deferred to idle time)</li>
+      <li><strong>scheduled</strong> — every hour while the tab is open</li>
+      <li><strong>pre-sync</strong> — before applying a cloud merge or force-pull (safety snapshot)</li>
+    </ul>
+    <p>Backups are stored in IndexedDB inside your browser. They are local — not synced to Firestore.</p>
+
+    <h3>Accessing backups</h3>
+    <ol>
+      <li>Click the <strong>☰ menu</strong> in the header.</li>
+      <li>Click <strong>💾 Backups</strong>.</li>
+      <li>A modal lists all saved backups with their timestamp and type.</li>
+      <li>Click <strong>Restore</strong> next to any backup to apply it. The app will reload with that state.</li>
+    </ol>
+
+    <h3>Manual backup via console</h3>
+    <pre>// Create a backup right now
+ATHENA.backup()
+
+// List all backups (shows in console as a table)
+ATHENA.listBackups()
+
+// Restore a specific backup by key
+ATHENA.restoreBackup('backup_key_here')</pre>
+
+    <div class="alert alert-info">After restoring a backup, the app pushes the restored state to Firestore so all other devices catch up automatically.</div>
+
+    <h3>Exporting data</h3>
+    <p>Open DevTools Console and run:</p>
+    <pre>JSON.stringify(AppState._buildPayload())</pre>
+    <p>Copy the output and save it as a <code>.json</code> file. This is your full data export.</p>
+  </section>
+
+  <!-- ── 6. TROUBLESHOOTING ── -->
+  <section class="help-section" id="troubleshooting">
+    <h2>6 Troubleshooting</h2>
+
+    <table class="trouble-table">
+      <thead><tr><th>Symptom</th><th>Likely cause &amp; fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>📴 Local badge in header</td>
+          <td>Firebase is not configured. Check that <code>js/firebase-config.js</code> exists and has real values (not <code>YOUR_API_KEY</code>). See Section 2.</td>
+        </tr>
+        <tr>
+          <td>Sign-in overlay always appears</td>
+          <td>Your domain is not in Firebase Authorised Domains. Go to Firebase Console → Authentication → Settings → Authorised domains and add your site URL.</td>
+        </tr>
+        <tr>
+          <td>Sync enabled in console but data not appearing on Device B</td>
+          <td>Run <code>ATHENA.forcePull()</code> on Device B. If that fails, check Firestore rules in the Firebase console match Section 2 exactly.</td>
+        </tr>
+        <tr>
+          <td><code>enabled: false</code> in <code>ATHENA.syncDiag()</code></td>
+          <td>Firestore SDK failed to initialize. Check the browser console for the actual error. Common cause: incorrect API key or Firestore not created in Firebase project.</td>
+        </tr>
+        <tr>
+          <td>Data missing after restore</td>
+          <td>Select an earlier backup from the Backups modal. Backups are kept for multiple checkpoints — go further back in time.</td>
+        </tr>
+        <tr>
+          <td>Sync icon shows error (!) in menu</td>
+          <td>Network issue or Firestore rules too restrictive. Check your internet connection, then verify rules in Firebase Console match Section 2.</td>
+        </tr>
+        <tr>
+          <td>Quote strip shows same quote every day</td>
+          <td>The daily quote is cached in localStorage. To refresh: open DevTools Console and run <code>localStorage.removeItem('athena_quote'); location.reload();</code></td>
+        </tr>
+        <tr>
+          <td>App shows blank / white screen</td>
+          <td>JavaScript error during boot. Open DevTools Console, look for the red error, and check if all script files are loading (Network tab). Try a hard reload: Ctrl+Shift+R.</td>
+        </tr>
+        <tr>
+          <td>Tasks / data reset to empty</td>
+          <td>Accidental <code>clearState()</code> or restore. Immediately run <code>ATHENA.listBackups()</code> and restore the most recent pre-sync backup.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ── 7. MANUAL ACTIONS ── -->
+  <section class="help-section" id="manual-actions">
+    <h2>7 Manual Actions You May Need to Take</h2>
+
+    <div class="alert alert-warn">These are one-time actions in external consoles — not in the app itself.</div>
+
+    <h3>A. Apply Firestore security rules</h3>
+    <p>Every time the security rules in Section 2 change, you must re-publish them in Firebase Console → Firestore → Rules. The app cannot do this automatically.</p>
+
+    <h3>B. Add your domain to Authorised Domains</h3>
+    <p>When you deploy to a new URL (e.g. custom domain, new GitHub Pages URL), you must add it in Firebase Console → Authentication → Settings → Authorised domains.</p>
+
+    <h3>C. Inject Firebase config at deploy time (GitHub Actions)</h3>
+    <p>If you don't want to commit your real config, use GitHub Actions secrets:</p>
+    <ol>
+      <li>Go to your GitHub repo → Settings → Secrets and variables → Actions.</li>
+      <li>Add secrets: <code>FIREBASE_API_KEY</code>, <code>FIREBASE_PROJECT_ID</code>, etc.</li>
+      <li>In your workflow YAML, add a step before deploy:</li>
+    </ol>
+    <pre>- name: Write Firebase config
+  run: |
+    cat > js/firebase-config.js &lt;&lt;EOF
+    const FIREBASE_CONFIG = {
+      apiKey: "${{ secrets.FIREBASE_API_KEY }}",
+      authDomain: "${{ secrets.FIREBASE_PROJECT_ID }}.firebaseapp.com",
+      projectId: "${{ secrets.FIREBASE_PROJECT_ID }}",
+      storageBucket: "${{ secrets.FIREBASE_PROJECT_ID }}.appspot.com",
+      messagingSenderId: "${{ secrets.FIREBASE_SENDER_ID }}",
+      appId: "${{ secrets.FIREBASE_APP_ID }}"
+    };
+    EOF</pre>
+
+    <h3>D. Clear stale local data (reset)</h3>
+    <p>If the app is stuck in a bad state, open DevTools Console and run:</p>
+    <pre>ATHENA.clearState()   // wipes localStorage and reloads (data still in Firestore)</pre>
+    <div class="alert alert-danger">This clears local state permanently. Your cloud data in Firestore is unaffected — sign back in to re-sync.</div>
+
+    <h3>E. Force a full re-sync from Firestore</h3>
+    <pre>ATHENA.forcePull()   // pulls latest Firestore state, applies, and re-renders</pre>
+
+    <h3>F. Check sync diagnostics</h3>
+    <pre>ATHENA.syncDiag()    // prints a table of all sync state variables to console</pre>
+
+    <hr>
+    <p style="text-align:center; color: var(--text-muted); font-size: 13px;">Project Arjuna • Master Your Path • 2026–2028</p>
+  </section>
+
+</div>
+</body>
+</html>
