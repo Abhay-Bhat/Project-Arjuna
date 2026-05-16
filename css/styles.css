@@ -3359,3 +3359,26 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   color: var(--text-muted);
   font-size: 13px;
 }
+
+/* ── App Loader (shown while scripts download + IDB initialises) ── */
+#appLoader {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg, #0a0f1f);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 10px;
+  transition: opacity 0.35s ease;
+}
+#appLoader.al-done { opacity: 0; pointer-events: none; }
+.al-logo    { font-size: 52px; line-height: 1; animation: al-pulse 2s ease-in-out infinite; }
+.al-brand   { font-size: 20px; font-weight: 700; color: var(--text, #e2e8f0); letter-spacing: .5px; }
+.al-tagline { font-size: 11px; color: var(--text-muted, #64748b); margin-top: -2px; }
+.al-spin {
+  width: 34px; height: 34px; margin-top: 6px;
+  border: 2.5px solid var(--border, rgba(255,255,255,.1));
+  border-top-color: var(--accent, #6366f1);
+  border-radius: 50%;
+  animation: al-spin .75s linear infinite;
+}
+@keyframes al-spin    { to { transform: rotate(360deg); } }
+@keyframes al-pulse   { 0%,100% { opacity: 1; } 50% { opacity: .6; } }

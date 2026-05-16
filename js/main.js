@@ -17,9 +17,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     Events.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
-    // Defer startup backup until after first paint so it doesn't compete with render.
+    // Reveal the app — fade out the loading overlay
+    const _loader = document.getElementById('appLoader');
+    if (_loader) {
+      _loader.classList.add('al-done');
+      setTimeout(() => _loader.remove(), 380);
+    }
+
+    // Defer startup backup to idle time so it never competes with the render path.
     // Hourly scheduled backup runs while the tab stays open.
-    setTimeout(() => BackupManager.create('startup'), 3000);
+    const _idle = typeof requestIdleCallback !== 'undefined'
+      ? (fn) => requestIdleCallback(fn, { timeout: 5000 })
+      : (fn) => setTimeout(fn, 3000);
+    _idle(() => BackupManager.create('startup'));
     setInterval(() => BackupManager.create('scheduled'), 60 * 60 * 1000);
 
     // Flush any queued Firestore push when the tab is hidden or unloaded.

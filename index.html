@@ -23,26 +23,38 @@
 
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- All CDN scripts served via jsDelivr (npm mirror) with Subresource Integrity.
-         Hashes computed from firebase@10.14.0 and chart.js@3.9.1 npm package files.
-         If a hash mismatch occurs the browser blocks execution, protecting against CDN compromise. -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"
+    <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
+    <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
+
+    <!-- All CDN scripts served via jsDelivr with Subresource Integrity.
+         defer = download in parallel with HTML parsing, execute in order after parse.
+         This unblocks HTML parsing and enables parallel CDN + app script downloads. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"
             crossorigin="anonymous"
             integrity="sha384-9MhbyIRcBVQiiC7FSd7T38oJNj2Zh+EfxS7/vjhBi4OOT78NlHSnzM31EZRWR1LZ"></script>
 
     <!-- Firebase SDK (compat layer — works as drop-in global objects) -->
-    <script src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-app-compat.js"
+    <script defer src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-app-compat.js"
             crossorigin="anonymous"
             integrity="sha384-nMqKrgk2MOVr+J6K7dYFdt02ATuHV/Bqbpl7SQl+GYXyf1CHx9oLuiXNpVdd0rJh"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-auth-compat.js"
+    <script defer src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-auth-compat.js"
             crossorigin="anonymous"
             integrity="sha384-I1LYojsZ5RM1cOda44Z2h42Qa6YfsQ1XkXxREnhp4ueYBR/4d1pG1K+NZM537Vsj"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-firestore-compat.js"
+    <script defer src="https://cdn.jsdelivr.net/npm/firebase@10.14.0/firebase-firestore-compat.js"
             crossorigin="anonymous"
             integrity="sha384-DRaDw8zunay8Id8djbfyBTcL38QknHkXONVwo0TBWCAQGSpIANj+4OSCTdxxaY5T"></script>
 
 </head>
 <body>
+
+<!-- App loading overlay — shows while scripts download and IDB initialises.
+     Hidden by JS (main.js) once UI.init() completes. CSS handles the fade. -->
+<div id="appLoader" aria-hidden="true">
+  <div class="al-logo">🏹</div>
+  <div class="al-brand">Project Arjuna</div>
+  <div class="al-spin"></div>
+  <div class="al-tagline">Master Your Path • 2026–2028</div>
+</div>
 
 <div class="app-shell" id="app-shell">
 
@@ -1478,27 +1490,28 @@
   </div>
 </div>
 
-<!-- SCRIPTS (in order) -->
+<!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
+     Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script src="js/firebase-config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/sync.js"></script>
-<script src="js/phases.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/state.js"></script>
-<script src="js/scheduler.js"></script>
-<script src="js/upsc.js"></script>
-<script src="js/finance.js"></script>
-<script src="js/health.js"></script>
-<script src="js/mind.js"></script>
-<script src="js/growth.js"></script>
-<script src="js/tasks.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/events.js"></script>
-<script src="js/tooltips.js"></script>
-<script src="js/seed-data.js"></script>
-<script src="js/backup.js"></script>
-<script src="js/main.js"></script>
+<script defer src="js/firebase-config.js"></script>
+<script defer src="js/auth.js"></script>
+<script defer src="js/sync.js"></script>
+<script defer src="js/phases.js"></script>
+<script defer src="js/storage.js"></script>
+<script defer src="js/state.js"></script>
+<script defer src="js/scheduler.js"></script>
+<script defer src="js/upsc.js"></script>
+<script defer src="js/finance.js"></script>
+<script defer src="js/health.js"></script>
+<script defer src="js/mind.js"></script>
+<script defer src="js/growth.js"></script>
+<script defer src="js/tasks.js"></script>
+<script defer src="js/ui.js"></script>
+<script defer src="js/events.js"></script>
+<script defer src="js/tooltips.js"></script>
+<script defer src="js/seed-data.js"></script>
+<script defer src="js/backup.js"></script>
+<script defer src="js/main.js"></script>
 
 </body>
 </html>
