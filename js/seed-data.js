@@ -159,11 +159,12 @@ const SeedData = {
           console.log('SeedData: migrated EPF to monthly log');
         } else {
           // Sync any new seed months that are absent from the stored log
+          // Key by month+type only (not amount) so user-edited amounts are never overwritten
           const existingKeys = new Set(
-            existingEPF.epfLog.map(e => `${e.month}|${e.type}|${e.employee}`)
+            existingEPF.epfLog.map(e => `${e.month}|${e.type}`)
           );
           const newEntries = epfSeed.epfLog.filter(
-            e => !existingKeys.has(`${e.month}|${e.type}|${e.employee}`)
+            e => !existingKeys.has(`${e.month}|${e.type}`)
           );
           if (newEntries.length) {
             existingEPF.epfLog = [...existingEPF.epfLog, ...newEntries];
