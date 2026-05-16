@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     Events.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
+    // Snapshot state on every startup and every hour while the tab is open
+    BackupManager.create('startup');
+    setInterval(() => BackupManager.create('scheduled'), 60 * 60 * 1000);
+
     // Flush any queued Firestore push when the tab is hidden or unloaded.
     // This covers: closing the tab, navigating away, and going to background on mobile.
     const _flushOnExit = () => CloudSync.flushPush();
@@ -105,12 +109,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Debug helpers (browser console: ATHENA.*)
 window.ATHENA = {
-  state:         () => AppState,
-  phase:         () => PhaseManager.getPhase(),
-  regenSchedule: () => { UPSCTracker.initSchedule(true); UI.updateAll(); },
-  clearState:    () => { localStorage.removeItem('athena_v2'); location.reload(); },
-  dumpUPSC:      (date) => UPSCTracker.getForDate(date || AppState.getTodayKey()),
-  milestones:    () => PhaseManager.getUpcomingMilestones(5),
-  syncNow:       () => AppState.syncCloud(),
-  authUser:      () => Auth.user
+  state:          () => AppState,
+  phase:          () => PhaseManager.getPhase(),
+  regenSchedule:  () => { UPSCTracker.initSchedule(true); UI.updateAll(); },
+  clearState:     () => { localStorage.removeItem('athena_v2'); location.reload(); },
+  dumpUPSC:       (date) => UPSCTracker.getForDate(date || AppState.getTodayKey()),
+  milestones:     () => PhaseManager.getUpcomingMilestones(5),
+  syncNow:        () => AppState.syncCloud(),
+  authUser:       () => Auth.user,
+  backup:         () => BackupManager.create('manual'),
+  listBackups:    () => BackupManager.list().then(console.table),
+  restoreBackup:  (key) => BackupManager.restore(key),
 };

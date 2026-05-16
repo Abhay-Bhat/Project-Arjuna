@@ -68,6 +68,7 @@
             <button id="syncNowBtn" class="btn btn-sm sync-now-btn" style="display:none;" title="Pull latest data from all your devices">
               <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync
             </button>
+            <button class="btn btn-sm" id="backupBtn" title="Backup Manager — view and restore snapshots" onclick="BackupManager.openModal()">💾</button>
             <button class="btn btn-sm" id="todayBtn">🏠 Today</button>
             <button class="btn btn-sm" id="calendarBtn">📅</button>
             <button class="btn btn-sm" id="themeToggle">🌙</button>
@@ -1418,6 +1419,43 @@
 </div>
 
 <!-- ═════════════════════════════════════════════════════ -->
+<!-- BACKUP MANAGER MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="backupModal">
+  <div class="fin-modal-box" style="max-width:620px;width:96%;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-shrink:0;">
+      <div>
+        <h3 style="margin:0;font-size:17px;">💾 Backup Manager</h3>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+          Device ID: <code id="backupDeviceId" style="font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:3px;">—</code>
+        </div>
+      </div>
+      <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" onclick="BackupManager.closeModal()">×</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-primary" onclick="BackupManager.create('manual').then(()=>BackupManager.renderModal())">
+        📸 Create Backup Now
+      </button>
+      <button class="btn btn-sm" onclick="BackupManager.downloadLatest()">
+        ⬇ Export Latest
+      </button>
+      <button class="btn btn-sm" onclick="AppState.exportData()">
+        📤 Full Export (JSON)
+      </button>
+    </div>
+
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;padding:8px 10px;background:var(--bg-secondary);border-radius:6px;flex-shrink:0;">
+      ℹ️ Backups are saved locally on <strong>this device</strong>. Auto-snapshots are taken on startup, every hour, and before each cloud sync. Up to 20 backups are kept.
+    </div>
+
+    <div id="backupList" style="flex:1;overflow-y:auto;">
+      <div class="backup-empty">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
 <!-- AUTHENTICATION OVERLAY -->
 <!-- ═════════════════════════════════════════════════════ -->
 <div id="authOverlay" class="auth-overlay">
@@ -1459,6 +1497,7 @@
 <script src="js/events.js"></script>
 <script src="js/tooltips.js"></script>
 <script src="js/seed-data.js"></script>
+<script src="js/backup.js"></script>
 <script src="js/main.js"></script>
 
 </body>

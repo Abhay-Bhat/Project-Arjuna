@@ -3312,3 +3312,50 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .task-bucket { flex: 0 0 240px; }
   .tasks-toolbar { flex-direction: column; align-items: flex-start; }
 }
+
+/* ── Backup Manager ─────────────────────────────────────── */
+.backup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.backup-row-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.backup-trigger-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.backup-time {
+  font-size: 12px;
+  color: var(--text);
+}
+.backup-device {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.backup-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.backup-restore-btn {
+  background: var(--warning, #f59e0b) !important;
+  color: #000 !important;
+}
+.backup-empty {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
