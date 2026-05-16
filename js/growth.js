@@ -454,9 +454,9 @@ const GrowthTracker = {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor, font: { family: 'Outfit', size: 12 } } } },
+        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 12 } } } },
         scales: {
-          x: { ticks: { color: textColor, font: { family: 'Outfit', size: 11 } }, grid: { color: gridColor } },
+          x: { ticks: { color: textColor, font: { family: 'Aptos', 'Segoe UI', system-ui, sans-serif, size: 11 } }, grid: { color: gridColor } },
           y: { min: 1, max: 5, ticks: { color: textColor, stepSize: 1 }, grid: { color: gridColor } }
         }
       }
