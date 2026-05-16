@@ -87,7 +87,10 @@ const AppState = {
     const cloudData = await CloudSync.pull();
     if (cloudData === undefined) return; // pull error — do NOT overwrite cloud with local
     if (!cloudData) {
-      this._doSave(); // no cloud doc yet — seed Firestore from local
+      // No cloud doc yet. Only seed Firestore if this device has previously saved
+      // data (_savedAt is set). A brand-new device with empty local state must NOT
+      // create an empty cloud doc — that would wipe another device's data in Firestore.
+      if (this._savedAt) this._doSave();
       return;
     }
     // Snapshot local state before touching anything

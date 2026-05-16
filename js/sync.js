@@ -187,6 +187,11 @@ const CloudSync = {
         // If there's a queued push (from boot sync), refresh its payload to include
         // this device's changes — prevents the stale push from overwriting B's data.
         if (this._pendingPayload) this._pendingPayload = mergedData;
+        // Convergence push: if local had data the sender lacked, push the merged
+        // result back so other devices (including the sender) catch up.
+        // Array/object length comparison stops the loop — once both sides are equal
+        // the merged result equals cloud, so this branch never fires again.
+        if (CloudSync._localContributed(mergedData, cloudData)) AppState._doSave();
         if (typeof UI !== 'undefined') {
           UI.updateAll();
           UI.showToast('Updated from another device');
@@ -231,6 +236,19 @@ const CloudSync = {
       }
       this._setSyncStatus('synced');
     };
+  },
+
+  // Returns true if merged has more items than cloud — meaning local contributed
+  // data the sender lacked, so we should push the merged result back for convergence.
+  // Loop-safe: once both sides are equal, merged === cloud → returns false.
+  _localContributed(merged, cloud) {
+    const arrs = ['tasks','taskBuckets','investments','financeEntries',
+                  'monthlyExpenses','cholesterol','nofapLog','partnerLog'];
+    const objs = ['checkedItems','dailyHistory','healthLog','mindLog',
+                  'caLog','careerLog','booksLog','weeklyReviews',
+                  'monthlyReviews','dubaiChecklist','upscSubjectProgress'];
+    return arrs.some(k => (merged[k]||[]).length > (cloud[k]||[]).length) ||
+           objs.some(k => Object.keys(merged[k]||{}).length > Object.keys(cloud[k]||{}).length);
   },
 
   _broadcastToTabs(payload) {
