@@ -79,31 +79,24 @@ const AppState = {
   },
 
   // Phase 2 -- runs once after sign-in.
-  // Always merges local + cloud data (never a pure overwrite) so no data is lost
-  // regardless of which side has the newer timestamp. Backs up local state first.
+  // ALWAYS merges local + cloud regardless of timestamps — this is the only way to
+  // guarantee no data is lost. Timestamp comparison was the root cause of past data
+  // loss: a device with a "newer" clock would push its partial state and silently
+  // overwrite additive data written on other devices while it was offline.
   async syncCloud() {
     const cloudData = await CloudSync.pull();
     if (!cloudData) {
-      // No cloud document yet — seed Firestore with local state
-      this._doSave();
+      this._doSave(); // no cloud doc yet — seed Firestore from local
       return;
     }
-    const localTs = this._savedAt ? new Date(this._savedAt).getTime() : 0;
-    const cloudTs = cloudData._savedAt ? new Date(cloudData._savedAt).getTime() : 0;
-    if (localTs > cloudTs) {
-      // Local is newer — push it up; cloud gets the local state merged in anyway
-      this._doSave();
-      return;
-    }
-    // Snapshot local state before applying any cloud data
+    // Snapshot local state before touching anything
     if (typeof BackupManager !== 'undefined') await BackupManager.create('pre-sync');
-    // Smart merge: union arrays, deep-merge logs — neither side loses data
+    // Merge every domain from both sides — union arrays, deep-merge logs
     const merged = this._mergeWithCloud(cloudData);
     CloudSync.cancelPush();
     this._applyLoaded(merged);
     Storage.save(merged);
-    // Push merged result back so other devices converge to the same full state
-    this._doSave();
+    this._doSave(); // push merged result back so all devices converge
     if (typeof UI !== 'undefined') UI.updateAll();
   },
 
@@ -195,6 +188,8 @@ const AppState = {
 
   _doSave() {
     const payload = this._buildPayload();
+    // Persist theme to localStorage so inline head script applies it instantly next load
+    try { localStorage.setItem('athena_theme', this.theme); } catch(e) {}
     Storage.save(payload);
     CloudSync.push(payload); // Push to Firestore (no-op when not configured)
   },
@@ -204,20 +199,39 @@ const AppState = {
   _mergeWithCloud(cloudData) {
     const local = this._buildPayload();
 
-    // Arrays with .id field: union (cloud first, then local-only items added)
+    // Arrays with .id: union. Same-ID items are field-merged (local overrides cloud).
+    // 'done' is OR'd so a completion on any device is never silently un-done.
     const _byId = (la, ca) => {
       const map = new Map();
       (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
-      (la || []).forEach(item => { if (item.id != null && !map.has(item.id)) map.set(item.id, item); });
+      (la || []).forEach(item => {
+        if (item.id == null) return;
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+        } else {
+          const base = map.get(item.id);
+          const m = { ...base, ...item }; // local overrides cloud fields
+          if (base.done === true) m.done = true; // preserve any prior completion
+          map.set(item.id, m);
+        }
+      });
       return [...map.values()];
     };
 
-    // Arrays with no id — deduplicate by date+type composite
+    // Arrays with no id — dedup by date+type (nofapLog, partnerLog)
     const _byDateType = (la, ca) => {
       const map = new Map();
-      const k = e => `${e.date || ''}|${e.type || ''}|${e.employee || e.ldl || ''}`;
+      const k = e => `${e.date || ''}|${e.type || ''}`;
       (ca || []).forEach(item => map.set(k(item), item));
       (la || []).forEach(item => { const key = k(item); if (!map.has(key)) map.set(key, item); });
+      return [...map.values()];
+    };
+
+    // Single measurement per date (cholesterol)
+    const _byDate = (la, ca) => {
+      const map = new Map();
+      (ca || []).forEach(item => { if (item.date) map.set(item.date, item); });
+      (la || []).forEach(item => { if (item.date && !map.has(item.date)) map.set(item.date, item); });
       return [...map.values()];
     };
 
@@ -245,10 +259,10 @@ const AppState = {
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),
-      // Arrays without id — deduplicate by date+type
-      cholesterol:  _byDateType(local.cholesterol,  cloudData.cholesterol),
-      nofapLog:     _byDateType(local.nofapLog,     cloudData.nofapLog),
-      partnerLog:   _byDateType(local.partnerLog,   cloudData.partnerLog),
+      // Arrays without id
+      cholesterol: _byDate(local.cholesterol,     cloudData.cholesterol),
+      nofapLog:    _byDateType(local.nofapLog,    cloudData.nofapLog),
+      partnerLog:  _byDateType(local.partnerLog,  cloudData.partnerLog),
       // Object logs — deep merge
       checkedItems:        _mergeObj(local.checkedItems,        cloudData.checkedItems),
       holidayOverrides:    _mergeObj(local.holidayOverrides,    cloudData.holidayOverrides),

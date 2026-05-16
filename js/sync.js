@@ -42,15 +42,37 @@ const CloudSync = {
     try {
       this._db      = firebase.firestore();
       this._enabled = true;
+      this._registerDevice(); // record this device's metadata for visibility
     } catch (e) {
       console.warn('CloudSync: Firestore unavailable --', e.message);
       this._enabled = false;
     }
   },
 
+  // Register device presence so the user can see which devices have synced.
+  // Firestore rule needed: match /users/{uid}/devices/{did}/meta { allow r/w if uid == auth.uid }
+  _registerDevice() {
+    if (!this._db || !Auth.uid) return;
+    this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/meta`)
+      .set({
+        lastSeen:  firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent.slice(0, 200),
+        deviceId:  this._deviceId,
+      }, { merge: true })
+      .catch(() => {}); // best-effort, silent failure
+  },
+
+  // Master state doc — authoritative merged state read by all devices
   get _ref() {
     if (!this._db || !Auth.uid) return null;
     return this._db.doc('users/' + Auth.uid + '/data/state');
+  },
+
+  // Per-device state doc — isolated write space; never overwrites another device.
+  // Firestore rule needed: match /users/{uid}/devices/{did}/state { allow r/w if uid == auth.uid }
+  get _deviceRef() {
+    if (!this._db || !Auth.uid) return null;
+    return this._db.doc(`users/${Auth.uid}/devices/${this._deviceId}/state`);
   },
 
   // One-time read on sign-in -- returns cloud payload or null
@@ -74,6 +96,7 @@ const CloudSync = {
 
   // Debounced push -- coalesces rapid saves into one Firestore write.
   // Fires 800 ms after the LAST save, so checking 10 items in a row = 1 write.
+  // Writes to TWO docs: master (authoritative) + per-device (isolated recovery path).
   push(payload) {
     this._pendingPayload = payload; // keep the latest payload for flushPush()
     this._broadcastToTabs(payload); // notify other tabs immediately (works even in local-only mode)
@@ -81,11 +104,16 @@ const CloudSync = {
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
       this._setSyncStatus('syncing');
+      const doc = Object.assign({}, this._pendingPayload, {
+        _deviceId: this._deviceId,
+        _ts: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      // Per-device write: isolated namespace — this device's state is never overwritten
+      // by another device, providing a safe recovery copy. Best-effort (silent failure).
+      if (this._deviceRef) this._deviceRef.set(doc).catch(() => {});
+      // Master write: authoritative merged state, read by all devices
       this._ref
-        .set(Object.assign({}, this._pendingPayload, {
-          _deviceId: this._deviceId,
-          _ts: firebase.firestore.FieldValue.serverTimestamp()
-        }))
+        .set(doc)
         .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
         .catch((e) => {
           console.warn('CloudSync: push failed --', e.message);
@@ -100,12 +128,13 @@ const CloudSync = {
     if (!this._pendingPayload || !this._enabled || !this._ref) return;
     clearTimeout(this._pushTimer);
     this._pushTimer = null;
-    const payload = this._pendingPayload;
+    const doc = Object.assign({}, this._pendingPayload, {
+      _deviceId: this._deviceId,
+      _ts: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if (this._deviceRef) this._deviceRef.set(doc).catch(() => {});
     this._ref
-      .set(Object.assign({}, payload, {
-        _deviceId: this._deviceId,
-        _ts: firebase.firestore.FieldValue.serverTimestamp()
-      }))
+      .set(doc)
       .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
       .catch(e => console.warn('CloudSync: flush failed --', e.message));
   },
