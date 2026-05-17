@@ -70,6 +70,9 @@ const AppState = {
   studySubjects:   null, // null = use defaults; array = user-customized list
   studyActivities: null, // null = use defaults; array = user-customized list
   studyDailyGoal:  480,  // minutes
+  studyPomoWork:   25,   // pomodoro work duration in minutes
+  studyPomoBreak:  5,    // short break
+  studyPomoLong:   15,   // long break after 4 rounds
 
   // ─────────────────────────────────────────────────────────
 
@@ -153,6 +156,9 @@ const AppState = {
       this.studySubjects        = d.studySubjects  ?? null;
       this.studyActivities      = d.studyActivities ?? null;
       this.studyDailyGoal       = d.studyDailyGoal  ?? 480;
+      this.studyPomoWork        = d.studyPomoWork   ?? 25;
+      this.studyPomoBreak       = d.studyPomoBreak  ?? 5;
+      this.studyPomoLong        = d.studyPomoLong   ?? 15;
     } catch(e) {
       console.error('State load error:', e);
     }
@@ -204,7 +210,10 @@ const AppState = {
       studyLog:        this.studyLog,
       studySubjects:   this.studySubjects,
       studyActivities: this.studyActivities,
-      studyDailyGoal:  this.studyDailyGoal
+      studyDailyGoal:  this.studyDailyGoal,
+      studyPomoWork:   this.studyPomoWork,
+      studyPomoBreak:  this.studyPomoBreak,
+      studyPomoLong:   this.studyPomoLong
     };
   },
 

@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=25">
+    <link rel="stylesheet" href="css/styles.css?v=26">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -354,6 +354,14 @@
                 <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
                   <input type="number" id="studyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
                   <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
+                </div>
+                <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
+                  <span class="study-pomo-cfg-lbl">Focus</span>
+                  <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25"> <span>m</span>
+                  <span class="study-pomo-cfg-lbl">Break</span>
+                  <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5"> <span>m</span>
+                  <span class="study-pomo-cfg-lbl">Long</span>
+                  <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15"> <span>m</span>
                 </div>
                 <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
                 <div class="study-timer-btns">
@@ -1986,27 +1994,27 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=25"></script>
-<script defer src="js/auth.js?v=25"></script>
-<script defer src="js/sync.js?v=25"></script>
-<script defer src="js/phases.js?v=25"></script>
-<script defer src="js/storage.js?v=25"></script>
-<script defer src="js/state.js?v=25"></script>
-<script defer src="js/scheduler.js?v=25"></script>
-<script defer src="js/upsc.js?v=25"></script>
-<script defer src="js/finance.js?v=25"></script>
-<script defer src="js/health-data.js?v=25"></script>
-<script defer src="js/health.js?v=25"></script>
-<script defer src="js/mind.js?v=25"></script>
-<script defer src="js/growth.js?v=25"></script>
-<script defer src="js/tasks.js?v=25"></script>
-<script defer src="js/study.js?v=25"></script>
-<script defer src="js/ui.js?v=25"></script>
-<script defer src="js/events.js?v=25"></script>
-<script defer src="js/tooltips.js?v=25"></script>
-<script defer src="js/seed-data.js?v=25"></script>
-<script defer src="js/backup.js?v=25"></script>
-<script defer src="js/main.js?v=25"></script>
+<script defer src="js/firebase-config.js?v=26"></script>
+<script defer src="js/auth.js?v=26"></script>
+<script defer src="js/sync.js?v=26"></script>
+<script defer src="js/phases.js?v=26"></script>
+<script defer src="js/storage.js?v=26"></script>
+<script defer src="js/state.js?v=26"></script>
+<script defer src="js/scheduler.js?v=26"></script>
+<script defer src="js/upsc.js?v=26"></script>
+<script defer src="js/finance.js?v=26"></script>
+<script defer src="js/health-data.js?v=26"></script>
+<script defer src="js/health.js?v=26"></script>
+<script defer src="js/mind.js?v=26"></script>
+<script defer src="js/growth.js?v=26"></script>
+<script defer src="js/tasks.js?v=26"></script>
+<script defer src="js/study.js?v=26"></script>
+<script defer src="js/ui.js?v=26"></script>
+<script defer src="js/events.js?v=26"></script>
+<script defer src="js/tooltips.js?v=26"></script>
+<script defer src="js/seed-data.js?v=26"></script>
+<script defer src="js/backup.js?v=26"></script>
+<script defer src="js/main.js?v=26"></script>
 
 </body>
 </html>

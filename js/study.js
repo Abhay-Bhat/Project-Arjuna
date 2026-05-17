@@ -189,7 +189,9 @@ const StudyTracker = {
           const cdEl = document.getElementById('studyCountdownSet');
           if (cdEl) cdEl.style.display = this._mode === 'countdown' ? 'flex' : 'none';
 
-          // Show/hide pomodoro status
+          // Show/hide pomodoro config + status
+          const pcEl = document.getElementById('studyPomoConfig');
+          if (pcEl) pcEl.style.display = this._mode === 'pomodoro' ? 'flex' : 'none';
           const psEl = document.getElementById('studyPomoStatus');
           if (psEl) psEl.style.display = this._mode === 'pomodoro' ? 'flex' : 'none';
 
@@ -214,7 +216,30 @@ const StudyTracker = {
         const v = parseInt(e.target.value);
         if (v > 0) { AppState.studyDailyGoal = v * 60; AppState.save(); this._updateTodayStats(); }
       });
+
+      // Pomodoro duration inputs — persist to AppState and sync runtime vars
+      const bindPomo = (id, key, runtimeKey, fallback) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = AppState[key] ?? fallback;
+        el.addEventListener('change', () => {
+          const v = parseInt(el.value);
+          if (v > 0) {
+            AppState[key] = v;
+            this[runtimeKey] = v;
+            AppState.save();
+          }
+        });
+      };
+      bindPomo('pomoWorkMin',  'studyPomoWork',  '_pomoWorkMin',  25);
+      bindPomo('pomoBreakMin', 'studyPomoBreak', '_pomoBreakMin', 5);
+      bindPomo('pomoLongMin',  'studyPomoLong',  '_pomoLongMin',  15);
     }
+
+    // Sync pomodoro runtime vars from persisted AppState on every render
+    this._pomoWorkMin  = AppState.studyPomoWork  ?? 25;
+    this._pomoBreakMin = AppState.studyPomoBreak ?? 5;
+    this._pomoLongMin  = AppState.studyPomoLong  ?? 15;
 
     this._updateTimerDisplay();
     this._updateLiveTree();
