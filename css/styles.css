@@ -3840,3 +3840,265 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .checklist-label, .meal-item, .meal-where, .meal-time {
   font-family: var(--font-main);
 }
+
+/* ══════════════════════════════════════════════════════════
+   Study Tracker
+   ══════════════════════════════════════════════════════════ */
+
+/* Timer display */
+.study-timer-display {
+  font-family: 'Courier New', monospace;
+  font-size: 38px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  padding: 10px 0 8px;
+  background: var(--bg-alt);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.study-timer-btns {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.study-timer-btns .btn { flex: 1; padding: 8px 4px; font-size: 12px; }
+
+.study-today-stats { padding-top: 4px; }
+.study-today-row   { font-size: 13px; color: var(--text-muted); margin-bottom: 2px; }
+.study-today-row strong { color: var(--text); font-size: 15px; }
+.study-goal-pct    { font-size: 11px; color: var(--text-muted); text-align: right; }
+
+/* Forest */
+.study-forest-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 18px 0 10px;
+}
+.study-forest-trees {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 12px;
+}
+.study-tree {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: default;
+  transition: border-color 0.15s;
+  border-top: 3px solid var(--tree-color, var(--accent));
+}
+.study-tree:hover { border-color: var(--border-bright); }
+.study-tree-icon  { font-size: 26px; line-height: 1; }
+.study-tree-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.study-forest-total {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.study-forest-total strong { color: var(--text); }
+
+/* Period tabs */
+.study-period-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 4px;
+}
+.study-period-tab {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.study-period-tab:hover  { color: var(--text); }
+.study-period-tab.active {
+  background: var(--card-bg);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Day view — session list */
+.study-empty-state {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 16px 0;
+  text-align: center;
+}
+.study-sessions-list { margin-bottom: 16px; }
+.study-session-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.study-session-tree { font-size: 18px; flex-shrink: 0; }
+.study-session-subj { font-weight: 600; flex: 1; min-width: 0; }
+.study-session-act  { color: var(--text-muted); font-size: 12px; }
+.study-session-dur  { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+/* Day view — subject bars */
+.study-subj-bars { display: flex; flex-direction: column; gap: 6px; }
+.study-subj-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 50px;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.study-subj-name  { color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.study-subj-track { height: 6px; background: var(--bg-alt); border-radius: 3px; overflow: hidden; }
+.study-subj-fill  { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.study-subj-dur   { text-align: right; color: var(--text); font-weight: 600; }
+
+/* Week view — bar chart */
+.study-week-chart {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  height: 160px;
+  padding-bottom: 0;
+  margin-bottom: 10px;
+}
+.study-week-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.study-week-col.today .study-week-label { color: var(--accent); font-weight: 700; }
+.study-week-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.study-week-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  min-height: 2px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column-reverse;
+  transition: height 0.3s;
+}
+.study-week-seg { width: 100%; flex-shrink: 0; transition: height 0.3s; }
+.study-week-total { font-size: 10px; color: var(--text-muted); text-align: center; min-height: 14px; }
+.study-week-label { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+.study-week-date  { font-size: 10px; color: var(--text-muted); }
+.study-week-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.study-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.study-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Month view — calendar heatmap */
+.study-month-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.study-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.study-month-hdr {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2px 0 4px;
+}
+.study-month-cell {
+  aspect-ratio: 1;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: default;
+  transition: opacity 0.15s;
+  position: relative;
+}
+.study-month-cell:hover { opacity: 0.8; }
+.study-month-cell.today { outline: 2px solid var(--accent); outline-offset: 1px; }
+.study-month-cell.empty { background: transparent !important; }
+.study-month-daynum { font-size: 10px; font-weight: 600; color: var(--text); }
+.study-month-hrs    { font-size: 9px; color: var(--text-muted); }
+
+/* Year view — GitHub-style heatmap */
+.study-year-heatmap {
+  display: flex;
+  gap: 3px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.study-year-col { display: flex; flex-direction: column; gap: 3px; }
+.study-year-cell {
+  width: 13px;
+  height: 13px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  cursor: default;
+}
+.study-year-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.study-year-legend-swatches {
+  display: flex;
+  gap: 3px;
+}
+.study-year-legend-swatches > div {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}

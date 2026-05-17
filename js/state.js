@@ -65,6 +65,9 @@ const AppState = {
   taskBuckets:     [],   // [{ id, title, color }]
   tasks:           [],   // [{ id, bucketId, title, dueDate, priority, done, createdAt }]
 
+  // ── Study Log ────────────────────────────────────────────
+  studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
+
   // ─────────────────────────────────────────────────────────
 
   // Phase 1 — always runs first, uses only local IndexedDB/localStorage
@@ -143,6 +146,7 @@ const AppState = {
       this.dubaiChecklist       = pick('dubaiChecklist',  {});
       this.taskBuckets          = pick('taskBuckets',     []);
       this.tasks                = pick('tasks',           []);
+      this.studyLog             = pick('studyLog',        []);
     } catch(e) {
       console.error('State load error:', e);
     }
@@ -190,7 +194,8 @@ const AppState = {
       partnerLog: this.partnerLog,
       dubaiChecklist: this.dubaiChecklist,
       taskBuckets: this.taskBuckets,
-      tasks: this.tasks
+      tasks: this.tasks,
+      studyLog: this.studyLog
     };
   },
 
@@ -268,6 +273,7 @@ const AppState = {
       // Arrays — union by id
       tasks:           _byId(local.tasks,           cloudData.tasks),
       taskBuckets:     _byId(local.taskBuckets,      cloudData.taskBuckets),
+      studyLog:        _byId(local.studyLog,         cloudData.studyLog),
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),

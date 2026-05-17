@@ -823,6 +823,7 @@ const UI = {
 
   // ── UPSC tab ─────────────────────────────────────────────
   _renderUPSC() {
+    if (typeof StudyTracker !== 'undefined') StudyTracker.render();
     UPSCTracker.updateMetrics();
     this._renderUPSCScheduleTable();
     UPSCTracker.renderCASection();
