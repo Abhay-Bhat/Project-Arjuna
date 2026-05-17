@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=23">
+    <link rel="stylesheet" href="css/styles.css?v=24">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -311,53 +311,68 @@
             <div id="caStatsRow"></div>
           </div>
 
-          <!-- ── Study Timer ── -->
-          <div class="pane-card" id="studyTimerCard">
-            <div class="pane-card-title">⏱️ Study Timer</div>
-            <div class="form-field" style="margin-bottom:8px;">
-              <label>Subject</label>
-              <select id="studySubjectSel">
-                <option value="history">🏛️ History</option>
-                <option value="geography">🌍 Geography</option>
-                <option value="polity">⚖️ Polity</option>
-                <option value="economy">📈 Economy</option>
-                <option value="science">🔬 Science &amp; Tech</option>
-                <option value="csat">🧮 CSAT</option>
-                <option value="current_affairs">📰 Current Affairs</option>
-                <option value="essay">✍️ Essay</option>
-                <option value="optional">🎯 Optional</option>
-                <option value="revision">🔄 Revision</option>
-              </select>
-            </div>
-            <div class="form-field" style="margin-bottom:14px;">
-              <label>Activity</label>
-              <select id="studyActivitySel">
-                <option value="class">Class</option>
-                <option value="reading">Reading</option>
-                <option value="revision">Revision</option>
-                <option value="notes">Note-making</option>
-                <option value="mock_test">Mock Test</option>
-                <option value="answer_writing">Answer Writing</option>
-                <option value="newspaper">Newspaper</option>
-              </select>
-            </div>
-            <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
-            <div class="study-timer-btns">
-              <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
-              <button id="studyPauseBtn" class="btn btn-secondary" style="display:none">⏸ Pause</button>
-              <button id="studyStopBtn" class="btn btn-danger" style="display:none">■ Stop</button>
-            </div>
-            <div class="study-today-stats">
-              <div class="study-today-row">Today: <strong id="studyTodayTotal">0m</strong></div>
-              <div class="prog-bar-track" style="margin:6px 0 3px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-              <div class="study-goal-pct" id="studyGoalPct">0% of 8h goal</div>
-            </div>
-          </div>
-
         </div><!-- end pane-left -->
 
         <!-- ── MAIN: Study Log + Schedule Table + Subjects + CA Log ── -->
         <div class="pane-main">
+
+          <!-- ── Study Timer Panel (full-width, top of main pane) ── -->
+          <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
+
+            <!-- Mode toggle + daily goal -->
+            <div class="study-timer-toprow">
+              <div class="study-mode-toggle" id="studyModeToggle">
+                <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
+                <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
+              </div>
+              <div class="study-goal-inline">
+                <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
+                <input type="number" id="studyGoalInput" min="1" max="24" value="8" style="width:44px;text-align:center;"> h
+              </div>
+            </div>
+
+            <!-- 3-col layout: live tree | timer display | selectors -->
+            <div class="study-timer-main-row">
+
+              <!-- Live growing tree -->
+              <div class="study-live-tree-col">
+                <div class="study-live-tree" id="studyLiveTree">🌱</div>
+                <div class="study-live-tree-label" id="studyLiveTreeLabel" style="display:none"></div>
+              </div>
+
+              <!-- Timer display + countdown inputs + buttons -->
+              <div class="study-timer-center-col">
+                <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
+                  <input type="number" id="studyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
+                  <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
+                </div>
+                <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
+                <div class="study-timer-btns">
+                  <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
+                  <button id="studyPauseBtn" class="btn btn-secondary" style="display:none">⏸ Pause</button>
+                  <button id="studyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
+                </div>
+              </div>
+
+              <!-- Subject + Activity selectors + today total -->
+              <div class="study-selectors-col">
+                <div class="form-field" style="margin-bottom:8px;">
+                  <label>Subject</label>
+                  <select id="studySubjectSel"></select>
+                </div>
+                <div class="form-field" style="margin-bottom:10px;">
+                  <label>Activity</label>
+                  <select id="studyActivitySel"></select>
+                </div>
+                <div class="study-today-mini">
+                  Today: <strong id="studyTodayTotal">0m</strong>
+                  <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
+                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 8h goal</div>
+                </div>
+              </div>
+
+            </div><!-- end 3-col -->
+          </div><!-- end study-timer-panel -->
 
           <!-- ── Study Log ── -->
           <div class="section-title">Study Log</div>
@@ -392,11 +407,26 @@
             <!-- Summary stats -->
             <div class="study-summary-row" id="studySummaryRow"></div>
 
-            <!-- Subject breakdown bars -->
-            <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
+            <!-- Analytics: subject + activity breakdown side-by-side -->
+            <div class="study-analytics-row">
+              <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
+              <div class="study-subj-bars-wrap" id="studyActBarsMain"></div>
+            </div>
 
             <!-- Session list -->
             <div class="study-sessions-wrap" id="studySessionsList"></div>
+
+            <!-- Manage subjects & activities -->
+            <div class="study-manage-wrap">
+              <button class="study-manage-toggle" id="studyManageToggle">⚙️ Manage Subjects &amp; Activities</button>
+              <div class="study-manage-panel" id="studyManagePanel" style="display:none">
+                <div class="study-manage-tabs" id="studyManageTabs">
+                  <button class="study-mtab-btn active" data-mtab="subjects">Subjects</button>
+                  <button class="study-mtab-btn" data-mtab="activities">Activities</button>
+                </div>
+                <div id="studyManageContent"></div>
+              </div>
+            </div>
 
           </div>
 
@@ -1947,27 +1977,27 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=23"></script>
-<script defer src="js/auth.js?v=23"></script>
-<script defer src="js/sync.js?v=23"></script>
-<script defer src="js/phases.js?v=23"></script>
-<script defer src="js/storage.js?v=23"></script>
-<script defer src="js/state.js?v=23"></script>
-<script defer src="js/scheduler.js?v=23"></script>
-<script defer src="js/upsc.js?v=23"></script>
-<script defer src="js/finance.js?v=23"></script>
-<script defer src="js/health-data.js?v=23"></script>
-<script defer src="js/health.js?v=23"></script>
-<script defer src="js/mind.js?v=23"></script>
-<script defer src="js/growth.js?v=23"></script>
-<script defer src="js/tasks.js?v=23"></script>
-<script defer src="js/study.js?v=23"></script>
-<script defer src="js/ui.js?v=23"></script>
-<script defer src="js/events.js?v=23"></script>
-<script defer src="js/tooltips.js?v=23"></script>
-<script defer src="js/seed-data.js?v=23"></script>
-<script defer src="js/backup.js?v=23"></script>
-<script defer src="js/main.js?v=23"></script>
+<script defer src="js/firebase-config.js?v=24"></script>
+<script defer src="js/auth.js?v=24"></script>
+<script defer src="js/sync.js?v=24"></script>
+<script defer src="js/phases.js?v=24"></script>
+<script defer src="js/storage.js?v=24"></script>
+<script defer src="js/state.js?v=24"></script>
+<script defer src="js/scheduler.js?v=24"></script>
+<script defer src="js/upsc.js?v=24"></script>
+<script defer src="js/finance.js?v=24"></script>
+<script defer src="js/health-data.js?v=24"></script>
+<script defer src="js/health.js?v=24"></script>
+<script defer src="js/mind.js?v=24"></script>
+<script defer src="js/growth.js?v=24"></script>
+<script defer src="js/tasks.js?v=24"></script>
+<script defer src="js/study.js?v=24"></script>
+<script defer src="js/ui.js?v=24"></script>
+<script defer src="js/events.js?v=24"></script>
+<script defer src="js/tooltips.js?v=24"></script>
+<script defer src="js/seed-data.js?v=24"></script>
+<script defer src="js/backup.js?v=24"></script>
+<script defer src="js/main.js?v=24"></script>
 
 </body>
 </html>

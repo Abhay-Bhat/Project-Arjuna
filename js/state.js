@@ -67,6 +67,9 @@ const AppState = {
 
   // ── Study Log ────────────────────────────────────────────
   studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
+  studySubjects:   null, // null = use defaults; array = user-customized list
+  studyActivities: null, // null = use defaults; array = user-customized list
+  studyDailyGoal:  480,  // minutes
 
   // ─────────────────────────────────────────────────────────
 
@@ -147,6 +150,9 @@ const AppState = {
       this.taskBuckets          = pick('taskBuckets',     []);
       this.tasks                = pick('tasks',           []);
       this.studyLog             = pick('studyLog',        []);
+      this.studySubjects        = d.studySubjects  ?? null;
+      this.studyActivities      = d.studyActivities ?? null;
+      this.studyDailyGoal       = d.studyDailyGoal  ?? 480;
     } catch(e) {
       console.error('State load error:', e);
     }
@@ -195,7 +201,10 @@ const AppState = {
       dubaiChecklist: this.dubaiChecklist,
       taskBuckets: this.taskBuckets,
       tasks: this.tasks,
-      studyLog: this.studyLog
+      studyLog:        this.studyLog,
+      studySubjects:   this.studySubjects,
+      studyActivities: this.studyActivities,
+      studyDailyGoal:  this.studyDailyGoal
     };
   },
 
