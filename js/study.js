@@ -1,6 +1,6 @@
 // ============================================================
 // ATHENA — Study Tracker
-// Live timer + session logging + forest visualization + analytics
+// Forest-style: unified canvas + range-filtered trees + stats
 // ============================================================
 
 const StudyTracker = {
@@ -19,6 +19,7 @@ const StudyTracker = {
   ],
 
   ACTIVITIES: [
+    { id: 'class',           label: 'Class' },
     { id: 'reading',         label: 'Reading' },
     { id: 'revision',        label: 'Revision' },
     { id: 'notes',           label: 'Note-making' },
@@ -28,11 +29,13 @@ const StudyTracker = {
   ],
 
   _timerInterval: null,
+  _clockInterval: null,
   _elapsed: 0,
   _running: false,
   _activeSubject: null,
   _activeActivity: null,
   _startedAt: null,
+  _range: 'today',  // active range: today | 7d | 30d | 3m | all
 
   // ── Helpers ───────────────────────────────────────────────
 
@@ -56,51 +59,90 @@ const StudyTracker = {
   },
 
   fmtTimer(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
+    const h  = Math.floor(sec / 3600);
+    const m  = Math.floor((sec % 3600) / 60);
+    const s  = sec % 60;
     const mm = String(m).padStart(2, '0');
     const ss = String(s).padStart(2, '0');
-    if (h > 0) return `${h}:${mm}:${ss}`;
-    return `${mm}:${ss}`;
+    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
   },
 
-  getTodaySessions() {
-    const today = AppState.getTodayKey();
-    return (AppState.studyLog || []).filter(s => s.date === today);
+  fmtClock(date) {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   },
 
-  getTodayTotalMin() {
-    return this.getTodaySessions().reduce((sum, s) => sum + (s.duration_min || 0), 0);
+  fmtDateLabel(date) {
+    return date.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
   },
 
-  getSessionsForDate(dateKey) {
-    return (AppState.studyLog || []).filter(s => s.date === dateKey);
+  getSessionsForRange(range) {
+    const all  = AppState.studyLog || [];
+    const today = new Date();
+    const todayKey = AppState.getTodayKey();
+
+    if (range === 'today') return all.filter(s => s.date === todayKey);
+
+    const cutoff = new Date(today);
+    if (range === '7d')  cutoff.setDate(today.getDate() - 6);
+    if (range === '30d') cutoff.setDate(today.getDate() - 29);
+    if (range === '3m')  cutoff.setMonth(today.getMonth() - 3);
+    if (range === 'all') return all;
+
+    const cutoffKey = AppState.getDateKey(cutoff);
+    return all.filter(s => s.date >= cutoffKey);
   },
 
-  // ── Main render entry point ───────────────────────────────
+  getTodaySessions()  { return this.getSessionsForRange('today'); },
+  getTodayTotalMin()  { return this.getTodaySessions().reduce((s, x) => s + x.duration_min, 0); },
+  getSessionsForDate(key) { return (AppState.studyLog || []).filter(s => s.date === key); },
+
+  getStreak() {
+    let streak = 0;
+    const d = new Date();
+    while (true) {
+      const k = AppState.getDateKey(d);
+      if (!this.getSessionsForDate(k).length) break;
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  },
+
+  // ── Main render entry ─────────────────────────────────────
 
   render() {
     this._renderTimer();
-    this._renderForest();
-    this._renderAnalytics();
+    this._renderClock();
+    this._startClock();
+    this._renderForestPanel();
   },
 
-  // ── Timer ─────────────────────────────────────────────────
+  // ── Live clock ────────────────────────────────────────────
+
+  _renderClock() {
+    const el   = document.getElementById('studyClockTime');
+    const dateEl = document.getElementById('studyClockDate');
+    const now  = new Date();
+    if (el)   el.textContent   = this.fmtClock(now);
+    if (dateEl) dateEl.textContent = this.fmtDateLabel(now);
+  },
+
+  _startClock() {
+    if (this._clockInterval) return;
+    this._clockInterval = setInterval(() => this._renderClock(), 30000);
+  },
+
+  // ── Timer (sidebar) ───────────────────────────────────────
 
   _renderTimer() {
     const subSel = document.getElementById('studySubjectSel');
-    const actSel = document.getElementById('studyActivitySel');
     if (!subSel) return;
-
-    // Bind once
     if (!subSel.dataset.init) {
       subSel.dataset.init = '1';
       document.getElementById('studyStartBtn')?.addEventListener('click',  () => this._startTimer());
       document.getElementById('studyPauseBtn')?.addEventListener('click',  () => this._pauseResumeTimer());
       document.getElementById('studyStopBtn')?.addEventListener('click',   () => this._stopTimer());
     }
-
     this._updateTimerDisplay();
     this._updateTodayStats();
   },
@@ -113,30 +155,28 @@ const StudyTracker = {
     if (disp) disp.textContent = this.fmtTimer(this._elapsed);
     const active = this._elapsed > 0;
     if (start) start.style.display = active ? 'none' : '';
-    if (pause) {
-      pause.style.display = active ? '' : 'none';
-      pause.textContent   = this._running ? '⏸ Pause' : '▶ Resume';
-    }
-    if (stop) stop.style.display = active ? '' : 'none';
+    if (pause) { pause.style.display = active ? '' : 'none'; pause.textContent = this._running ? '⏸ Pause' : '▶ Resume'; }
+    if (stop)  stop.style.display = active ? '' : 'none';
   },
 
   _updateTodayStats() {
-    const min  = this.getTodayTotalMin();
-    const goal = 480; // 8h in minutes
-    const pct  = Math.min(100, Math.round((min / goal) * 100));
-    const el   = document.getElementById('studyTodayTotal');
-    const bar  = document.getElementById('studyGoalBar');
-    const pEl  = document.getElementById('studyGoalPct');
-    if (el) el.textContent  = min > 0 ? this.fmtDur(min) : '0m';
-    if (bar) bar.style.width = pct + '%';
-    if (pEl) pEl.textContent = `${pct}% of 8h goal`;
+    const min = this.getTodayTotalMin();
+    const pct = Math.min(100, Math.round((min / 480) * 100));
+    const el    = document.getElementById('studyTodayTotal');
+    const bar   = document.getElementById('studyGoalBar');
+    const pEl   = document.getElementById('studyGoalPct');
+    const badge = document.getElementById('studyTodayBadge');
+    if (el)    el.textContent   = min > 0 ? this.fmtDur(min) : '0m';
+    if (bar)   bar.style.width  = pct + '%';
+    if (pEl)   pEl.textContent  = `${pct}% of 8h goal`;
+    if (badge) badge.textContent = min > 0 ? `${this.fmtDur(min)} today` : '0m today';
   },
 
   _startTimer() {
     const subSel = document.getElementById('studySubjectSel');
     const actSel = document.getElementById('studyActivitySel');
-    this._activeSubject  = subSel?.value  || 'history';
-    this._activeActivity = actSel?.value  || 'reading';
+    this._activeSubject  = subSel?.value || 'history';
+    this._activeActivity = actSel?.value || 'class';
     this._startedAt      = new Date().toISOString();
     this._elapsed        = 0;
     this._running        = true;
@@ -167,115 +207,112 @@ const StudyTracker = {
 
   _stopTimer() {
     clearInterval(this._timerInterval);
-    this._running       = false;
-    this._timerInterval = null;
-
+    this._running = false; this._timerInterval = null;
     const durationMin = Math.round(this._elapsed / 60);
     if (durationMin >= 1) {
-      const session = {
+      if (!AppState.studyLog) AppState.studyLog = [];
+      AppState.studyLog.push({
         id:           Date.now(),
         date:         AppState.getTodayKey(),
         subject:      this._activeSubject  || 'history',
-        activity:     this._activeActivity || 'reading',
+        activity:     this._activeActivity || 'class',
         duration_min: durationMin,
         started_at:   this._startedAt,
-      };
-      if (!AppState.studyLog) AppState.studyLog = [];
-      AppState.studyLog.push(session);
+      });
       AppState.save();
     }
-
-    this._elapsed       = 0;
-    this._startedAt     = null;
+    this._elapsed = 0; this._startedAt = null;
     const subSel = document.getElementById('studySubjectSel');
     const actSel = document.getElementById('studyActivitySel');
     if (subSel) subSel.disabled = false;
     if (actSel) actSel.disabled = false;
     this._updateTimerDisplay();
     this._updateTodayStats();
-    this._renderForest();
-    this._renderAnalytics();
+    this._renderForestPanel();
   },
 
-  // ── Forest ────────────────────────────────────────────────
+  // ── Unified Forest Panel ──────────────────────────────────
 
-  _renderForest() {
-    const container = document.getElementById('studyForest');
-    if (!container) return;
-    const sessions = this.getTodaySessions();
-
-    if (!sessions.length) {
-      container.innerHTML = '<div class="study-forest-empty">Plant your first tree — start a session above 🌱</div>';
-      return;
-    }
-
-    let trees = '';
-    sessions.forEach(s => {
-      const subj  = this.getSubject(s.subject);
-      const emoji = this.getTreeEmoji(s.duration_min);
-      trees += `<div class="study-tree" style="--tree-color:${subj.color}"
-        title="${subj.label} · ${s.activity} · ${this.fmtDur(s.duration_min)}">
-        <span class="study-tree-icon">${emoji}</span>
-        <span class="study-tree-label">${subj.emoji} ${this.fmtDur(s.duration_min)}</span>
-      </div>`;
-    });
-
-    const total = this.getTodayTotalMin();
-    container.innerHTML = `
-      <div class="study-forest-trees">${trees}</div>
-      <div class="study-forest-total">Total today: <strong>${this.fmtDur(total)}</strong></div>`;
-  },
-
-  // ── Analytics ─────────────────────────────────────────────
-
-  _renderAnalytics() {
-    const tabs = document.getElementById('studyPeriodTabs');
-    if (tabs && !tabs.dataset.init) {
-      tabs.dataset.init = '1';
-      tabs.querySelectorAll('.study-period-tab').forEach(btn => {
+  _renderForestPanel() {
+    // Bind range buttons once
+    const rangeRow = document.getElementById('studyRangeRow');
+    if (rangeRow && !rangeRow.dataset.init) {
+      rangeRow.dataset.init = '1';
+      rangeRow.querySelectorAll('.study-range-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          tabs.querySelectorAll('.study-period-tab').forEach(b => b.classList.remove('active'));
+          rangeRow.querySelectorAll('.study-range-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          this._renderAnalyticsContent();
+          this._range = btn.dataset.range;
+          this._renderForestContent();
         });
       });
     }
-    this._renderAnalyticsContent();
+    this._renderForestContent();
   },
 
-  _renderAnalyticsContent() {
-    const container = document.getElementById('studyAnalyticsContent');
+  _renderForestContent() {
+    const sessions = this.getSessionsForRange(this._range);
+    this._renderCanvasTrees(sessions);
+    this._renderStats(sessions);
+    this._renderSubjBars(sessions);
+    this._renderSessionList(sessions);
+  },
+
+  // Trees scattered across the canvas background
+  _renderCanvasTrees(sessions) {
+    const container = document.getElementById('studyCanvasTrees');
     if (!container) return;
-    const period = document.querySelector('.study-period-tab.active')?.dataset?.period || 'week';
-    if (period === 'day')   this._renderDayView(container);
-    if (period === 'week')  this._renderWeekView(container);
-    if (period === 'month') this._renderMonthView(container);
-    if (period === 'year')  this._renderYearView(container);
-  },
 
-  // Day view — session list + subject breakdown bars
-  _renderDayView(c) {
-    const sessions = this.getTodaySessions();
     if (!sessions.length) {
-      c.innerHTML = '<div class="study-empty-state">No sessions logged today.</div>';
+      container.innerHTML = '<div class="study-canvas-empty">Start a session to grow your forest 🌱</div>';
       return;
     }
-    const total = sessions.reduce((sum, s) => sum + s.duration_min, 0);
+
+    // Deterministic positions using session id as seed (stable on re-render)
+    const trees = sessions.map((s, i) => {
+      const subj  = this.getSubject(s.subject);
+      const emoji = this.getTreeEmoji(s.duration_min);
+      const seed  = s.id % 1000;
+      // Spread across canvas: left 5–90%, bottom row varies slightly
+      const left  = 5 + ((seed * 13 + i * 37) % 86);
+      const btm   = 8 + ((seed * 7  + i * 11) % 22);
+      const scale = s.duration_min < 15 ? 0.8 : s.duration_min < 60 ? 1 : 1.25;
+      return `<div class="study-canvas-tree" style="left:${left}%;bottom:${btm}%;transform:scale(${scale})"
+        title="${subj.label} · ${s.activity} · ${this.fmtDur(s.duration_min)}">
+        ${emoji}
+      </div>`;
+    });
+
+    container.innerHTML = trees.join('');
+  },
+
+  // Summary stats row
+  _renderStats(sessions) {
+    const el = document.getElementById('studySummaryRow');
+    if (!el) return;
+    const total   = sessions.reduce((s, x) => s + x.duration_min, 0);
+    const count   = sessions.length;
+    const streak  = this.getStreak();
+
+    const rangeLabel = { today: 'Today', '7d': 'This Week', '30d': 'This Month', '3m': 'Last 3 Months', all: 'All Time' }[this._range] || '';
+
+    el.innerHTML = `
+      <div class="study-stat-chip"><span class="study-stat-val">${this.fmtDur(total)}</span><span class="study-stat-lbl">${rangeLabel}</span></div>
+      <div class="study-stat-chip"><span class="study-stat-val">${count}</span><span class="study-stat-lbl">sessions</span></div>
+      <div class="study-stat-chip"><span class="study-stat-val">${streak}</span><span class="study-stat-lbl">day streak 🔥</span></div>`;
+  },
+
+  // Subject breakdown bars
+  _renderSubjBars(sessions) {
+    const el = document.getElementById('studySubjBarsMain');
+    if (!el) return;
+    if (!sessions.length) { el.innerHTML = ''; return; }
+
+    const total  = sessions.reduce((s, x) => s + x.duration_min, 0);
     const bySubj = {};
     sessions.forEach(s => { bySubj[s.subject] = (bySubj[s.subject] || 0) + s.duration_min; });
 
-    let html = '<div class="study-sessions-list">';
-    [...sessions].reverse().forEach(s => {
-      const subj = this.getSubject(s.subject);
-      html += `<div class="study-session-row">
-        <span class="study-session-tree">${this.getTreeEmoji(s.duration_min)}</span>
-        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}</span>
-        <span class="study-session-act">${s.activity}</span>
-        <span class="study-session-dur">${this.fmtDur(s.duration_min)}</span>
-        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id})">✕</button>
-      </div>`;
-    });
-    html += '</div><div class="study-subj-bars">';
+    let html = '';
     Object.entries(bySubj).sort((a, b) => b[1] - a[1]).forEach(([id, min]) => {
       const subj = this.getSubject(id);
       const pct  = Math.round((min / total) * 100);
@@ -285,157 +322,29 @@ const StudyTracker = {
         <span class="study-subj-dur">${this.fmtDur(min)}</span>
       </div>`;
     });
-    html += '</div>';
-    c.innerHTML = html;
+    el.innerHTML = html;
   },
 
-  // Week view — stacked bar chart, 7 days
-  _renderWeekView(c) {
-    const today = new Date();
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      const key  = AppState.getDateKey(d);
-      const sess = this.getSessionsForDate(key);
-      const min  = sess.reduce((sum, s) => sum + s.duration_min, 0);
-      days.push({ d, key, sess, min });
-    }
-    const maxMin = Math.max(...days.map(d => d.min), 60);
+  // Recent session list with delete
+  _renderSessionList(sessions) {
+    const el = document.getElementById('studySessionsList');
+    if (!el) return;
+    if (!sessions.length) { el.innerHTML = ''; return; }
 
-    let html = '<div class="study-week-chart">';
-    days.forEach(({ d, key, sess, min }) => {
-      const label   = d.toLocaleDateString('en-US', { weekday: 'short' });
-      const dayNum  = d.getDate();
-      const isToday = key === AppState.getTodayKey();
-      const hPct    = Math.round((min / maxMin) * 100);
-
-      const bySubj = {};
-      sess.forEach(s => { bySubj[s.subject] = (bySubj[s.subject] || 0) + s.duration_min; });
-
-      let segs = '';
-      Object.entries(bySubj).forEach(([id, m]) => {
-        const subj   = this.getSubject(id);
-        const segPct = Math.round((m / min) * 100);
-        segs += `<div class="study-week-seg" style="height:${segPct}%;background:${subj.color}"
-          title="${subj.label}: ${this.fmtDur(m)}"></div>`;
-      });
-
-      html += `<div class="study-week-col${isToday ? ' today' : ''}">
-        <div class="study-week-bar-wrap" title="${this.fmtDur(min)}">
-          <div class="study-week-bar" style="height:${hPct}%">${segs}</div>
-        </div>
-        <div class="study-week-total">${min > 0 ? this.fmtDur(min) : ''}</div>
-        <div class="study-week-label">${label}</div>
-        <div class="study-week-date">${dayNum}</div>
+    const shown = [...sessions].reverse().slice(0, 20);
+    let html = '<div class="study-sessions-hdr">Recent Sessions</div>';
+    shown.forEach(s => {
+      const subj = this.getSubject(s.subject);
+      html += `<div class="study-session-row">
+        <span class="study-session-tree">${this.getTreeEmoji(s.duration_min)}</span>
+        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}</span>
+        <span class="study-session-act">${s.activity}</span>
+        <span class="study-session-date">${s.date !== AppState.getTodayKey() ? s.date : ''}</span>
+        <span class="study-session-dur">${this.fmtDur(s.duration_min)}</span>
+        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id})">✕</button>
       </div>`;
     });
-    html += '</div>';
-
-    // Legend for subjects actually used this week
-    const usedSubjs = new Set(days.flatMap(d => d.sess.map(s => s.subject)));
-    if (usedSubjs.size) {
-      html += '<div class="study-week-legend">';
-      usedSubjs.forEach(id => {
-        const subj = this.getSubject(id);
-        html += `<span class="study-legend-item">
-          <span class="study-legend-dot" style="background:${subj.color}"></span>${subj.emoji} ${subj.label}
-        </span>`;
-      });
-      html += '</div>';
-    }
-    c.innerHTML = html;
-  },
-
-  // Month view — calendar heatmap
-  _renderMonthView(c) {
-    const today      = new Date();
-    const year       = today.getFullYear();
-    const month      = today.getMonth();
-    const daysInMo   = new Date(year, month + 1, 0).getDate();
-    const firstDow   = new Date(year, month, 1).getDay();
-    const startOff   = firstDow === 0 ? 6 : firstDow - 1; // Mon-based
-
-    const isDark     = document.documentElement.getAttribute('data-theme') !== 'light';
-    const emptyClr   = isDark ? '#1e254a' : '#dde3f5';
-    const moLabel    = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-
-    let html = `<div class="study-month-title">${moLabel}</div>
-      <div class="study-month-grid">`;
-    ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].forEach(d => {
-      html += `<div class="study-month-hdr">${d}</div>`;
-    });
-    for (let i = 0; i < startOff; i++) html += '<div class="study-month-cell empty"></div>';
-    for (let day = 1; day <= daysInMo; day++) {
-      const d   = new Date(year, month, day);
-      const key = AppState.getDateKey(d);
-      const min = this.getSessionsForDate(key).reduce((s, x) => s + x.duration_min, 0);
-      const isToday = key === AppState.getTodayKey();
-      const bg  = min > 0
-        ? `rgba(91,127,255,${Math.min(1, 0.3 + (min / 480) * 0.7).toFixed(2)})`
-        : emptyClr;
-      const hLabel = min > 0 ? `<span class="study-month-hrs">${this.fmtDur(min)}</span>` : '';
-      html += `<div class="study-month-cell${isToday ? ' today' : ''}" style="background:${bg}"
-        title="${day} ${moLabel.split(' ')[0]}: ${min > 0 ? this.fmtDur(min) : 'No study'}">
-        <span class="study-month-daynum">${day}</span>${hLabel}
-      </div>`;
-    }
-    html += '</div>';
-    c.innerHTML = html;
-  },
-
-  // Year view — GitHub-style 52-week heatmap
-  _renderYearView(c) {
-    const today    = new Date();
-    const weeks    = 52;
-    const isDark   = document.documentElement.getAttribute('data-theme') !== 'light';
-    const emptyCl  = isDark ? '#1e254a' : '#dde3f5';
-
-    const start = new Date(today);
-    start.setDate(today.getDate() - (weeks * 7 - 1));
-    const dow = start.getDay();
-    start.setDate(start.getDate() - (dow === 0 ? 6 : dow - 1));
-
-    // Find max single-day minutes for scaling
-    let maxMin = 60;
-    for (let i = 0; i < weeks * 7; i++) {
-      const d   = new Date(start);
-      d.setDate(start.getDate() + i);
-      const min = this.getSessionsForDate(AppState.getDateKey(d)).reduce((s, x) => s + x.duration_min, 0);
-      if (min > maxMin) maxMin = min;
-    }
-
-    let html = '<div class="study-year-heatmap">';
-    for (let col = 0; col < weeks; col++) {
-      html += '<div class="study-year-col">';
-      for (let row = 0; row < 7; row++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + col * 7 + row);
-        if (d > today) { html += '<div class="study-year-cell"></div>'; continue; }
-        const key   = AppState.getDateKey(d);
-        const min   = this.getSessionsForDate(key).reduce((s, x) => s + x.duration_min, 0);
-        const label = d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-        const bg    = min > 0
-          ? `rgba(91,127,255,${Math.min(1, 0.3 + (min / maxMin) * 0.7).toFixed(2)})`
-          : emptyCl;
-        html += `<div class="study-year-cell" style="background:${bg}"
-          title="${label}: ${min > 0 ? this.fmtDur(min) : 'No study'}"></div>`;
-      }
-      html += '</div>';
-    }
-    html += '</div>';
-    html += `<div class="study-year-legend">
-      <span>Less</span>
-      <div class="study-year-legend-swatches">
-        <div style="background:${emptyCl}"></div>
-        <div style="background:rgba(91,127,255,0.3)"></div>
-        <div style="background:rgba(91,127,255,0.55)"></div>
-        <div style="background:rgba(91,127,255,0.75)"></div>
-        <div style="background:rgba(91,127,255,1)"></div>
-      </div>
-      <span>More</span>
-    </div>`;
-    c.innerHTML = html;
+    el.innerHTML = html;
   },
 
   // ── Actions ───────────────────────────────────────────────
@@ -444,7 +353,6 @@ const StudyTracker = {
     AppState.studyLog = (AppState.studyLog || []).filter(s => s.id !== id);
     AppState.save();
     this._updateTodayStats();
-    this._renderForest();
-    this._renderAnalyticsContent();
+    this._renderForestPanel();
   },
 };

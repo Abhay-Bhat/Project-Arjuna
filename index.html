@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=22">
+    <link rel="stylesheet" href="css/styles.css?v=23">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -332,6 +332,7 @@
             <div class="form-field" style="margin-bottom:14px;">
               <label>Activity</label>
               <select id="studyActivitySel">
+                <option value="class">Class</option>
                 <option value="reading">Reading</option>
                 <option value="revision">Revision</option>
                 <option value="notes">Note-making</option>
@@ -361,20 +362,42 @@
           <!-- ── Study Log ── -->
           <div class="section-title">Study Log</div>
 
-          <div class="pane-card" style="margin-bottom:16px;">
-            <div class="pane-card-title">🌳 Today's Forest</div>
-            <div id="studyForest"><div class="study-forest-empty">Plant your first tree — start a session above 🌱</div></div>
-          </div>
+          <div class="study-panel" style="margin-bottom:24px;">
 
-          <div class="pane-card" style="margin-bottom:24px;">
-            <div class="pane-card-title">📊 Analytics</div>
-            <div class="study-period-tabs" id="studyPeriodTabs">
-              <button class="study-period-tab" data-period="day">Day</button>
-              <button class="study-period-tab active" data-period="week">Week</button>
-              <button class="study-period-tab" data-period="month">Month</button>
-              <button class="study-period-tab" data-period="year">Year</button>
+            <!-- Forest canvas: background image + clock + scattered trees -->
+            <div class="study-forest-canvas">
+              <div class="study-canvas-header">
+                <div class="study-canvas-clock">
+                  <span class="study-clock-time" id="studyClockTime">--:--</span>
+                  <span class="study-clock-date" id="studyClockDate"></span>
+                </div>
+                <div class="study-canvas-today">
+                  <span id="studyTodayBadge">0m today</span>
+                </div>
+              </div>
+              <div class="study-canvas-trees" id="studyCanvasTrees">
+                <div class="study-canvas-empty">Start a session to grow your forest 🌱</div>
+              </div>
             </div>
-            <div id="studyAnalyticsContent"></div>
+
+            <!-- Range selector -->
+            <div class="study-range-row" id="studyRangeRow">
+              <button class="study-range-btn active" data-range="today">Today</button>
+              <button class="study-range-btn" data-range="7d">7 Days</button>
+              <button class="study-range-btn" data-range="30d">30 Days</button>
+              <button class="study-range-btn" data-range="3m">3 Months</button>
+              <button class="study-range-btn" data-range="all">All Time</button>
+            </div>
+
+            <!-- Summary stats -->
+            <div class="study-summary-row" id="studySummaryRow"></div>
+
+            <!-- Subject breakdown bars -->
+            <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
+
+            <!-- Session list -->
+            <div class="study-sessions-wrap" id="studySessionsList"></div>
+
           </div>
 
           <div class="section-title">Yearlong Schedule</div>
@@ -1924,27 +1947,27 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=22"></script>
-<script defer src="js/auth.js?v=22"></script>
-<script defer src="js/sync.js?v=22"></script>
-<script defer src="js/phases.js?v=22"></script>
-<script defer src="js/storage.js?v=22"></script>
-<script defer src="js/state.js?v=22"></script>
-<script defer src="js/scheduler.js?v=22"></script>
-<script defer src="js/upsc.js?v=22"></script>
-<script defer src="js/finance.js?v=22"></script>
-<script defer src="js/health-data.js?v=22"></script>
-<script defer src="js/health.js?v=22"></script>
-<script defer src="js/mind.js?v=22"></script>
-<script defer src="js/growth.js?v=22"></script>
-<script defer src="js/tasks.js?v=22"></script>
-<script defer src="js/study.js?v=22"></script>
-<script defer src="js/ui.js?v=22"></script>
-<script defer src="js/events.js?v=22"></script>
-<script defer src="js/tooltips.js?v=22"></script>
-<script defer src="js/seed-data.js?v=22"></script>
-<script defer src="js/backup.js?v=22"></script>
-<script defer src="js/main.js?v=22"></script>
+<script defer src="js/firebase-config.js?v=23"></script>
+<script defer src="js/auth.js?v=23"></script>
+<script defer src="js/sync.js?v=23"></script>
+<script defer src="js/phases.js?v=23"></script>
+<script defer src="js/storage.js?v=23"></script>
+<script defer src="js/state.js?v=23"></script>
+<script defer src="js/scheduler.js?v=23"></script>
+<script defer src="js/upsc.js?v=23"></script>
+<script defer src="js/finance.js?v=23"></script>
+<script defer src="js/health-data.js?v=23"></script>
+<script defer src="js/health.js?v=23"></script>
+<script defer src="js/mind.js?v=23"></script>
+<script defer src="js/growth.js?v=23"></script>
+<script defer src="js/tasks.js?v=23"></script>
+<script defer src="js/study.js?v=23"></script>
+<script defer src="js/ui.js?v=23"></script>
+<script defer src="js/events.js?v=23"></script>
+<script defer src="js/tooltips.js?v=23"></script>
+<script defer src="js/seed-data.js?v=23"></script>
+<script defer src="js/backup.js?v=23"></script>
+<script defer src="js/main.js?v=23"></script>
 
 </body>
 </html>
