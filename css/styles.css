@@ -4046,26 +4046,87 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .study-session-date { color: var(--text-muted); font-size: 11px; white-space: nowrap; }
 .study-session-dur  { font-weight: 700; white-space: nowrap; }
 
-/* Manage section */
+
+/* ── Timer description + Pomodoro status ── */
+.study-timer-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 2px 12px;
+  line-height: 1.5;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.study-pomo-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(255,100,50,0.08);
+  border: 1px solid rgba(255,100,50,0.2);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.study-pomo-phase { font-size: 16px; font-weight: 700; color: var(--text); }
+.study-pomo-round { font-size: 12px; color: var(--text-muted); }
+
+/* ── Withered tree in session list ── */
+.study-session-dead { opacity: 0.65; }
+.study-dead-badge {
+  display: inline-block;
+  font-size: 10px;
+  background: rgba(255,80,80,0.15);
+  color: #ff6060;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  font-weight: 600;
+}
+.study-canvas-tree-dead { filter: grayscale(0.5) opacity(0.55) !important; }
+
+/* ── Manage section (fixed labels) ── */
 .study-manage-wrap { border-top: 1px solid var(--border); }
 .study-manage-toggle {
-  width: 100%; padding: 11px 16px; text-align: left; font-size: 12px; font-family: var(--font-main);
-  font-weight: 600; color: var(--text-muted); background: transparent; border: none; cursor: pointer;
-  transition: color 0.15s, background 0.15s;
+  width: 100%; padding: 11px 16px; text-align: left; font-size: 12px;
+  font-family: var(--font-main); font-weight: 600; color: var(--text-muted);
+  background: transparent; border: none; cursor: pointer; transition: color 0.15s, background 0.15s;
 }
 .study-manage-toggle:hover { color: var(--text); background: var(--bg-alt); }
 .study-manage-panel { padding: 0 16px 16px; }
 
 .study-manage-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
-.study-mtab-btn { padding: 5px 14px; font-size: 12px; font-family: var(--font-main); font-weight: 600; background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); cursor: pointer; }
+.study-mtab-btn {
+  padding: 5px 14px; font-size: 12px; font-family: var(--font-main); font-weight: 600;
+  background: var(--bg-alt); border: 1px solid var(--border); border-radius: 6px;
+  color: var(--text-muted); cursor: pointer;
+}
 .study-mtab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 .study-manage-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.study-manage-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; background: var(--bg-alt); border-radius: 8px; }
-.study-manage-emoji { font-size: 20px; flex-shrink: 0; }
-.study-manage-label { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; font-family: var(--font-main); padding: 2px 4px; }
-.study-manage-emoji-input { width: 50px; text-align: center; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 16px; }
-.study-manage-color { width: 36px; height: 28px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; padding: 0; }
+.study-manage-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; background: var(--bg-alt); border-radius: 8px;
+}
+.study-manage-preview { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
 
-.study-manage-add-row { display: flex; gap: 8px; align-items: center; padding: 8px; background: var(--bg-alt); border-radius: 8px; margin-top: 4px; }
-.study-manage-add-row input { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; color: var(--text); font-family: var(--font-main); font-size: 13px; }
+/* Visible, editable inputs with proper backgrounds */
+.study-manage-input {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font-main);
+  padding: 5px 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.study-manage-input:focus { border-color: var(--accent); }
+.study-manage-lbl { flex: 1; }
+.study-manage-emo { width: 56px; text-align: center; font-size: 16px; }
+.study-manage-color { width: 36px; height: 32px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; padding: 0; flex-shrink: 0; }
+
+.study-manage-add-row {
+  display: flex; gap: 8px; align-items: center;
+  padding: 8px; background: rgba(91,127,255,0.06); border: 1px dashed var(--border);
+  border-radius: 8px; margin-top: 6px;
+}
