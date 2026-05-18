@@ -181,11 +181,16 @@ const CloudSync = {
         // Genuine update from another device.
         // Snapshot local state before applying (fire-and-forget — captures current state).
         if (typeof BackupManager !== 'undefined') BackupManager.create('pre-sync');
-        const activeTab = AppState.currentTab; // preserve before _applyLoaded changes it
+        const activeTab   = AppState.currentTab;
+        const activeDate  = new Date(AppState.selectedDate);
+        const activeMonth = new Date(AppState.calendarMonth);
         // Smart merge: union all arrays, deep-merge all logs — never loses local data.
         const mergedData = AppState._mergeWithCloud(cloudData);
         AppState._applyLoaded(mergedData);
-        AppState.currentTab = activeTab; // don't switch the user's active tab on remote update
+        // Restore UI navigation state — never let a remote device override what the user is viewing
+        AppState.currentTab    = activeTab;
+        AppState.selectedDate  = activeDate;
+        AppState.calendarMonth = activeMonth;
         Storage.save(mergedData);
         // If there's a queued push (from boot sync), refresh its payload to include
         // this device's changes — prevents the stale push from overwriting B's data.
@@ -230,7 +235,12 @@ const CloudSync = {
       this._suppressBC = true;
       clearTimeout(this._suppressBCTimer);
       this._suppressBCTimer = setTimeout(() => { this._suppressBC = false; }, 2500);
+      const activeDate  = new Date(AppState.selectedDate);
+      const activeMonth = new Date(AppState.calendarMonth);
       AppState._applyLoaded(data);
+      // Preserve this tab's date navigation — don't jump because another tab changed dates
+      AppState.selectedDate  = activeDate;
+      AppState.calendarMonth = activeMonth;
       Storage.save(data);
       if (typeof UI !== 'undefined') {
         UI.updateAll();
