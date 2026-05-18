@@ -219,41 +219,39 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   border-left: 5px solid var(--accent-violet);
   position: relative;
   overflow: hidden;
-  /* Mountain background matching the screenshot */
   background:
-    linear-gradient(to bottom, rgba(8,12,26,0.32) 0%, transparent 25%, transparent 72%, rgba(14,19,38,0.68) 100%),
+    linear-gradient(to bottom, rgba(4,8,22,0.18) 0%, transparent 30%, transparent 70%, rgba(4,8,22,0.28) 100%),
     linear-gradient(90deg,
-      rgba(8,10,24,0.70) 0%,
-      rgba(8,12,28,0.48) 55%,
-      rgba(8,12,28,0.20) 100%),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+      rgba(4,8,22,0.62) 0%,
+      rgba(4,8,22,0.40) 55%,
+      rgba(4,8,22,0.18) 100%),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
   min-height: 52px;
   margin: 0;
 }
 [data-theme="light"] .quote-strip {
   background:
-    linear-gradient(to bottom, rgba(247,248,254,0.52) 0%, transparent 25%, transparent 72%, rgba(240,242,255,0.72) 100%),
+    linear-gradient(to bottom, rgba(247,248,254,0.42) 0%, transparent 25%, transparent 72%, rgba(240,242,255,0.58) 100%),
     linear-gradient(90deg,
-      rgba(236,238,255,0.82) 0%,
-      rgba(236,238,255,0.60) 55%,
-      rgba(236,238,255,0.30) 100%),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+      rgba(236,238,255,0.76) 0%,
+      rgba(236,238,255,0.54) 55%,
+      rgba(236,238,255,0.24) 100%),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
 }
 [data-theme="light"] .milestone-banner {
   background:
-    linear-gradient(rgba(240,242,255,0.90), rgba(240,242,255,0.90)),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+    linear-gradient(rgba(240,242,255,0.82), rgba(240,242,255,0.82)),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
 }
 [data-theme="light"] .tab-nav {
   background:
-    linear-gradient(rgba(247,248,254,0.92), rgba(247,248,254,0.92)),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+    linear-gradient(rgba(247,248,254,0.86), rgba(247,248,254,0.86)),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
   border-bottom-color: rgba(0,0,0,0.10);
 }
 
 /* Desktop: fixed attachment makes all four sections share one continuous
-   mountain image. Per-layer values keep gradients scroll-relative so
-   they render against the element, only the image is viewport-fixed.
+   scene. Gradients stay scroll-relative; only the image layer is viewport-fixed.
    Excluded on touch devices where fixed attachment breaks on iOS Safari. */
 @media (hover: hover) {
   .app-header      { background-attachment: scroll, fixed; }
@@ -315,8 +313,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* Separator between quote strip and milestone banner */
 .milestone-banner {
   background:
-    linear-gradient(rgba(14,19,38,0.88), rgba(14,19,38,0.88)),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+    linear-gradient(rgba(4,8,22,0.62), rgba(4,8,22,0.62)),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
   border-bottom: none;
   padding: 8px 20px; display: flex; align-items: center; gap: 16px;
   flex-wrap: wrap; font-size: 14px;
@@ -356,8 +354,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .tab-nav {
   display: flex; gap: 2px;
   background:
-    linear-gradient(rgba(8,12,26,0.90), rgba(8,12,26,0.90)),
-    url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
+    linear-gradient(rgba(4,8,22,0.82), rgba(4,8,22,0.82)),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
   border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 12px;
   overflow-x: auto; scrollbar-width: none;
 }
