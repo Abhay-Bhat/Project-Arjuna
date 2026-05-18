@@ -60,7 +60,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
     linear-gradient(to right, rgba(4,8,22,0.88) 0%, rgba(6,10,28,0.78) 100%),
     url('../assets/img/mountains.jpg') center 42% / cover no-repeat;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 10px clamp(16px, 2vw, 32px);
+  padding: 16px clamp(16px, 2vw, 32px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -92,21 +92,29 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* CENTER — brand, truly centred */
 .header-brand {
   display: flex; flex-direction: column; align-items: center;
-  text-align: center; gap: 2px;
+  text-align: center; gap: 5px;
 }
 .app-header h1 {
-  font-size: 22px; font-weight: 700; letter-spacing: 0.04em; margin: 0;
-  background: linear-gradient(135deg, #c8e8ff, #60a8f0, #9060d8);
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 800; letter-spacing: 0.06em; margin: 0;
+  background: linear-gradient(135deg, #daf0ff, #60a8f0, #9060d8);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
+  filter: drop-shadow(0 0 18px rgba(96,168,240,0.28));
 }
 .skadi-logo {
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(96,168,240,0.5));
+  filter: drop-shadow(0 0 6px rgba(96,168,240,0.7));
 }
 .header-sub {
-  font-size: 11px; color: var(--text-muted);
-  letter-spacing: 0.05em; font-weight: 500;
+  font-size: 12px;
+  font-style: italic;
+  letter-spacing: 0.12em;
+  font-weight: 400;
+  color: rgba(160,200,240,0.7);
+}
+[data-theme="light"] .header-sub {
+  color: rgba(60,90,160,0.65);
 }
 
 /* RIGHT — sync badge + dropdown menu */
@@ -1765,7 +1773,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 @media (max-width: 480px) {
   .app-shell { padding-left: 12px; padding-right: 12px; }
   .app-header { padding: 12px; }
-  .app-header h1 { font-size: 18px; }
+  .app-header h1 { font-size: 24px; }
+  .skadi-logo   { width: 26px; height: 26px; }
 
   .section-title { font-size: 14px; }
   .stat-card { padding: 12px; }
@@ -1825,7 +1834,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .analytics-grid { grid-template-columns: repeat(2, 1fr); }
 
   .app-header { padding: 10px 14px; grid-template-columns: 1fr auto 1fr; }
-  .app-header h1 { font-size: 18px; }
+  .app-header h1 { font-size: 26px; }
+  .skadi-logo   { width: 28px; height: 28px; }
   .header-actions { gap: 6px; }
 
   .section-title { font-size: 14px; padding: 16px 0 8px 0; }
