@@ -538,6 +538,7 @@ const TasksTracker = {
         tasks.splice(insertBefore ? newToIdx : newToIdx + 1, 0, dragged);
 
         AppState.tasks = tasks;
+        AppState.tasksOrderedAt = new Date().toISOString();
         AppState.save();
         this.render();
         dragTaskId = null;
@@ -571,6 +572,7 @@ const TasksTracker = {
           t.bucketId = bid;
           // Move to end of this bucket's tasks
           AppState.tasks = [...(AppState.tasks || []).filter(x => x.id !== t.id), t];
+          AppState.tasksOrderedAt = new Date().toISOString();
           AppState.save();
           this.render();
         }
@@ -636,6 +638,7 @@ const TasksTracker = {
         buckets.splice(insertBefore ? toIdx : toIdx + 1, 0, moved);
 
         AppState.taskBuckets = buckets;
+        AppState.taskBucketsOrderedAt = new Date().toISOString();
         AppState.save();
         this.render();
         dragBucketId = null;
