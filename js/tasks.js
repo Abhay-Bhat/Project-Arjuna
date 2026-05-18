@@ -134,7 +134,7 @@ const TasksTracker = {
         </div>`;
     } else {
       board.innerHTML = buckets.map(bucket => {
-        const bucketTasks  = allTasks.filter(t => t.bucketId === bucket.id);
+        const bucketTasks  = allTasks.filter(t => Number(t.bucketId) === Number(bucket.id));
         const activeTasks  = bucketTasks.filter(t => !t.done);
         const doneTasks    = bucketTasks.filter(t => t.done);
         const filtered     = this._applySort(this._filterTasks(activeTasks));
@@ -446,13 +446,13 @@ const TasksTracker = {
       btn.addEventListener('click', () => {
         const bid = parseInt(btn.dataset.bid);
         const bkt = (AppState.taskBuckets || []).find(b => b.id === bid);
-        const cnt = (AppState.tasks || []).filter(t => t.bucketId === bid).length;
+        const cnt = (AppState.tasks || []).filter(t => Number(t.bucketId) === Number(bid)).length;
         const msg = cnt
           ? `Delete bucket "${bkt?.title}"? This will also delete ${cnt} task${cnt > 1 ? 's' : ''}.`
           : `Delete bucket "${bkt?.title}"?`;
         if (!confirm(msg)) return;
         AppState.taskBuckets = (AppState.taskBuckets || []).filter(b => b.id !== bid);
-        AppState.tasks       = (AppState.tasks       || []).filter(t => t.bucketId !== bid);
+        AppState.tasks       = (AppState.tasks       || []).filter(t => Number(t.bucketId) !== Number(bid));
         AppState.save();
         this.render();
       });
