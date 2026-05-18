@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Seed Data (runs once after AppState.init)
+// Skadi — Seed Data (runs once after AppState.init)
 // Adds pre-populated investment entries if they don't exist.
 // Safe to re-run: checks by a unique seed key before inserting.
 // ============================================================

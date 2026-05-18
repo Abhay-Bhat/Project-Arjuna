@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Growth Tracker
+// Skadi — Growth Tracker
 // Career · Books · Reviews · Life Partner
 // ============================================================
 

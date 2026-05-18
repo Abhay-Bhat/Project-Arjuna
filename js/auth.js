@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Authentication
+// Skadi — Authentication
 // Google Sign-In via Firebase Auth.
 // Falls back to local-only mode if Firebase is not configured.
 // ============================================================
@@ -19,7 +19,7 @@ const Auth = {
       const isPlaceholder = !cfg || !cfg.apiKey || cfg.apiKey === 'YOUR_API_KEY';
 
       if (isPlaceholder || typeof firebase === 'undefined') {
-        console.warn('ATHENA: Firebase not configured — running in local-only mode.');
+        console.warn('Skadi: Firebase not configured — running in local-only mode.');
         this._localOnly  = true;
         this._configured = false;
         this._hideOverlay();
@@ -33,7 +33,7 @@ const Auth = {
         }
         this._configured = true;
       } catch (e) {
-        console.error('ATHENA: Firebase init error:', e);
+        console.error('Skadi: Firebase init error:', e);
         this._localOnly = true;
         this._hideOverlay();
         resolve(null);
@@ -43,7 +43,7 @@ const Auth = {
       // Consume any pending redirect sign-in result (mobile flow).
       // Errors here are non-fatal — the auth state listener below handles the user.
       firebase.auth().getRedirectResult().catch((e) => {
-        console.warn('ATHENA: redirect sign-in error --', e.code);
+        console.warn('Skadi: redirect sign-in error --', e.code);
         const errEl = document.getElementById('authError');
         if (errEl && e.code !== 'auth/no-auth-event') {
           errEl.textContent = 'Sign-in failed. Please try again.';
@@ -114,7 +114,7 @@ const Auth = {
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
-      console.error('ATHENA: Sign-in failed:', e);
+      console.error('Skadi: Sign-in failed:', e);
       if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
       if (errEl) {
         errEl.textContent = e.code === 'auth/popup-closed-by-user'

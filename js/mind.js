@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Mind Tracker
+// Skadi — Mind Tracker
 // Pastime · Loneliness · Meditation · Parents Contact
 // ============================================================
 

@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Phase Detection Engine
+// Skadi — Phase Detection Engine
 // Every phase has a schedule key, color, description, and date range.
 // ============================================================
 

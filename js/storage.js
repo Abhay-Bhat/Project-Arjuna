@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Storage Engine
+// Skadi — Storage Engine
 // IndexedDB primary (GiB capacity) with localStorage fallback
 // ============================================================
 

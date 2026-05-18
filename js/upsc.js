@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — UPSC Tracking System (Recalibrated)
+// Skadi — UPSC Tracking System (Recalibrated)
 //
 // Schedule design:
 //  Track A — GS Main (Subjects 1–14): Mon–Fri, 1 class/day

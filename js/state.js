@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Application State (v2)
+// Skadi — Application State (v2)
 // Manages all persisted data across 6 domains.
 // ============================================================
 
@@ -231,7 +231,7 @@ const AppState = {
   _doSave() {
     const payload = this._buildPayload();
     // Persist theme to localStorage so inline head script applies it instantly next load
-    try { localStorage.setItem('athena_theme', this.theme); } catch(e) {}
+    try { localStorage.setItem('skadi_theme', this.theme); } catch(e) {}
     Storage.save(payload);
     CloudSync.push(payload); // Push to Firestore (no-op when not configured)
   },
@@ -541,7 +541,7 @@ const AppState = {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `athena-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `skadi-backup-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

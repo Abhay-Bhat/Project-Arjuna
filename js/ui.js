@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — UI Orchestrator
+// Skadi — UI Orchestrator
 // ============================================================
 
 const UI = {
@@ -67,7 +67,7 @@ const UI = {
     const modal = document.getElementById('onboardingModal');
     if (!modal) return;
 
-    const isDone = localStorage.getItem('athena_onboarding_done');
+    const isDone = localStorage.getItem('skadi_onboarding_done') || localStorage.getItem('athena_onboarding_done');
     if (!isDone) {
       modal.classList.add('show');
       this._bindOnboarding();
@@ -88,7 +88,7 @@ const UI = {
 
     const closeOnboarding = () => {
       modal.classList.remove('show');
-      localStorage.setItem('athena_onboarding_done', 'true');
+      localStorage.setItem('skadi_onboarding_done', 'true');
     };
 
     closeBtn.addEventListener('click', closeOnboarding);
@@ -511,12 +511,12 @@ const UI = {
     };
 
     // Pick a fresh random fallback every refresh — avoid repeating the previous one
-    const lastQ = sessionStorage.getItem('athena_last_quote') || '';
+    const lastQ = sessionStorage.getItem('skadi_last_quote') || '';
     let pool = fallbacks.filter(f => f.q !== lastQ);
     if (!pool.length) pool = fallbacks;
     const immediate = pool[Math.floor(Math.random() * pool.length)];
     apply(immediate.q, immediate.a);
-    sessionStorage.setItem('athena_last_quote', immediate.q);
+    sessionStorage.setItem('skadi_last_quote', immediate.q);
 
     // Try public quote APIs for variety; if they succeed, swap in the fresh quote
     const tryZen = () =>
@@ -540,7 +540,7 @@ const UI = {
       .catch(() => tryForismatic())
       .then(({ q, a }) => {
         apply(q, a);
-        sessionStorage.setItem('athena_last_quote', q);
+        sessionStorage.setItem('skadi_last_quote', q);
       })
       .catch(() => { /* keep the fresh fallback already shown */ });
   },
