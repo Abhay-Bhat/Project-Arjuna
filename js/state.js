@@ -62,8 +62,10 @@ const AppState = {
   dubaiChecklist:  {},   // { item_id: true }
 
   // ── Tasks (Planner) ──────────────────────────────────────
-  taskBuckets:     [],   // [{ id, title, color }]
-  tasks:           [],   // [{ id, bucketId, title, dueDate, priority, done, createdAt }]
+  taskBuckets:          [],   // [{ id, title, color }]
+  tasks:                [],   // [{ id, bucketId, title, dueDate, priority, done, createdAt }]
+  tasksOrderedAt:       null, // ISO — updated on drag-and-drop reorder; used to pick ordering in merge
+  taskBucketsOrderedAt: null, // ISO — updated on bucket drag-and-drop reorder
 
   // ── Study Log ────────────────────────────────────────────
   studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
@@ -157,6 +159,8 @@ const AppState = {
       this.dubaiChecklist       = pick('dubaiChecklist',  {});
       this.taskBuckets          = pick('taskBuckets',     []);
       this.tasks                = pick('tasks',           []);
+      this.tasksOrderedAt       = d.tasksOrderedAt       ?? null;
+      this.taskBucketsOrderedAt = d.taskBucketsOrderedAt ?? null;
       this.studyLog             = pick('studyLog',        []);
       this.studySubjects        = d.studySubjects  ?? null;
       this.studyActivities      = d.studyActivities ?? null;
@@ -210,8 +214,10 @@ const AppState = {
       monthlyReviews: this.monthlyReviews,
       partnerLog: this.partnerLog,
       dubaiChecklist: this.dubaiChecklist,
-      taskBuckets: this.taskBuckets,
-      tasks: this.tasks,
+      taskBuckets:          this.taskBuckets,
+      tasks:                this.tasks,
+      tasksOrderedAt:       this.tasksOrderedAt,
+      taskBucketsOrderedAt: this.taskBucketsOrderedAt,
       studyLog:        this.studyLog,
       studySubjects:   this.studySubjects,
       studyActivities: this.studyActivities,
@@ -260,10 +266,11 @@ const AppState = {
       return [...map.values()];
     };
 
-    // Order-preserving union for drag-and-drop lists (tasks, buckets).
-    // Uses local array order as the base so drag reordering is never reverted by sync.
-    // Items that only exist in cloud (added on another device) are appended at the end.
-    const _byIdLocalOrder = (la, ca) => {
+    // Order-aware union for drag-and-drop lists (tasks, buckets).
+    // localTs / cloudTs are the timestamps of the last reorder on each side.
+    // Whichever side reordered more recently owns the ordering; the other side's
+    // unique items are appended at the end so nothing is lost.
+    const _byIdOrdered = (la, ca, localTs, cloudTs) => {
       const map = new Map();
       (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
       (la || []).forEach(item => {
@@ -278,11 +285,15 @@ const AppState = {
           map.set(item.id, winner);
         }
       });
-      const localIds = new Set((la || []).map(t => t.id));
+      // Pick ordering from whichever side has the more recent reorder timestamp
+      const useLocalOrder = new Date(localTs || 0) >= new Date(cloudTs || 0);
+      const primary   = useLocalOrder ? (la || []) : (ca || []);
+      const secondary = useLocalOrder ? (ca || []) : (la || []);
+      const primaryIds = new Set(primary.map(t => t.id));
       return [
-        ...(la || []).filter(t => t.id != null).map(t => map.get(t.id)),
-        ...(ca || []).filter(t => t.id != null && !localIds.has(t.id)).map(t => map.get(t.id)),
-      ].filter(Boolean);
+        ...primary.filter(t => t.id != null && map.has(t.id)).map(t => map.get(t.id)),
+        ...secondary.filter(t => t.id != null && !primaryIds.has(t.id) && map.has(t.id)).map(t => map.get(t.id)),
+      ];
     };
 
     // Arrays with no id — dedup by date+type (nofapLog, partnerLog)
@@ -320,9 +331,11 @@ const AppState = {
 
     return {
       ...cloudData,
-      // Order-sensitive arrays: local order wins so drag-and-drop reordering is preserved
-      tasks:       _byIdLocalOrder(local.tasks,       cloudData.tasks),
-      taskBuckets: _byIdLocalOrder(local.taskBuckets, cloudData.taskBuckets),
+      // Order-sensitive arrays: most-recently-reordered side's ordering wins
+      tasks:                _byIdOrdered(local.tasks, cloudData.tasks, local.tasksOrderedAt, cloudData.tasksOrderedAt),
+      taskBuckets:          _byIdOrdered(local.taskBuckets, cloudData.taskBuckets, local.taskBucketsOrderedAt, cloudData.taskBucketsOrderedAt),
+      tasksOrderedAt:       local.tasksOrderedAt > (cloudData.tasksOrderedAt||'') ? local.tasksOrderedAt : (cloudData.tasksOrderedAt||null),
+      taskBucketsOrderedAt: local.taskBucketsOrderedAt > (cloudData.taskBucketsOrderedAt||'') ? local.taskBucketsOrderedAt : (cloudData.taskBucketsOrderedAt||null),
       studyLog:        _byId(local.studyLog,         cloudData.studyLog),
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
