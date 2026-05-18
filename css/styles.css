@@ -54,25 +54,33 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   box-sizing: border-box;
 }
 
-.app-header {
+/* Single sticky wrapper — one background layer for all four sections */
+.title-card {
   position: sticky; top: 0; z-index: 100;
   background:
-    linear-gradient(to right, rgba(4,8,22,0.62) 0%, rgba(6,10,28,0.56) 100%),
+    linear-gradient(to bottom, rgba(4,8,22,0.58) 0%, rgba(4,8,22,0.64) 100%),
     url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+[data-theme="light"] .title-card {
+  background:
+    linear-gradient(rgba(235,244,255,0.82), rgba(228,238,255,0.80)),
+    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
+  border-bottom-color: rgba(0,0,0,0.10);
+}
+@media (hover: hover) {
+  .title-card { background-attachment: scroll, fixed; }
+}
+
+.app-header {
+  background: transparent;
   padding: 16px clamp(16px, 2vw, 32px);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-}
-[data-theme="light"] .app-header {
-  background:
-    linear-gradient(rgba(235,244,255,0.78), rgba(228,238,255,0.76)),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
-  border-bottom-color: rgba(0,0,0,0.08);
 }
 
 /* LEFT — date + phase badge */
@@ -210,54 +218,15 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 /* ── Motivational Quote Strip (persistent — full width just below header) ── */
 .quote-strip {
-  /* Full bleed — no side padding from app-shell */
   width: 100%;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 14px clamp(16px, 2vw, 32px);
   border-left: 5px solid var(--accent-violet);
-  position: relative;
-  overflow: hidden;
-  background:
-    linear-gradient(to bottom, rgba(4,8,22,0.18) 0%, transparent 30%, transparent 70%, rgba(4,8,22,0.28) 100%),
-    linear-gradient(90deg,
-      rgba(4,8,22,0.62) 0%,
-      rgba(4,8,22,0.40) 55%,
-      rgba(4,8,22,0.18) 100%),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
+  background: transparent;
   min-height: 52px;
   margin: 0;
-}
-[data-theme="light"] .quote-strip {
-  background:
-    linear-gradient(to bottom, rgba(247,248,254,0.42) 0%, transparent 25%, transparent 72%, rgba(240,242,255,0.58) 100%),
-    linear-gradient(90deg,
-      rgba(236,238,255,0.76) 0%,
-      rgba(236,238,255,0.54) 55%,
-      rgba(236,238,255,0.24) 100%),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
-}
-[data-theme="light"] .milestone-banner {
-  background:
-    linear-gradient(rgba(240,242,255,0.82), rgba(240,242,255,0.82)),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
-}
-[data-theme="light"] .tab-nav {
-  background:
-    linear-gradient(rgba(247,248,254,0.86), rgba(247,248,254,0.86)),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
-  border-bottom-color: rgba(0,0,0,0.10);
-}
-
-/* Desktop: fixed attachment makes all four sections share one continuous
-   scene. Gradients stay scroll-relative; only the image layer is viewport-fixed.
-   Excluded on touch devices where fixed attachment breaks on iOS Safari. */
-@media (hover: hover) {
-  .app-header      { background-attachment: scroll, fixed; }
-  .quote-strip     { background-attachment: scroll, scroll, fixed; }
-  .milestone-banner{ background-attachment: scroll, fixed; }
-  .tab-nav         { background-attachment: scroll, fixed; }
 }
 
 .qs-icon {
@@ -312,9 +281,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 /* Separator between quote strip and milestone banner */
 .milestone-banner {
-  background:
-    linear-gradient(rgba(4,8,22,0.62), rgba(4,8,22,0.62)),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
+  background: transparent;
   border-bottom: none;
   padding: 8px 20px; display: flex; align-items: center; gap: 16px;
   flex-wrap: wrap; font-size: 14px;
@@ -353,9 +320,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 .tab-nav {
   display: flex; gap: 2px;
-  background:
-    linear-gradient(rgba(4,8,22,0.82), rgba(4,8,22,0.82)),
-    url('../assets/img/skadi-hero.svg') center top / cover no-repeat;
+  background: transparent;
   border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 12px;
   overflow-x: auto; scrollbar-width: none;
 }
