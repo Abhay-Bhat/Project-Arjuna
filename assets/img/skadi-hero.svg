@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#010309"/>
+      <stop offset="55%" stop-color="#02060f"/>
+      <stop offset="100%" stop-color="#040a1c"/>
+    </linearGradient>
+    <linearGradient id="aur1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6030c0" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#6030c0" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#6030c0" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="aur2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2060d0" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#2060d0" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#2060d0" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="aur3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00c8b0" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00c8b0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#00c8b0" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="mtn1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#08091a"/>
+      <stop offset="100%" stop-color="#04060e"/>
+    </linearGradient>
+    <linearGradient id="mtn2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0c0f24"/>
+      <stop offset="100%" stop-color="#060816"/>
+    </linearGradient>
+    <radialGradient id="radiance" cx="960" cy="75" r="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a8f0" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#60a8f0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1920" height="200" fill="url(#sky)"/>
+
+  <!-- Stars -->
+  <g fill="white">
+    <circle cx="48"   cy="12" r="0.8" opacity="0.9"/>
+    <circle cx="134"  cy="7"  r="0.6" opacity="0.7"/>
+    <circle cx="210"  cy="14" r="0.9" opacity="0.8"/>
+    <circle cx="290"  cy="9"  r="0.5" opacity="0.65"/>
+    <circle cx="385"  cy="11" r="0.7" opacity="0.9"/>
+    <circle cx="465"  cy="6"  r="0.6" opacity="0.75"/>
+    <circle cx="540"  cy="15" r="0.8" opacity="0.85"/>
+    <circle cx="620"  cy="8"  r="0.7" opacity="0.7"/>
+    <circle cx="700"  cy="13" r="0.6" opacity="0.9"/>
+    <circle cx="790"  cy="7"  r="0.9" opacity="0.8"/>
+    <circle cx="870"  cy="11" r="0.5" opacity="0.65"/>
+    <circle cx="1020" cy="14" r="0.8" opacity="0.9"/>
+    <circle cx="1095" cy="8"  r="0.6" opacity="0.7"/>
+    <circle cx="1170" cy="12" r="0.9" opacity="0.8"/>
+    <circle cx="1250" cy="7"  r="0.5" opacity="0.75"/>
+    <circle cx="1330" cy="15" r="0.7" opacity="0.9"/>
+    <circle cx="1410" cy="9"  r="0.8" opacity="0.7"/>
+    <circle cx="1480" cy="13" r="0.6" opacity="0.85"/>
+    <circle cx="1560" cy="6"  r="0.9" opacity="0.8"/>
+    <circle cx="1640" cy="11" r="0.7" opacity="0.65"/>
+    <circle cx="1720" cy="8"  r="0.5" opacity="0.9"/>
+    <circle cx="1800" cy="14" r="0.8" opacity="0.75"/>
+    <circle cx="1875" cy="7"  r="0.6" opacity="0.85"/>
+    <circle cx="85"   cy="28" r="0.6" opacity="0.7"/>
+    <circle cx="165"  cy="32" r="0.8" opacity="0.85"/>
+    <circle cx="260"  cy="25" r="0.5" opacity="0.9"/>
+    <circle cx="340"  cy="34" r="0.7" opacity="0.75"/>
+    <circle cx="430"  cy="27" r="0.9" opacity="0.7"/>
+    <circle cx="510"  cy="33" r="0.6" opacity="0.9"/>
+    <circle cx="595"  cy="22" r="0.8" opacity="0.8"/>
+    <circle cx="660"  cy="30" r="0.5" opacity="0.65"/>
+    <circle cx="750"  cy="26" r="0.7" opacity="0.85"/>
+    <circle cx="825"  cy="35" r="0.6" opacity="0.9"/>
+    <circle cx="890"  cy="23" r="0.9" opacity="0.7"/>
+    <circle cx="1060" cy="28" r="0.5" opacity="0.75"/>
+    <circle cx="1130" cy="34" r="0.7" opacity="0.9"/>
+    <circle cx="1200" cy="22" r="0.6" opacity="0.7"/>
+    <circle cx="1280" cy="30" r="0.9" opacity="0.85"/>
+    <circle cx="1355" cy="26" r="0.8" opacity="0.65"/>
+    <circle cx="1440" cy="33" r="0.5" opacity="0.9"/>
+    <circle cx="1515" cy="25" r="0.7" opacity="0.8"/>
+    <circle cx="1590" cy="35" r="0.6" opacity="0.75"/>
+    <circle cx="1665" cy="22" r="0.9" opacity="0.7"/>
+    <circle cx="1745" cy="28" r="0.8" opacity="0.9"/>
+    <circle cx="1820" cy="32" r="0.5" opacity="0.8"/>
+    <circle cx="1895" cy="26" r="0.7" opacity="0.85"/>
+    <circle cx="55"   cy="48" r="0.7" opacity="0.6"/>
+    <circle cx="145"  cy="55" r="0.5" opacity="0.8"/>
+    <circle cx="230"  cy="42" r="0.8" opacity="0.7"/>
+    <circle cx="320"  cy="58" r="0.6" opacity="0.9"/>
+    <circle cx="400"  cy="44" r="0.9" opacity="0.65"/>
+    <circle cx="488"  cy="52" r="0.7" opacity="0.8"/>
+    <circle cx="570"  cy="46" r="0.5" opacity="0.75"/>
+    <circle cx="640"  cy="60" r="0.8" opacity="0.9"/>
+    <circle cx="725"  cy="48" r="0.6" opacity="0.7"/>
+    <circle cx="800"  cy="54" r="0.9" opacity="0.8"/>
+    <circle cx="850"  cy="43" r="0.5" opacity="0.65"/>
+    <circle cx="920"  cy="56" r="0.7" opacity="0.9"/>
+    <circle cx="1040" cy="50" r="0.6" opacity="0.75"/>
+    <circle cx="1110" cy="44" r="0.8" opacity="0.8"/>
+    <circle cx="1185" cy="58" r="0.5" opacity="0.7"/>
+    <circle cx="1265" cy="46" r="0.9" opacity="0.9"/>
+    <circle cx="1340" cy="53" r="0.7" opacity="0.65"/>
+    <circle cx="1420" cy="42" r="0.6" opacity="0.8"/>
+    <circle cx="1495" cy="59" r="0.8" opacity="0.9"/>
+    <circle cx="1575" cy="47" r="0.5" opacity="0.7"/>
+    <circle cx="1650" cy="54" r="0.7" opacity="0.75"/>
+    <circle cx="1730" cy="43" r="0.9" opacity="0.85"/>
+    <circle cx="1810" cy="57" r="0.6" opacity="0.7"/>
+    <circle cx="1885" cy="45" r="0.8" opacity="0.9"/>
+    <!-- Bright "north star" -->
+    <circle cx="320"  cy="18" r="1.5" opacity="0.95"/>
+    <circle cx="1640" cy="34" r="1.3" opacity="0.9"/>
+    <!-- Pleiades cluster top-right -->
+    <circle cx="1548" cy="16" r="1.2" opacity="1.0"/>
+    <circle cx="1554" cy="11" r="0.9" opacity="0.95"/>
+    <circle cx="1561" cy="18" r="0.8" opacity="0.9"/>
+    <circle cx="1557" cy="22" r="0.7" opacity="0.85"/>
+    <circle cx="1545" cy="10" r="1.0" opacity="0.95"/>
+    <circle cx="1569" cy="13" r="0.8" opacity="0.8"/>
+  </g>
+
+  <!-- Aurora band 1: purple -->
+  <path d="M200,55 Q480,22 760,46 Q1000,66 1260,36 Q1520,10 1720,50 L1720,82 Q1520,38 1260,66 Q1000,92 760,72 Q480,48 200,82 Z"
+        fill="url(#aur1)" opacity="0.75"/>
+
+  <!-- Aurora band 2: blue -->
+  <path d="M400,38 Q700,8 1000,34 Q1250,54 1500,24 Q1700,4 1920,40 L1920,64 Q1700,28 1500,50 Q1250,74 1000,58 Q700,34 400,64 Z"
+        fill="url(#aur2)" opacity="0.65"/>
+
+  <!-- Aurora band 3: teal -->
+  <path d="M0,58 Q300,34 580,54 Q860,74 1100,48 Q1350,24 1600,54 Q1760,70 1920,54 L1920,76 Q1760,90 1600,76 Q1350,46 1100,70 Q860,94 580,76 Q300,54 0,78 Z"
+        fill="url(#aur3)" opacity="0.55"/>
+
+  <!-- Far mountains -->
+  <path d="M0,200 L0,138 L100,122 L200,132 L320,98 L440,124 L560,104 L670,128 L790,88 L900,112 L1020,92 L1130,118 L1260,82 L1380,108 L1510,88 L1630,118 L1760,93 L1870,120 L1920,107 L1920,200 Z"
+        fill="url(#mtn2)" opacity="0.85"/>
+
+  <!-- Near mountains (Skadi peak at x=960, y=70) -->
+  <path d="M0,200 L0,158 L90,144 L180,154 L290,122 L390,148 L500,128 L600,150 L700,110 L800,140 L870,120 L930,136 L960,70 L990,132 L1050,114 L1140,142 L1250,112 L1360,140 L1470,118 L1570,148 L1680,122 L1780,150 L1870,130 L1920,142 L1920,200 Z"
+        fill="url(#mtn1)"/>
+
+  <!-- Divine radiance behind figure -->
+  <ellipse cx="960" cy="80" rx="60" ry="50" fill="url(#radiance)"/>
+
+  <!-- Skadi silhouette — archer on the peak (x=960, y=70) -->
+  <!-- Figure is ~48px tall, top at y≈18 -->
+  <g fill="#07090f">
+    <!-- Head -->
+    <circle cx="958" cy="37" r="5.5"/>
+    <!-- Hair streaming right in the wind -->
+    <path d="M961,33 Q971,28 977,31 Q972,32 968,35 Q965,34 961,33 Z"/>
+    <!-- Cape/cloak blowing right -->
+    <path d="M958,48 Q968,53 975,62 Q966,59 958,53 Z" opacity="0.85"/>
+    <!-- Torso (forward lean) -->
+    <path d="M954,42 L952,64 L959,66 L963,64 L965,42 Z"/>
+    <!-- Left arm: bow arm extended forward-left and slightly up -->
+    <path d="M955,50 L935,42 L934,46 L953,54 Z"/>
+    <!-- Right arm: draw arm pulled back to right -->
+    <path d="M964,50 L980,56 L979,60 L963,54 Z"/>
+    <!-- Left leg (forward) -->
+    <path d="M954,64 L949,82 L953,83 L958,64 Z"/>
+    <!-- Right leg (back, slightly wider stance) -->
+    <path d="M962,64 L964,82 L968,82 L965,64 Z"/>
+    <!-- Bow (arc at end of left arm) -->
+    <path d="M932,36 Q923,43 932,52" fill="none" stroke="#07090f" stroke-width="3" stroke-linecap="round"/>
+    <!-- Bowstring (drawn back) -->
+    <path d="M932,36 L935,44 L932,52" fill="none" stroke="#07090f" stroke-width="1.4"/>
+    <!-- Arrow shaft -->
+    <line x1="935" y1="44" x2="962" y2="50" stroke="#07090f" stroke-width="1.8"/>
+    <!-- Arrowhead -->
+    <polygon points="963,50 957,47 957,53"/>
+  </g>
+
+  <!-- Large watermark snowflake (very faint, centered) -->
+  <g transform="translate(960,110)" opacity="0.035" stroke="#60a8f0" stroke-width="1.8" fill="none">
+    <line x1="0"   y1="-85" x2="0"   y2="85"/>
+    <line x1="-85" y1="0"   x2="85"  y2="0"/>
+    <line x1="-60" y1="-60" x2="60"  y2="60"/>
+    <line x1="60"  y1="-60" x2="-60" y2="60"/>
+    <line x1="-18" y1="-68" x2="0"   y2="-55"/> <line x1="18" y1="-68" x2="0" y2="-55"/>
+    <line x1="-18" y1="68"  x2="0"   y2="55"/>  <line x1="18" y1="68"  x2="0" y2="55"/>
+    <line x1="-68" y1="-18" x2="-55" y2="0"/>   <line x1="-68" y1="18" x2="-55" y2="0"/>
+    <line x1="68"  y1="-18" x2="55"  y2="0"/>   <line x1="68"  y1="18" x2="55"  y2="0"/>
+    <circle cx="0"   cy="-28" r="3.5" fill="#60a8f0"/>
+    <circle cx="0"   cy="28"  r="3.5" fill="#60a8f0"/>
+    <circle cx="-28" cy="0"   r="3.5" fill="#60a8f0"/>
+    <circle cx="28"  cy="0"   r="3.5" fill="#60a8f0"/>
+    <circle cx="-20" cy="-20" r="3"   fill="#60a8f0"/>
+    <circle cx="20"  cy="-20" r="3"   fill="#60a8f0"/>
+    <circle cx="-20" cy="20"  r="3"   fill="#60a8f0"/>
+    <circle cx="20"  cy="20"  r="3"   fill="#60a8f0"/>
+  </g>
+</svg>
