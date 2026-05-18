@@ -35,8 +35,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Flush any queued Firestore push when the tab is hidden or unloaded.
     // This covers: closing the tab, navigating away, and going to background on mobile.
     const _flushOnExit = () => CloudSync.flushPush();
+
+    // Re-sync when the page becomes visible again (phone unlock / tab switch back).
+    // Mobile browsers suspend the Firestore WebSocket during background, so the
+    // real-time listener may have missed events. A pull-and-merge on return ensures
+    // the user always sees the latest data without needing a manual refresh.
+    let _lastSyncAt = 0;
+    const _syncIfStale = async () => {
+      if (!Auth.isAuthenticated || Auth.isLocalOnly) return;
+      if (Date.now() - _lastSyncAt < 30_000) return; // debounce: at most once per 30s
+      _lastSyncAt = Date.now();
+      await AppState.syncCloud();
+    };
+
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') _flushOnExit();
+      else _syncIfStale();
     });
     window.addEventListener('pagehide', _flushOnExit);
 
@@ -108,6 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Already signed in — merge cloud data into the running app
       CloudSync.init();
       await AppState.syncCloud();
+      _lastSyncAt = Date.now();
       CloudSync.startListening();
     }
     // If !user: overlay is showing; sign-in is handled by authSignInBtn click.
