@@ -305,7 +305,7 @@ function renderSummary(data) {
     { label: 'CA Log Days',       val: count(data.caLog) },
     { label: 'Mind Log Days',     val: count(data.mindLog) },
     { label: 'Routine Days',      val: count(data.checkedItems) },
-    { label: 'NoFap Log',         val: count(data.nofapLog) },
+    { label: 'Pastime Log',       val: count(data.pastimeLog ?? data.nofapLog) },
     { label: 'Weekly Reviews',    val: count(data.weeklyReviews) },
     { label: 'Monthly Reviews',   val: count(data.monthlyReviews) },
     { label: 'Books Log',         val: count(data.booksLog) },

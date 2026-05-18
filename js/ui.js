@@ -407,9 +407,9 @@ const UI = {
     const healthPct = Math.round(healthScore);
 
     const todayMind = AppState.getSelectedMind();
-    const nofapStreak = AppState.getNoFapStreak();
-    const mindStatus = nofapStreak > 0 ? `${nofapStreak}d` : 'Start';
-    const mindPct = Math.min((nofapStreak / 30) * 100, 100);
+    const pastimeStreak = AppState.getPastimeStreak();
+    const mindStatus = pastimeStreak > 0 ? `${pastimeStreak}d` : 'Start';
+    const mindPct = Math.min((pastimeStreak / 30) * 100, 100);
 
     const careerDone = Object.values(AppState.careerLog || {}).filter(c => c.done).length;
     const careerPct = Math.round((careerDone / 5) * 100);
@@ -422,7 +422,7 @@ const UI = {
       { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
       { id: 'finance', emoji: '💰', name: 'Finance', metric: `${financeAED.toLocaleString('en-IN')}`, label: 'AED saved', pct: financePct, status: financePct >= 80 ? 'On Track' : 'Behind',  tip: 'Click to open Finance tab — savings, investments, currency converter' },
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
-      { id: 'mind',    emoji: '🧠', name: 'Mind',    metric: mindStatus,                  label: 'NoFap streak',  pct: mindPct,    status: nofapStreak > 0 ? 'Strong' : 'Start Now', tip: 'Click to open Mind tab — NoFap streak, loneliness, meditation' },
+      { id: 'mind',    emoji: '🧠', name: 'Mind',    metric: mindStatus,                  label: 'Pastime streak',  pct: mindPct,    status: pastimeStreak > 0 ? 'Strong' : 'Start Now', tip: 'Click to open Mind tab — Pastime streak, loneliness, meditation' },
       { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
       { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' }
     ];
@@ -566,7 +566,7 @@ const UI = {
   syncQuickCheckins() {
     const sel    = AppState.getSelectedHealth();
     const mind   = AppState.getSelectedMind();
-    const streak = AppState.getNoFapStreak();
+    const streak = AppState.getPastimeStreak();
 
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     const cls = (id, c, on) => { const el = document.getElementById(id); if (el) el.classList.toggle(c, on); };

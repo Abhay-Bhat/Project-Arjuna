@@ -1,9 +1,9 @@
 // ============================================================
 // ATHENA — Mind Tracker
-// NoFap · Loneliness · Meditation · Parents Contact
+// Pastime · Loneliness · Meditation · Parents Contact
 // ============================================================
 
-const NOFAP_TRIGGERS = [
+const PASTIME_REASONS = [
   'Loneliness (post-work evening)',
   'Boredom (weekend)',
   'Stress (exam/work)',
@@ -19,42 +19,42 @@ const LONELINESS_LABELS = [
 const MindTracker = {
 
   render() {
-    this.renderNoFap();
+    this.renderPastime();
     this.renderTodayForm();
     this.renderLonelinessChart();
     this.renderMeditationChart();
     this.renderParentsCallChart();
-    this.renderRelapseLog();
+    this.renderResetLog();
     this.renderProtocol();
   },
 
-  // ── NoFap streak card ────────────────────────────────────
-  renderNoFap() {
-    const streak = AppState.getNoFapStreak();
+  // ── Pastime streak card ──────────────────────────────────
+  renderPastime() {
+    const streak = AppState.getPastimeStreak();
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
 
-    set('nofapStreak', streak);
-    set('nofapDays',   streak === 1 ? 'day' : 'days');
-    set('nofapStart',  AppState.nofapStart
-      ? new Date(AppState.nofapStart).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
+    set('pastimeStreak', streak);
+    set('pastimeDays',   streak === 1 ? 'day' : 'days');
+    set('pastimeStart',  AppState.pastimeStart
+      ? new Date(AppState.pastimeStart).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })
       : 'Not started');
 
     // Milestone badges
     const milestones = [7, 21, 30, 60, 90];
-    const badgesEl = document.getElementById('nofapBadges');
+    const badgesEl = document.getElementById('pastimeBadges');
     if (badgesEl) {
       badgesEl.innerHTML = milestones.map(m => `
-        <div class="nofap-badge ${streak >= m ? 'earned' : ''}">
+        <div class="pastime-badge ${streak >= m ? 'earned' : ''}">
           <span class="badge-num">${m}</span>
           <span class="badge-label">day${m > 1 ? 's' : ''}</span>
         </div>`).join('');
     }
 
     // Button states
-    const startBtn   = document.getElementById('nofapStartBtn');
-    const relapseBtn = document.getElementById('nofapRelapseBtn');
-    if (startBtn)   startBtn.style.display   = AppState.nofapStart ? 'none' : 'inline-flex';
-    if (relapseBtn) relapseBtn.style.display = AppState.nofapStart ? 'inline-flex' : 'none';
+    const startBtn   = document.getElementById('pastimeStartBtn');
+    const resetBtn   = document.getElementById('pastimeResetBtn');
+    if (startBtn) startBtn.style.display = AppState.pastimeStart ? 'none' : 'inline-flex';
+    if (resetBtn) resetBtn.style.display = AppState.pastimeStart ? 'inline-flex' : 'none';
   },
 
   // ── Today's check-ins ────────────────────────────────────
@@ -241,29 +241,29 @@ const MindTracker = {
     });
   },
 
-  // ── Relapse log & NoFap actions ──────────────────────────
-  renderRelapseLog() {
-    const container = document.getElementById('relapseLog');
+  // ── Reset log & Pastime actions ──────────────────────────
+  renderResetLog() {
+    const container = document.getElementById('pastimeResetLog');
     if (!container) return;
 
-    const log = [...(AppState.nofapLog || [])].reverse().slice(0, 10);
+    const log = [...(AppState.pastimeLog || [])].reverse().slice(0, 10);
     if (!log.length) {
       container.innerHTML = '<div class="empty-state">No entries logged. Clean slate. 💪</div>';
       return;
     }
 
     container.innerHTML = log.map(e => `
-      <div class="relapse-item ${esc(e.type)}">
+      <div class="pastime-reset-item ${esc(e.type)}">
         <span class="ri-date">${esc(e.date)}</span>
-        <span class="ri-type ${esc(e.type)}">${e.type === 'relapse' ? '❌ Relapse' : '✅ Check-in'}</span>
-        <span class="ri-trigger">${esc(e.trigger) || '—'}</span>
+        <span class="ri-type ${esc(e.type)}">${e.type === 'reset' ? '❌ Reset' : '✅ Check-in'}</span>
+        <span class="ri-trigger">${esc(e.reason) || '—'}</span>
         <span class="ri-note">${esc(e.note)}</span>
-        <button class="btn-xs btn-danger" data-del-relapse="${esc(e.date)}">✕</button>
+        <button class="btn-xs btn-danger" data-del-pastime-reset="${esc(e.date)}">✕</button>
       </div>`).join('');
 
-    container.querySelectorAll('[data-del-relapse]').forEach(btn => {
+    container.querySelectorAll('[data-del-pastime-reset]').forEach(btn => {
       btn.addEventListener('click', () => {
-        AppState.nofapLog = (AppState.nofapLog || []).filter(e => e.date !== btn.dataset.delRelapse);
+        AppState.pastimeLog = (AppState.pastimeLog || []).filter(e => e.date !== btn.dataset.delPastimeReset);
         AppState.save();
         this.render();
       });
@@ -287,31 +287,31 @@ const MindTracker = {
   // ── Event bindings (called once) ────────────────────────
   bindEvents() {
     // Start streak
-    document.getElementById('nofapStartBtn')?.addEventListener('click', () => {
+    document.getElementById('pastimeStartBtn')?.addEventListener('click', () => {
       AppState.startStreak();
-      this.renderNoFap();
+      this.renderPastime();
     });
 
-    // Log Relapse button — scroll to the relapse form in the main pane
-    document.getElementById('nofapRelapseBtn')?.addEventListener('click', () => {
-      const panel = document.getElementById('relapsePanel');
+    // Log Reset button — scroll to the reset form in the main pane
+    document.getElementById('pastimeResetBtn')?.addEventListener('click', () => {
+      const panel = document.getElementById('pastimeResetPanel');
       if (panel) {
         panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const trigger = document.getElementById('relapseTrigger');
-        if (trigger) setTimeout(() => trigger.focus(), 300);
+        const reason = document.getElementById('pastimeResetReason');
+        if (reason) setTimeout(() => reason.focus(), 300);
       }
     });
 
-    // Relapse submit
-    document.getElementById('relapseSubmitBtn')?.addEventListener('click', () => {
-      const trigger = document.getElementById('relapseTrigger')?.value || 'Other';
-      const note    = document.getElementById('relapseNote')?.value || '';
-      AppState.logRelapse(trigger, note);
-      this.renderNoFap();
-      this.renderRelapseLog();
-      document.getElementById('relapsePanel')?.classList.remove('open');
-      document.getElementById('relapseTrigger').value = '';
-      document.getElementById('relapseNote').value    = '';
+    // Reset submit
+    document.getElementById('pastimeResetSubmitBtn')?.addEventListener('click', () => {
+      const reason = document.getElementById('pastimeResetReason')?.value || 'Other';
+      const note   = document.getElementById('pastimeResetNote')?.value || '';
+      AppState.logReset(reason, note);
+      this.renderPastime();
+      this.renderResetLog();
+      document.getElementById('pastimeResetPanel')?.classList.remove('open');
+      document.getElementById('pastimeResetReason').value = '';
+      document.getElementById('pastimeResetNote').value   = '';
     });
   }
 };

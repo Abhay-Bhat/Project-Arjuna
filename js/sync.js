@@ -254,7 +254,7 @@ const CloudSync = {
   // Loop-safe: once both sides are equal, merged === cloud → returns false.
   _localContributed(merged, cloud) {
     const arrs = ['tasks','taskBuckets','investments','financeEntries',
-                  'monthlyExpenses','cholesterol','nofapLog','partnerLog','studyLog'];
+                  'monthlyExpenses','cholesterol','pastimeLog','partnerLog','studyLog'];
     const objs = ['checkedItems','dailyHistory','healthLog','mindLog',
                   'caLog','careerLog','booksLog','weeklyReviews',
                   'monthlyReviews','dubaiChecklist','upscSubjectProgress'];

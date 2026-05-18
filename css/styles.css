@@ -963,7 +963,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   max-height: 100%;
 }
 
-.nofap-card {
+.pastime-card {
   border: 1px solid rgba(0,212,124,0.3); border-radius: var(--radius-lg);
   padding: 32px 24px; margin-bottom: 20px; text-align: center;
   position: relative; overflow: hidden;
@@ -971,54 +971,54 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
     linear-gradient(160deg, rgba(0,20,12,0.82) 0%, rgba(0,30,20,0.70) 100%),
     url('../assets/img/warrior.jpg') center/cover no-repeat;
 }
-[data-theme="light"] .nofap-card {
+[data-theme="light"] .pastime-card {
   background:
     linear-gradient(160deg, rgba(240,255,248,0.88) 0%, rgba(230,255,240,0.80) 100%),
     url('../assets/img/warrior.jpg') center/cover no-repeat;
 }
-.nofap-card::before {
+.pastime-card::before {
   content: '⚡';
   position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
   font-size: 80px; opacity: 0.10; pointer-events: none; user-select: none;
 }
-.nofap-streak-num { font-family: 'Space Mono', monospace; font-size: 64px; font-weight: 700; color: var(--accent-green); line-height: 1; }
-.nofap-days { font-size: 16px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
-.nofap-start { font-size: 14px; color: var(--text-faint); font-family: 'Space Mono', monospace; margin-top: 6px; }
+.pastime-streak-num { font-family: 'Space Mono', monospace; font-size: 64px; font-weight: 700; color: var(--accent-green); line-height: 1; }
+.pastime-days { font-size: 16px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+.pastime-start { font-size: 14px; color: var(--text-faint); font-family: 'Space Mono', monospace; margin-top: 6px; }
 
-.nofap-badges { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
-.nofap-badge {
+.pastime-badges { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+.pastime-badge {
   display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 12px;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
   font-size: 14px; opacity: 0.4; transition: all var(--transition);
 }
-.nofap-badge.earned {
+.pastime-badge.earned {
   background: rgba(0,212,124,0.12); border-color: var(--accent-green);
   color: var(--accent-green); opacity: 1;
 }
 .badge-num { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 14px; }
 
-.nofap-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
+.pastime-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; justify-content: center; }
 
-.relapse-log { margin-top: 16px; }
-.relapse-item {
+.pastime-reset-log { margin-top: 16px; }
+.pastime-reset-item {
   display: grid; grid-template-columns: 80px 90px 1fr 1fr 44px; gap: 12px; padding: 10px 0;
   border-bottom: 1px solid var(--border); font-size: 14px; align-items: center;
 }
-.relapse-item:last-child { border-bottom: none; }
-.relapse-item .btn-danger { justify-self: end; }
+.pastime-reset-item:last-child { border-bottom: none; }
+.pastime-reset-item .btn-danger { justify-self: end; }
 .ri-date { font-family: 'Space Mono', monospace; color: var(--text-muted); }
 .ri-type { font-weight: 600; padding: 2px 6px; border-radius: 4px; text-align: center; }
-.ri-type.relapse { background: rgba(255,92,128,0.12); color: var(--accent-rose); }
+.ri-type.reset { background: rgba(255,92,128,0.12); color: var(--accent-rose); }
 .ri-type.check { background: rgba(0,212,124,0.12); color: var(--accent-green); }
 .ri-trigger, .ri-note { color: var(--text-muted); font-size: 14px; }
 
-.relapse-panel {
+.pastime-reset-panel {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;
   max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
 }
-.relapse-panel.open { max-height: 500px; }
-.relapse-panel .form-field { margin-bottom: 12px; }
+.pastime-reset-panel.open { max-height: 500px; }
+.pastime-reset-panel .form-field { margin-bottom: 12px; }
 
 .career-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
 
@@ -1749,7 +1749,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .phase-hero { flex-direction: column; gap: 12px; }
   .phase-hero-content { width: 100%; }
 
-  .relapse-item { grid-template-columns: 1fr; }
+  .pastime-reset-item { grid-template-columns: 1fr; }
   .qc-row { grid-template-columns: repeat(2, 1fr); }
   
   .tab-nav { padding: 0 8px; }
@@ -2182,7 +2182,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .pane-left  .hs-label,
 .pane-left  .fh-title,
 .pane-left  .fh-target,
-.pane-left  .nofap-days,
+.pane-left  .pastime-days,
 .pane-left  .badge-label,
 .domain-status,
 .slot-cat,
@@ -2281,12 +2281,12 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .pane-left .hs-value { font-size: 16px; }
 
 /* ── Mind sidebar ────────────────────────────────────── */
-.pane-left .nofap-streak-num { font-size: 44px; }
-.pane-left .nofap-badges { justify-content: center; flex-wrap: wrap; gap: 6px; }
-.pane-left .nofap-badge { padding: 6px 8px; }
+.pane-left .pastime-streak-num { font-size: 44px; }
+.pane-left .pastime-badges { justify-content: center; flex-wrap: wrap; gap: 6px; }
+.pane-left .pastime-badge { padding: 6px 8px; }
 
-/* ── Relapse panel always open in main pane ─────────── */
-.pane-main .relapse-panel { max-height: none !important; }
+/* ── Reset panel always open in main pane ───────────── */
+.pane-main .pastime-reset-panel { max-height: none !important; }
 
 /* ── Growth sidebar career cards ───────────────────── */
 .pane-left .career-card { min-width: 0; }
@@ -2326,10 +2326,10 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* Transaction log */
 #finLogBody { max-height: 200px; }
 
-/* Relapse log */
-.relapse-log { max-height: 280px; overflow-y: auto; scrollbar-width: thin; }
-.relapse-log::-webkit-scrollbar { width: 4px; }
-.relapse-log::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+/* Pastime reset log */
+.pastime-reset-log { max-height: 280px; overflow-y: auto; scrollbar-width: thin; }
+.pastime-reset-log::-webkit-scrollbar { width: 4px; }
+.pastime-reset-log::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
 
 /* Partner log */
 #partnerLogContainer { max-height: 260px; overflow-y: auto; scrollbar-width: thin; }
@@ -2403,7 +2403,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
     url('../assets/img/growth.jpg') center 30%/cover no-repeat;
 }
 
-/* Mind — warrior/discipline backdrop (sidebar nofap) */
+/* Mind — warrior/discipline backdrop (sidebar pastime) */
 #tab-mind .pane-left .pane-card:first-child {
   background:
     linear-gradient(160deg, rgba(0,14,8,0.86) 0%, rgba(0,18,12,0.74) 100%),

@@ -42,7 +42,7 @@ const SCHEDULE_DATA = {
     { time:"19:15–20:00", activity:"Cook Indian dinner (cholesterol-safe)",            duration:0.75, category:"Daily"      },
     { time:"20:00–20:30", activity:"DevOps/AI reading — 3–4 days/week",               duration:0.5,  category:"Learning"   },
     { time:"20:30–21:00", activity:"Book reading (from Books Queue)",                  duration:0.5,  category:"Hobby"      },
-    { time:"21:00–21:30", activity:"NoFap check-in + journal trigger if urge arises", duration:0.5,  category:"Mind"       },
+    { time:"21:00–21:30", activity:"Pastime check-in + journal if needed",            duration:0.5,  category:"Mind"       },
     { time:"21:30–22:15", activity:"Wind down — no screens, light stretch",           duration:0.75, category:"Daily"      },
     { time:"22:30",       activity:"Sleep — 7 hrs. Everything depends on this.",       duration:7,    category:"Health"     }
   ],
@@ -72,7 +72,7 @@ const SCHEDULE_DATA = {
     { time:"19:15–20:00", activity:"Cook + eat dinner (Indian, low oil)",              duration:0.75, category:"Daily"      },
     { time:"20:00–20:30", activity:"DevOps / AI reading — 3–4 days/week",             duration:0.5,  category:"Learning"   },
     { time:"20:30–21:00", activity:"Book 10 pages OR gratitude journal",               duration:0.5,  category:"Hobby"      },
-    { time:"21:00–21:30", activity:"NoFap check — journal trigger if urge",            duration:0.5,  category:"Mind"       },
+    { time:"21:00–21:30", activity:"Pastime check — log in Mind tab if needed",        duration:0.5,  category:"Mind"       },
     { time:"21:30–22:15", activity:"Wind down — no screens, light stretch",           duration:0.75, category:"Daily"      },
     { time:"22:30",       activity:"Sleep — 7 hrs. Non-negotiable.",                  duration:7,    category:"Health"     }
   ],
@@ -200,9 +200,9 @@ const ACTIVITY_META = [
     logHint:'📖 Log pages read in Growth → Books'
   },
   {
-    match: /nofap check|mind check|journal trigger|check-in.*mind/i,
-    desc:  'Daily NoFap check-in. If urge arose, log the trigger in the Mind tab.',
-    expect:'Log your check-in or relapse trigger in the Mind tab.',
+    match: /pastime check|mind check|journal|check-in.*mind/i,
+    desc:  'Daily Pastime check-in. Log your status in the Mind tab.',
+    expect:'Log your check-in in the Mind tab.',
     navTab:'mind', focusId:'mindTodayForm',
     logHint:'🧠 Log Mind check-in'
   },

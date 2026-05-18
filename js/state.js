@@ -46,9 +46,9 @@ const AppState = {
   // ── Current Affairs (UPSC) ───────────────────────────────
   caLog:           {},   // { 'YYYY-MM-DD': { done: bool, articles: [{ id, source, title, notes }] } }
 
-  // ── Mind (NoFap + Mental) ────────────────────────────────
-  nofapStart:      null, // ISO string — streak start date
-  nofapLog:        [],   // [{ date, type:'relapse'|'check', trigger, note }]
+  // ── Mind (Pastime + Mental) ──────────────────────────────
+  pastimeStart:    null, // ISO string — streak start date
+  pastimeLog:      [],   // [{ date, type:'reset'|'check', reason, note }]
   mindLog:         {},   // { 'YYYY-MM-DD': { loneliness:1-5, meditation_min, parents } }
 
   // ── Growth ───────────────────────────────────────────────
@@ -133,7 +133,7 @@ const AppState = {
       this.dashboardCollapsed   = d.dashboardCollapsed   || false;
       this.nriAccountLive       = d.nriAccountLive       || false;
       this.sipActive            = d.sipActive            || false;
-      this.nofapStart           = d.nofapStart           || null;
+      this.pastimeStart         = d.pastimeStart         || d.nofapStart || null;
       this.selectedDate  = d.selectedDate  ? new Date(d.selectedDate)  : new Date();
       this.calendarMonth = d.calendarMonth ? new Date(d.calendarMonth) : new Date();
       const pick = (key, def) => d[key] != null ? d[key] : def;
@@ -149,7 +149,7 @@ const AppState = {
       this.healthLog            = pick('healthLog',       {});
       this.cholesterol          = pick('cholesterol',     []);
       this.caLog                = pick('caLog',           {});
-      this.nofapLog             = pick('nofapLog',        []);
+      this.pastimeLog           = d.pastimeLog != null ? d.pastimeLog : (d.nofapLog != null ? d.nofapLog : []);
       this.mindLog              = pick('mindLog',         {});
       this.careerLog            = pick('careerLog',       {});
       this.booksLog             = pick('booksLog',        {});
@@ -193,7 +193,7 @@ const AppState = {
       dashboardCollapsed: this.dashboardCollapsed,
       nriAccountLive: this.nriAccountLive,
       sipActive: this.sipActive,
-      nofapStart: this.nofapStart,
+      pastimeStart: this.pastimeStart,
       checkedItems: this.checkedItems,
       holidayOverrides: this.holidayOverrides,
       dailyHistory: this.dailyHistory,
@@ -206,7 +206,7 @@ const AppState = {
       healthLog: this.healthLog,
       cholesterol: this.cholesterol,
       caLog: this.caLog,
-      nofapLog: this.nofapLog,
+      pastimeLog: this.pastimeLog,
       mindLog: this.mindLog,
       careerLog: this.careerLog,
       booksLog: this.booksLog,
@@ -296,7 +296,7 @@ const AppState = {
       ];
     };
 
-    // Arrays with no id — dedup by date+type (nofapLog, partnerLog)
+    // Arrays with no id — dedup by date+type (pastimeLog, partnerLog)
     const _byDateType = (la, ca) => {
       const map = new Map();
       const k = e => `${e.date || ''}|${e.type || ''}`;
@@ -342,7 +342,7 @@ const AppState = {
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),
       // Arrays without id
       cholesterol: _byDate(local.cholesterol,     cloudData.cholesterol),
-      nofapLog:    _byDateType(local.nofapLog,    cloudData.nofapLog),
+      pastimeLog:  _byDateType(local.pastimeLog || local.nofapLog, cloudData.pastimeLog || cloudData.nofapLog),
       partnerLog:  _byDateType(local.partnerLog,  cloudData.partnerLog),
       // Object logs — deep merge
       checkedItems:        _mergeObj(local.checkedItems,        cloudData.checkedItems),
@@ -360,7 +360,7 @@ const AppState = {
       upscProgress:        Math.max(local.upscProgress || 0,    cloudData.upscProgress || 0),
       upscSchedule: (local.upscSchedule || []).length >= (cloudData.upscSchedule || []).length
         ? local.upscSchedule : cloudData.upscSchedule,
-      nofapStart: _earlierDate(local.nofapStart, cloudData.nofapStart),
+      pastimeStart: _earlierDate(local.pastimeStart || local.nofapStart, cloudData.pastimeStart || cloudData.nofapStart),
       _savedAt: new Date().toISOString(),
     };
   },
@@ -402,22 +402,22 @@ const AppState = {
     this.save();
   },
 
-  // ── NoFap helpers ────────────────────────────────────────
-  getNoFapStreak() {
-    if (!this.nofapStart) return 0;
-    const start = new Date(this.nofapStart);
+  // ── Pastime helpers ──────────────────────────────────────
+  getPastimeStreak() {
+    if (!this.pastimeStart) return 0;
+    const start = new Date(this.pastimeStart);
     const now   = new Date();
     return Math.max(0, Math.floor((now - start) / 864e5));
   },
 
-  logRelapse(trigger, note = '') {
-    this.nofapLog.push({ date: this.getTodayKey(), type: 'relapse', trigger, note });
-    this.nofapStart = new Date().toISOString();
+  logReset(reason, note = '') {
+    this.pastimeLog.push({ date: this.getTodayKey(), type: 'reset', reason, note });
+    this.pastimeStart = new Date().toISOString();
     this.save();
   },
 
   startStreak() {
-    this.nofapStart = new Date().toISOString();
+    this.pastimeStart = new Date().toISOString();
     this.save();
   },
 
