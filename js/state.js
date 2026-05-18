@@ -106,12 +106,17 @@ const AppState = {
     if (typeof BackupManager !== 'undefined') await BackupManager.create('pre-sync');
     // Preserve the user's active tab — _applyLoaded() will overwrite currentTab
     // from cloud data, causing updateAll() to switch and hide the visible panel.
-    const activeTab = this.currentTab;
+    const activeTab   = this.currentTab;
+    const activeDate  = new Date(this.selectedDate);
+    const activeMonth = new Date(this.calendarMonth);
     // Merge every domain from both sides — union arrays, deep-merge logs
     const merged = this._mergeWithCloud(cloudData);
     CloudSync.cancelPush();
     this._applyLoaded(merged);
-    this.currentTab = activeTab; // don't switch the user's active tab on sync
+    // Restore UI navigation state — cloud must never override what the user is currently viewing
+    this.currentTab    = activeTab;
+    this.selectedDate  = activeDate;
+    this.calendarMonth = activeMonth;
     Storage.save(merged);
     this._doSave(); // push merged result back so all devices converge
     if (typeof UI !== 'undefined') UI.updateAll();
@@ -234,6 +239,8 @@ const AppState = {
     // The newer version of each item wins. 'done' is always OR'd so a completion on
     // any device is never un-done even when an older version of the item is present.
     const _itemMs = item => new Date(item.modifiedAt || item.createdAt || 0).getTime();
+
+    // Standard union: content-merges by id, result follows cloud insertion order.
     const _byId = (la, ca) => {
       const map = new Map();
       (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
@@ -251,6 +258,31 @@ const AppState = {
         }
       });
       return [...map.values()];
+    };
+
+    // Order-preserving union for drag-and-drop lists (tasks, buckets).
+    // Uses local array order as the base so drag reordering is never reverted by sync.
+    // Items that only exist in cloud (added on another device) are appended at the end.
+    const _byIdLocalOrder = (la, ca) => {
+      const map = new Map();
+      (ca || []).forEach(item => { if (item.id != null) map.set(item.id, item); });
+      (la || []).forEach(item => {
+        if (item.id == null) return;
+        if (!map.has(item.id)) {
+          map.set(item.id, item);
+        } else {
+          const cloud = map.get(item.id);
+          const useLocal = _itemMs(item) >= _itemMs(cloud);
+          const winner = useLocal ? { ...cloud, ...item } : { ...item, ...cloud };
+          if (cloud.done === true || item.done === true) winner.done = true;
+          map.set(item.id, winner);
+        }
+      });
+      const localIds = new Set((la || []).map(t => t.id));
+      return [
+        ...(la || []).filter(t => t.id != null).map(t => map.get(t.id)),
+        ...(ca || []).filter(t => t.id != null && !localIds.has(t.id)).map(t => map.get(t.id)),
+      ].filter(Boolean);
     };
 
     // Arrays with no id — dedup by date+type (nofapLog, partnerLog)
@@ -288,9 +320,9 @@ const AppState = {
 
     return {
       ...cloudData,
-      // Arrays — union by id
-      tasks:           _byId(local.tasks,           cloudData.tasks),
-      taskBuckets:     _byId(local.taskBuckets,      cloudData.taskBuckets),
+      // Order-sensitive arrays: local order wins so drag-and-drop reordering is preserved
+      tasks:       _byIdLocalOrder(local.tasks,       cloudData.tasks),
+      taskBuckets: _byIdLocalOrder(local.taskBuckets, cloudData.taskBuckets),
       studyLog:        _byId(local.studyLog,         cloudData.studyLog),
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
