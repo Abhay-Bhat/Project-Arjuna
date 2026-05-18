@@ -530,7 +530,10 @@ const TasksTracker = {
         const [dragged] = tasks.splice(fromIdx, 1);
         // Update bucket if dropped in a different column
         const targetBid = parseInt(el.closest('.task-bucket')?.dataset.bucketId);
-        if (targetBid) dragged.bucketId = targetBid;
+        if (targetBid) {
+          dragged.bucketId   = targetBid;
+          dragged.modifiedAt = new Date().toISOString(); // stamp so cross-device merge picks correct bucket
+        }
 
         const rect        = el.getBoundingClientRect();
         const insertBefore = e.clientY < rect.top + rect.height / 2;
@@ -569,7 +572,8 @@ const TasksTracker = {
 
         const t = (AppState.tasks || []).find(x => x.id === dragTaskId);
         if (t) {
-          t.bucketId = bid;
+          t.bucketId   = bid;
+          t.modifiedAt = new Date().toISOString(); // stamp so cross-device merge picks correct bucket
           // Move to end of this bucket's tasks
           AppState.tasks = [...(AppState.tasks || []).filter(x => x.id !== t.id), t];
           AppState.tasksOrderedAt = new Date().toISOString();
