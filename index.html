@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=30">
+    <link rel="stylesheet" href="css/styles.css?v=31">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -1393,17 +1393,17 @@
     <div id="tab-mind" class="tab-panel">
       <div class="tab-layout-2">
 
-        <!-- ── LEFT SIDEBAR: NoFap streak + daily check-in + protocol ── -->
+        <!-- ── LEFT SIDEBAR: Pastime streak + daily check-in + protocol ── -->
         <div class="pane-left">
 
           <div class="pane-card" style="text-align:center;">
-            <div class="nofap-streak-num" id="nofapStreak" style="font-size:52px;">0</div>
-            <div class="nofap-days" id="nofapDays">days</div>
-            <div class="nofap-start" id="nofapStart" style="font-size:11px;margin-top:4px;">Not started</div>
-            <div class="nofap-badges" id="nofapBadges" style="justify-content:center;margin:12px 0;"></div>
-            <div class="nofap-actions">
-              <button class="btn btn-sm btn-primary" id="nofapStartBtn">Start Streak</button>
-              <button class="btn btn-sm btn-danger" id="nofapRelapseBtn" style="display:none;">Log Relapse</button>
+            <div class="pastime-streak-num" id="pastimeStreak" style="font-size:52px;">0</div>
+            <div class="pastime-days" id="pastimeDays">days</div>
+            <div class="pastime-start" id="pastimeStart" style="font-size:11px;margin-top:4px;">Not started</div>
+            <div class="pastime-badges" id="pastimeBadges" style="justify-content:center;margin:12px 0;"></div>
+            <div class="pastime-actions">
+              <button class="btn btn-sm btn-primary" id="pastimeStartBtn">Start Streak</button>
+              <button class="btn btn-sm btn-danger" id="pastimeResetBtn" style="display:none;">Log Reset</button>
             </div>
           </div>
 
@@ -1439,7 +1439,7 @@
 
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN: Charts + Relapse log ── -->
+        <!-- ── MAIN: Charts + Reset log ── -->
         <div class="pane-main">
 
           <div class="section-title">Loneliness Trend (14 days)</div>
@@ -1451,11 +1451,11 @@
           <div class="section-title">Parents Call Frequency</div>
           <div class="chart-wrap"><canvas id="parentsCallChart"></canvas></div>
 
-          <div class="section-title">Relapse Log</div>
-          <div class="relapse-panel open" id="relapsePanel">
+          <div class="section-title">Reset Log</div>
+          <div class="pastime-reset-panel open" id="pastimeResetPanel">
             <div class="form-field" style="margin-bottom:12px;">
-              <label for="relapseTrigger">Trigger</label>
-              <select id="relapseTrigger">
+              <label for="pastimeResetReason">Reason</label>
+              <select id="pastimeResetReason">
                 <option value="Loneliness">Loneliness (post-work evening)</option>
                 <option value="Boredom">Boredom (weekend)</option>
                 <option value="Stress">Stress (exam/work)</option>
@@ -1465,12 +1465,12 @@
               </select>
             </div>
             <div class="form-field" style="margin-bottom:12px;">
-              <label for="relapseNote">Note</label>
-              <input type="text" id="relapseNote" placeholder="Optional">
+              <label for="pastimeResetNote">Note</label>
+              <input type="text" id="pastimeResetNote" placeholder="Optional">
             </div>
-            <button type="button" class="btn btn-sm btn-primary" id="relapseSubmitBtn">Log & Restart</button>
+            <button type="button" class="btn btn-sm btn-primary" id="pastimeResetSubmitBtn">Log & Restart</button>
           </div>
-          <div class="relapse-log" id="relapseLog"></div>
+          <div class="pastime-reset-log" id="pastimeResetLog"></div>
 
         </div><!-- end pane-main -->
 
@@ -1657,7 +1657,7 @@
                     <div class="odp-item">📚 <strong>UPSC</strong> — Civil Service exam prep (586 classes)</div>
                     <div class="odp-item">💰 <strong>Finance</strong> — Dubai savings goal (199,800 AED)</div>
                     <div class="odp-item">❤️ <strong>Health</strong> — Sleep, gym, cholesterol tracking</div>
-                    <div class="odp-item">🧠 <strong>Mind</strong> — NoFap streaks, loneliness tracking</div>
+                    <div class="odp-item">🧠 <strong>Mind</strong> — Pastime streaks, loneliness tracking</div>
                     <div class="odp-item">🌱 <strong>Growth</strong> — Career milestones, books, reviews</div>
                     <div class="odp-item">⏱️ <strong>Routine</strong> — Daily schedule & habit tracking</div>
                 </div>
@@ -1701,9 +1701,9 @@
                 <p style="margin-bottom: 16px; font-size: 13px;">
                     <strong>Notice Period</strong> (May–Jun 2026) → <strong>Dubai Settle</strong> (Jul–Sep) → <strong>Foundation</strong> (Oct–Mar) → <strong>Prelims Sprint</strong> (Apr–May 2027) and more. Each phase has specific goals.
                 </p>
-                <h3 style="margin-bottom: 12px; color: var(--accent-violet);">🔥 NoFap Streak</h3>
+                <h3 style="margin-bottom: 12px; color: var(--accent-violet);">🔥 Pastime Streak</h3>
                 <p style="margin-bottom: 16px; font-size: 13px;">
-                    Track your mental discipline with a daily streak counter. The Mind tab logs relapses with triggers (loneliness, stress, etc.) for pattern analysis.
+                    Track your mental discipline with a daily streak counter. The Mind tab logs resets with reasons for pattern analysis.
                 </p>
                 <h3 style="margin-bottom: 12px; color: var(--accent-amber);">💎 Data Persistence</h3>
                 <p style="font-size: 13px;">
@@ -1730,7 +1730,7 @@
                         <li>📝 Log today's sleep (Health tab or quick check-in)</li>
                         <li>✓ Mark completed activities in your routine</li>
                         <li>📚 Pick an UPSC subject and start a class</li>
-                        <li>🧠 Check the Mind tab to start a NoFap streak</li>
+                        <li>🧠 Check the Mind tab to start a Pastime streak</li>
                     </ul>
                 </div>
                 <p style="font-size: 12px; color: var(--text-faint);">
@@ -1779,7 +1779,7 @@
                 <strong>INR</strong> — Indian Rupee (currency)
             </div>
             <div class="glos-item">
-                <strong>NoFap</strong> — Abstinence from pornography and masturbation for discipline
+                <strong>Pastime</strong> — Personal discipline streak tracker in the Mind tab
             </div>
         </div>
     </div>
@@ -1994,27 +1994,27 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=30"></script>
-<script defer src="js/auth.js?v=30"></script>
-<script defer src="js/sync.js?v=30"></script>
-<script defer src="js/phases.js?v=30"></script>
-<script defer src="js/storage.js?v=30"></script>
-<script defer src="js/state.js?v=30"></script>
-<script defer src="js/scheduler.js?v=30"></script>
-<script defer src="js/upsc.js?v=30"></script>
-<script defer src="js/finance.js?v=30"></script>
-<script defer src="js/health-data.js?v=30"></script>
-<script defer src="js/health.js?v=30"></script>
-<script defer src="js/mind.js?v=30"></script>
-<script defer src="js/growth.js?v=30"></script>
-<script defer src="js/tasks.js?v=30"></script>
-<script defer src="js/study.js?v=30"></script>
-<script defer src="js/ui.js?v=30"></script>
-<script defer src="js/events.js?v=30"></script>
-<script defer src="js/tooltips.js?v=30"></script>
-<script defer src="js/seed-data.js?v=30"></script>
-<script defer src="js/backup.js?v=30"></script>
-<script defer src="js/main.js?v=30"></script>
+<script defer src="js/firebase-config.js?v=31"></script>
+<script defer src="js/auth.js?v=31"></script>
+<script defer src="js/sync.js?v=31"></script>
+<script defer src="js/phases.js?v=31"></script>
+<script defer src="js/storage.js?v=31"></script>
+<script defer src="js/state.js?v=31"></script>
+<script defer src="js/scheduler.js?v=31"></script>
+<script defer src="js/upsc.js?v=31"></script>
+<script defer src="js/finance.js?v=31"></script>
+<script defer src="js/health-data.js?v=31"></script>
+<script defer src="js/health.js?v=31"></script>
+<script defer src="js/mind.js?v=31"></script>
+<script defer src="js/growth.js?v=31"></script>
+<script defer src="js/tasks.js?v=31"></script>
+<script defer src="js/study.js?v=31"></script>
+<script defer src="js/ui.js?v=31"></script>
+<script defer src="js/events.js?v=31"></script>
+<script defer src="js/tooltips.js?v=31"></script>
+<script defer src="js/seed-data.js?v=31"></script>
+<script defer src="js/backup.js?v=31"></script>
+<script defer src="js/main.js?v=31"></script>
 
 </body>
 </html>

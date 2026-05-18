@@ -24,9 +24,9 @@ const BUTTON_TIPS = [
   { id: 'btnSIP',          tip: 'Toggle SIP (Systematic Investment Plan) between Active and Pending' },
 
   // ── Mind tab ──────────────────────────────────────────────
-  { id: 'nofapStartBtn',   tip: 'Start a new NoFap streak from today. Previous streak data is kept.' },
-  { id: 'nofapRelapseBtn', tip: 'Open the relapse log form to record a relapse and restart the streak.' },
-  { id: 'relapseSubmitBtn',tip: 'Log this relapse entry with the selected trigger, reset streak to Day 1.' },
+  { id: 'pastimeStartBtn',      tip: 'Start a new Pastime streak from today. Previous streak data is kept.' },
+  { id: 'pastimeResetBtn',      tip: 'Open the reset log form to record a reset and restart the streak.' },
+  { id: 'pastimeResetSubmitBtn',tip: 'Log this reset entry with the selected reason, restart streak to Day 1.' },
 
   // ── Growth tab ────────────────────────────────────────────
   { id: 'weeklySubmitBtn', tip: 'Submit your weekly self-review scores. Can only be submitted once per week.' },
@@ -39,7 +39,7 @@ const SELECTOR_TIPS = [
   { sel: '[data-tab="upsc"]',    tip: 'Switch to UPSC tab — study schedule and progress' },
   { sel: '[data-tab="finance"]', tip: 'Switch to Finance tab — savings, investments, currency' },
   { sel: '[data-tab="health"]',  tip: 'Switch to Health tab — sleep, gym, cholesterol' },
-  { sel: '[data-tab="mind"]',    tip: 'Switch to Mind tab — NoFap, loneliness, meditation' },
+  { sel: '[data-tab="mind"]',    tip: 'Switch to Mind tab — Pastime streak, loneliness, meditation' },
   { sel: '[data-tab="growth"]',  tip: 'Switch to Growth tab — career, books, reviews' },
 ];
 
