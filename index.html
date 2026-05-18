@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=35">
+    <link rel="stylesheet" href="css/styles.css?v=36">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -73,8 +73,11 @@
 <div class="app-shell" id="app-shell">
 
     <!-- ═════════════════════════════════════════════════════ -->
-    <!-- HEADER -->
+    <!-- TITLE CARD — single sticky block: header + quote + milestones + tabs -->
     <!-- ═════════════════════════════════════════════════════ -->
+    <div class="title-card">
+
+    <!-- HEADER -->
     <header class="app-header">
         <!-- LEFT: Date + Phase stacked -->
         <div class="header-left" id="headerDateToggle" title="Click to view Mission Phases">
@@ -157,9 +160,7 @@
     <!-- ═════════════════════════════════════════════════════ -->
     <div id="milestoneBanner" class="milestone-banner"></div>
 
-    <!-- ═════════════════════════════════════════════════════ -->
     <!-- TAB NAVIGATION -->
-    <!-- ═════════════════════════════════════════════════════ -->
     <nav class="tab-nav">
         <button class="tab-btn active" data-tab="today">🏠 Today</button>
         <button class="tab-btn" data-tab="upsc">📚 UPSC</button>
@@ -169,6 +170,8 @@
         <button class="tab-btn" data-tab="growth">🌱 Growth</button>
         <button class="tab-btn" data-tab="tasks">✅ Tasks</button>
     </nav>
+
+    </div><!-- /.title-card -->
 
     <!-- ═════════════════════════════════════════════════════ -->
     <!-- TAB PANELS -->
@@ -2052,27 +2055,27 @@
 <!-- SCRIPTS — all deferred so they download in parallel with HTML parsing.
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
-<script defer src="js/firebase-config.js?v=35"></script>
-<script defer src="js/auth.js?v=35"></script>
-<script defer src="js/sync.js?v=35"></script>
-<script defer src="js/phases.js?v=35"></script>
-<script defer src="js/storage.js?v=35"></script>
-<script defer src="js/state.js?v=35"></script>
-<script defer src="js/scheduler.js?v=35"></script>
-<script defer src="js/upsc.js?v=35"></script>
-<script defer src="js/finance.js?v=35"></script>
-<script defer src="js/health-data.js?v=35"></script>
-<script defer src="js/health.js?v=35"></script>
-<script defer src="js/mind.js?v=35"></script>
-<script defer src="js/growth.js?v=35"></script>
-<script defer src="js/tasks.js?v=35"></script>
-<script defer src="js/study.js?v=35"></script>
-<script defer src="js/ui.js?v=35"></script>
-<script defer src="js/events.js?v=35"></script>
-<script defer src="js/tooltips.js?v=35"></script>
-<script defer src="js/seed-data.js?v=35"></script>
-<script defer src="js/backup.js?v=35"></script>
-<script defer src="js/main.js?v=35"></script>
+<script defer src="js/firebase-config.js?v=36"></script>
+<script defer src="js/auth.js?v=36"></script>
+<script defer src="js/sync.js?v=36"></script>
+<script defer src="js/phases.js?v=36"></script>
+<script defer src="js/storage.js?v=36"></script>
+<script defer src="js/state.js?v=36"></script>
+<script defer src="js/scheduler.js?v=36"></script>
+<script defer src="js/upsc.js?v=36"></script>
+<script defer src="js/finance.js?v=36"></script>
+<script defer src="js/health-data.js?v=36"></script>
+<script defer src="js/health.js?v=36"></script>
+<script defer src="js/mind.js?v=36"></script>
+<script defer src="js/growth.js?v=36"></script>
+<script defer src="js/tasks.js?v=36"></script>
+<script defer src="js/study.js?v=36"></script>
+<script defer src="js/ui.js?v=36"></script>
+<script defer src="js/events.js?v=36"></script>
+<script defer src="js/tooltips.js?v=36"></script>
+<script defer src="js/seed-data.js?v=36"></script>
+<script defer src="js/backup.js?v=36"></script>
+<script defer src="js/main.js?v=36"></script>
 
 </body>
 </html>
