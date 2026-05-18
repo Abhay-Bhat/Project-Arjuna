@@ -257,7 +257,7 @@ const AppState = {
         } else {
           const cloud = map.get(item.id);
           // Newer timestamp wins; if equal, local wins (active device assumption)
-          const useLocal = _itemMs(item) >= _itemMs(cloud);
+          const useLocal = _itemMs(item) > _itemMs(cloud);
           const winner = useLocal ? { ...cloud, ...item } : { ...item, ...cloud };
           if (cloud.done === true || item.done === true) winner.done = true;
           map.set(item.id, winner);
@@ -279,7 +279,7 @@ const AppState = {
           map.set(item.id, item);
         } else {
           const cloud = map.get(item.id);
-          const useLocal = _itemMs(item) >= _itemMs(cloud);
+          const useLocal = _itemMs(item) > _itemMs(cloud);
           const winner = useLocal ? { ...cloud, ...item } : { ...item, ...cloud };
           if (cloud.done === true || item.done === true) winner.done = true;
           map.set(item.id, winner);
