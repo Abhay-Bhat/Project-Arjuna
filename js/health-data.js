@@ -1,5 +1,5 @@
 /**
- * health-data.js — Project Arjuna / ATHENA
+ * health-data.js — Skadi
  * Blood test data + diet plan constants for Health tab integration.
  * Generated from Redcliffe Labs report dated: 2026-05-10
  *
@@ -377,7 +377,7 @@ function seedCholesterolLog(storageKey = 'cholesterolLog') {
   existing.unshift(seedEntry); // add at top (most recent first)
   localStorage.setItem(storageKey, JSON.stringify(existing));
   localStorage.setItem(SEED_FLAG, 'true');
-  console.log('[ATHENA] Cholesterol log seeded with 2026-05-10 blood test data.');
+  console.log('[Skadi] Cholesterol log seeded with 2026-05-10 blood test data.');
 }
 
 // ─────────────────────────────────────────────

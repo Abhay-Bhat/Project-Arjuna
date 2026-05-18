@@ -1,10 +1,10 @@
 // ============================================================
-// ATHENA — Bootstrap
+// Skadi — Bootstrap
 // Phase 1: Local data → UI renders immediately (no network wait)
 // Phase 2: Auth check in background → cloud sync if signed in
 // ============================================================
 
-console.log('🏹 Project Arjuna starting…');
+console.log('❄️ Skadi starting…');
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tickClock();
     setInterval(tickClock, 30000);
 
-    console.log('✅ ATHENA local boot complete');
+    console.log('✅ Skadi local boot complete');
 
     // ── Phase 2: Auth in background (does NOT block UI) ───────
     // Bind overlay / header buttons
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       Auth.signInWithGoogle();
     });
     document.getElementById('signOutBtn')?.addEventListener('click', async () => {
-      if (confirm('Sign out of ATHENA?')) await Auth.signOut();
+      if (confirm('Sign out of Skadi?')) await Auth.signOut();
     });
     document.getElementById('syncNowBtn')?.addEventListener('click', async () => {
       const btn  = document.getElementById('syncNowBtn');
@@ -133,8 +133,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// Debug helpers (browser console: ATHENA.*)
-window.ATHENA = {
+// Debug helpers (browser console: SKADI.*)
+window.SKADI = {
   state:          () => AppState,
   phase:          () => PhaseManager.getPhase(),
   regenSchedule:  () => { UPSCTracker.initSchedule(true); UI.updateAll(); },
@@ -147,7 +147,7 @@ window.ATHENA = {
   listBackups:    () => BackupManager.list().then(console.table),
   restoreBackup:  (key) => BackupManager.restore(key),
 
-  // Sync diagnostics — run ATHENA.syncDiag() in console to see sync state
+  // Sync diagnostics — run SKADI.syncDiag() in console to see sync state
   syncDiag() {
     const cs = CloudSync;
     const info = {
@@ -181,8 +181,8 @@ window.ATHENA = {
     return info;
   },
 
-  // Force-pull from Firestore and apply, bypassing all guards. Run on the
-  // device that shows stale/empty data to recover without a page reload.
+  // Force-pull from Firestore and apply, bypassing all guards.
+  // Run SKADI.forcePull() on a device showing stale data.
   async forcePull() {
     if (!CloudSync._enabled || !CloudSync._ref) {
       console.warn('CloudSync not enabled — diagnosis:', {
@@ -209,3 +209,4 @@ window.ATHENA = {
     }
   },
 };
+window.ATHENA = window.SKADI; // backward-compat alias

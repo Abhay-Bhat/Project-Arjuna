@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA -- Cloud Sync (Firestore)
+// Skadi -- Cloud Sync (Firestore)
 //
 // Strategy: pull-on-load + push-on-save + real-time listener.
 // - On sign-in: pull() fetches the latest cloud state once.

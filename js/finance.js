@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Finance Tracker (Enhanced v2)
+// Skadi — Finance Tracker (Enhanced v2)
 // Dubai savings + Investment Portfolio + Expense Tracker
 // ============================================================
 

@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Study Tracker v4
+// Skadi — Study Tracker v4
 // 40-min tree rule · withered trees · Pomodoro · editable lists
 // ============================================================
 

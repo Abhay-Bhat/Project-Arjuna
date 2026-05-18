@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Tasks (Microsoft Planner-style board)
+// Skadi — Tasks (Microsoft Planner-style board)
 // Buckets as columns, tasks with priority + due date + checkbox.
 // ============================================================
 

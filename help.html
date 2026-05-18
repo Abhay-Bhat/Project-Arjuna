@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Help & Guide — Project Arjuna</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏹</text></svg>">
+  <title>Help & Guide — Skadi</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'><line x1='18' y1='3' x2='18' y2='33' stroke='%2360a8f0' stroke-width='2.5' stroke-linecap='round'/><line x1='31' y1='10.5' x2='5' y2='25.5' stroke='%2360a8f0' stroke-width='2.5' stroke-linecap='round'/><line x1='31' y1='25.5' x2='5' y2='10.5' stroke='%2360a8f0' stroke-width='2.5' stroke-linecap='round'/><circle cx='18' cy='18' r='2' fill='%2360a8f0'/></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -217,7 +217,7 @@
 
 <div class="help-header">
   <a href="index.html">← Back to App</a>
-  <h1>🏹 Project Arjuna — Help & Guide</h1>
+  <h1>❄️ Skadi — Help & Guide</h1>
 </div>
 
 <div class="help-wrap">
@@ -240,7 +240,7 @@
   <section class="help-section" id="getting-started">
     <h2>1 Getting Started</h2>
 
-    <p><strong>Project Arjuna</strong> is a personal productivity dashboard built for UPSC preparation (2026–2028). It tracks your daily routine, study progress, finances, health, mind, growth, and tasks — all in one place.</p>
+    <p><strong>Skadi</strong> is a personal productivity dashboard built for UPSC preparation (2026–2028). It tracks your daily routine, study progress, finances, health, mind, growth, and tasks — all in one place.</p>
 
     <h3>Two operating modes</h3>
     <div class="card">
@@ -361,10 +361,10 @@ const FIREBASE_CONFIG = {
 
     <h3>Checking sync status (developer console)</h3>
     <p>Open browser DevTools (F12) → Console tab and run:</p>
-    <pre>ATHENA.syncDiag()</pre>
+    <pre>SKADI.syncDiag()</pre>
     <p>The table shows: <code>enabled</code> (must be <code>true</code>), <code>isAuthenticated</code>, <code>pendingPush</code>, <code>listenerActive</code>, etc.</p>
     <p>If data is missing on a device, run:</p>
-    <pre>ATHENA.forcePull()</pre>
+    <pre>SKADI.forcePull()</pre>
     <p>This bypasses all guards and directly applies the latest Firestore state.</p>
   </section>
 
@@ -391,13 +391,13 @@ const FIREBASE_CONFIG = {
 
     <h3>Manual backup via console</h3>
     <pre>// Create a backup right now
-ATHENA.backup()
+SKADI.backup()
 
 // List all backups (shows in console as a table)
-ATHENA.listBackups()
+SKADI.listBackups()
 
 // Restore a specific backup by key
-ATHENA.restoreBackup('backup_key_here')</pre>
+SKADI.restoreBackup('backup_key_here')</pre>
 
     <div class="alert alert-info">After restoring a backup, the app pushes the restored state to Firestore so all other devices catch up automatically.</div>
 
@@ -424,10 +424,10 @@ ATHENA.restoreBackup('backup_key_here')</pre>
         </tr>
         <tr>
           <td>Sync enabled in console but data not appearing on Device B</td>
-          <td>Run <code>ATHENA.forcePull()</code> on Device B. If that fails, check Firestore rules in the Firebase console match Section 2 exactly.</td>
+          <td>Run <code>SKADI.forcePull()</code> on Device B. If that fails, check Firestore rules in the Firebase console match Section 2 exactly.</td>
         </tr>
         <tr>
-          <td><code>enabled: false</code> in <code>ATHENA.syncDiag()</code></td>
+          <td><code>enabled: false</code> in <code>SKADI.syncDiag()</code></td>
           <td>Firestore SDK failed to initialize. Check the browser console for the actual error. Common cause: incorrect API key or Firestore not created in Firebase project.</td>
         </tr>
         <tr>
@@ -448,7 +448,7 @@ ATHENA.restoreBackup('backup_key_here')</pre>
         </tr>
         <tr>
           <td>Tasks / data reset to empty</td>
-          <td>Accidental <code>clearState()</code> or restore. Immediately run <code>ATHENA.listBackups()</code> and restore the most recent pre-sync backup.</td>
+          <td>Accidental <code>clearState()</code> or restore. Immediately run <code>SKADI.listBackups()</code> and restore the most recent pre-sync backup.</td>
         </tr>
       </tbody>
     </table>
@@ -488,17 +488,17 @@ ATHENA.restoreBackup('backup_key_here')</pre>
 
     <h3>D. Clear stale local data (reset)</h3>
     <p>If the app is stuck in a bad state, open DevTools Console and run:</p>
-    <pre>ATHENA.clearState()   // wipes localStorage and reloads (data still in Firestore)</pre>
+    <pre>SKADI.clearState()   // wipes localStorage and reloads (data still in Firestore)</pre>
     <div class="alert alert-danger">This clears local state permanently. Your cloud data in Firestore is unaffected — sign back in to re-sync.</div>
 
     <h3>E. Force a full re-sync from Firestore</h3>
-    <pre>ATHENA.forcePull()   // pulls latest Firestore state, applies, and re-renders</pre>
+    <pre>SKADI.forcePull()   // pulls latest Firestore state, applies, and re-renders</pre>
 
     <h3>F. Check sync diagnostics</h3>
-    <pre>ATHENA.syncDiag()    // prints a table of all sync state variables to console</pre>
+    <pre>SKADI.syncDiag()    // prints a table of all sync state variables to console</pre>
 
     <hr>
-    <p style="text-align:center; color: var(--text-muted); font-size: 13px;">Project Arjuna • Master Your Path • 2026–2028</p>
+    <p style="text-align:center; color: var(--text-muted); font-size: 13px;">Skadi • Forged in isolation. Driven by discipline. • 2026–2028</p>
   </section>
 
 </div>

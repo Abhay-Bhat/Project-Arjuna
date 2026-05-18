@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Info Tooltip Injector
+// Skadi — Info Tooltip Injector
 // Adds ℹ icons next to actionable buttons across all tabs.
 // ============================================================
 

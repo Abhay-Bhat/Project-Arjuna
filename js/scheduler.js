@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Schedule Data (All Phases)
+// Skadi — Schedule Data (All Phases)
 // ============================================================
 
 const SCHEDULE_DATA = {

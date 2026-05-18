@@ -1,5 +1,5 @@
 // ============================================================
-// ATHENA — Backup Manager
+// Skadi — Backup Manager
 // Stores up to MAX_BACKUPS rolling snapshots in IndexedDB.
 // Triggers: startup, pre-sync (before cloud overwrites local),
 //           scheduled (hourly), manual (user-initiated).
@@ -69,7 +69,7 @@ const BackupManager = {
       const a    = document.createElement('a');
       a.href     = url;
       const date = backup.timestamp.split('T')[0];
-      a.download = `athena-backup-${date}-${backup.trigger}.json`;
+      a.download = `skadi-backup-${date}-${backup.trigger}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

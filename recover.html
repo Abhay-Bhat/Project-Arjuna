@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Athena — Data Recovery</title>
+  <title>Skadi — Data Recovery</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -168,7 +168,7 @@
 </head>
 <body>
 <div class="container">
-  <h1>🏹 Athena — Data Recovery</h1>
+  <h1>❄️ Skadi — Data Recovery</h1>
   <p class="subtitle">Reads your IndexedDB snapshot and restores it cleanly — no sign-in required.</p>
 
   <div id="statusBanner"></div>
@@ -177,7 +177,7 @@
   <div class="card">
     <h2>Recovery Steps</h2>
     <div class="steps">
-      <div class="step"><strong>Read</strong> — loads <code>athena_db › state › athena_v2</code> from this browser's IndexedDB.</div>
+      <div class="step"><strong>Read</strong> — loads <code>athena_db › state › athena_v2 (internal storage key)</code> from this browser's IndexedDB.</div>
       <div class="step"><strong>Inspect</strong> — review the data summary below; confirm the counts look right.</div>
       <div class="step"><strong>Stamp &amp; restore</strong> — bumps <code>_savedAt</code> to <em>right now</em> and writes the data back to IndexedDB so it wins the next cloud conflict check.</div>
       <div class="step"><strong>Download backup</strong> — saves a <code>.json</code> file you can re-import any time via Settings → Import.</div>
@@ -268,7 +268,7 @@ function openDB() {
     };
     req.onsuccess  = (e) => resolve(e.target.result);
     req.onerror    = (e) => reject(e.target.error);
-    req.onblocked  = ()  => reject(new Error('IndexedDB blocked — close all other Athena tabs and retry.'));
+    req.onblocked  = ()  => reject(new Error('IndexedDB blocked — close all other Skadi tabs and retry.'));
   });
 }
 
@@ -428,7 +428,7 @@ document.getElementById('btnDownload').addEventListener('click', () => {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = 'athena-recovery-' + new Date().toISOString().split('T')[0] + '.json';
+  a.download = 'skadi-recovery-' + new Date().toISOString().split('T')[0] + '.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
