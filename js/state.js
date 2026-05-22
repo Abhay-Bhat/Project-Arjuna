@@ -323,10 +323,11 @@ const AppState = {
       return merged;
     };
 
-    // Streak start: keep the earlier date (preserves longer streak)
-    const _earlierDate = (a, b) => {
+    // Streak start: keep the LATER date — a later pastimeStart means a more
+    // recent reset, so the reset must win over an older cloud value.
+    const _laterDate = (a, b) => {
       if (!a) return b; if (!b) return a;
-      return new Date(a) < new Date(b) ? a : b;
+      return new Date(a) > new Date(b) ? a : b;
     };
 
     return {
@@ -360,7 +361,7 @@ const AppState = {
       upscProgress:        Math.max(local.upscProgress || 0,    cloudData.upscProgress || 0),
       upscSchedule: (local.upscSchedule || []).length >= (cloudData.upscSchedule || []).length
         ? local.upscSchedule : cloudData.upscSchedule,
-      pastimeStart: _earlierDate(local.pastimeStart || local.nofapStart, cloudData.pastimeStart || cloudData.nofapStart),
+      pastimeStart: _laterDate(local.pastimeStart || local.nofapStart, cloudData.pastimeStart || cloudData.nofapStart),
       _savedAt: new Date().toISOString(),
     };
   },
@@ -405,9 +406,13 @@ const AppState = {
   // ── Pastime helpers ──────────────────────────────────────
   getPastimeStreak() {
     if (!this.pastimeStart) return 0;
+    // Use calendar days (midnight-to-midnight) so a same-day reset shows 0,
+    // next calendar day shows 1 — regardless of the time of day reset happened.
     const start = new Date(this.pastimeStart);
-    const now   = new Date();
-    return Math.max(0, Math.floor((now - start) / 864e5));
+    const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.max(0, Math.floor((today - startDay) / 864e5));
   },
 
   logReset(reason, note = '') {
