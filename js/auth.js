@@ -40,12 +40,18 @@ const Auth = {
         return;
       }
 
-      // Consume any pending redirect sign-in result (mobile flow).
+      // Consume any pending redirect sign-in result (Android flow).
       // Errors here are non-fatal — the auth state listener below handles the user.
       firebase.auth().getRedirectResult().catch((e) => {
         console.warn('Skadi: redirect sign-in error --', e.code);
         const errEl = document.getElementById('authError');
-        if (errEl && e.code !== 'auth/no-auth-event') {
+        // These codes are expected noise when no redirect is pending
+        const benign = new Set([
+          'auth/no-auth-event', 'auth/null-user',
+          'auth/web-storage-unsupported',
+          'auth/operation-not-supported-in-this-environment'
+        ]);
+        if (errEl && !benign.has(e.code)) {
           errEl.textContent = 'Sign-in failed. Please try again.';
           errEl.style.display = 'block';
         }
@@ -93,13 +99,14 @@ const Auth = {
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
     if (errEl) errEl.style.display = 'none';
 
-    const provider  = new firebase.auth.GoogleAuthProvider();
-    const isMobile  = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+    const provider   = new firebase.auth.GoogleAuthProvider();
+    const isAndroid  = /Android/i.test(navigator.userAgent);
 
-    // Mobile: redirect is more reliable than popup (popups are frequently
-    // blocked by Android Chrome, Samsung Internet, and iOS Safari).
-    // Desktop: popup first, redirect as fallback if popup is blocked.
-    if (isMobile) {
+    // Android Chrome/Samsung Internet: redirect is reliable and avoids popup-block issues.
+    // iOS Safari: ITP breaks signInWithRedirect (cross-origin cookies stripped on return);
+    // use popup which works on iOS 15+ Safari.
+    // Desktop: popup first, redirect as fallback.
+    if (isAndroid) {
       await firebase.auth().signInWithRedirect(provider);
       return; // page navigates away — onAuthStateChanged handles the return
     }
@@ -110,7 +117,7 @@ const Auth = {
     } catch (e) {
       if (e.code === 'auth/popup-blocked' ||
           e.code === 'auth/operation-not-supported-in-this-environment') {
-        // Popup was blocked by the browser — silently fall back to redirect
+        // Popup blocked (rare on iOS) — fall back to redirect
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
