@@ -420,18 +420,36 @@ const StudyTracker = {
           this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
 
         } else {
-          // Break complete — stop and wait for user to start next round
+          // Break complete
+          const wasLongBreak = this._pomoPhase === 'longbreak';
           clearInterval(this._timerInterval);
-          this._running   = false;
-          this._elapsed   = 0;
-          this._pomoPhase = 'idle';
-          this._updatePomoStatus();
-          this._updateTimerDisplay();
-          const subSel = document.getElementById('studySubjectSel');
-          const actSel = document.getElementById('studyActivitySel');
-          if (subSel) subSel.disabled = false;
-          if (actSel) actSel.disabled = false;
-          if (typeof UI !== 'undefined') UI.showToast('☕ Break over — ready for next Pomodoro!');
+          this._elapsed = 0;
+
+          if (wasLongBreak) {
+            // Full cycle done — stop and let user decide when to start again
+            this._running   = false;
+            this._pomoPhase = 'idle';
+            this._pomoRound = 0;
+            const subSel = document.getElementById('studySubjectSel');
+            const actSel = document.getElementById('studyActivitySel');
+            if (subSel) subSel.disabled = false;
+            if (actSel) actSel.disabled = false;
+            this._updatePomoStatus();
+            this._updateTimerDisplay();
+            this._updateLiveTree();
+            if (typeof UI !== 'undefined') UI.showToast('🏆 Pomodoro cycle complete — well done!');
+          } else {
+            // Short break done — auto-start next work phase
+            this._pomoPhase = 'work';
+            this._countdown = this._pomoWorkMin * 60;
+            this._running   = true;
+            this._startedAt = new Date().toISOString();
+            this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
+            this._updatePomoStatus();
+            this._updateTimerDisplay();
+            this._updateLiveTree();
+            if (typeof UI !== 'undefined') UI.showToast(`🍅 Break over — Round ${this._pomoRound + 1} starting!`);
+          }
         }
       }
     }
@@ -455,7 +473,9 @@ const StudyTracker = {
 
     // Only save for non-pomodoro, or manual stop of pomodoro work phase
     const shouldSave = this._mode !== 'pomodoro' || this._pomoPhase === 'work';
-    if (shouldSave) this._saveSession(completed);
+    // 60+ min of continuous effort earns the full tree even if stopped early
+    const effectivelyComplete = completed || this._elapsed >= 3600;
+    if (shouldSave) this._saveSession(effectivelyComplete);
 
     this._elapsed    = 0;
     this._countdown  = 0;
@@ -480,16 +500,13 @@ const StudyTracker = {
   },
 
   _saveSession(completed) {
-    // For countdown, use the target as duration when completed; elapsed otherwise
     let durationMin;
-    if (this._mode === 'countdown' && this._countdown > 0) {
-      durationMin = completed
-        ? Math.round(this._countdown / 60)
-        : Math.round(this._elapsed   / 60);
-    } else if (this._mode === 'pomodoro') {
-      durationMin = this._pomoWorkMin; // always the full work interval
+    if (this._mode === 'pomodoro') {
+      durationMin = this._pomoWorkMin;
+    } else if (this._mode === 'countdown' && this._countdown > 0 && completed && this._elapsed >= this._countdown) {
+      durationMin = Math.round(this._countdown / 60); // ran full countdown — use target
     } else {
-      durationMin = Math.round(this._elapsed / 60);
+      durationMin = Math.round(this._elapsed / 60);   // actual elapsed
     }
 
     if (durationMin < 1) return;
