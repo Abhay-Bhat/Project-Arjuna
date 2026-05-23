@@ -99,18 +99,11 @@ const Auth = {
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
     if (errEl) errEl.style.display = 'none';
 
-    const provider   = new firebase.auth.GoogleAuthProvider();
-    const isAndroid  = /Android/i.test(navigator.userAgent);
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-    // Android Chrome/Samsung Internet: redirect is reliable and avoids popup-block issues.
-    // iOS Safari: ITP breaks signInWithRedirect (cross-origin cookies stripped on return);
-    // use popup which works on iOS 15+ Safari.
-    // Desktop: popup first, redirect as fallback.
-    if (isAndroid) {
-      await firebase.auth().signInWithRedirect(provider);
-      return; // page navigates away — onAuthStateChanged handles the return
-    }
-
+    // signInWithRedirect is broken on modern Android Chrome AND iOS Safari:
+    // both block the cross-site cookies the redirect flow depends on.
+    // Use popup for everyone; fall back to redirect only if popup is blocked.
     try {
       await firebase.auth().signInWithPopup(provider);
       // onAuthStateChanged fires immediately after popup resolves and hides the overlay.
@@ -119,7 +112,7 @@ const Auth = {
     } catch (e) {
       if (e.code === 'auth/popup-blocked' ||
           e.code === 'auth/operation-not-supported-in-this-environment') {
-        // Popup blocked (rare on iOS) — fall back to redirect
+        // Last resort: popup couldn't open (rare in-app browser) — try redirect
         await firebase.auth().signInWithRedirect(provider);
         return;
       }
