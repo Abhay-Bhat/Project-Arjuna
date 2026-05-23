@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=39">
+    <link rel="stylesheet" href="css/styles.css?v=40">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -1541,6 +1541,7 @@
           <div class="pane-card">
             <div class="pane-card-title">💻 Dubai Tech Plan (2026–27)</div>
             <div id="techSummary"></div>
+            <button class="btn btn-sm btn-primary" id="openGuideBtn" style="margin-top:12px;width:100%;">📖 Interview Prep Guide</button>
           </div>
 
           <div class="pane-card">
@@ -2091,6 +2092,21 @@
 <script defer src="js/seed-data.js?v=39"></script>
 <script defer src="js/backup.js?v=39"></script>
 <script defer src="js/main.js?v=39"></script>
+<script defer src="js/devops-guide.js?v=35"></script>
+
+<!-- ═ DEVOPS INTERVIEW GUIDE MODAL ════════════════════════════ -->
+<div id="devopsGuideModal" class="guide-modal" role="dialog" aria-modal="true" aria-label="DevOps Interview Prep Guide">
+  <div class="guide-modal-inner">
+    <div class="guide-modal-header">
+      <span class="guide-modal-title">📖 DevOps Interview Mastery Guide</span>
+      <button class="guide-close" id="guideCloseBtn" aria-label="Close guide">✕</button>
+    </div>
+    <div class="guide-modal-body">
+      <nav class="guide-nav" id="guideNav"></nav>
+      <div class="guide-content" id="guideContent"></div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
