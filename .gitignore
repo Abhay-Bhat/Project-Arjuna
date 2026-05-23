@@ -4,6 +4,9 @@ node_modules/
 # Firebase credentials — injected at deploy time via GitHub Actions secrets
 js/firebase-config.js
 
+# Local env file — import into Netlify dashboard, never commit
+.env
+
 # Personal financial data — never commit to a public repo
 *.xlsx
 *.xls
