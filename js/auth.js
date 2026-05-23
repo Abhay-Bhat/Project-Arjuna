@@ -113,7 +113,9 @@ const Auth = {
 
     try {
       await firebase.auth().signInWithPopup(provider);
-      location.reload();
+      // onAuthStateChanged fires immediately after popup resolves and hides the overlay.
+      // Do NOT call location.reload() here — the reload causes a null auth flash on iOS
+      // (Firebase briefly emits onAuthStateChanged(null) before restoring the session).
     } catch (e) {
       if (e.code === 'auth/popup-blocked' ||
           e.code === 'auth/operation-not-supported-in-this-environment') {
