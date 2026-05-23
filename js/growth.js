@@ -3,13 +3,50 @@
 // Career · Books · Reviews · Life Partner
 // ============================================================
 
-// ── Career milestones ────────────────────────────────────────
-const CAREER_MILESTONES = [
-  { id: 'ai_pipelines',  quarter: 'Oct–Dec 2026', label: 'GitHub Copilot + AI-assisted pipelines',   why: 'AI in DevOps is the immediate trend.' },
-  { id: 'cka_cert',      quarter: 'Jan–Mar 2027', label: 'CKA / OpenShift certification exam',        why: 'Validates existing hands-on skill.' },
-  { id: 'platform_eng',  quarter: 'Apr–Jun 2027', label: 'Platform Engineering concepts',             why: 'The next evolution of DevOps.' },
-  { id: 'india_role',    quarter: 'Post-return',   label: 'India DevOps role ₹18–22 LPA (if needed)', why: 'Backup if UPSC 2028 needs a year off.' },
-  { id: 'exec_mba_eval', quarter: 'Post 2028',     label: 'IIM/ISB Exec MBA evaluation',              why: 'Live, funded backup. Not a dusty footnote.' }
+// ── Dubai Tech Upskilling Plan (Jul 2026 – Jun 2027) ─────────
+const TECH_PHASES = [
+  {
+    id: 'foundation', label: 'Phase 1 — Foundation', period: 'Jul – Sep 2026',
+    color: '#00d47c', hoursWeek: '2–3 hrs/week',
+    tasks: [
+      { id: 'github_repo',   label: 'Create GitHub repo: helm-charts (public + MIT license)' },
+      { id: 'helm_basics',   label: 'Learn Helm basics — chart structure, values.yaml, templates' },
+      { id: 'chart1_webapp', label: 'Chart 1: web-app (Deployment + Service + Route + ConfigMap)' },
+      { id: 'chart2_db',     label: 'Chart 2: database (PostgreSQL + PVC + Service)' },
+      { id: 'platform_arch', label: 'Understand OpenShift platform architecture & deploy 1 app' },
+    ]
+  },
+  {
+    id: 'cert_start', label: 'Phase 2 — RHCOA Cert Start', period: 'Oct – Dec 2026',
+    color: '#5b7fff', hoursWeek: '6–8 hrs/week',
+    tasks: [
+      { id: 'rhcoa_enroll', label: 'Enroll: RedHat Learning Subscription (USD 500)' },
+      { id: 'modules_1_6',  label: 'RHCOA Modules 1–6: architecture, RBAC, networking, storage' },
+      { id: 'chart3_cache', label: 'Chart 3: cache (Redis + ConfigMap + Service)' },
+      { id: 'modules_7_9',  label: 'RHCOA Modules 7–9: advanced + troubleshooting' },
+      { id: 'helm_docs',    label: 'Full chart documentation & README written' },
+    ]
+  },
+  {
+    id: 'cert_push', label: 'Phase 3 — Certification Push', period: 'Jan – Mar 2027',
+    color: '#ff9933', hoursWeek: '3–5 hrs/week',
+    tasks: [
+      { id: 'mock_exam_1',    label: 'Mock Exam 1 — target score 65%+ (mid-Jan)' },
+      { id: 'mock_exam_2',    label: 'Mock Exam 2 — target score 70%+ (mid-Feb)' },
+      { id: 'mock_exam_3',    label: 'Mock Exam 3 — target score 75%+ (mid-Mar)' },
+      { id: 'chart4_monitor', label: 'Chart 4: monitoring (Prometheus sidecar, optional)' },
+    ]
+  },
+  {
+    id: 'exam_wrap', label: 'Phase 4 — Exam & Wrap-Up', period: 'Apr – Jun 2027',
+    color: '#a56eff', hoursWeek: '1–3 hrs/week',
+    tasks: [
+      { id: 'final_review',   label: 'Final weak-area review & confidence building' },
+      { id: 'rhcoa_exam',     label: '🎯 RHCOA Exam (EX280) — May 31, 2027' },
+      { id: 'portfolio_done', label: 'GitHub portfolio polished — 3–4 charts, complete docs' },
+      { id: 'blog_post',      label: 'Technical blog post published (500–1000 words)' },
+    ]
+  }
 ];
 
 // ── Books queue (from the plan) ────────────────────────────
@@ -28,7 +65,7 @@ const WEEKLY_Qs = [
   'Average sleep hours this week? (1=<5h, 5=7h+)',
   'UPSC study sessions completed vs planned? (1=missed all, 5=all done)',
   'Gym / walk sessions completed? (1=0 days, 5=4+ days)',
-  'Pastime: any resets this week? (1=multiple, 5=clean)',
+  'Porn-free: any relapses this week? (1=multiple, 5=clean week)',
   'Phone / reels under 1 hr/day on average? (1=far over, 5=under 1hr)',
   'Work: any deliverable missed? (1=missed, 5=ahead)',
   'Emotional state: calm to burnt out? (1=burnt out, 5=calm)',
@@ -43,7 +80,7 @@ const MONTHLY_DOMAINS = [
   { id: 'career',     label: 'Career',      q: 'Any performance concern? New skill added? Manager relationship?' },
   { id: 'finance',    label: 'Finance',     q: 'Money sent home on 25th? SIP running? Savings vs ₹46L target?' },
   { id: 'health',     label: 'Health',      q: 'Sleep average? Gym sessions? Cholesterol-safe diet maintained?' },
-  { id: 'pastime',    label: 'Pastime',     q: 'Total resets? Pattern identified? Environment adjusted?' },
+  { id: 'pastime',    label: 'Porn-Free',   q: 'Total relapses? Trigger pattern identified? Environment changed?' },
   { id: 'loneliness', label: 'Loneliness',  q: 'Isolation moments? What helped? What needs changing?' },
   { id: 'personal',   label: 'Personal',    q: 'Natural contact with her? Called parents consistently?' },
   { id: 'mental',     label: 'Mental',      q: 'Burning out? Need rest day? What am I grateful for?' },
@@ -72,7 +109,8 @@ const BOOK_COVER_FALLBACKS = [
 const GrowthTracker = {
 
   render() {
-    this.renderCareer();
+    this.renderTechPlan();
+    this.renderTechSummary();
     this.renderBooks();
     this.renderWeeklyReview();
     this.renderMonthlyReview();
@@ -81,41 +119,73 @@ const GrowthTracker = {
     this.renderMonthlySummary();
   },
 
-  // ── Career ───────────────────────────────────────────────
-  renderCareer() {
-    const grid = document.getElementById('careerGrid');
-    if (!grid) return;
+  // ── Tech Upskilling Plan ─────────────────────────────────
+  renderTechPlan() {
+    const container = document.getElementById('techPlanContainer');
+    if (!container) return;
+    const log = AppState.careerLog || {};
 
-    grid.innerHTML = CAREER_MILESTONES.map(m => {
-      const saved = AppState.careerLog?.[m.id] || {};
+    container.innerHTML = TECH_PHASES.map(phase => {
+      const total = phase.tasks.length;
+      const done  = phase.tasks.filter(t => log[t.id]?.done).length;
+      const pct   = total ? Math.round((done / total) * 100) : 0;
+      const isComplete = done === total;
+      const isActive   = done > 0 && !isComplete;
+
       return `
-        <div class="career-card ${saved.done ? 'done' : ''}">
-          <div class="cc-header">
-            <div class="cc-quarter">${m.quarter}</div>
-            ${saved.done ? '<span class="cc-tick">✓</span>' : ''}
+        <div class="tech-phase${isComplete ? ' tp-complete' : isActive ? ' tp-active' : ''}"
+             style="--phase-color:${phase.color}">
+          <div class="tp-head">
+            <div>
+              <div class="tp-label">${phase.label}</div>
+              <div class="tp-meta">${phase.period} &nbsp;·&nbsp; ${phase.hoursWeek}</div>
+            </div>
+            <div class="tp-score">${isComplete ? '<span class="tp-tick">✓</span>' : `${done}/${total}`}</div>
           </div>
-          <div class="cc-label">${m.label}</div>
-          <div class="cc-why">${m.why}</div>
-          ${saved.done
-            ? `<div class="cc-done-date">Completed ${esc(saved.date || '')}</div>`
-            : `<div class="cc-actions">
-                <input type="text" class="cc-note-input" placeholder="Add note..." value="${esc(saved.note || '')}">
-                <button class="btn-xs btn-primary cc-done-btn" data-id="${esc(m.id)}">Mark Done</button>
-               </div>`
-          }
+          <div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${phase.color}"></div></div>
+          <div class="tp-tasks">
+            ${phase.tasks.map(t => {
+              const s = log[t.id] || {};
+              return `<div class="tp-task${s.done ? ' tp-done' : ''}">
+                <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(t.id)}">${s.done ? '✓' : ''}</button>
+                <span class="tp-tlabel">${t.label}</span>
+                ${s.done && s.date ? `<span class="tp-tdate">${s.date}</span>` : ''}
+              </div>`;
+            }).join('')}
+          </div>
         </div>`;
     }).join('');
 
-    grid.querySelectorAll('.cc-done-btn').forEach(btn => {
+    container.querySelectorAll('[data-phase-task]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id   = btn.dataset.id;
-        const note = btn.closest('.career-card').querySelector('.cc-note-input')?.value || '';
+        const id = btn.dataset.phaseTask;
         AppState.careerLog = AppState.careerLog || {};
-        AppState.careerLog[id] = { done: true, date: AppState.getTodayKey(), note };
+        if (AppState.careerLog[id]?.done) {
+          delete AppState.careerLog[id];
+        } else {
+          AppState.careerLog[id] = { done: true, date: AppState.getTodayKey() };
+        }
         AppState.save();
-        this.renderCareer();
+        this.renderTechPlan();
+        if (typeof UI !== 'undefined') UI.tryCompletePendingActivity('growth');
       });
     });
+  },
+
+  renderTechSummary() {
+    const el = document.getElementById('techSummary');
+    if (!el) return;
+    const log = AppState.careerLog || {};
+    el.innerHTML = TECH_PHASES.map(p => {
+      const total = p.tasks.length;
+      const done  = p.tasks.filter(t => log[t.id]?.done).length;
+      const pct   = total ? Math.round((done / total) * 100) : 0;
+      return `<div class="ts-row">
+        <div class="ts-name" style="color:${p.color}">${p.label.split('—')[1]?.trim() || p.label}</div>
+        <div class="ts-bar"><div class="ts-fill" style="width:${pct}%;background:${p.color}"></div></div>
+        <div class="ts-pct">${done}/${total}</div>
+      </div>`;
+    }).join('');
   },
 
   // ── Books ────────────────────────────────────────────────

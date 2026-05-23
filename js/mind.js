@@ -4,11 +4,12 @@
 // ============================================================
 
 const PASTIME_REASONS = [
-  'Loneliness (post-work evening)',
-  'Boredom (weekend)',
-  'Stress (exam/work)',
-  'Phone scrolling',
-  'Isolation (night)',
+  'Loneliness / isolation',
+  'Boredom / restlessness',
+  'Stress / anxiety',
+  'Phone / social media spiral',
+  'Late night alone',
+  'Lack of accountability',
   'Other'
 ];
 
@@ -255,7 +256,7 @@ const MindTracker = {
     container.innerHTML = log.map(e => `
       <div class="pastime-reset-item ${esc(e.type)}">
         <span class="ri-date">${esc(e.date)}</span>
-        <span class="ri-type ${esc(e.type)}">${e.type === 'reset' ? '❌ Reset' : '✅ Check-in'}</span>
+        <span class="ri-type ${esc(e.type)}">${e.type === 'reset' ? '❌ Relapsed' : '✅ Clean day'}</span>
         <span class="ri-trigger">${esc(e.reason) || '—'}</span>
         <span class="ri-note">${esc(e.note)}</span>
         <button class="btn-xs btn-danger" data-del-pastime-reset="${esc(e.date)}">✕</button>
