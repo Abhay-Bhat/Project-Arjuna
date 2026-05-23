@@ -1016,6 +1016,44 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .cc-note-input:focus { outline: none; border-color: var(--accent-blue); }
 
+/* ── Tech Plan Phase Cards ──────────────────────────────────── */
+#techPlanContainer { display: flex; flex-direction: column; gap: 14px; }
+.tech-phase {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid var(--phase-color, var(--accent-blue));
+  border-radius: var(--radius-md); padding: 16px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.tech-phase.tp-active   { background: var(--card-hover); }
+.tech-phase.tp-complete { opacity: 0.72; }
+.tp-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; gap: 8px; }
+.tp-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.tp-meta  { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+.tp-score { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+.tp-tick  { color: var(--accent-green); font-size: 16px; }
+.tp-bar   { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 12px; overflow: hidden; }
+.tp-fill  { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.tp-tasks { display: flex; flex-direction: column; gap: 8px; }
+.tp-task  { display: flex; align-items: flex-start; gap: 10px; }
+.tp-task.tp-done .tp-tlabel { color: var(--text-muted); text-decoration: line-through; }
+.tp-chk {
+  flex-shrink: 0; width: 20px; height: 20px; border-radius: 4px;
+  border: 2px solid var(--border-bright); background: transparent;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #fff; font-weight: 700; transition: all var(--transition);
+}
+.tp-chk.on { background: var(--accent-green); border-color: var(--accent-green); }
+.tp-tlabel { font-size: 13px; color: var(--text); line-height: 1.4; flex: 1; }
+.tp-tdate  { font-size: 10px; color: var(--text-faint); flex-shrink: 0; align-self: center; }
+
+/* Tech Summary sidebar */
+#techSummary { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.ts-row  { display: grid; grid-template-columns: 1fr 80px 32px; gap: 8px; align-items: center; }
+.ts-name { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ts-bar  { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.ts-fill { height: 100%; border-radius: 3px; }
+.ts-pct  { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; text-align: right; }
+
 /* Book cards: horizontal with cover image — 2 per row on wide screens */
 .books-container {
   display: grid;
