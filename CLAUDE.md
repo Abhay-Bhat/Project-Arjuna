@@ -6,6 +6,7 @@
 - Use squash merge when merging PRs.
 - Delete the remote branch after merging: `git push origin --delete <branch>`.
 - Bump the `?v=N` cache-busting query string on any CSS/JS file you touch.
+- After merging to main, push main to gh-pages: `git push origin main:gh-pages`.
 
 ## Stack
 - Vanilla JS (no framework). No React, no bundler.
