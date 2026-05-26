@@ -18,27 +18,27 @@
 const UPSC_SUBJECTS = [
   // GS Spine — Prelims 2027 priority
   { id:  1, name: "Indian Polity",                                 classes: 39,  track: 'main',     priority: 1 },
-  { id:  2, name: "Modern History & Post-Independence",            classes: 30,  track: 'main',     priority: 1 },
+  { id:  2, name: "Modern History & Post-Independence",            classes: 32,  track: 'main',     priority: 1 },
   { id:  3, name: "Geography",                                     classes: 39,  track: 'main',     priority: 1 },
-  { id:  4, name: "Economy",                                       classes: 39,  track: 'main',     priority: 1 },
+  { id:  4, name: "Economy",                                       classes: 33,  track: 'main',     priority: 1 },
   { id:  5, name: "Ancient & Medieval History, Art & Culture",     classes: 36,  track: 'main',     priority: 1 },
-  { id:  6, name: "World History",                                 classes: 12,  track: 'main',     priority: 1 },
-  { id:  7, name: "Environment & Ecology",                         classes: 14,  track: 'main',     priority: 1 },
-  { id:  8, name: "Science & Technology",                          classes: 27,  track: 'main',     priority: 1 },
+  { id:  6, name: "Environment & Ecology",                         classes: 16,  track: 'main',     priority: 1 },
+  { id:  7, name: "Science & Technology",                          classes: 34,  track: 'main',     priority: 1 },
   // GS Extended — Prelims 2028
-  { id:  9, name: "International Relations",                       classes: 36,  track: 'main',     priority: 2 },
-  { id: 10, name: "Governance",                                    classes: 12,  track: 'main',     priority: 2 },
-  { id: 11, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 2 },
-  { id: 12, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
-  { id: 13, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
+  { id:  8, name: "International Relations",                       classes: 26,  track: 'main',     priority: 2 },
+  { id:  9, name: "Governance",                                    classes: 11,  track: 'main',     priority: 2 },
+  { id: 10, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 2 },
+  { id: 11, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
+  { id: 12, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
+  { id: 13, name: "World History",                                 classes: 12,  track: 'main',     priority: 2 },
   { id: 14, name: "Ethics, Integrity & Aptitude",                  classes: 30,  track: 'main',     priority: 2 },
   // Optional — Parallel
   { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 1 },
-  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 2 },
+  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 1 },
   // CSAT — Parallel from Nov 2026
-  { id: 17, name: "CSAT",                                          classes: 74,  track: 'csat',     priority: 1 },
+  { id: 17, name: "CSAT",                                          classes: 69,  track: 'csat',     priority: 1 },
   // Essay
-  { id: 18, name: "Essay",                                         classes:  2,  track: 'essay',    priority: 2 }
+  { id: 18, name: "Essay",                                         classes:  5,  track: 'essay',    priority: 2 }
 ];
 
 const CA_START = '2026-10-01'; // Current Affairs daily from Oct 2026
