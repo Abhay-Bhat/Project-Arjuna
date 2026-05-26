@@ -29,8 +29,8 @@ const UPSC_SUBJECTS = [
   { id:  9, name: "International Relations",                       classes: 36,  track: 'main',     priority: 2 },
   { id: 10, name: "Governance",                                    classes: 12,  track: 'main',     priority: 2 },
   { id: 11, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 2 },
-  { id: 12, name: "Internal Security",                             classes: 23,  track: 'main',     priority: 2 },
-  { id: 13, name: "Disaster Management",                           classes:  7,  track: 'main',     priority: 2 },
+  { id: 12, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
+  { id: 13, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
   { id: 14, name: "Ethics, Integrity & Aptitude",                  classes: 30,  track: 'main',     priority: 2 },
   // Optional — Parallel
   { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 1 },
