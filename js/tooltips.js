@@ -33,22 +33,17 @@ const BUTTON_TIPS = [
   { id: 'monthlySubmitBtn',tip: 'Submit your monthly domain review. Updates the Growth Summary chart.' },
 ];
 
-// Selectors with tips for dynamically-created buttons (matched by data attributes / class + text)
-const SELECTOR_TIPS = [
-  { sel: '[data-tab="today"]',   tip: 'Switch to Today tab — daily routine and check-ins' },
-  { sel: '[data-tab="upsc"]',    tip: 'Switch to UPSC tab — study schedule and progress' },
-  { sel: '[data-tab="finance"]', tip: 'Switch to Finance tab — savings, investments, currency' },
-  { sel: '[data-tab="health"]',  tip: 'Switch to Health tab — sleep, gym, cholesterol' },
-  { sel: '[data-tab="mind"]',    tip: 'Switch to Mind tab — Pastime streak, loneliness, meditation' },
-  { sel: '[data-tab="growth"]',  tip: 'Switch to Growth tab — career, books, reviews' },
-];
+// Selectors with tips — nav items are excluded (they use title="" attributes)
+const SELECTOR_TIPS = [];
 
 function injectInfoIcon(el, tip) {
   if (!el || el.dataset.tipInjected) return;
 
   const parent = el.parentElement;
+  // Skip nav elements — they already have title attributes for tooltips
   if (parent?.classList.contains('domains-grid') ||
       parent?.classList.contains('tab-nav') ||
+      parent?.classList.contains('side-nav') ||
       parent?.id === 'domainsGrid') {
     return;
   }
@@ -59,14 +54,17 @@ function injectInfoIcon(el, tip) {
   icon.setAttribute('data-tip', tip);
   icon.textContent = 'i';
 
-  // Inside the header dropdown the parent IS .hdr-dropdown (flex-column).
-  // Inserting after the button creates a separate row — instead append inside
-  // the button so it stays on the same line, pushed right via margin-left:auto.
+  // Inside dropdown: append inside the button so icon stays on same line
   if (parent?.classList.contains('hdr-dropdown')) {
     icon.style.marginLeft = 'auto';
     el.appendChild(icon);
   } else {
-    el.insertAdjacentElement('afterend', icon);
+    // Wrap button + icon together so they stay inline in any flex context
+    const wrapper = document.createElement('span');
+    wrapper.className = 'btn-with-info';
+    el.parentNode.insertBefore(wrapper, el);
+    wrapper.appendChild(el);
+    wrapper.appendChild(icon);
   }
 }
 

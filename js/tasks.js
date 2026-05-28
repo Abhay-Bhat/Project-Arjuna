@@ -479,24 +479,32 @@ const TasksTracker = {
     };
 
     // ── Auto-scroll when dragging near window edges ─────────
-    // Fires on every dragover anywhere in the document; scrolls the
-    // window when the pointer is within 80px of the top or bottom edge.
+    // Vertical: scroll window. Horizontal: scroll the board-wrap container
+    // so moving a task left/right across buckets works even when overflowing.
     let _scrollRaf = null;
     const _autoScroll = e => {
       if (dragTaskId == null && dragBucketId == null) return;
       cancelAnimationFrame(_scrollRaf);
-      const y   = e.clientY;
-      const h   = window.innerHeight;
-      const x   = e.clientX;
-      const w   = window.innerWidth;
-      const PAD = 80;
+      const y    = e.clientY;
+      const h    = window.innerHeight;
+      const x    = e.clientX;
+      const w    = window.innerWidth;
+      const PAD  = 80;
       let dy = 0, dx = 0;
       if (y < PAD)     dy = -Math.round((PAD - y) / PAD * 18);
       if (y > h - PAD) dy =  Math.round((y - (h - PAD)) / PAD * 18);
       if (x < PAD)     dx = -Math.round((PAD - x) / PAD * 14);
       if (x > w - PAD) dx =  Math.round((x - (w - PAD)) / PAD * 14);
       if (dy || dx) {
-        _scrollRaf = requestAnimationFrame(() => { window.scrollBy(dx, dy); });
+        _scrollRaf = requestAnimationFrame(() => {
+          if (dy) window.scrollBy(0, dy);
+          if (dx) {
+            // Prefer scrolling the horizontal board container
+            const wrap = document.querySelector('.tasks-board-wrap');
+            if (wrap) wrap.scrollLeft += dx;
+            else window.scrollBy(dx, 0);
+          }
+        });
       }
     };
     document.addEventListener('dragover', _autoScroll);

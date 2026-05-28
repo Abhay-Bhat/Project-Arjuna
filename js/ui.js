@@ -604,6 +604,7 @@ const UI = {
   _bindQCCards() {
     const isToday = () => AppState.selectedDate.toDateString() === new Date().toDateString();
 
+    // Gym — toggle directly (primary entry point on Today tab)
     const gymCard = document.getElementById('qcGymCard');
     if (gymCard && !gymCard.dataset.bound) {
       gymCard.dataset.bound = '1';
@@ -615,21 +616,37 @@ const UI = {
       });
     }
 
+    // Sleep — navigate to Health tab for entry
+    const sleepCard = document.getElementById('qcSleepCard');
+    if (sleepCard && !sleepCard.dataset.bound) {
+      sleepCard.dataset.bound = '1';
+      sleepCard.addEventListener('click', () => {
+        this._navigateToTab('health', 'hSleep');
+        this.showToast('😴 Enter sleep hours in Health tab');
+      });
+    }
+
+    // Phone — navigate to Health tab for entry
+    const phoneCard = document.getElementById('qcPhoneCard');
+    if (phoneCard && !phoneCard.dataset.bound) {
+      phoneCard.dataset.bound = '1';
+      phoneCard.addEventListener('click', () => {
+        this._navigateToTab('health', 'hPhone');
+        this.showToast('📱 Enter screen time in Health tab');
+      });
+    }
+
+    // CA — navigate to UPSC tab
     const caCard = document.getElementById('qcCACard');
     if (caCard && !caCard.dataset.bound) {
       caCard.dataset.bound = '1';
       caCard.addEventListener('click', () => {
-        // Navigate to UPSC tab CA section
-        this._setActiveTab('upsc');
-        this._renderUPSC();
-        setTimeout(() => {
-          const el = document.getElementById('caTitle');
-          if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); }
-        }, 150);
+        this._navigateToTab('upsc', 'caTitle');
         this.showToast('📰 Log your CA reading in UPSC → Current Affairs');
       });
     }
 
+    // Parents — toggle directly
     const parCard = document.getElementById('qcParentsCard');
     if (parCard && !parCard.dataset.bound) {
       parCard.dataset.bound = '1';
@@ -640,39 +657,52 @@ const UI = {
         this.showToast(!cur ? '☎️ Called parents' : '☎️ Unmarked');
       });
     }
+
+    // Streak — navigate to Mind tab
+    const streakCard = document.getElementById('qcStreakCard');
+    if (streakCard && !streakCard.dataset.bound) {
+      streakCard.dataset.bound = '1';
+      streakCard.addEventListener('click', () => {
+        this._navigateToTab('mind', 'pastimeStartBtn');
+        this.showToast('🔥 Pastime streak tracked in Mind tab');
+      });
+    }
+
+    // card-tab-link buttons (Today's Log → Health, Today's Classes → UPSC, etc.)
+    document.querySelectorAll('.card-tab-link').forEach(btn => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const tab = btn.dataset.goto;
+        if (tab) {
+          this._navigateToTab(tab);
+        }
+      });
+    });
+  },
+
+  // Navigate to a tab, optionally scroll to an element by ID
+  _navigateToTab(tab, scrollToId) {
+    this._setActiveTab(tab);
+    AppState.currentTab = tab;
+    AppState.save();
+    this._renderTab(tab);
+    if (scrollToId) {
+      setTimeout(() => {
+        const el = document.getElementById(scrollToId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+    }
   },
 
   _renderTodayUPSC() {
-    const container = document.getElementById('todayUpscClasses');
-    if (!container) return;
-
-    // Ensure schedule is built before querying
-    UPSCTracker.initSchedule(false);
-
-    const dateKey = AppState.getDateKey();
-    const isToday = dateKey === AppState.getTodayKey();
-    const dateLabel = isToday
-      ? 'today'
-      : AppState.selectedDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-
-    const paused = PhaseManager.isUPSCPaused(AppState.selectedDate);
-    if (paused) {
-      container.innerHTML = `<span class="pause-badge">⏸ UPSC Paused — Dubai Settle Phase</span>`;
-      return;
+    // Reuse the UPSC tracker's own render so there's one source of truth.
+    // upscTodayClasses is in the UPSC tab; todayUpscClasses is in Today tab.
+    // Both containers get the same markup via UPSCTracker.renderTodayClasses.
+    if (typeof UPSCTracker !== 'undefined' && UPSCTracker.renderTodayClasses) {
+      UPSCTracker.renderTodayClasses('todayUpscClasses');
     }
-
-    const classes = UPSCTracker.getForDate(dateKey);
-    if (!classes.length) {
-      container.innerHTML = `<span class="empty-state-inline">No classes scheduled for ${dateLabel}</span>`;
-      return;
-    }
-
-    container.innerHTML = classes.map(c => `
-      <div class="today-upsc-item track-${c.track}">
-        <span class="tui-subj">${c.subject_name}</span>
-        <span class="tui-num">Class ${c.class_number}/${c.total_classes}</span>
-        <span class="tui-track">${c.track.toUpperCase()}</span>
-      </div>`).join('');
   },
 
   _renderRoutine() {

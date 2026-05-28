@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css?v=52">
+    <link rel="stylesheet" href="css/styles.css?v=53">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -247,9 +247,12 @@
           </div>
 
           <div class="pane-card">
-            <div class="pane-card-title">⚡ Today's Log</div>
+            <div class="pane-card-title" style="justify-content:space-between;">
+              <span>⚡ Today's Log</span>
+              <button class="card-tab-link" data-goto="health" title="Open Health tab for detailed logging and charts">Health →</button>
+            </div>
 
-            <!-- Health vitals row -->
+            <!-- Health vitals — read-only display; tap Sleep/Phone to edit in Health tab -->
             <div class="today-log-section-label">Health</div>
             <div class="qc-sidebar-grid">
               <div class="qc-card" id="qcSleepCard">
@@ -278,8 +281,11 @@
               </div>
             </div>
 
-            <!-- Nutrition habits — same data as Health tab checklist -->
-            <div class="today-log-section-label" style="margin-top:10px;">Nutrition habits</div>
+            <!-- Nutrition habits — primary entry point; Health tab shows streak analytics -->
+            <div class="today-log-section-label" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
+              <span>Nutrition habits</span>
+              <button class="card-tab-link" data-goto="health" title="See nutrition streak &amp; history in Health tab" style="font-size:10px;">history →</button>
+            </div>
             <div class="today-habits-icons" id="todayHabitsIcons">
               <span class="th-chip" id="th-eggs"       onclick="handleNutritionToggle('eggs')"       title="2 eggs eaten">🥚</span>
               <span class="th-chip" id="th-fish"       onclick="handleNutritionToggle('fish')"       title="Fish meal today">🐟</span>
@@ -296,7 +302,10 @@
           </div>
 
           <div class="pane-card">
-            <div class="pane-card-title">📚 Today's Classes</div>
+            <div class="pane-card-title" style="justify-content:space-between;">
+              <span>📚 Today's Classes</span>
+              <button class="card-tab-link" data-goto="upsc" title="Open UPSC tab to log completed classes">Log in UPSC →</button>
+            </div>
             <div id="todayUpscClasses"></div>
           </div>
 
@@ -2210,19 +2219,19 @@
 <script defer src="js/storage.js?v=39"></script>
 <script defer src="js/state.js?v=47"></script>
 <script defer src="js/scheduler.js?v=39"></script>
-<script defer src="js/upsc.js?v=39"></script>
+<script defer src="js/upsc.js?v=52"></script>
 <script defer src="js/finance.js?v=39"></script>
 <script defer src="js/health-data.js?v=39"></script>
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/mind.js?v=39"></script>
 <script defer src="js/growth.js?v=39"></script>
-<script defer src="js/tasks.js?v=46"></script>
+<script defer src="js/tasks.js?v=52"></script>
 <script defer src="js/study.js?v=51"></script>
 <script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/ui.js?v=52"></script>
 <script defer src="js/events.js?v=39"></script>
-<script defer src="js/tooltips.js?v=39"></script>
+<script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>
 <script defer src="js/backup.js?v=39"></script>
 <script defer src="js/main.js?v=39"></script>

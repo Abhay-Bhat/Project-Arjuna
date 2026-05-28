@@ -5389,3 +5389,58 @@ html { scroll-behavior: smooth; }
   }
   .sidebar-toggle { display: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v52 — Phase 3: Component unification + nav links + qc-card click cue
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Internal navigation link inside card titles ── */
+.card-tab-link {
+  background: none; border: none;
+  color: var(--brand);
+  font-size: 11px; font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer; padding: 2px 0;
+  white-space: nowrap;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+.card-tab-link:hover { opacity: 1; text-decoration: underline; }
+
+/* ── qc-cards: show pointer cursor on clickable ones ── */
+#qcSleepCard, #qcPhoneCard, #qcStreakCard {
+  cursor: pointer;
+}
+#qcSleepCard .qc-label::after  { content: ' ↗'; font-size: 8px; opacity: 0.5; }
+#qcPhoneCard .qc-label::after  { content: ' ↗'; font-size: 8px; opacity: 0.5; }
+#qcStreakCard .qc-label::after { content: ' ↗'; font-size: 8px; opacity: 0.5; }
+#qcCACard .qc-label::after     { content: ' ↗'; font-size: 8px; opacity: 0.5; }
+
+/* ── Phase 3: Unified card visual system ── */
+/* All card types share the same base radius/shadow/border language */
+.pane-card,
+.stat-card,
+.domain-card,
+.qc-card,
+.sa-cmp-card,
+.study-stat-chip {
+  border-radius: var(--radius-md);
+}
+/* Consistent border on stat-card variants */
+.stat-card { border: 1px solid var(--border); }
+
+/* ── info-icon wrapper always stays inline ── */
+.btn-with-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  vertical-align: middle;
+}
+
+/* ── today-log-section-label flex layout ── */
+.today-log-section-label {
+  display: flex;
+  align-items: center;
+}

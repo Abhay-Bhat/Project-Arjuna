@@ -241,23 +241,9 @@ const UPSCTracker = {
     const selDateLabel = isToday
       ? 'today'
       : AppState.selectedDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-    const todayCls = this.getForDate(selDateKey);
-    const todayEl  = document.getElementById('upscTodayClasses');
-    if (todayEl) {
-      if (PhaseManager.isUPSCPaused(AppState.selectedDate)) {
-        todayEl.innerHTML = `<div class="pause-badge">⏸ UPSC Paused</div>`;
-      } else if (todayCls.length) {
-        todayEl.innerHTML = todayCls.map(c =>
-          `<div class="today-class-item track-${c.track}">
-            <span class="tc-num">Class ${c.class_number}/${c.total_classes}</span>
-            <span class="tc-name">${c.subject_name}</span>
-            <span class="tc-track">${c.track.toUpperCase()}</span>
-          </div>`
-        ).join('');
-      } else {
-        todayEl.innerHTML = `<div class="empty-state">No classes scheduled for ${selDateLabel}</div>`;
-      }
-    }
+    // Single canonical render — also updates Today tab's container if present
+    this.renderTodayClasses('upscTodayClasses');
+    this.renderTodayClasses('todayUpscClasses');
 
     // Current subject
     const cur = this.getCurrentSubject();
@@ -293,6 +279,31 @@ const UPSCTracker = {
       banner.style.display = 'none';
       banner.innerHTML = '';
     }
+  },
+
+  // Shared render for today's classes — used by both Today tab and UPSC tab
+  renderTodayClasses(containerId) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    this.initSchedule(false);
+    const dateKey   = AppState.getDateKey();
+    const isToday   = dateKey === AppState.getTodayKey();
+    const dateLabel = isToday
+      ? 'today'
+      : AppState.selectedDate.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    if (PhaseManager.isUPSCPaused(AppState.selectedDate)) {
+      el.innerHTML = `<div class="pause-badge">⏸ UPSC Paused</div>`;
+      return;
+    }
+    const classes = this.getForDate(dateKey);
+    el.innerHTML = classes.length
+      ? classes.map(c =>
+          `<div class="today-class-item track-${c.track}">
+            <span class="tc-num">Class ${c.class_number}/${c.total_classes}</span>
+            <span class="tc-name">${c.subject_name}</span>
+            <span class="tc-track">${c.track.toUpperCase()}</span>
+          </div>`).join('')
+      : `<div class="empty-state">No classes scheduled for ${dateLabel}</div>`;
   },
 
   renderSubjectGrid() {
