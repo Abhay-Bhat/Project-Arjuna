@@ -12,13 +12,24 @@ let focusActive  = false;
 let allowlist    = [];  // Array<string> of hostnames e.g. ["ncert.nic.in"]
 let dashOrigins  = [];  // Registered dashboard origins e.g. ["https://abhay-bhat.github.io"]
 
+// Known dashboard URLs — always allowed, always act as admin console.
+// The extension communicates with these pages via the content.js bridge.
+const KNOWN_DASHBOARDS = [
+  'https://abhay-bhat.github.io',
+  'https://project-arjuna.netlify.app',
+  'http://localhost:8080',
+  'http://localhost:3000',
+];
+
 // Load persisted state on startup
 chrome.storage.local.get(
   [STORAGE_KEY_ACTIVE, STORAGE_KEY_ALLOWLIST, STORAGE_KEY_DASHBOARD],
   data => {
     focusActive = !!data[STORAGE_KEY_ACTIVE];
     allowlist   = data[STORAGE_KEY_ALLOWLIST] || [];
-    dashOrigins = data[STORAGE_KEY_DASHBOARD] || [];
+    // Merge known dashboards with any saved ones
+    const saved = data[STORAGE_KEY_DASHBOARD] || [];
+    dashOrigins = [...new Set([...KNOWN_DASHBOARDS, ...saved])];
   }
 );
 

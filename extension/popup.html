@@ -4,82 +4,180 @@
   <meta charset="UTF-8">
   <title>Skadi Focus Guard</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      width: 300px;
-      background: #0e1629;
-      color: #cdd6f4;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      width: 320px;
+      background: #07091a;
+      color: #e8ecf8;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       font-size: 13px;
-      padding: 16px;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
     }
-    h1 { font-size: 15px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-    .badge {
-      font-size: 10px; font-weight: 700; padding: 2px 7px;
-      border-radius: 999px; letter-spacing: 0.06em;
+
+    /* ── Header ── */
+    .hdr {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      background: linear-gradient(180deg, rgba(92,128,255,0.1) 0%, transparent 100%);
     }
-    .badge-on  { background: #00d47c22; color: #00d47c; border: 1px solid #00d47c55; }
-    .badge-off { background: #6e7aaa22; color: #6e7aaa;  border: 1px solid #6e7aaa44; }
-    .sub { font-size: 11px; color: #6e7aaa; margin-bottom: 16px; }
-    label { display: block; font-size: 11px; font-weight: 600; color: #6e7aaa; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    .input-row { display: flex; gap: 6px; margin-bottom: 12px; }
-    input[type="text"] {
-      flex: 1; background: #080e1e; border: 1px solid #1e2a45;
-      border-radius: 6px; padding: 7px 10px; color: #cdd6f4; font-size: 12px;
-      outline: none;
+    .hdr-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .hdr-brand { display: flex; align-items: center; gap: 8px; }
+    .hdr-brand img { width: 20px; height: 20px; border-radius: 4px; }
+    .hdr-brand span { font-weight: 700; font-size: 14px; color: #e8ecf8; letter-spacing: 0.01em; }
+    .status-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+      transition: all 0.2s;
     }
-    input[type="text"]::placeholder { color: #6e7aaa; }
-    input[type="text"]:focus { border-color: #4d79ff; }
-    button {
-      background: #4d79ff; color: #fff; border: none;
-      border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600;
-      cursor: pointer; transition: opacity 0.15s;
+    .status-pill.active   { background: rgba(0,212,124,0.15); color: #00d47c; border: 1px solid rgba(0,212,124,0.3); }
+    .status-pill.inactive { background: rgba(104,114,168,0.15); color: #6872a8; border: 1px solid rgba(104,114,168,0.25); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* Dashboard link */
+    .dash-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 10px;
+      background: rgba(92,128,255,0.08);
+      border: 1px solid rgba(92,128,255,0.2);
+      border-radius: 8px;
+      color: #8aabff;
+      font-size: 11.5px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
     }
-    button:hover { opacity: 0.85; }
-    button.ghost {
-      background: transparent; border: 1px solid #1e2a45;
-      color: #6e7aaa; padding: 5px 10px; font-size: 11px;
+    .dash-link:hover { background: rgba(92,128,255,0.15); border-color: rgba(92,128,255,0.35); color: #b0c4ff; }
+    .dash-link span { opacity: 0.6; font-size: 13px; }
+
+    /* ── Body ── */
+    .body { padding: 14px 16px; }
+
+    .field-label {
+      font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6872a8; margin-bottom: 7px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .domain-list { list-style: none; max-height: 160px; overflow-y: auto; }
+    .domain-count { font-weight: 600; color: #8aabff; font-size: 10px; text-transform: none; letter-spacing: 0; }
+
+    .input-row { display: flex; gap: 7px; margin-bottom: 10px; }
+    .input-row input {
+      flex: 1;
+      background: #111826; border: 1px solid #1a2240;
+      border-radius: 8px; padding: 8px 11px;
+      color: #e8ecf8; font-size: 12.5px;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .input-row input::placeholder { color: #2e3860; }
+    .input-row input:focus {
+      border-color: #5c80ff;
+      box-shadow: 0 0 0 3px rgba(92,128,255,0.18);
+    }
+    .add-btn {
+      background: linear-gradient(160deg, #6b8fff, #5c80ff);
+      color: #fff; border: none;
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      white-space: nowrap; letter-spacing: 0.02em;
+    }
+    .add-btn:hover { opacity: 0.9; }
+    .add-btn:active { transform: scale(0.96); }
+
+    .domain-list {
+      list-style: none;
+      max-height: 140px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: #1a2240 transparent;
+      margin-bottom: 12px;
+    }
+    .domain-list::-webkit-scrollbar { width: 4px; }
+    .domain-list::-webkit-scrollbar-thumb { background: #1a2240; border-radius: 99px; }
     .domain-list li {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 5px 8px; border-radius: 5px; font-size: 12px;
+      padding: 6px 8px; border-radius: 7px;
+      font-size: 12px; color: #b0c4ff; transition: background 0.12s;
     }
-    .domain-list li:hover { background: #080e1e; }
+    .domain-list li:hover { background: rgba(255,255,255,0.04); }
+    .domain-name { font-family: 'SF Mono', 'Cascadia Code', monospace; font-size: 11.5px; }
     .rm-btn {
-      background: none; border: none; color: #6e7aaa;
-      cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1;
+      background: none; border: none; color: #6872a8;
+      cursor: pointer; font-size: 15px; padding: 0 3px; line-height: 1;
+      transition: color 0.12s; flex-shrink: 0;
     }
-    .rm-btn:hover { color: #ff6b6b; }
-    .empty { color: #6e7aaa; font-size: 12px; font-style: italic; padding: 4px 0; }
+    .rm-btn:hover { color: #ff5c80; }
+    .empty-msg { font-size: 12px; color: #2e3860; font-style: italic; padding: 8px; text-align: center; }
+
+    /* ── Toggle button ── */
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin-bottom: 12px; }
     .toggle-btn {
-      width: 100%; margin-top: 12px; padding: 10px;
-      font-size: 13px; border-radius: 8px;
+      width: 100%; padding: 10px;
+      border-radius: 9px; font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none;
+      transition: all 0.18s; letter-spacing: 0.02em;
     }
-    .toggle-btn.active { background: #ff6b6b55; border: 1px solid #ff6b6b88; color: #ff6b6b; }
-    .toggle-btn.inactive { background: #00d47c22; border: 1px solid #00d47c55; color: #00d47c; }
-    hr { border: none; border-top: 1px solid #1e2a45; margin: 14px 0; }
+    .toggle-btn.will-start {
+      background: rgba(0,212,124,0.12);
+      border: 1px solid rgba(0,212,124,0.3);
+      color: #00d47c;
+    }
+    .toggle-btn.will-start:hover { background: rgba(0,212,124,0.2); box-shadow: 0 0 0 3px rgba(0,212,124,0.12); }
+    .toggle-btn.will-stop {
+      background: rgba(255,92,128,0.12);
+      border: 1px solid rgba(255,92,128,0.3);
+      color: #ff5c80;
+    }
+    .toggle-btn.will-stop:hover { background: rgba(255,92,128,0.2); box-shadow: 0 0 0 3px rgba(255,92,128,0.12); }
+    .toggle-btn:active { transform: scale(0.98); }
+
+    /* ── How it works note ── */
+    .how-note {
+      margin-top: 10px; padding: 8px 10px;
+      background: rgba(92,128,255,0.05);
+      border-radius: 8px; border-left: 2px solid rgba(92,128,255,0.3);
+      font-size: 11px; color: #6872a8; line-height: 1.6;
+    }
+    .how-note strong { color: #8aabff; }
   </style>
 </head>
 <body>
-  <h1>
-    🛡️ Focus Guard
-    <span class="badge" id="statusBadge">OFF</span>
-  </h1>
-  <p class="sub">Allowlist — sites you can visit during focus sessions</p>
-
-  <label>Add domain</label>
-  <div class="input-row">
-    <input type="text" id="domainInput" placeholder="e.g. ncert.nic.in" />
-    <button id="addBtn">Add</button>
+  <div class="hdr">
+    <div class="hdr-top">
+      <div class="hdr-brand">
+        <img src="icons/icon48.png" alt="">
+        <span>Focus Guard</span>
+      </div>
+      <div class="status-pill inactive" id="statusPill">
+        <div class="status-dot"></div>
+        <span id="statusText">OFF</span>
+      </div>
+    </div>
+    <a class="dash-link" href="#" id="dashLink" target="_blank">
+      Open Skadi Dashboard (admin console)
+      <span>↗</span>
+    </a>
   </div>
 
-  <label>Allowed sites</label>
-  <ul class="domain-list" id="domainList"></ul>
+  <div class="body">
+    <div class="field-label">
+      Allowed sites during focus
+      <span class="domain-count" id="domainCount"></span>
+    </div>
+    <div class="input-row">
+      <input type="text" id="domainInput" placeholder="e.g. ncert.nic.in" autocomplete="off" spellcheck="false" />
+      <button class="add-btn" id="addBtn">Add</button>
+    </div>
+    <ul class="domain-list" id="domainList"></ul>
 
-  <hr>
+    <div class="divider"></div>
+    <button class="toggle-btn will-start" id="toggleBtn">▶ Start Focus Session</button>
 
-  <button class="toggle-btn" id="toggleBtn">—</button>
+    <div class="how-note">
+      <strong>How it works:</strong> Visit your Skadi dashboard — the extension auto-connects and syncs your allowlist. The timer start/stop also triggers focus mode automatically.
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>

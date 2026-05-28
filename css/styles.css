@@ -7,27 +7,33 @@
 
 :root {
   /* ── Dark theme (default) ── */
-  --bg: #080c1a; --surface: #0e1326; --card: #121828; --card-hover: #18203a;
-  --border: #1c2340; --border-bright: #263050; --text: #eaedfa; --text-muted: #6e7aaa;
-  --text-faint: #313d6a; --accent-blue: #5b7fff; --accent-teal: #00d4c8;
+  --bg: #07091a; --surface: #0d1124; --card: #111826; --card-hover: #171f36;
+  --border: #1a2240; --border-bright: #24304e; --text: #e8ecf8; --text-muted: #6872a8;
+  --text-faint: #2e3860; --accent-blue: #5c80ff; --accent-teal: #00d4c8;
   --accent-amber: #ff9933; --accent-rose: #ff5c80; --accent-green: #00d47c;
   --accent-violet: #a56eff; --accent-gold: #ffc107;
-  --shadow-sm: 0 2px 10px rgba(0,0,0,0.45); --shadow-md: 0 6px 24px rgba(0,0,0,0.55);
-  --shadow-lg: 0 12px 48px rgba(0,0,0,0.65);
-  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --transition: 0.2s ease;
+  --accent: var(--accent-blue);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.28);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.40), 0 8px 32px rgba(0,0,0,0.35);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.50), 0 16px 56px rgba(0,0,0,0.45);
+  --ring: rgba(92,128,255,0.40);
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --transition: 0.18s ease;
   --font-main: 'Aptos', 'Aptos Display', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-family: var(--font-main);
 }
 
 [data-theme="light"] {
-  /* ── Light theme — warm, readable, not harsh ── */
-  --bg: #eef0f8; --surface: #f7f8fe; --card: #ffffff; --card-hover: #f0f3ff;
-  --border: #d8dcf0; --border-bright: #adb6dd; --text: #1e2340; --text-muted: #5c6480;
-  --text-faint: #8890b8; --accent-blue: #3d5cf5; --accent-teal: #00a59a;
+  /* ── Light theme ── */
+  --bg: #eaecf6; --surface: #f4f5fb; --card: #fafbff; --card-hover: #eef1ff;
+  --border: #d0d5ec; --border-bright: #a8b2d4; --text: #1a1e38; --text-muted: #525870;
+  --text-faint: #8890b8; --accent-blue: #3a56f0; --accent-teal: #00a59a;
   --accent-amber: #d97706; --accent-rose: #dc2f5a; --accent-green: #059669;
   --accent-violet: #6d28d9; --accent-gold: #b45309;
-  --shadow-sm: 0 2px 10px rgba(60,80,180,0.10); --shadow-md: 0 6px 24px rgba(60,80,180,0.13);
-  --shadow-lg: 0 12px 48px rgba(60,80,180,0.18);
+  --accent: var(--accent-blue);
+  --shadow-sm: 0 1px 3px rgba(40,60,160,0.07), 0 3px 10px rgba(40,60,160,0.09);
+  --shadow-md: 0 4px 12px rgba(40,60,160,0.10), 0 8px 28px rgba(40,60,160,0.10);
+  --shadow-lg: 0 8px 24px rgba(40,60,160,0.14), 0 16px 48px rgba(40,60,160,0.12);
+  --ring: rgba(58,86,240,0.30);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,13 +45,18 @@ body {
   transition: background var(--transition), color var(--transition);
 }
 
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 3px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+::selection { background: color-mix(in srgb, var(--accent-blue) 30%, transparent); color: var(--text); }
+
+*:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; border-radius: 4px; }
 
 h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .mono { font-family: 'Space Mono', monospace; }
-.num { font-family: 'Space Mono', monospace; font-size: 14px; }
+.num { font-family: 'Space Mono', monospace; font-size: 14px; font-feature-settings: "tnum" 1; }
 
 /* Full-viewport layout — no artificial centering constraint */
 .app-shell {
@@ -4694,3 +4705,302 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .fg-install-note a { color: var(--accent); text-decoration: none; }
 .fg-install-note a:hover { text-decoration: underline; }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   PRODUCTION POLISH — v50
+   Fine-tuned interaction states, visual hierarchy, and theme quality.
+   These rules are additive / override-only — no layout changes.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Smooth body render ─────────────────────────────────────────────── */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* ── Lag / notice banner ────────────────────────────────────────────── */
+.upsc-lag-banner {
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  animation: slideInDown 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes slideInDown {
+  from { transform: translateY(-8px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Tab navigation ─────────────────────────────────────────────────── */
+.tab-btn {
+  position: relative;
+  letter-spacing: 0.01em;
+  font-size: 13.5px;
+  font-weight: 500;
+  border-bottom-width: 0;          /* hide old 2px underline */
+  padding-bottom: 14px;
+}
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
+  width: 80%;
+  height: 2.5px;
+  background: var(--accent-blue);
+  border-radius: 99px;
+  transition: transform 0.22s cubic-bezier(0.4,0,0.2,1), opacity 0.22s;
+  opacity: 0;
+}
+.tab-btn:hover::after { transform: translateX(-50%) scaleX(0.5); opacity: 0.5; }
+.tab-btn.active::after { transform: translateX(-50%) scaleX(1); opacity: 1; }
+.tab-btn.active { color: var(--accent-blue); border-bottom-color: transparent; }
+
+/* ── Buttons ────────────────────────────────────────────────────────── */
+.btn {
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn:active:not(:disabled) { transform: scale(0.96); }
+.btn-primary {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent-blue) 85%, #fff 15%), var(--accent-blue));
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-blue) 40%, transparent);
+}
+.btn-primary:hover { opacity: 1; background: linear-gradient(160deg, var(--accent-blue), color-mix(in srgb, var(--accent-blue) 85%, #000 15%)); box-shadow: 0 4px 16px color-mix(in srgb, var(--accent-blue) 50%, transparent); }
+.btn:disabled, .btn[disabled] { opacity: 0.42; cursor: not-allowed; pointer-events: none; }
+
+/* ── Card quality ───────────────────────────────────────────────────── */
+.card, .stat-card, .card-primary {
+  transition: border-color var(--transition), box-shadow var(--transition),
+              transform 0.18s ease, background-color var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+.card:hover, .stat-card:hover, .card-primary:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--border-bright);
+}
+
+/* Dark mode: subtle top-edge highlight on cards */
+:root .card, :root .stat-card, :root .card-primary {
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+}
+/* Light mode: clean white cards with crisp shadow */
+[data-theme="light"] .card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .card-primary {
+  background-image: none;
+  background-color: var(--card);
+  box-shadow: 0 1px 2px rgba(40,60,160,0.06), 0 3px 12px rgba(40,60,160,0.08);
+}
+[data-theme="light"] .card:hover,
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .card-primary:hover {
+  box-shadow: 0 4px 16px rgba(40,60,160,0.13), 0 1px 3px rgba(40,60,160,0.07);
+}
+
+/* ── Section titles ─────────────────────────────────────────────────── */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+[data-theme="light"] .section-title { color: var(--text-muted); }
+
+/* ── Stat card numbers ──────────────────────────────────────────────── */
+.stat-card-value {
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.02em;
+}
+.stat-card-title {
+  font-size: 10.5px;
+  letter-spacing: 0.09em;
+  font-weight: 700;
+}
+
+/* ── Inputs global polish ───────────────────────────────────────────── */
+input::placeholder, textarea::placeholder, select option:disabled { color: var(--text-faint); }
+input:not([type=checkbox]):not([type=radio]),
+select, textarea {
+  transition: border-color var(--transition), box-shadow var(--transition), background-color var(--transition);
+}
+input:not([type=checkbox]):not([type=radio]):focus,
+select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+[data-theme="light"] input:not([type=checkbox]):not([type=radio]):focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  background-color: #fff;
+}
+
+/* ── Badges / chips general quality ────────────────────────────────── */
+.status-badge, .priority-badge, .submitted-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* ── Progress bars ──────────────────────────────────────────────────── */
+.progress-bar, .phase-progress-bar, .study-goal-bar {
+  border-radius: 99px;
+  overflow: hidden;
+}
+.progress-fill, .phase-progress-fill, .study-goal-fill {
+  border-radius: 99px;
+}
+
+/* ── Streak / heatmap cells ─────────────────────────────────────────── */
+.sa-hm-cell { border-radius: 3px; transition: opacity 0.15s; }
+.sa-hm-cell:hover { opacity: 0.8; }
+
+/* ── Comparison chips upgrade ───────────────────────────────────────── */
+.sa-cmp-card {
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.sa-cmp-card:hover {
+  border-color: var(--border-bright);
+  background: var(--card-hover);
+  box-shadow: var(--shadow-sm);
+}
+.sa-cmp-cur { letter-spacing: -0.02em; font-feature-settings: "tnum" 1; }
+
+/* ── Chart cards ────────────────────────────────────────────────────── */
+.sa-chart-card {
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), border-color var(--transition);
+}
+.sa-chart-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-bright); }
+
+/* ── Insight bar ────────────────────────────────────────────────────── */
+.sa-insight {
+  border-left-width: 3px;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Focus Guard section ────────────────────────────────────────────── */
+.fg-section {
+  box-shadow: var(--shadow-sm);
+}
+.fg-add-btn { letter-spacing: 0.02em; }
+
+/* ── Study range buttons ────────────────────────────────────────────── */
+.study-range-btn {
+  transition: all var(--transition);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+.study-range-btn:not(.active):hover {
+  background: var(--card-hover);
+  border-color: var(--border-bright);
+}
+.study-range-btn.active {
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--accent-blue) 30%, transparent);
+}
+
+/* ── Task buckets / boards ──────────────────────────────────────────── */
+.qc-col-header { letter-spacing: 0.04em; }
+
+/* ── UPSC schedule table ────────────────────────────────────────────── */
+.data-table th {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+}
+
+/* ── Toast refinement ───────────────────────────────────────────────── */
+.toast {
+  font-size: 13.5px;
+  letter-spacing: 0.01em;
+  font-weight: 500;
+}
+
+/* ── Header / title-card ────────────────────────────────────────────── */
+.app-header h1 {
+  filter: drop-shadow(0 0 28px rgba(92,168,240,0.45));
+}
+[data-theme="light"] .tab-nav {
+  border-bottom-color: rgba(40,60,160,0.12);
+}
+[data-theme="light"] .title-card {
+  border-bottom-color: rgba(40,60,160,0.12);
+}
+
+/* ── Nav pills in light mode ────────────────────────────────────────── */
+[data-theme="light"] .tab-btn:hover { background: rgba(58,86,240,0.06); border-radius: 8px 8px 0 0; }
+[data-theme="light"] .tab-btn.active { background: rgba(58,86,240,0.08); border-radius: 8px 8px 0 0; }
+
+/* ── Pane cards in light mode ───────────────────────────────────────── */
+[data-theme="light"] .pane-left .card,
+[data-theme="light"] .pane-right .card {
+  border-color: var(--border);
+}
+
+/* ── Dropdown menu quality ──────────────────────────────────────────── */
+.hdr-dropdown {
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+}
+.hdr-dropdown-item {
+  transition: background var(--transition), color var(--transition);
+  border-radius: 8px;
+}
+
+/* ── Modal quality ──────────────────────────────────────────────────── */
+.onboarding-modal, .devops-modal, .upsc-detail-modal {
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-bright);
+}
+
+/* ── Subtle page-level ambient glow (dark only) ─────────────────────── */
+:root body::before {
+  content: '';
+  position: fixed;
+  top: -40%; left: 50%;
+  transform: translateX(-50%);
+  width: 80vw; height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(92,128,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Light theme: override ambient glow ─────────────────────────────── */
+[data-theme="light"] body::before { display: none; }
+
+/* ── Streak count badge ─────────────────────────────────────────────── */
+.sa-streak-count {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ── Summary stat chips (study section) ─────────────────────────────── */
+.study-stat-chip {
+  transition: background var(--transition);
+}
+
+/* ── Phase badge ────────────────────────────────────────────────────── */
+.phase-now-badge {
+  letter-spacing: 0.04em;
+}
+
+/* ── Light mode specific stat card improvement ──────────────────────── */
+[data-theme="light"] .stat-card-value { color: var(--text); }
+[data-theme="light"] .stat-card-title { color: var(--text-muted); }
+
+/* ── Light mode section title ───────────────────────────────────────── */
+[data-theme="light"] .section-title {
+  border-bottom-color: var(--border);
+}
+
+/* ── Smooth scroll for entire page ──────────────────────────────────── */
+html { scroll-behavior: smooth; }

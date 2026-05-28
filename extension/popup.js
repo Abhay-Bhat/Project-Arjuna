@@ -1,29 +1,47 @@
 // Skadi Focus Guard — popup script
 
+const DASHBOARD_URL = 'https://abhay-bhat.github.io/Project-Arjuna/';
+
 let state = { focusActive: false, allowlist: [], dashOrigins: [] };
 
 function render() {
-  const badge     = document.getElementById('statusBadge');
-  const toggleBtn = document.getElementById('toggleBtn');
-  const listEl    = document.getElementById('domainList');
+  const pill       = document.getElementById('statusPill');
+  const statusText = document.getElementById('statusText');
+  const toggleBtn  = document.getElementById('toggleBtn');
+  const listEl     = document.getElementById('domainList');
+  const countEl    = document.getElementById('domainCount');
+  const dashLink   = document.getElementById('dashLink');
 
-  badge.textContent  = state.focusActive ? 'ON' : 'OFF';
-  badge.className    = 'badge ' + (state.focusActive ? 'badge-on' : 'badge-off');
-  toggleBtn.textContent = state.focusActive ? '⏹ End Focus Session' : '▶ Start Focus Session';
-  toggleBtn.className   = 'toggle-btn ' + (state.focusActive ? 'active' : 'inactive');
+  // Status pill
+  const active = state.focusActive;
+  pill.className    = 'status-pill ' + (active ? 'active' : 'inactive');
+  statusText.textContent = active ? 'FOCUS ON' : 'OFF';
 
+  // Toggle button
+  toggleBtn.className   = 'toggle-btn ' + (active ? 'will-stop' : 'will-start');
+  toggleBtn.textContent = active ? '⏹  End Focus Session' : '▶  Start Focus Session';
+
+  // Dashboard link — use first registered dashboard or default
+  const dashHost = (state.dashOrigins || []).find(o => o.startsWith('https://abhay'));
+  dashLink.href = dashHost ? dashHost + '/' : DASHBOARD_URL;
+
+  // Domain count
+  const n = state.allowlist.length;
+  countEl.textContent = n > 0 ? `${n} site${n === 1 ? '' : 's'}` : '';
+
+  // Domain list
   listEl.innerHTML = '';
   if (!state.allowlist.length) {
-    listEl.innerHTML = '<li><span class="empty">No domains added yet</span></li>';
+    listEl.innerHTML = '<li><div class="empty-msg">No allowed sites yet</div></li>';
     return;
   }
   state.allowlist.forEach(host => {
     const li = document.createElement('li');
-    li.innerHTML = `<span>${host}</span><button class="rm-btn" data-host="${host}">×</button>`;
+    li.innerHTML = `
+      <span class="domain-name">${host}</span>
+      <button class="rm-btn" data-host="${host}" title="Remove">×</button>`;
+    li.querySelector('.rm-btn').addEventListener('click', () => removeDomain(host));
     listEl.appendChild(li);
-  });
-  listEl.querySelectorAll('.rm-btn').forEach(btn => {
-    btn.addEventListener('click', () => removeDomain(btn.dataset.host));
   });
 }
 
@@ -35,19 +53,21 @@ function loadState() {
 
 function addDomain() {
   const input = document.getElementById('domainInput');
-  let host = input.value.trim().toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/.*$/, '');
-  if (!host || state.allowlist.includes(host)) return;
+  let host = input.value.trim().toLowerCase()
+    .replace(/^(https?:\/\/)?(www\.)?/, '')
+    .replace(/\/.*$/, '');
+  if (!host || state.allowlist.includes(host)) { input.value = ''; return; }
   state.allowlist.push(host);
   input.value = '';
-  syncAllowlist();
+  sync();
 }
 
 function removeDomain(host) {
   state.allowlist = state.allowlist.filter(h => h !== host);
-  syncAllowlist();
+  sync();
 }
 
-function syncAllowlist() {
+function sync() {
   chrome.runtime.sendMessage({ type: 'SKADI_SET_ALLOWLIST', allowlist: state.allowlist }, () => render());
 }
 
@@ -59,8 +79,16 @@ function toggleFocus() {
   });
 }
 
+// Open dashboard link in a new tab
+document.getElementById('dashLink').addEventListener('click', e => {
+  e.preventDefault();
+  chrome.tabs.create({ url: e.currentTarget.href });
+});
+
 document.getElementById('addBtn').addEventListener('click', addDomain);
-document.getElementById('domainInput').addEventListener('keydown', e => { if (e.key === 'Enter') addDomain(); });
+document.getElementById('domainInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addDomain();
+});
 document.getElementById('toggleBtn').addEventListener('click', toggleFocus);
 
 loadState();
