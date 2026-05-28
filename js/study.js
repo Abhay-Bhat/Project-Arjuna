@@ -8,16 +8,23 @@ const StudyTracker = {
   // ── Defaults ──────────────────────────────────────────────
 
   DEFAULT_SUBJECTS: [
-    { id: 'history',         label: 'History',        emoji: '🏛️', color: '#e8916a' },
-    { id: 'geography',       label: 'Geography',       emoji: '🌍', color: '#5cb88a' },
-    { id: 'polity',          label: 'Polity',          emoji: '⚖️', color: '#6a7be8' },
-    { id: 'economy',         label: 'Economy',         emoji: '📈', color: '#e8c56a' },
-    { id: 'science',         label: 'Science & Tech',  emoji: '🔬', color: '#56d4e0' },
-    { id: 'csat',            label: 'CSAT',            emoji: '🧮', color: '#e87ab0' },
-    { id: 'current_affairs', label: 'Current Affairs', emoji: '📰', color: '#9b7be8' },
-    { id: 'essay',           label: 'Essay',           emoji: '✍️', color: '#7ba8e8' },
-    { id: 'optional',        label: 'Optional',        emoji: '🎯', color: '#56e0c8' },
-    { id: 'revision',        label: 'Revision',        emoji: '🔄', color: '#e8a556' },
+    { id: 'history',         label: 'History',               emoji: '🏛️', color: '#e8916a' },
+    { id: 'geography',       label: 'Geography',             emoji: '🌍', color: '#5cb88a' },
+    { id: 'polity',          label: 'Polity & Governance',   emoji: '⚖️', color: '#6a7be8' },
+    { id: 'economy',         label: 'Economy',               emoji: '📈', color: '#e8c56a' },
+    { id: 'science',         label: 'Science & Tech',        emoji: '🔬', color: '#56d4e0' },
+    { id: 'environment',     label: 'Environment & Ecology', emoji: '🌿', color: '#4caf7d' },
+    { id: 'ethics',          label: 'Ethics & Integrity',    emoji: '🧭', color: '#9c7be8' },
+    { id: 'ir',              label: 'Intl. Relations',       emoji: '🌐', color: '#4db8c8' },
+    { id: 'security',        label: 'Internal Security',     emoji: '🛡️', color: '#e85c5c' },
+    { id: 'social',          label: 'Social Issues',         emoji: '🤝', color: '#ff9f40' },
+    { id: 'art_culture',     label: 'Art & Culture',         emoji: '🎨', color: '#ff6b9d' },
+    { id: 'disaster',        label: 'Disaster Mgmt',         emoji: '⛑️', color: '#ff6b35' },
+    { id: 'csat',            label: 'CSAT',                  emoji: '🧮', color: '#e87ab0' },
+    { id: 'current_affairs', label: 'Current Affairs',       emoji: '📰', color: '#9b7be8' },
+    { id: 'essay',           label: 'Essay',                 emoji: '✍️', color: '#7ba8e8' },
+    { id: 'optional',        label: 'Optional',              emoji: '🎯', color: '#56e0c8' },
+    { id: 'revision',        label: 'Revision',              emoji: '🔄', color: '#e8a556' },
   ],
 
   DEFAULT_ACTIVITIES: [
@@ -63,6 +70,17 @@ const StudyTracker = {
   getActivities() { return AppState.studyActivities || this.DEFAULT_ACTIVITIES; },
   getSubject(id)  { return this.getSubjects().find(s => s.id === id)   || this.DEFAULT_SUBJECTS[0]; },
   getActivity(id) { return this.getActivities().find(a => a.id === id) || this.DEFAULT_ACTIVITIES[0]; },
+
+  // Ensure saved subject list includes all current defaults (migration for existing users)
+  _ensureDefaultSubjects() {
+    if (!AppState.studySubjects) return;
+    const ids     = new Set(AppState.studySubjects.map(s => s.id));
+    const missing = this.DEFAULT_SUBJECTS.filter(s => !ids.has(s.id));
+    if (missing.length) {
+      AppState.studySubjects = [...AppState.studySubjects, ...missing];
+      AppState.save();
+    }
+  },
 
   // ── Tree logic: 25 min = full tree ────────────────────────
 
@@ -155,6 +173,7 @@ const StudyTracker = {
   // ── Main render ───────────────────────────────────────────
 
   render() {
+    this._ensureDefaultSubjects();
     this._renderClock();
     this._startClock();
     this._renderTimerPanel();
@@ -333,7 +352,7 @@ const StudyTracker = {
 
   _updateTodayStats() {
     const min  = this.getTodayTotalMin();
-    const goal = AppState.studyDailyGoal || 480;
+    const goal = AppState.studyDailyGoal || 240;
     const pct  = goal > 0 ? Math.min(100, Math.round((min / goal) * 100)) : 0;
     const s    = id => document.getElementById(id);
     if (s('studyTodayTotal')) s('studyTodayTotal').textContent = this.fmtDur(min);
@@ -553,6 +572,7 @@ const StudyTracker = {
     this._renderSubjBars(sessions);
     this._renderActivityBars(sessions);
     this._renderSessionList(sessions);
+    if (window.StudyAnalytics) StudyAnalytics.render(sessions, this._range);
   },
 
   _renderCanvasTrees(sessions) {

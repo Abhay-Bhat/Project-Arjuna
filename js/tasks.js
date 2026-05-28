@@ -478,6 +478,30 @@ const TasksTracker = {
       });
     };
 
+    // ── Auto-scroll when dragging near window edges ─────────
+    // Fires on every dragover anywhere in the document; scrolls the
+    // window when the pointer is within 80px of the top or bottom edge.
+    let _scrollRaf = null;
+    const _autoScroll = e => {
+      if (dragTaskId == null && dragBucketId == null) return;
+      cancelAnimationFrame(_scrollRaf);
+      const y   = e.clientY;
+      const h   = window.innerHeight;
+      const x   = e.clientX;
+      const w   = window.innerWidth;
+      const PAD = 80;
+      let dy = 0, dx = 0;
+      if (y < PAD)     dy = -Math.round((PAD - y) / PAD * 18);
+      if (y > h - PAD) dy =  Math.round((y - (h - PAD)) / PAD * 18);
+      if (x < PAD)     dx = -Math.round((PAD - x) / PAD * 14);
+      if (x > w - PAD) dx =  Math.round((x - (w - PAD)) / PAD * 14);
+      if (dy || dx) {
+        _scrollRaf = requestAnimationFrame(() => { window.scrollBy(dx, dy); });
+      }
+    };
+    document.addEventListener('dragover', _autoScroll);
+    document.addEventListener('dragend', () => { cancelAnimationFrame(_scrollRaf); }, { once: false });
+
     // ── Task item drag ──────────────────────────────────────
     board.querySelectorAll('.task-item').forEach(el => {
       el.addEventListener('dragstart', e => {

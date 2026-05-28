@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=41">
+    <link rel="stylesheet" href="css/styles.css?v=45">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -370,7 +370,7 @@
               </div>
               <div class="study-goal-inline">
                 <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
-                <input type="number" id="studyGoalInput" min="1" max="24" value="8" style="width:44px;text-align:center;"> h
+                <input type="number" id="studyGoalInput" min="1" max="24" value="4" style="width:44px;text-align:center;"> h
               </div>
             </div>
             <!-- Mode description -->
@@ -425,7 +425,7 @@
                 <div class="study-today-mini">
                   Today: <strong id="studyTodayTotal">0m</strong>
                   <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 8h goal</div>
+                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 4h goal</div>
                 </div>
               </div>
 
@@ -453,6 +453,24 @@
               </div>
             </div>
 
+            <!-- ── Streak Heatmap (always 90 days, range-independent) ── -->
+            <div class="sa-section">
+              <div class="sa-section-hdr">
+                <span class="sa-section-title">Study Streak</span>
+                <span class="sa-streak-count" id="saStreakCount"></span>
+              </div>
+              <div id="saHeatmap"></div>
+              <div class="sa-heatmap-legend">
+                <span>Less</span>
+                <div class="sa-hm-dot sa-hm-l1"></div>
+                <div class="sa-hm-dot sa-hm-l2"></div>
+                <div class="sa-hm-dot sa-hm-l3"></div>
+                <div class="sa-hm-dot sa-hm-l4"></div>
+                <div class="sa-hm-dot sa-hm-l5"></div>
+                <span>More</span>
+              </div>
+            </div>
+
             <!-- Range selector -->
             <div class="study-range-row" id="studyRangeRow">
               <button class="study-range-btn active" data-range="today">Today</button>
@@ -465,7 +483,44 @@
             <!-- Summary stats -->
             <div class="study-summary-row" id="studySummaryRow"></div>
 
-            <!-- Analytics: subject + activity breakdown side-by-side -->
+            <!-- ── Comparison stat chips ── -->
+            <div class="sa-comparison-row" id="saComparisonRow"></div>
+
+            <!-- ── Trend + Peak-hours charts ── -->
+            <div class="sa-charts-row">
+              <div class="sa-chart-card">
+                <div class="sa-chart-hdr">
+                  <span class="sa-chart-title" id="saTrendTitle">Daily Trend</span>
+                </div>
+                <div class="sa-chart-wrap"><canvas id="saTrendChart"></canvas></div>
+              </div>
+              <div class="sa-chart-card">
+                <div class="sa-chart-hdr">
+                  <span class="sa-chart-title">Peak Study Hours</span>
+                </div>
+                <div class="sa-chart-wrap"><canvas id="saHourChart"></canvas></div>
+              </div>
+            </div>
+
+            <!-- ── Activity + Subject doughnut charts ── -->
+            <div class="sa-charts-row">
+              <div class="sa-chart-card">
+                <div class="sa-chart-hdr"><span class="sa-chart-title">By Activity</span></div>
+                <div class="sa-donut-wrap">
+                  <canvas id="saActivityChart"></canvas>
+                  <div class="sa-donut-legend" id="saActivityLegend"></div>
+                </div>
+              </div>
+              <div class="sa-chart-card">
+                <div class="sa-chart-hdr"><span class="sa-chart-title">By Subject</span></div>
+                <div class="sa-donut-wrap">
+                  <canvas id="saSubjectChart"></canvas>
+                  <div class="sa-donut-legend" id="saSubjectLegend"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detailed bars (subject + activity breakdown) -->
             <div class="study-analytics-row">
               <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
               <div class="study-subj-bars-wrap" id="studyActBarsMain"></div>
@@ -2083,8 +2138,9 @@
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/mind.js?v=39"></script>
 <script defer src="js/growth.js?v=39"></script>
-<script defer src="js/tasks.js?v=39"></script>
-<script defer src="js/study.js?v=44"></script>
+<script defer src="js/tasks.js?v=45"></script>
+<script defer src="js/study.js?v=45"></script>
+<script defer src="js/study-analytics.js?v=45"></script>
 <script defer src="js/ui.js?v=39"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=39"></script>

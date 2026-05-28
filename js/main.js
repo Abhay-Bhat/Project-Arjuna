@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     SeedData.apply();
     UI.init();
     Events.init();
-    if (window.DevOpsGuide) window.DevOpsGuide.init();
+    if (window.DevOpsGuide)    window.DevOpsGuide.init();
+    if (window.StudyAnalytics) StudyAnalytics.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
     // Reveal the app — fade out the loading overlay
