@@ -1,6 +1,6 @@
 // ============================================================
 // Skadi — Study Tracker v4
-// 40-min tree rule · withered trees · Pomodoro · editable lists
+// 25-min tree rule · withered trees · Pomodoro · editable lists
 // ============================================================
 
 const StudyTracker = {
@@ -31,17 +31,18 @@ const StudyTracker = {
   ],
 
   MODE_DESCS: {
-    stopwatch: 'Counts up freely — stop anytime to save. No target, no pressure.',
-    countdown: 'Set your target duration. Stop early and your tree withers 🥀.',
-    pomodoro:  '25 min focus + 5 min break, cycling automatically. Complete each round to grow a tree.',
+    stopwatch: 'Counts up — a tree grows every 25 minutes. Stop anytime.',
+    countdown: 'Set your target — a tree grows every 25 minutes. Partial rounds wither 🥀.',
+    pomodoro:  '25 min focus + 5 min break. A tree grows each focus round; breaks don\'t count.',
   },
 
   // ── Runtime state ─────────────────────────────────────────
 
   _timerInterval: null,
   _clockInterval: null,
-  _elapsed:        0,     // seconds elapsed this phase
-  _countdown:      0,     // total seconds for countdown/pomodoro work phase
+  _elapsed:           0,  // seconds elapsed in current phase
+  _treePhaseElapsed:  0,  // seconds elapsed in current 25-min tree cycle (stopwatch/countdown only)
+  _countdown:         0,  // total seconds for countdown/pomodoro work phase
   _running:        false,
   _mode:          'stopwatch',  // stopwatch | countdown | pomodoro
   _activeSubject:  null,
@@ -63,7 +64,7 @@ const StudyTracker = {
   getSubject(id)  { return this.getSubjects().find(s => s.id === id)   || this.DEFAULT_SUBJECTS[0]; },
   getActivity(id) { return this.getActivities().find(a => a.id === id) || this.DEFAULT_ACTIVITIES[0]; },
 
-  // ── Tree logic: 40 min = full tree ────────────────────────
+  // ── Tree logic: 25 min = full tree ────────────────────────
 
   // Returns the emoji for a completed/saved session
   treeEmoji(durationMin, activityId, completed = true) {
@@ -71,34 +72,40 @@ const StudyTracker = {
     const act = this.getActivity(activityId);
     const full = act?.tree || '🌳';
     if (durationMin < 10) return '🌱';
-    if (durationMin < 25) return '🌿';
-    if (durationMin < 40) return '🪴';
-    return full;                               // ≥ 40 min = activity species
+    if (durationMin < 20) return '🌿';
+    if (durationMin < 25) return '🪴';
+    return full;                               // ≥ 25 min = full activity species
   },
 
-  // CSS scale for canvas trees — 40 min = scale 1.0
+  // CSS scale for canvas trees — 25 min = scale 1.0
   treeScale(durationMin) {
     if (durationMin < 10) return 0.55;
-    if (durationMin < 25) return 0.72;
-    if (durationMin < 40) return 0.88;
-    // Grows slightly beyond 40 min, capped at 1.5
-    return Math.min(1.5, 1.0 + (durationMin - 40) / 120);
+    if (durationMin < 20) return 0.72;
+    if (durationMin < 25) return 0.88;
+    return Math.min(1.5, 1.0 + (durationMin - 25) / 100);
   },
 
-  // Live tree while a session is running
+  // Seconds (0–1500) into the current 25-min tree cycle
+  _treeProgress() {
+    if (this._mode === 'pomodoro') {
+      return this._pomoPhase === 'work' ? Math.min(this._elapsed, 1500) : 0;
+    }
+    return this._treePhaseElapsed;
+  },
+
+  // Live tree while a session is running — progress resets every 25 min
   liveTreeEmoji(activityId) {
-    const min = Math.floor(this._elapsed / 60);
+    const min = Math.floor(this._treeProgress() / 60);
     if (min < 5)  return '🌱';
     if (min < 15) return '🌿';
-    if (min < 30) return '🪴';
+    if (min < 22) return '🪴';
     const act = this.getActivity(activityId);
     return act?.tree || '🌳';
   },
 
   liveTreeScale() {
-    const min = Math.floor(this._elapsed / 60);
-    // Grows from tiny seedling to full tree over 40 min
-    return 0.5 + Math.min(min / 40, 1.0) * 0.9;
+    const min = Math.floor(this._treeProgress() / 60);
+    return 0.5 + Math.min(min / 25, 1.0) * 0.9; // full scale at 25 min
   },
 
   // ── Format helpers ────────────────────────────────────────
@@ -208,9 +215,8 @@ const StudyTracker = {
         });
       });
 
-      document.getElementById('studyStartBtn')?.addEventListener('click',  () => this._startTimer());
-      document.getElementById('studyPauseBtn')?.addEventListener('click',  () => this._pauseResumeTimer());
-      document.getElementById('studyStopBtn')?.addEventListener('click',   () => this._stopTimer(false));
+      document.getElementById('studyStartBtn')?.addEventListener('click', () => this._startTimer());
+      document.getElementById('studyStopBtn')?.addEventListener('click',  () => this._stopTimer());
 
       document.getElementById('studyGoalInput')?.addEventListener('change', e => {
         const v = parseInt(e.target.value);
@@ -275,7 +281,6 @@ const StudyTracker = {
   _updateTimerDisplay() {
     const disp  = document.getElementById('studyTimerDisplay');
     const start = document.getElementById('studyStartBtn');
-    const pause = document.getElementById('studyPauseBtn');
     const stop  = document.getElementById('studyStopBtn');
 
     let display = this.fmtTimer(this._elapsed);
@@ -291,13 +296,8 @@ const StudyTracker = {
     }
     if (disp) disp.textContent = display;
 
-    const active = this._running || this._elapsed > 0;
-    if (start) start.style.display = active ? 'none' : '';
-    if (pause) {
-      pause.style.display = active ? '' : 'none';
-      pause.textContent = this._running ? '⏸ Pause' : '▶ Resume';
-    }
-    if (stop) stop.style.display = active ? '' : 'none';
+    if (start) start.style.display = this._running ? 'none' : '';
+    if (stop)  stop.style.display  = this._running ? '' : 'none';
   },
 
   _updateLiveTree() {
@@ -305,17 +305,28 @@ const StudyTracker = {
     const labelEl = document.getElementById('studyLiveTreeLabel');
     const actSel  = document.getElementById('studyActivitySel');
     const actId   = this._running ? (this._activeActivity||'class') : (actSel?.value||'class');
+    const isBreak = this._mode === 'pomodoro' &&
+      (this._pomoPhase === 'break' || this._pomoPhase === 'longbreak');
 
     if (treeEl) {
-      const emoji    = this._running ? this.liveTreeEmoji(actId) : (this.getActivity(actId)?.tree || '🌱');
-      const scalePx  = this._running ? Math.round(48 * this.liveTreeScale()) : 48;
-      treeEl.textContent = emoji;
-      treeEl.style.fontSize = `${scalePx}px`;
-      treeEl.className = 'study-live-tree' + (this._running ? ' study-live-tree-active' : '');
+      if (isBreak) {
+        treeEl.textContent = '☕';
+        treeEl.style.fontSize = '48px';
+        treeEl.className = 'study-live-tree study-live-tree-active';
+      } else {
+        const emoji   = this._running ? this.liveTreeEmoji(actId) : (this.getActivity(actId)?.tree || '🌱');
+        const scalePx = this._running ? Math.round(48 * this.liveTreeScale()) : 48;
+        treeEl.textContent = emoji;
+        treeEl.style.fontSize = `${scalePx}px`;
+        treeEl.className = 'study-live-tree' + (this._running ? ' study-live-tree-active' : '');
+      }
     }
     if (labelEl) {
-      const act = this.getActivity(actId);
-      labelEl.textContent = act?.label || '';
+      if (isBreak) {
+        labelEl.textContent = this._pomoPhase === 'longbreak' ? 'Long Break' : 'Break';
+      } else {
+        labelEl.textContent = this.getActivity(actId)?.label || '';
+      }
       labelEl.style.display = this._running ? '' : 'none';
     }
   },
@@ -355,11 +366,12 @@ const StudyTracker = {
   _startTimer() {
     const subSel = document.getElementById('studySubjectSel');
     const actSel = document.getElementById('studyActivitySel');
-    this._activeSubject  = subSel?.value || 'history';
-    this._activeActivity = actSel?.value || 'class';
-    this._startedAt      = new Date().toISOString();
-    this._elapsed        = 0;
-    this._running        = true;
+    this._activeSubject   = subSel?.value || 'history';
+    this._activeActivity  = actSel?.value || 'class';
+    this._startedAt       = new Date().toISOString();
+    this._elapsed         = 0;
+    this._treePhaseElapsed = 0;
+    this._running         = true;
 
     if (this._mode === 'countdown') {
       const h = parseInt(document.getElementById('studyCountHours')?.value) || 0;
@@ -382,15 +394,29 @@ const StudyTracker = {
   },
 
   _onTick() {
-    // Update display every tick
     this._updateTimerDisplay();
-    // Update live tree every minute
     if (this._elapsed % 60 === 0) this._updateLiveTree();
 
-    if (this._mode === 'countdown' && this._countdown > 0) {
-      if (this._elapsed >= this._countdown) { this._stopTimer(true); }
+    if (this._mode !== 'pomodoro') {
+      // Stopwatch / countdown: advance the 25-min tree cycle counter
+      this._treePhaseElapsed++;
 
-    } else if (this._mode === 'pomodoro') {
+      if (this._treePhaseElapsed >= 1500) {
+        // 25 min complete — plant a full tree and restart the cycle
+        this._saveSession(25, true);
+        this._treePhaseElapsed = 0;
+        this._updateTodayStats();
+        this._renderForestPanel();
+        this._updateLiveTree();
+        if (typeof UI !== 'undefined') UI.showToast('🌳 Tree planted! 25 minutes complete.');
+      }
+
+      if (this._mode === 'countdown' && this._countdown > 0 && this._elapsed >= this._countdown) {
+        this._stopTimer();
+      }
+
+    } else {
+      // Pomodoro
       const phaseSec = this._pomoPhase === 'break'
         ? this._pomoBreakMin * 60
         : this._pomoPhase === 'longbreak'
@@ -399,8 +425,8 @@ const StudyTracker = {
 
       if (this._elapsed >= phaseSec) {
         if (this._pomoPhase === 'work') {
-          // Work phase complete — save a completed session, then start break
-          this._saveSession(true);
+          // Work phase complete — plant a tree, then auto-start break
+          this._saveSession(this._pomoWorkMin, true);
           this._pomoRound++;
           clearInterval(this._timerInterval);
           this._elapsed   = 0;
@@ -414,8 +440,7 @@ const StudyTracker = {
           this._updateTodayStats();
           this._renderForestPanel();
           if (typeof UI !== 'undefined') UI.showToast(`🌳 Pomodoro complete! Time for a ${isLong ? 'long ' : ''}break.`);
-          // Auto-start break
-          this._running  = true;
+          this._running   = true;
           this._startedAt = new Date().toISOString();
           this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
 
@@ -426,7 +451,6 @@ const StudyTracker = {
           this._elapsed = 0;
 
           if (wasLongBreak) {
-            // Full cycle done — stop and let user decide when to start again
             this._running   = false;
             this._pomoPhase = 'idle';
             this._pomoRound = 0;
@@ -439,7 +463,6 @@ const StudyTracker = {
             this._updateLiveTree();
             if (typeof UI !== 'undefined') UI.showToast('🏆 Pomodoro cycle complete — well done!');
           } else {
-            // Short break done — auto-start next work phase
             this._pomoPhase = 'work';
             this._countdown = this._pomoWorkMin * 60;
             this._running   = true;
@@ -455,33 +478,27 @@ const StudyTracker = {
     }
   },
 
-  _pauseResumeTimer() {
-    if (this._running) {
-      clearInterval(this._timerInterval);
-      this._running = false;
-    } else {
-      this._running = true;
-      this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
-    }
-    this._updateTimerDisplay();
-    this._updateLiveTree();
-  },
-
-  _stopTimer(completed = false) {
+  _stopTimer() {
     clearInterval(this._timerInterval);
     this._running = false; this._timerInterval = null;
 
-    // Only save for non-pomodoro, or manual stop of pomodoro work phase
-    const shouldSave = this._mode !== 'pomodoro' || this._pomoPhase === 'work';
-    // 60+ min of continuous effort earns the full tree even if stopped early
-    const effectivelyComplete = completed || this._elapsed >= 3600;
-    if (shouldSave) this._saveSession(effectivelyComplete);
+    // Save any partial tree cycle as a withered entry (full trees auto-save at 25-min marks)
+    if (this._mode === 'pomodoro') {
+      if (this._pomoPhase === 'work' && Math.round(this._elapsed / 60) >= 1) {
+        this._saveSession(Math.round(this._elapsed / 60), false);
+      }
+    } else {
+      if (Math.round(this._treePhaseElapsed / 60) >= 1) {
+        this._saveSession(Math.round(this._treePhaseElapsed / 60), false);
+      }
+    }
 
-    this._elapsed    = 0;
-    this._countdown  = 0;
-    this._startedAt  = null;
-    this._pomoPhase  = 'idle';
-    this._pomoRound  = 0;
+    this._elapsed          = 0;
+    this._treePhaseElapsed = 0;
+    this._countdown        = 0;
+    this._startedAt        = null;
+    this._pomoPhase        = 'idle';
+    this._pomoRound        = 0;
 
     const subSel = document.getElementById('studySubjectSel');
     const actSel = document.getElementById('studyActivitySel');
@@ -493,22 +510,9 @@ const StudyTracker = {
     this._updateTodayStats();
     this._updatePomoStatus();
     this._renderForestPanel();
-
-    if (completed && typeof UI !== 'undefined') {
-      UI.showToast('⏰ Session complete — tree planted! 🌳');
-    }
   },
 
-  _saveSession(completed) {
-    let durationMin;
-    if (this._mode === 'pomodoro') {
-      durationMin = this._pomoWorkMin;
-    } else if (this._mode === 'countdown' && this._countdown > 0 && completed && this._elapsed >= this._countdown) {
-      durationMin = Math.round(this._countdown / 60); // ran full countdown — use target
-    } else {
-      durationMin = Math.round(this._elapsed / 60);   // actual elapsed
-    }
-
+  _saveSession(durationMin, completed) {
     if (durationMin < 1) return;
     if (!AppState.studyLog) AppState.studyLog = [];
     AppState.studyLog.push({
@@ -517,7 +521,7 @@ const StudyTracker = {
       subject:      this._activeSubject  || 'history',
       activity:     this._activeActivity || 'class',
       duration_min: durationMin,
-      completed:    completed,  // false = withered tree
+      completed:    completed,  // false = withered tree 🥀
       started_at:   this._startedAt,
     });
     AppState.save();
