@@ -54,73 +54,68 @@ const StudyAnalytics = (() => {
 
   // ── Contextual one-liner insight ─────────────────────────
 
-  function _insight(sessions, range, all) {
-    const el = document.getElementById('saInsight');
-    if (!el) return;
-
+  // Always returns a non-empty string — shown as a persistent banner.
+  function _insightText(sessions, range, all) {
     const now    = new Date();
     const curMin = _total(sessions);
+    const goal   = AppState.studyDailyGoal || 240;
+
+    // All-time average — used as fallback in every range
+    const allDone    = _done(all);
+    const allTotal   = _total(all);
+    const activeDays = Object.keys(_byDay(all)).length;
+    const avgPerDay  = activeDays > 0 ? Math.round(allTotal / activeDays) : 0;
+    const goalPct    = goal > 0 ? Math.round((avgPerDay / goal) * 100) : 0;
+    const allTimeStr = activeDays > 0
+      ? `All-time avg: ${_fmtDur(avgPerDay)}/day across ${activeDays} day${activeDays === 1 ? '' : 's'} (${goalPct}% of goal)`
+      : 'No sessions logged yet — start your first study session! 📖';
 
     if (range === 'today') {
-      // Compare to same elapsed time window yesterday
       const yk      = _dk(_add(now, -1));
       const nowHour = now.getHours() + now.getMinutes() / 60;
-      const ystMin  = _done(all).filter(s => {
-        if (s.date !== yk) return false;
-        if (!s.started_at) return false;
+      const ystMin  = allDone.filter(s => {
+        if (s.date !== yk || !s.started_at) return false;
         const h = new Date(s.started_at).getHours() + new Date(s.started_at).getMinutes() / 60;
         return h <= nowHour;
       }).reduce((a, s) => a + s.duration_min, 0);
 
-      if (ystMin === 0 && curMin === 0) { el.textContent = ''; return; }
       const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-      if (ystMin === 0) { el.textContent = `No data for yesterday — keep going today! 🚀`; return; }
-      const diff = curMin - ystMin;
-      const sign = diff >= 0 ? 'ahead' : 'behind';
+      if (ystMin === 0 && curMin === 0) return allTimeStr;
+      if (ystMin === 0) return `No data for yesterday — you've studied ${_fmtDur(curMin)} today so far 🚀`;
+      const diff  = curMin - ystMin;
       const emoji = diff >= 0 ? '🔥' : '📉';
-      el.textContent = `Yesterday by ${timeStr} you'd studied ${_fmtDur(ystMin)} — you're ${_fmtDur(Math.abs(diff))} ${sign} ${emoji}`;
+      return `Yesterday by ${timeStr} you'd studied ${_fmtDur(ystMin)} — you're ${_fmtDur(Math.abs(diff))} ${diff >= 0 ? 'ahead' : 'behind'} ${emoji}`;
 
     } else if (range === '7d') {
-      const prev   = _prevPeriod('7d', all);
-      const prevMin = _total(prev);
-      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
-      if (prevMin === 0) { el.textContent = `First week tracked — ${_fmtDur(curMin)} in total. Great start! 🌱`; return; }
-      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
-      const sign = pct >= 0 ? 'more' : 'less';
-      const emoji = pct >= 0 ? '📈' : '📉';
-      el.textContent = `Last week you studied ${_fmtDur(prevMin)} — this week ${Math.abs(pct)}% ${sign} so far ${emoji}`;
+      const prevMin = _total(_prevPeriod('7d', all));
+      if (prevMin === 0 && curMin === 0) return allTimeStr;
+      if (prevMin === 0) return `First week tracked — ${_fmtDur(curMin)} total. Great start! 🌱  ·  ${allTimeStr}`;
+      const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
+      return `Last week you studied ${_fmtDur(prevMin)} — this week ${Math.abs(pct)}% ${pct >= 0 ? 'more' : 'less'} so far ${pct >= 0 ? '📈' : '📉'}`;
 
     } else if (range === '30d') {
-      const prev    = _prevPeriod('30d', all);
-      const prevMin = _total(prev);
-      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
-      if (prevMin === 0) { el.textContent = `First month tracked — ${_fmtDur(curMin)} total. Keep building the habit! 🧱`; return; }
-      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
-      const emoji = pct >= 0 ? '📈' : '📉';
-      el.textContent = `Previous 30 days: ${_fmtDur(prevMin)} — you're ${Math.abs(pct)}% ${pct >= 0 ? 'ahead' : 'behind'} ${emoji}`;
+      const prevMin = _total(_prevPeriod('30d', all));
+      if (prevMin === 0 && curMin === 0) return allTimeStr;
+      if (prevMin === 0) return `First month tracked — ${_fmtDur(curMin)} total 🧱  ·  ${allTimeStr}`;
+      const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
+      return `Previous 30 days: ${_fmtDur(prevMin)} — you're ${Math.abs(pct)}% ${pct >= 0 ? 'ahead 📈' : 'behind 📉'}`;
 
     } else if (range === '3m') {
-      const prev    = _prevPeriod('3m', all);
-      const prevMin = _total(prev);
-      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
-      if (prevMin === 0) { el.textContent = `First quarter tracked — ${_fmtDur(curMin)} total. Solid foundation! 💪`; return; }
-      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
-      const emoji = pct >= 0 ? '🏆' : '📉';
-      el.textContent = `Previous quarter: ${_fmtDur(prevMin)} — this quarter ${Math.abs(pct)}% ${pct >= 0 ? 'higher' : 'lower'} ${emoji}`;
+      const prevMin = _total(_prevPeriod('3m', all));
+      if (prevMin === 0 && curMin === 0) return allTimeStr;
+      if (prevMin === 0) return `First quarter tracked — ${_fmtDur(curMin)} total 💪  ·  ${allTimeStr}`;
+      const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
+      return `Previous quarter: ${_fmtDur(prevMin)} — this quarter ${Math.abs(pct)}% ${pct >= 0 ? 'higher 🏆' : 'lower 📉'}`;
 
-    } else if (range === 'all') {
-      const done = _done(all);
-      if (!done.length) { el.textContent = ''; return; }
-      const totalMin  = _total(all);
-      const activeDays = Object.keys(_byDay(all)).length;
-      const avgPerDay  = activeDays > 0 ? Math.round(totalMin / activeDays) : 0;
-      const goal       = AppState.studyDailyGoal || 240;
-      const goalPct    = Math.round((avgPerDay / goal) * 100);
-      el.textContent = `Averaging ${_fmtDur(avgPerDay)}/day across ${activeDays} active day${activeDays === 1 ? '' : 's'} — ${goalPct}% of daily goal`;
-
-    } else {
-      el.textContent = '';
+    } else { // all
+      return allTimeStr;
     }
+  }
+
+  function _insight(sessions, range, all) {
+    const el = document.getElementById('saInsight');
+    if (!el) return;
+    el.textContent = _insightText(sessions, range, all);
   }
 
   // ── Chart.js theme ────────────────────────────────────────

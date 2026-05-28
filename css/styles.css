@@ -4500,7 +4500,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   line-height: 1.5;
   font-style: italic;
 }
-.sa-insight:empty { display: none; }
+.sa-insight:empty { display: none; } /* always populated now; kept as safety net */
 .sa-up       { color: var(--accent-teal); font-size: 12px; font-weight: 700; }
 .sa-dn       { color: #e87070; font-size: 12px; font-weight: 700; }
 

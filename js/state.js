@@ -71,7 +71,7 @@ const AppState = {
   studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
   studySubjects:   null, // null = use defaults; array = user-customized list
   studyActivities: null, // null = use defaults; array = user-customized list
-  studyDailyGoal:  480,  // minutes
+  studyDailyGoal:  240,  // minutes (4 hours)
   studyPomoWork:   25,   // pomodoro work duration in minutes
   studyPomoBreak:  5,    // short break
   studyPomoLong:   15,   // long break after 4 rounds
@@ -164,7 +164,8 @@ const AppState = {
       this.studyLog             = pick('studyLog',        []);
       this.studySubjects        = d.studySubjects  ?? null;
       this.studyActivities      = d.studyActivities ?? null;
-      this.studyDailyGoal       = d.studyDailyGoal  ?? 480;
+      // Migrate old 480-min (8h) default → 240-min (4h)
+      this.studyDailyGoal = (d.studyDailyGoal && d.studyDailyGoal !== 480) ? d.studyDailyGoal : 240;
       this.studyPomoWork        = d.studyPomoWork   ?? 25;
       this.studyPomoBreak       = d.studyPomoBreak  ?? 5;
       this.studyPomoLong        = d.studyPomoLong   ?? 15;
