@@ -3,7 +3,7 @@
    Norse Winter Aesthetic | Dark/Light Themes | Responsive
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
   /* ── Dark theme (default) ── */
@@ -18,8 +18,16 @@
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.50), 0 16px 56px rgba(0,0,0,0.45);
   --ring: rgba(92,128,255,0.40);
   --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --transition: 0.18s ease;
-  --font-main: 'Aptos', 'Aptos Display', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-family: var(--font-main);
+  /* ── Brand token (single primary) ── */
+  --brand: #5c80ff;
+  --brand-dim: rgba(92,128,255,0.12);
+  --brand-bright: #7a9aff;
+  /* ── Layout tokens ── */
+  --topbar-h: 54px;
+  --sidebar-w: 210px;
+  --sidebar-w-collapsed: 60px;
 }
 
 [data-theme="light"] {
@@ -58,11 +66,14 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .mono { font-family: 'Space Mono', monospace; }
 .num { font-family: 'Space Mono', monospace; font-size: 14px; font-feature-settings: "tnum" 1; }
 
-/* Full-viewport layout — no artificial centering constraint */
+/* Full-viewport layout */
 .app-shell {
   width: 100%;
-  padding: 0 clamp(12px, 2vw, 32px) 80px;
+  min-height: 100vh;
+  padding: 0;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Single sticky wrapper — one background layer for all four sections */
@@ -5188,4 +5199,193 @@ html { scroll-behavior: smooth; }
 }
 .study-live-tree-active {
   filter: drop-shadow(0 0 10px rgba(var(--accent-green-rgb, 0,212,124), 0.45));
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REDESIGN v52 — Top bar + Sidebar layout system
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Top bar ── */
+.app-topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: var(--topbar-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: rgba(7,9,26,0.92);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  gap: 12px;
+}
+[data-theme="light"] .app-topbar {
+  background: rgba(244,245,251,0.95);
+  border-bottom-color: rgba(0,0,0,0.09);
+}
+
+.topbar-left {
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 8px;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.sidebar-toggle:hover { background: var(--card-hover); color: var(--text); }
+
+.topbar-brand {
+  display: flex; align-items: center; gap: 8px;
+}
+.topbar-brand .skadi-logo {
+  color: var(--brand);
+  filter: drop-shadow(0 0 6px rgba(92,128,255,0.55));
+  flex-shrink: 0;
+}
+.topbar-brand-name {
+  font-size: 17px; font-weight: 800; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #daf0ff, #60a8f0, #9060d8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+[data-theme="light"] .topbar-brand-name {
+  background: linear-gradient(135deg, #2a6ed8, #4a5adc, #7a3adc);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.topbar-center {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; justify-content: center;
+  cursor: pointer; min-width: 0;
+}
+.topbar-center #dateDisplay {
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  white-space: nowrap;
+}
+.topbar-center #phaseBadge { margin: 0; }
+
+.topbar-right {
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── App layout ── */
+.app-layout {
+  display: flex;
+  min-height: calc(100vh - var(--topbar-h));
+  margin-top: var(--topbar-h);
+}
+
+/* ── Sidebar ── */
+.app-sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  position: fixed;
+  top: var(--topbar-h); left: 0;
+  height: calc(100vh - var(--topbar-h));
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  z-index: 100;
+}
+.app-shell.sidebar-collapsed .app-sidebar { width: var(--sidebar-w-collapsed); }
+
+/* ── Side nav items ── */
+.side-nav {
+  flex: 1; padding: 10px 8px;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow-y: auto; overflow-x: hidden;
+}
+.side-nav::-webkit-scrollbar { width: 3px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none; background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  font-size: 13.5px; font-weight: 500;
+  cursor: pointer; text-align: left; width: 100%;
+  white-space: nowrap; overflow: hidden;
+  transition: background 0.15s, color 0.15s;
+  letter-spacing: 0;
+}
+.nav-item:hover { background: var(--card-hover); color: var(--text); }
+.nav-item.active {
+  background: var(--brand-dim);
+  color: var(--brand);
+  font-weight: 600;
+}
+.nav-item .nav-icon { flex-shrink: 0; }
+.nav-label {
+  transition: opacity 0.15s;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.app-shell.sidebar-collapsed .nav-label {
+  opacity: 0; pointer-events: none;
+}
+
+/* ── Content area ── */
+.app-content {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  transition: margin-left 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 0;
+  padding: 0 clamp(12px, 2vw, 32px) 80px;
+}
+.app-shell.sidebar-collapsed .app-content { margin-left: var(--sidebar-w-collapsed); }
+
+/* Quote strip — sticky just below the fixed topbar */
+.app-content .quote-strip {
+  position: sticky; top: var(--topbar-h); z-index: 10;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  margin: 0 calc(-1 * clamp(12px, 2vw, 32px));
+  padding-left: clamp(12px, 2vw, 32px);
+  padding-right: clamp(12px, 2vw, 32px);
+}
+[data-theme="light"] .app-content .quote-strip {
+  background: var(--surface);
+}
+
+/* ── Mobile: bottom rail (≤768px) ── */
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 100% !important;
+    height: var(--topbar-h);
+    top: auto; bottom: 0; left: 0; right: 0;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 200;
+  }
+  .side-nav {
+    flex-direction: row; padding: 0;
+    align-items: stretch; justify-content: space-around;
+    overflow-x: auto; overflow-y: hidden; gap: 0;
+    width: 100%;
+  }
+  .nav-item {
+    flex-direction: column; gap: 2px;
+    padding: 5px 2px;
+    border-radius: 0; flex: 1;
+    justify-content: center; align-items: center;
+    font-size: 9px; min-width: 0; overflow: visible;
+  }
+  .nav-item .nav-icon { width: 18px; height: 18px; }
+  .nav-label { opacity: 1 !important; font-size: 9px; pointer-events: auto !important; }
+  .app-layout {
+    flex-direction: column;
+  }
+  .app-content {
+    margin-left: 0 !important;
+    padding-bottom: calc(var(--topbar-h) + 24px);
+  }
+  .sidebar-toggle { display: none; }
 }

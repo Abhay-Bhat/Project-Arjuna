@@ -22,7 +22,10 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=51">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="css/styles.css?v=52">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -73,105 +76,154 @@
 <div class="app-shell" id="app-shell">
 
     <!-- ═════════════════════════════════════════════════════ -->
-    <!-- TITLE CARD — single sticky block: header + quote + milestones + tabs -->
+    <!-- TOP BAR -->
     <!-- ═════════════════════════════════════════════════════ -->
-    <div class="title-card">
+    <header class="app-topbar" id="appTopbar">
 
-    <!-- HEADER -->
-    <header class="app-header">
-        <!-- LEFT: Date + Phase stacked -->
-        <div class="header-left" id="headerDateToggle" title="Click to view Mission Phases">
-            <div id="dateDisplay"></div>
-            <div id="phaseBadge"></div>
-            <div id="dayType" style="display:none;"></div>
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar" title="Toggle sidebar">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-brand">
+          <svg class="skadi-logo" viewBox="0 0 36 36" width="26" height="26" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <line x1="18" y1="3" x2="18" y2="33" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="10.5" x2="5" y2="25.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="31" y1="25.5" x2="5" y2="10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            <line x1="18" y1="10" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="18" y1="10" x2="21.5" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="25" y1="14" x2="25" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="25" y1="14" x2="28.5" y2="16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="25" y1="22" x2="28.5" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="25" y1="22" x2="25" y2="26" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="18" y1="26" x2="21.5" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="18" y1="26" x2="14.5" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="11" y1="22" x2="11" y2="26" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="11" y1="22" x2="7.5" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="11" y1="14" x2="7.5" y2="16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="11" y1="14" x2="11" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="2" fill="currentColor"/>
+          </svg>
+          <span class="topbar-brand-name">Skadi</span>
         </div>
+      </div>
 
-        <!-- CENTER: Brand (truly centred via CSS grid) -->
-        <div class="header-brand">
-            <h1>
-              <svg class="skadi-logo" viewBox="0 0 36 36" width="36" height="36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <line x1="18" y1="3" x2="18" y2="33" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                <line x1="31" y1="10.5" x2="5" y2="25.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                <line x1="31" y1="25.5" x2="5" y2="10.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                <line x1="18" y1="10" x2="14.5" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="18" y1="10" x2="21.5" y2="8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="25" y1="14" x2="25" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="25" y1="14" x2="28.5" y2="16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="25" y1="22" x2="28.5" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="25" y1="22" x2="25" y2="26" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="18" y1="26" x2="21.5" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="18" y1="26" x2="14.5" y2="28" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="11" y1="22" x2="11" y2="26" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="11" y1="22" x2="7.5" y2="20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="11" y1="14" x2="7.5" y2="16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <line x1="11" y1="14" x2="11" y2="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                <circle cx="18" cy="18" r="2" fill="currentColor"/>
-              </svg>
-              Skadi
-            </h1>
-            <div class="header-sub">Forged in isolation. Driven by discipline.</div>
-        </div>
+      <div class="topbar-center" id="headerDateToggle" title="Click to view Mission Phases">
+        <div id="dateDisplay"></div>
+        <div id="phaseBadge"></div>
+        <div id="dayType" style="display:none;"></div>
+      </div>
 
-        <!-- RIGHT: Sync badge (always visible) + dropdown menu -->
-        <div class="header-right">
-            <span id="syncStatus" class="sync-badge" style="display:none;"></span>
-            <span id="localModeBadge" class="sync-badge local" style="display:none;" title="Running in local-only mode — set up Firebase to sync across devices">📴 Local</span>
-            <div class="hdr-menu-wrap" id="headerMenuWrap">
-                <button class="hdr-menu-btn" id="headerMenuBtn" title="Menu" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
-                    <div id="userAvatar" class="user-avatar" style="display:none;"></div>
-                    <span class="hdr-menu-icon" id="hdrMenuIcon">☰</span>
-                </button>
-                <div class="hdr-dropdown" id="headerDropdown" role="menu">
-                    <div class="hdr-dd-clock">
-                        <span>📋 Phases</span>
-                        <span id="liveClockDisplay" class="hdr-dd-clock-time"></span>
-                    </div>
-                    <div class="hdr-dd-divider"></div>
-                    <button class="hdr-dd-item" id="todayBtn" role="menuitem">🏠 Today</button>
-                    <button class="hdr-dd-item" id="calendarBtn" role="menuitem">📅 Calendar</button>
-                    <button class="hdr-dd-item" id="themeToggle" role="menuitem">🌙 Theme</button>
-                    <button class="hdr-dd-item" id="backupBtn" role="menuitem" onclick="BackupManager.openModal()">💾 Backups</button>
-                    <a class="hdr-dd-item" href="help.html" target="_blank" rel="noopener" role="menuitem">❓ Help & Guide</a>
-                    <div class="hdr-dd-divider"></div>
-                    <button class="hdr-dd-item sync-now-btn" id="syncNowBtn" style="display:none;" role="menuitem">
-                        <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync Now
-                    </button>
-                    <div class="hdr-dd-sync-row" id="syncStatusRow" style="display:none;">
-                        <span id="syncStatusDot" class="sync-dot"></span>
-                        <span id="syncStatusLabel" class="sync-status-label">Not synced</span>
-                    </div>
-                    <button class="hdr-dd-item hdr-dd-danger" id="signOutBtn" style="display:none;" role="menuitem">↪ Sign Out</button>
-                </div>
+      <div class="topbar-right">
+        <span id="syncStatus" class="sync-badge" style="display:none;"></span>
+        <span id="localModeBadge" class="sync-badge local" style="display:none;" title="Running in local-only mode — set up Firebase to sync across devices">📴 Local</span>
+        <div class="hdr-menu-wrap" id="headerMenuWrap">
+          <button class="hdr-menu-btn" id="headerMenuBtn" title="Menu" aria-label="Open menu" aria-haspopup="true" aria-expanded="false">
+            <div id="userAvatar" class="user-avatar" style="display:none;"></div>
+            <span class="hdr-menu-icon" id="hdrMenuIcon">☰</span>
+          </button>
+          <div class="hdr-dropdown" id="headerDropdown" role="menu">
+            <div class="hdr-dd-clock">
+              <span>📋 Phases</span>
+              <span id="liveClockDisplay" class="hdr-dd-clock-time"></span>
             </div>
+            <div class="hdr-dd-divider"></div>
+            <button class="hdr-dd-item" id="todayBtn" role="menuitem">🏠 Today</button>
+            <button class="hdr-dd-item" id="calendarBtn" role="menuitem">📅 Calendar</button>
+            <button class="hdr-dd-item" id="themeToggle" role="menuitem">🌙 Theme</button>
+            <button class="hdr-dd-item" id="backupBtn" role="menuitem" onclick="BackupManager.openModal()">💾 Backups</button>
+            <a class="hdr-dd-item" href="help.html" target="_blank" rel="noopener" role="menuitem">❓ Help &amp; Guide</a>
+            <div class="hdr-dd-divider"></div>
+            <button class="hdr-dd-item sync-now-btn" id="syncNowBtn" style="display:none;" role="menuitem">
+              <span id="syncNowIcon" class="sync-now-icon">☁</span> Sync Now
+            </button>
+            <div class="hdr-dd-sync-row" id="syncStatusRow" style="display:none;">
+              <span id="syncStatusDot" class="sync-dot"></span>
+              <span id="syncStatusLabel" class="sync-status-label">Not synced</span>
+            </div>
+            <button class="hdr-dd-item hdr-dd-danger" id="signOutBtn" style="display:none;" role="menuitem">↪ Sign Out</button>
+          </div>
         </div>
-    </header>
+      </div>
+
+    </header><!-- /.app-topbar -->
 
     <!-- ═════════════════════════════════════════════════════ -->
-    <!-- MOTIVATIONAL QUOTE STRIP (persistent across all tabs) -->
+    <!-- APP LAYOUT: sidebar + scrollable content -->
     <!-- ═════════════════════════════════════════════════════ -->
-    <div class="quote-strip" id="quoteStrip">
+    <div class="app-layout">
+
+    <!-- SIDEBAR NAV -->
+    <aside class="app-sidebar" id="appSidebar">
+      <nav class="side-nav" role="navigation" aria-label="Main navigation">
+
+        <button class="nav-item tab-btn active" data-tab="today" title="Today">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span class="nav-label">Today</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="upsc" title="UPSC">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+          <span class="nav-label">UPSC</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="finance" title="Finance">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+          </svg>
+          <span class="nav-label">Finance</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="health" title="Health">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span class="nav-label">Health</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="mind" title="Mind">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span class="nav-label">Mind</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="growth" title="Growth">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
+          <span class="nav-label">Growth</span>
+        </button>
+
+        <button class="nav-item tab-btn" data-tab="tasks" title="Tasks">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          <span class="nav-label">Tasks</span>
+        </button>
+
+      </nav>
+    </aside><!-- /.app-sidebar -->
+
+    <!-- CONTENT AREA -->
+    <div class="app-content">
+
+      <!-- ═════════════════════════════════════════════════════ -->
+      <!-- MOTIVATIONAL QUOTE STRIP -->
+      <!-- ═════════════════════════════════════════════════════ -->
+      <div class="quote-strip" id="quoteStrip">
         <span class="qs-icon">✦</span>
         <span id="quoteText" class="qs-text">✨ Loading inspiration...</span>
         <span id="quoteAuthor" class="qs-author">— Zen Quotes</span>
-    </div>
+      </div>
 
-    <!-- ═════════════════════════════════════════════════════ -->
-    <!-- MILESTONE BANNER -->
-    <!-- ═════════════════════════════════════════════════════ -->
-    <div id="milestoneBanner" class="milestone-banner"></div>
-
-    <!-- TAB NAVIGATION -->
-    <nav class="tab-nav">
-        <button class="tab-btn active" data-tab="today">🏠 Today</button>
-        <button class="tab-btn" data-tab="upsc">📚 UPSC</button>
-        <button class="tab-btn" data-tab="finance">💰 Finance</button>
-        <button class="tab-btn" data-tab="health">❤️ Health</button>
-        <button class="tab-btn" data-tab="mind">🧠 Mind</button>
-        <button class="tab-btn" data-tab="growth">🌱 Growth</button>
-        <button class="tab-btn" data-tab="tasks">✅ Tasks</button>
-    </nav>
-
-    </div><!-- /.title-card -->
+      <!-- MILESTONE BANNER -->
+      <div id="milestoneBanner" class="milestone-banner"></div>
 
     <!-- ═════════════════════════════════════════════════════ -->
     <!-- TAB PANELS -->
@@ -1740,7 +1792,11 @@
 
     </main>
 
-</div>
+    </div><!-- /.app-content -->
+
+    </div><!-- /.app-layout -->
+
+</div><!-- /.app-shell -->
 
 <!-- ═════════════════════════════════════════════════════ -->
 <!-- MISSION PHASES MODAL -->
@@ -2164,7 +2220,7 @@
 <script defer src="js/study.js?v=51"></script>
 <script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
-<script defer src="js/ui.js?v=39"></script>
+<script defer src="js/ui.js?v=52"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=39"></script>
 <script defer src="js/seed-data.js?v=39"></script>

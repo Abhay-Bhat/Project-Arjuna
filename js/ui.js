@@ -13,6 +13,7 @@ const UI = {
     this._bindGlossary();
     this._bindHeaderMenu();
     this._bindKeyboardShortcuts();
+    this._bindSidebarToggle();
     MindTracker.bindEvents();
     this._fetchQuote(); // Fetch once per session — not on every updateAll()
     this.updateAll();
@@ -140,6 +141,21 @@ const UI = {
       new MutationObserver(syncIcon).observe(avatar, { attributes: true, attributeFilter: ['style'] });
       syncIcon();
     }
+  },
+
+  // ── Sidebar toggle ───────────────────────────────────────
+  _bindSidebarToggle() {
+    const btn   = document.getElementById('sidebarToggle');
+    const shell = document.getElementById('app-shell');
+    if (!btn || !shell) return;
+
+    const collapsed = localStorage.getItem('skadi_sidebar_collapsed') === '1';
+    if (collapsed) shell.classList.add('sidebar-collapsed');
+
+    btn.addEventListener('click', () => {
+      const isCollapsed = shell.classList.toggle('sidebar-collapsed');
+      localStorage.setItem('skadi_sidebar_collapsed', isCollapsed ? '1' : '0');
+    });
   },
 
   // ── Glossary ────────────────────────────────────────────
