@@ -1,6 +1,6 @@
 // Skadi Focus Guard — popup script
 
-const DASHBOARD_URL = 'https://abhay-bhat.github.io/Project-Arjuna/';
+const DASHBOARD_URL = 'https://leafy-truffle-624881.netlify.app/';
 
 let state = { focusActive: false, allowlist: [], dashOrigins: [] };
 
@@ -21,9 +21,8 @@ function render() {
   toggleBtn.className   = 'toggle-btn ' + (active ? 'will-stop' : 'will-start');
   toggleBtn.textContent = active ? '⏹  End Focus Session' : '▶  Start Focus Session';
 
-  // Dashboard link — use first registered dashboard or default
-  const dashHost = (state.dashOrigins || []).find(o => o.startsWith('https://abhay'));
-  dashLink.href = dashHost ? dashHost + '/' : DASHBOARD_URL;
+  // Dashboard link — always use the canonical dashboard URL
+  dashLink.href = DASHBOARD_URL;
 
   // Domain count
   const n = state.allowlist.length;

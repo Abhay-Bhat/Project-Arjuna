@@ -10,13 +10,13 @@ const BLOCKED_PAGE          = chrome.runtime.getURL('blocked.html');
 
 let focusActive  = false;
 let allowlist    = [];  // Array<string> of hostnames e.g. ["ncert.nic.in"]
-let dashOrigins  = [];  // Registered dashboard origins e.g. ["https://abhay-bhat.github.io"]
+let dashOrigins  = [];  // Registered dashboard origins e.g. ["https://leafy-truffle-624881.netlify.app"]
 
 // Known dashboard URLs — always allowed, always act as admin console.
 // The extension communicates with these pages via the content.js bridge.
 const KNOWN_DASHBOARDS = [
+  'https://leafy-truffle-624881.netlify.app',
   'https://abhay-bhat.github.io',
-  'https://project-arjuna.netlify.app',
   'http://localhost:8080',
   'http://localhost:3000',
 ];
