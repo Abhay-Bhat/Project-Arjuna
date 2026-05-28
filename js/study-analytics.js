@@ -541,3 +541,7 @@ const StudyAnalytics = (() => {
   };
 
 })();
+
+// Expose to window so `if (window.StudyAnalytics)` guards work
+// (const at script top-level does NOT create window properties)
+window.StudyAnalytics = StudyAnalytics;

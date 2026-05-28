@@ -119,3 +119,5 @@ const FocusGuard = (() => {
   return { init, startFocus, endFocus };
 
 })();
+
+window.FocusGuard = FocusGuard;
