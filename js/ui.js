@@ -14,6 +14,7 @@ const UI = {
     this._bindHeaderMenu();
     this._bindKeyboardShortcuts();
     this._bindSidebarToggle();
+    this._initScrollReveal();
     MindTracker.bindEvents();
     this._fetchQuote(); // Fetch once per session — not on every updateAll()
     this.updateAll();
@@ -156,6 +157,38 @@ const UI = {
       const isCollapsed = shell.classList.toggle('sidebar-collapsed');
       localStorage.setItem('skadi_sidebar_collapsed', isCollapsed ? '1' : '0');
     });
+  },
+
+  // ── Scroll reveal (IntersectionObserver) ────────────────
+  _initScrollReveal() {
+    if (!('IntersectionObserver' in window)) return;
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('sr-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+
+    // Observe pane-main direct children and stat-cards + section-titles
+    const observe = () => {
+      document.querySelectorAll(
+        '.pane-main > *, .pane-main .stat-card, .pane-main .chart-wrap, ' +
+        '.pane-main .data-table-wrap, .pane-main .book-card, ' +
+        '.pane-main .tech-phase, .pane-main .upsc-card, .pane-main .cd-tip'
+      ).forEach(el => {
+        if (!el.classList.contains('sr') && !el.classList.contains('sr-visible')) {
+          el.classList.add('sr');
+          io.observe(el);
+        }
+      });
+    };
+
+    observe();
+    // Re-run after dynamic renders
+    document.addEventListener('skadi:rendered', observe);
   },
 
   // ── Glossary ────────────────────────────────────────────
@@ -1036,6 +1069,8 @@ const UI = {
   _setActiveTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tab}`));
+    // Let scroll-reveal observe newly visible panel content
+    setTimeout(() => document.dispatchEvent(new Event('skadi:rendered')), 80);
   },
 
   // ── Theme toggle ─────────────────────────────────────────
