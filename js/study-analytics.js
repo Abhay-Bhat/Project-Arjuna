@@ -256,7 +256,7 @@ const StudyAnalytics = (() => {
 
     el.innerHTML =
       _card('Study Time', _fmtDur(curMin), prevMin ? _fmtDur(prevMin) : 0) +
-      _card('Trees 🌳',   curTrees, prevTrees) +
+      _card('Trees',       curTrees, prevTrees) +
       _card('Best Day',   _fmtDur(bestMin), 0) +
       `<div class="sa-cmp-card">
         <div class="sa-cmp-lbl">Goal Days</div>

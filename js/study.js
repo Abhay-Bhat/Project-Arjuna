@@ -410,6 +410,7 @@ const StudyTracker = {
     this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
     this._updateTimerDisplay();
     this._updateLiveTree();
+    this._startForestAnim();
     if (window.FocusGuard) FocusGuard.startFocus();
   },
 
@@ -529,6 +530,7 @@ const StudyTracker = {
     this._updateLiveTree();
     this._updateTodayStats();
     this._updatePomoStatus();
+    this._stopForestAnim();
     this._renderForestPanel();
     if (window.FocusGuard) FocusGuard.endFocus();
   },
@@ -577,42 +579,251 @@ const StudyTracker = {
     if (window.StudyAnalytics) StudyAnalytics.render(sessions, this._range);
   },
 
+  // ── Isometric Forest Canvas ───────────────────────────────────────────────
+
+  _FC_DARK: {
+    skyA:'#04070f', skyB:'#07150a',
+    tileA:'#1e3e23', tileB:'#182f1c', tileEdge:'#111e13',
+    sideL:'#0d1a0f', sideR:'#142610',
+    trunkA:'#1b0f07',
+    rndA:'#163115', rndB:'#1e421a', rndC:'#276021',
+    pineA:'#102210', pineB:'#172e15', pineC:'#1e3c1b',
+    seedA:'#1c451e', witherA:'#22211c', witherT:'#171710',
+    liveA:'#1f6022', liveB:'#2a9030', liveC:'#34b03c', liveGlow:'rgba(44,200,90,0.26)',
+    trunkB:'#271508',
+  },
+  _FC_LIGHT: {
+    skyA:'#9ec0ec', skyB:'#c0e8bc',
+    tileA:'#5e9e3c', tileB:'#529035', tileEdge:'#3c7025',
+    sideL:'#3a6228', sideR:'#4a7e2f',
+    trunkA:'#6a3c18',
+    rndA:'#2a6e22', rndB:'#369030', rndC:'#44ac3c',
+    pineA:'#245018', pineB:'#2e6422', pineC:'#3a7830',
+    seedA:'#3a8428', witherA:'#9a9080', witherT:'#7a6850',
+    liveA:'#3a8a1e', liveB:'#4aaa28', liveC:'#58cc34', liveGlow:'rgba(0,160,50,0.18)',
+    trunkB:'#8a5020',
+  },
+
+  _forestAnim: null,
+  _forestCanvas: null,
+  _forestSessions: [],
+
+  _initForestCanvas() {
+    const cv = document.getElementById('studyForestCanvas');
+    if (!cv || this._forestCanvas === cv) return;
+    this._forestCanvas = cv;
+    const redraw = () => { if (!this._forestAnim) this._renderForestCanvas(this._forestSessions); };
+    new ResizeObserver(redraw).observe(cv);
+    new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  },
+
+  _startForestAnim() {
+    if (this._forestAnim) return;
+    const step = () => {
+      this._renderForestCanvas(this._forestSessions);
+      this._forestAnim = requestAnimationFrame(step);
+    };
+    this._forestAnim = requestAnimationFrame(step);
+  },
+
+  _stopForestAnim() {
+    if (this._forestAnim) { cancelAnimationFrame(this._forestAnim); this._forestAnim = null; }
+    this._renderForestCanvas(this._forestSessions);
+  },
+
   _renderCanvasTrees(sessions) {
-    const c = document.getElementById('studyCanvasTrees');
-    if (!c) return;
+    this._forestSessions = sessions || [];
+    this._initForestCanvas();
+    if (!this._forestAnim) this._renderForestCanvas(this._forestSessions);
+  },
 
-    let liveHtml = '';
-    if (this._running && this._activeActivity && this._pomoPhase !== 'break' && this._pomoPhase !== 'longbreak') {
-      const emoji = this.liveTreeEmoji(this._activeActivity);
-      const scl   = this.liveTreeScale();
-      liveHtml = `<div class="study-canvas-tree study-canvas-tree-live"
-        style="left:50%;bottom:20%;font-size:${Math.round(32*scl)}px;transform:translateX(-50%)"
-        title="Current session (${this.fmtTimer(this._elapsed)})"></div>`;
-      // Set inner text via textContent to avoid XSS — but since we build as HTML let's use esc
-      liveHtml = `<div class="study-canvas-tree study-canvas-tree-live"
-        style="left:50%;bottom:20%;font-size:${Math.round(32*scl)}px;transform:translateX(-50%)"
-        title="In progress — ${this.fmtTimer(this._elapsed)}">${emoji}</div>`;
+  _renderForestCanvas(sessions = []) {
+    const cv = this._forestCanvas || document.getElementById('studyForestCanvas');
+    if (!cv) return;
+    const W = cv.clientWidth, H = cv.clientHeight;
+    if (!W || !H) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (cv.width !== W * dpr || cv.height !== H * dpr) { cv.width = W * dpr; cv.height = H * dpr; }
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isDark = document.documentElement.dataset.theme !== 'light';
+    const p = isDark ? this._FC_DARK : this._FC_LIGHT;
+
+    // Sky gradient
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, p.skyA); sky.addColorStop(1, p.skyB);
+    ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
+
+    // Stars (dark mode)
+    if (isDark) {
+      ctx.save();
+      for (let i = 0; i < 55; i++) {
+        const sx = (i * 137.5) % W, sy = (i * 53.7) % (H * 0.5);
+        const r = 0.5 + (i % 3) * 0.35;
+        ctx.beginPath(); ctx.arc(sx, sy, r, 0, 6.28);
+        ctx.fillStyle = `rgba(255,255,255,${0.1 + (i % 5) * 0.09})`; ctx.fill();
+      }
+      ctx.restore();
     }
 
-    if (!sessions.length && !liveHtml) {
-      c.innerHTML = '<div class="study-canvas-empty">Start a session to grow your forest 🌱</div>';
-      return;
-    }
+    // Platform sizing — grows with tree count
+    const done = sessions.filter(s => s.completed !== false).length;
+    const n = Math.max(3, Math.min(7, 3 + Math.floor(done / 4)));
+    const tw = Math.min(72, (W * 0.76) / n);
+    const th = tw * 0.5;
+    const depth = th * 0.72;
+    const platformBottom = H - 16;
+    const oy = platformBottom - depth - (n - 1) * th;
+    const ox = W / 2;
 
-    const trees = sessions.map((s, i) => {
-      const subj  = this.getSubject(s.subject);
-      const emoji = this.treeEmoji(s.duration_min, s.activity, s.completed !== false);
-      const scale = s.completed !== false ? this.treeScale(s.duration_min) : 0.6;
-      const seed  = s.id % 1000;
-      const left  = 5 + ((seed * 13 + i * 37) % 82);
-      const btm   = 8 + ((seed * 7  + i * 11) % 20);
-      const opacity = s.completed !== false ? 1 : 0.6;
-      return `<div class="study-canvas-tree${s.completed === false ? ' study-canvas-tree-dead' : ''}"
-        style="left:${left}%;bottom:${btm}%;font-size:${Math.round(28*scale)}px;opacity:${opacity}"
-        title="${subj.label} · ${s.activity} · ${this.fmtDur(s.duration_min)}${s.completed===false?' (incomplete)':''}">${emoji}</div>`;
+    // Horizon mist
+    const fog = ctx.createLinearGradient(0, oy - 20, 0, oy + th * 0.5);
+    fog.addColorStop(0, 'transparent');
+    fog.addColorStop(1, isDark ? 'rgba(5,12,6,0.6)' : 'rgba(180,215,175,0.52)');
+    ctx.fillStyle = fog; ctx.fillRect(0, oy - 20, W, th * 0.5 + 20);
+
+    // Platform side faces
+    const blX = ox - (n-1)*tw/2, blY = oy + (n-1)*th/2;
+    const brX = ox + (n-1)*tw/2, brY = blY;
+    const botX = ox, botY = oy + (n-1)*th;
+    [[blX,blY,botX,botY,p.sideL],[brX,brY,botX,botY,p.sideR]].forEach(([ax,ay,bx,by,col]) => {
+      ctx.beginPath();
+      ctx.moveTo(ax,ay); ctx.lineTo(bx,by); ctx.lineTo(bx,by+depth); ctx.lineTo(ax,ay+depth);
+      ctx.closePath(); ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle=p.tileEdge; ctx.lineWidth=0.5; ctx.stroke();
     });
 
-    c.innerHTML = trees.join('') + liveHtml;
+    // Tile tops — back-to-front diagonal bands
+    for (let d = 0; d < 2*n-1; d++) {
+      for (let col = 0; col < n; col++) {
+        const row = d - col;
+        if (row < 0 || row >= n) continue;
+        const x = ox + (col-row)*tw/2, y = oy + (col+row)*th/2;
+        ctx.beginPath();
+        ctx.moveTo(x,y); ctx.lineTo(x+tw/2,y+th/2); ctx.lineTo(x,y+th); ctx.lineTo(x-tw/2,y+th/2);
+        ctx.closePath();
+        ctx.fillStyle = (col+row)%2===0 ? p.tileA : p.tileB;
+        ctx.fill();
+        ctx.strokeStyle=p.tileEdge; ctx.lineWidth=0.5; ctx.stroke();
+      }
+    }
+
+    // Trees
+    const placed = this._fcPlaceTrees(sessions, n);
+    for (const {col,row,session,idx} of placed) {
+      const tx = ox + (col-row)*tw/2;
+      const ty = oy + (col+row)*th/2 + th*0.62;
+      this._fcDrawTree(ctx, tx, ty, tw, session, idx, p);
+    }
+
+    // Live tree (animated when session running)
+    if (this._running && this._pomoPhase !== 'break' && this._pomoPhase !== 'longbreak') {
+      const prog = Math.min(1, this._treeProgress() / (25*60));
+      const lc = Math.floor(n/2), lr = Math.floor(n/2);
+      const ltx = ox + (lc-lr)*tw/2, lty = oy + (lc+lr)*th/2 + th*0.62;
+      this._fcDrawLive(ctx, ltx, lty, tw, prog, p);
+    }
+
+    // Empty hint
+    if (!sessions.length && !this._running) {
+      ctx.save();
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font=`13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`;
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.22)' : 'rgba(20,40,20,0.3)';
+      ctx.fillText('Start a session to grow your forest', W/2, Math.max(24, oy * 0.52));
+      ctx.restore();
+    }
+  },
+
+  _fcPlaceTrees(sessions, n) {
+    const c = (n-1)/2;
+    const pos = [];
+    for (let col=0; col<n; col++)
+      for (let row=0; row<n; row++)
+        pos.push({ col, row, d: Math.abs(col-c)+Math.abs(row-c) });
+    pos.sort((a,b) => a.d-b.d || a.col-b.col);
+    const used = new Set(), result = [];
+    sessions.forEach((s,idx) => {
+      const seed = (typeof s.id==='number' ? s.id : idx) % pos.length;
+      for (let i=0; i<pos.length; i++) {
+        const p = pos[(seed+i) % pos.length], k=`${p.col},${p.row}`;
+        if (!used.has(k)) { used.add(k); result.push({...p,session:s,idx}); break; }
+      }
+    });
+    result.sort((a,b) => (a.col+a.row)-(b.col+b.row));
+    return result;
+  },
+
+  _fcShape(ctx, bx, by, sc, shape, p) {
+    const u = 11 * sc;
+    if (shape === 'seed') {
+      ctx.fillStyle = p.trunkA;
+      ctx.fillRect(bx-1.5*sc, by-u, 3*sc, u);
+      ctx.beginPath(); ctx.arc(bx, by-u-u*0.65, u*0.65, 0, 6.28);
+      ctx.fillStyle = p.seedA; ctx.fill();
+      return;
+    }
+    if (shape === 'round') {
+      const cR = u * 1.35;
+      ctx.fillStyle = p.trunkA;
+      ctx.beginPath();
+      ctx.moveTo(bx-u*0.28,by); ctx.lineTo(bx+u*0.28,by);
+      ctx.lineTo(bx+u*0.15,by-u*0.95); ctx.lineTo(bx-u*0.15,by-u*0.95);
+      ctx.closePath(); ctx.fill();
+      [[0,-0.60,1.0,p.rndA],[-0.15,-0.80,0.88,p.rndB],[-0.22,-1.02,0.62,p.rndC]].forEach(([ox,oy,r,c]) => {
+        ctx.beginPath(); ctx.arc(bx+ox*cR, by-u*0.95+oy*cR, r*cR, 0, 6.28);
+        ctx.fillStyle=c; ctx.fill();
+      });
+      return;
+    }
+    if (shape === 'pine') {
+      ctx.fillStyle = p.trunkA;
+      ctx.fillRect(bx-u*0.2, by-u*0.9, u*0.4, u*0.9);
+      [[u*2.1,u*1.0,-u*0.7,p.pineA],[u*1.6,u*0.9,-u*1.35,p.pineB],[u*1.1,u*0.8,-u*1.95,p.pineC]]
+        .forEach(([w,h,yo,c]) => {
+          ctx.beginPath();
+          ctx.moveTo(bx,by+yo-h); ctx.lineTo(bx+w/2,by+yo); ctx.lineTo(bx-w/2,by+yo);
+          ctx.closePath(); ctx.fillStyle=c; ctx.fill();
+        });
+    }
+  },
+
+  _fcDrawTree(ctx, bx, by, tw, session, idx, p) {
+    const done = session.completed !== false;
+    const dur = session.duration_min || 0;
+    const sc = tw / 72;
+    if (!done) {
+      this._fcShape(ctx, bx, by, sc*0.52, 'seed', { ...p, trunkA:p.witherT, seedA:p.witherA });
+      return;
+    }
+    const shape = dur >= 25 && idx % 3 === 2 ? 'pine' : dur >= 15 ? 'round' : 'seed';
+    const mul = dur < 10 ? 0.52 : dur < 20 ? 0.72 : dur < 25 ? 0.88 : Math.min(1.4, 1+(dur-25)/80);
+    this._fcShape(ctx, bx, by, sc*mul, shape, p);
+  },
+
+  _fcDrawLive(ctx, bx, by, tw, prog, p) {
+    const sc = tw / 72, u = 11 * sc;
+    const pulse = 1 + Math.sin(Date.now() / 700) * 0.055;
+    const growSc = sc * Math.min(1.0, 0.42 + prog * 0.65) * pulse;
+    const gu = 11 * growSc;
+
+    // Glow aura
+    const glowR = gu * 3.2;
+    const gr = ctx.createRadialGradient(bx, by-gu*1.6, 0, bx, by-gu*1.6, glowR);
+    gr.addColorStop(0, p.liveGlow); gr.addColorStop(1, 'transparent');
+    ctx.fillStyle = gr;
+    ctx.beginPath(); ctx.arc(bx, by-gu*1.6, glowR, 0, 6.28); ctx.fill();
+
+    const lp = { ...p, trunkA:p.trunkB, rndA:p.liveA, rndB:p.liveB, rndC:p.liveC,
+                 seedA:p.liveC, pineA:p.liveA, pineB:p.liveB, pineC:p.liveC };
+    if (prog < 0.28) {
+      this._fcShape(ctx, bx, by, growSc, 'seed', lp);
+    } else if (prog < 0.65) {
+      this._fcShape(ctx, bx, by, growSc, 'round', lp);
+    } else {
+      this._fcShape(ctx, bx, by, growSc, 'round', lp);
+    }
   },
 
   _renderStats(sessions) {
@@ -625,7 +836,7 @@ const StudyTracker = {
     el.innerHTML = `
       <div class="study-stat-chip"><span class="study-stat-val">${this.fmtDur(total)||'0m'}</span><span class="study-stat-lbl">${label}</span></div>
       <div class="study-stat-chip"><span class="study-stat-val">${completed.length}</span><span class="study-stat-lbl">trees planted</span></div>
-      <div class="study-stat-chip"><span class="study-stat-val">${streak}</span><span class="study-stat-lbl">day streak 🔥</span></div>`;
+      <div class="study-stat-chip"><span class="study-stat-val">${streak}</span><span class="study-stat-lbl">day streak</span></div>`;
   },
 
   _renderSubjBars(sessions) {

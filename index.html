@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=50">
+    <link rel="stylesheet" href="css/styles.css?v=51">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -437,8 +437,9 @@
 
           <div class="study-panel" style="margin-bottom:24px;">
 
-            <!-- Forest canvas: background image + clock + scattered trees -->
+            <!-- Forest canvas: isometric growing forest -->
             <div class="study-forest-canvas">
+              <canvas id="studyForestCanvas"></canvas>
               <div class="study-canvas-header">
                 <div class="study-canvas-clock">
                   <span class="study-clock-time" id="studyClockTime">--:--</span>
@@ -447,9 +448,6 @@
                 <div class="study-canvas-today">
                   <span id="studyTodayBadge">0m today</span>
                 </div>
-              </div>
-              <div class="study-canvas-trees" id="studyCanvasTrees">
-                <div class="study-canvas-empty">Start a session to grow your forest 🌱</div>
               </div>
             </div>
 
@@ -2163,8 +2161,8 @@
 <script defer src="js/mind.js?v=39"></script>
 <script defer src="js/growth.js?v=39"></script>
 <script defer src="js/tasks.js?v=46"></script>
-<script defer src="js/study.js?v=46"></script>
-<script defer src="js/study-analytics.js?v=49"></script>
+<script defer src="js/study.js?v=51"></script>
+<script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/ui.js?v=39"></script>
 <script defer src="js/events.js?v=39"></script>

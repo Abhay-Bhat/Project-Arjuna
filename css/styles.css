@@ -5004,3 +5004,188 @@ select:focus, textarea:focus {
 
 /* ── Smooth scroll for entire page ──────────────────────────────────── */
 html { scroll-behavior: smooth; }
+
+/* ══════════════════════════════════════════════════════════════════
+   ISOMETRIC FOREST CANVAS + MINIMAL UI  (v51)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Forest canvas container ──────────────────────────────────────── */
+.study-forest-canvas {
+  position: relative;
+  min-height: 290px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: #04070f; /* fallback while canvas loads */
+}
+[data-theme="light"] .study-forest-canvas { background: #9ec0ec; }
+
+/* Remove old pseudo-element overlays */
+.study-forest-canvas::before,
+.study-forest-canvas::after { display: none !important; }
+
+/* Canvas element fills the div */
+#studyForestCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Header overlays on canvas */
+.study-canvas-header {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 2;
+  padding: 18px 20px 0;
+  pointer-events: none;
+  background: none;
+}
+.study-canvas-header * { pointer-events: auto; }
+
+/* Clock: sharper typography */
+.study-clock-time {
+  font-size: 34px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.92);
+  letter-spacing: -0.025em;
+  line-height: 1;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.55);
+}
+.study-clock-date {
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.48);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+[data-theme="light"] .study-clock-time { color: rgba(20,40,20,0.88); text-shadow: 0 1px 8px rgba(255,255,255,0.5); }
+[data-theme="light"] .study-clock-date { color: rgba(20,40,20,0.46); }
+
+/* Today badge: minimal glass pill */
+.study-canvas-today {
+  background: rgba(0,0,0,0.30);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 20px;
+  padding: 4px 13px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.80);
+  backdrop-filter: blur(6px);
+  font-feature-settings: "tnum" 1;
+}
+[data-theme="light"] .study-canvas-today {
+  background: rgba(255,255,255,0.38);
+  border-color: rgba(255,255,255,0.5);
+  color: rgba(20,40,20,0.80);
+}
+
+/* Hide old tree div (replaced by canvas) */
+.study-canvas-trees { display: none !important; }
+
+/* ── Stat chips: monochromatic ────────────────────────────────────── */
+.study-stat-chip {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.study-stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum" 1;
+  line-height: 1.1;
+}
+.study-stat-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+/* ── Comparison cards: monochromatic ─────────────────────────────── */
+.sa-cmp-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  transition: border-color var(--transition), background var(--transition);
+}
+.sa-cmp-card:hover { background: var(--card-hover); border-color: var(--border-bright); }
+.sa-cmp-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+}
+.sa-cmp-cur {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  font-feature-settings: "tnum" 1;
+}
+.sa-cmp-prev {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-feature-settings: "tnum" 1;
+}
+.sa-up { color: var(--accent-green); font-size: 11px; font-weight: 700; }
+.sa-dn { color: var(--accent-rose);  font-size: 11px; font-weight: 700; }
+
+/* ── Range selector: minimal pill ────────────────────────────────── */
+.study-range-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.study-range-btn:hover {
+  color: var(--text);
+  background: var(--card-hover);
+  border-color: var(--border);
+}
+.study-range-btn.active {
+  color: var(--text);
+  background: var(--card);
+  border-color: var(--border-bright);
+  box-shadow: none;
+}
+
+/* ── Insight bar: clean ───────────────────────────────────────────── */
+.sa-insight {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-blue);
+  border-radius: 0 8px 8px 0;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+  font-feature-settings: "tnum" 1;
+}
+.sa-insight:empty { display: none; }
+
+/* ── Live tree in timer: keep but mute ────────────────────────────── */
+.study-live-tree {
+  filter: none;
+  transition: font-size 0.4s ease;
+}
+.study-live-tree-active {
+  filter: drop-shadow(0 0 10px rgba(var(--accent-green-rgb, 0,212,124), 0.45));
+}
