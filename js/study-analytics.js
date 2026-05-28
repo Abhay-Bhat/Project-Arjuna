@@ -52,6 +52,77 @@ const StudyAnalytics = (() => {
     return (all || []).filter(s => s.date >= sk && s.date < ek);
   }
 
+  // ── Contextual one-liner insight ─────────────────────────
+
+  function _insight(sessions, range, all) {
+    const el = document.getElementById('saInsight');
+    if (!el) return;
+
+    const now    = new Date();
+    const curMin = _total(sessions);
+
+    if (range === 'today') {
+      // Compare to same elapsed time window yesterday
+      const yk      = _dk(_add(now, -1));
+      const nowHour = now.getHours() + now.getMinutes() / 60;
+      const ystMin  = _done(all).filter(s => {
+        if (s.date !== yk) return false;
+        if (!s.started_at) return false;
+        const h = new Date(s.started_at).getHours() + new Date(s.started_at).getMinutes() / 60;
+        return h <= nowHour;
+      }).reduce((a, s) => a + s.duration_min, 0);
+
+      if (ystMin === 0 && curMin === 0) { el.textContent = ''; return; }
+      const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      if (ystMin === 0) { el.textContent = `No data for yesterday — keep going today! 🚀`; return; }
+      const diff = curMin - ystMin;
+      const sign = diff >= 0 ? 'ahead' : 'behind';
+      const emoji = diff >= 0 ? '🔥' : '📉';
+      el.textContent = `Yesterday by ${timeStr} you'd studied ${_fmtDur(ystMin)} — you're ${_fmtDur(Math.abs(diff))} ${sign} ${emoji}`;
+
+    } else if (range === '7d') {
+      const prev   = _prevPeriod('7d', all);
+      const prevMin = _total(prev);
+      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
+      if (prevMin === 0) { el.textContent = `First week tracked — ${_fmtDur(curMin)} in total. Great start! 🌱`; return; }
+      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
+      const sign = pct >= 0 ? 'more' : 'less';
+      const emoji = pct >= 0 ? '📈' : '📉';
+      el.textContent = `Last week you studied ${_fmtDur(prevMin)} — this week ${Math.abs(pct)}% ${sign} so far ${emoji}`;
+
+    } else if (range === '30d') {
+      const prev    = _prevPeriod('30d', all);
+      const prevMin = _total(prev);
+      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
+      if (prevMin === 0) { el.textContent = `First month tracked — ${_fmtDur(curMin)} total. Keep building the habit! 🧱`; return; }
+      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
+      const emoji = pct >= 0 ? '📈' : '📉';
+      el.textContent = `Previous 30 days: ${_fmtDur(prevMin)} — you're ${Math.abs(pct)}% ${pct >= 0 ? 'ahead' : 'behind'} ${emoji}`;
+
+    } else if (range === '3m') {
+      const prev    = _prevPeriod('3m', all);
+      const prevMin = _total(prev);
+      if (prevMin === 0 && curMin === 0) { el.textContent = ''; return; }
+      if (prevMin === 0) { el.textContent = `First quarter tracked — ${_fmtDur(curMin)} total. Solid foundation! 💪`; return; }
+      const pct  = Math.round(((curMin - prevMin) / prevMin) * 100);
+      const emoji = pct >= 0 ? '🏆' : '📉';
+      el.textContent = `Previous quarter: ${_fmtDur(prevMin)} — this quarter ${Math.abs(pct)}% ${pct >= 0 ? 'higher' : 'lower'} ${emoji}`;
+
+    } else if (range === 'all') {
+      const done = _done(all);
+      if (!done.length) { el.textContent = ''; return; }
+      const totalMin  = _total(all);
+      const activeDays = Object.keys(_byDay(all)).length;
+      const avgPerDay  = activeDays > 0 ? Math.round(totalMin / activeDays) : 0;
+      const goal       = AppState.studyDailyGoal || 240;
+      const goalPct    = Math.round((avgPerDay / goal) * 100);
+      el.textContent = `Averaging ${_fmtDur(avgPerDay)}/day across ${activeDays} active day${activeDays === 1 ? '' : 's'} — ${goalPct}% of daily goal`;
+
+    } else {
+      el.textContent = '';
+    }
+  }
+
   // ── Chart.js theme ────────────────────────────────────────
 
   const T = () => ({
@@ -449,6 +520,7 @@ const StudyAnalytics = (() => {
       const all = AppState.studyLog || [];
       _heatmap();
       _comparison(sessions, range, all);
+      _insight(sessions, range, all);
       _trend(sessions, range, all);
       _hours(sessions, range, all);
       _donut('saActivityChart', 'saActivityLegend', sessions, 'activity');

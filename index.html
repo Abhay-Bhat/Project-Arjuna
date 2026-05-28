@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
 
-    <link rel="stylesheet" href="css/styles.css?v=45">
+    <link rel="stylesheet" href="css/styles.css?v=46">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -486,6 +486,9 @@
             <!-- ── Comparison stat chips ── -->
             <div class="sa-comparison-row" id="saComparisonRow"></div>
 
+            <!-- ── Contextual insight one-liner ── -->
+            <div class="sa-insight" id="saInsight"></div>
+
             <!-- ── Trend + Peak-hours charts ── -->
             <div class="sa-charts-row">
               <div class="sa-chart-card">
@@ -528,6 +531,27 @@
 
             <!-- Session list -->
             <div class="study-sessions-wrap" id="studySessionsList"></div>
+
+            <!-- ── Focus Guard ── -->
+            <div class="fg-section">
+              <div class="fg-section-hdr">
+                <span class="fg-section-title">🛡️ Focus Guard</span>
+                <div id="fgStatus"><span class="fg-badge fg-badge-off">Checking extension…</span></div>
+              </div>
+              <p class="fg-desc">Block distracting sites during study sessions. Add domains you <em>need</em> — everything else is blocked when the timer runs.</p>
+              <div class="fg-input-row">
+                <input type="text" id="fgDomainInput" placeholder="ncert.nic.in" class="fg-input" />
+                <button class="fg-add-btn" id="fgAddBtn">Add</button>
+              </div>
+              <ul class="fg-domain-list" id="fgDomainList">
+                <li class="fg-empty">No domains added yet</li>
+              </ul>
+              <p class="fg-install-note">
+                Requires the
+                <strong>Skadi Focus Guard</strong> Chrome extension —
+                <a href="https://github.com/abhay-bhat/project-arjuna/tree/main/extension" target="_blank" rel="noopener">install from source →</a>
+              </p>
+            </div>
 
             <!-- Manage subjects & activities -->
             <div class="study-manage-wrap">
@@ -2138,9 +2162,10 @@
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/mind.js?v=39"></script>
 <script defer src="js/growth.js?v=39"></script>
-<script defer src="js/tasks.js?v=45"></script>
-<script defer src="js/study.js?v=45"></script>
-<script defer src="js/study-analytics.js?v=45"></script>
+<script defer src="js/tasks.js?v=46"></script>
+<script defer src="js/study.js?v=46"></script>
+<script defer src="js/study-analytics.js?v=46"></script>
+<script defer src="js/focus-guard.js?v=46"></script>
 <script defer src="js/ui.js?v=39"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=39"></script>

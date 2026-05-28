@@ -410,6 +410,7 @@ const StudyTracker = {
     this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
     this._updateTimerDisplay();
     this._updateLiveTree();
+    if (window.FocusGuard) FocusGuard.startFocus();
   },
 
   _onTick() {
@@ -529,6 +530,7 @@ const StudyTracker = {
     this._updateTodayStats();
     this._updatePomoStatus();
     this._renderForestPanel();
+    if (window.FocusGuard) FocusGuard.endFocus();
   },
 
   _saveSession(durationMin, completed) {

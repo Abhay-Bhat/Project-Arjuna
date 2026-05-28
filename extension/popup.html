@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Skadi Focus Guard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      background: #0e1629;
+      color: #cdd6f4;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      padding: 16px;
+    }
+    h1 { font-size: 15px; font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .badge {
+      font-size: 10px; font-weight: 700; padding: 2px 7px;
+      border-radius: 999px; letter-spacing: 0.06em;
+    }
+    .badge-on  { background: #00d47c22; color: #00d47c; border: 1px solid #00d47c55; }
+    .badge-off { background: #6e7aaa22; color: #6e7aaa;  border: 1px solid #6e7aaa44; }
+    .sub { font-size: 11px; color: #6e7aaa; margin-bottom: 16px; }
+    label { display: block; font-size: 11px; font-weight: 600; color: #6e7aaa; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .input-row { display: flex; gap: 6px; margin-bottom: 12px; }
+    input[type="text"] {
+      flex: 1; background: #080e1e; border: 1px solid #1e2a45;
+      border-radius: 6px; padding: 7px 10px; color: #cdd6f4; font-size: 12px;
+      outline: none;
+    }
+    input[type="text"]::placeholder { color: #6e7aaa; }
+    input[type="text"]:focus { border-color: #4d79ff; }
+    button {
+      background: #4d79ff; color: #fff; border: none;
+      border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.85; }
+    button.ghost {
+      background: transparent; border: 1px solid #1e2a45;
+      color: #6e7aaa; padding: 5px 10px; font-size: 11px;
+    }
+    .domain-list { list-style: none; max-height: 160px; overflow-y: auto; }
+    .domain-list li {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px; border-radius: 5px; font-size: 12px;
+    }
+    .domain-list li:hover { background: #080e1e; }
+    .rm-btn {
+      background: none; border: none; color: #6e7aaa;
+      cursor: pointer; font-size: 14px; padding: 0 4px; line-height: 1;
+    }
+    .rm-btn:hover { color: #ff6b6b; }
+    .empty { color: #6e7aaa; font-size: 12px; font-style: italic; padding: 4px 0; }
+    .toggle-btn {
+      width: 100%; margin-top: 12px; padding: 10px;
+      font-size: 13px; border-radius: 8px;
+    }
+    .toggle-btn.active { background: #ff6b6b55; border: 1px solid #ff6b6b88; color: #ff6b6b; }
+    .toggle-btn.inactive { background: #00d47c22; border: 1px solid #00d47c55; color: #00d47c; }
+    hr { border: none; border-top: 1px solid #1e2a45; margin: 14px 0; }
+  </style>
+</head>
+<body>
+  <h1>
+    🛡️ Focus Guard
+    <span class="badge" id="statusBadge">OFF</span>
+  </h1>
+  <p class="sub">Allowlist — sites you can visit during focus sessions</p>
+
+  <label>Add domain</label>
+  <div class="input-row">
+    <input type="text" id="domainInput" placeholder="e.g. ncert.nic.in" />
+    <button id="addBtn">Add</button>
+  </div>
+
+  <label>Allowed sites</label>
+  <ul class="domain-list" id="domainList"></ul>
+
+  <hr>
+
+  <button class="toggle-btn" id="toggleBtn">—</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     Events.init();
     if (window.DevOpsGuide)    window.DevOpsGuide.init();
     if (window.StudyAnalytics) StudyAnalytics.init();
+    if (window.FocusGuard)     FocusGuard.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
     // Reveal the app — fade out the loading overlay

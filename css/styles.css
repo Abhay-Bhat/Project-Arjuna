@@ -4487,6 +4487,20 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .sa-cmp-cur  { font-size: 18px; font-weight: 700; color: var(--text); }
 .sa-cmp-prev { font-size: 11px; color: var(--text-muted); }
+
+.sa-insight {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 9px 14px;
+  margin-bottom: 14px;
+  min-height: 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+.sa-insight:empty { display: none; }
 .sa-up       { color: var(--accent-teal); font-size: 12px; font-weight: 700; }
 .sa-dn       { color: #e87070; font-size: 12px; font-weight: 700; }
 
@@ -4581,3 +4595,102 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .sa-hm-cell { width: 10px; height: 10px; }
   .sa-hm-days > div { width: 8px; }
 }
+
+/* ── Focus Guard ──────────────────────────────────────────── */
+.fg-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.fg-section-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.fg-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.fg-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+}
+.fg-badge-on  { background: rgba(0,212,124,0.15); color: #00d47c; border: 1px solid rgba(0,212,124,0.35); }
+.fg-badge-off { background: rgba(110,122,170,0.12); color: var(--text-muted); border: 1px solid var(--border); }
+.fg-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.fg-desc em { font-style: normal; color: var(--text); }
+.fg-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.fg-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+}
+.fg-input:focus { border-color: var(--accent); }
+.fg-add-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fg-add-btn:hover { opacity: 0.85; }
+.fg-domain-list {
+  list-style: none;
+  margin-bottom: 8px;
+}
+.fg-domain-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  color: var(--text);
+}
+.fg-domain-item:hover { background: var(--bg); }
+.fg-domain-name { font-family: monospace; font-size: 11px; }
+.fg-rm-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.12s;
+}
+.fg-rm-btn:hover { color: #ff6b6b; }
+.fg-empty { font-size: 12px; color: var(--text-muted); font-style: italic; padding: 4px 8px; }
+.fg-install-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.fg-install-note a { color: var(--accent); text-decoration: none; }
+.fg-install-note a:hover { text-decoration: underline; }
