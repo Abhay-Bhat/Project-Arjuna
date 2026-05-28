@@ -564,6 +564,13 @@ const UI = {
   _renderProTip() {
     const el = document.getElementById('proTipText');
     if (!el) return;
+    if (typeof CoachEngine !== 'undefined') {
+      const tip = CoachEngine.getBestTip();
+      el.textContent = tip.text;
+      const iconEl = document.querySelector('.pro-tip-card .pro-tip-icon');
+      if (iconEl) iconEl.textContent = tip.icon || '💡';
+      return;
+    }
     const phase = PhaseManager.getPhase();
     const tips = {
       notice:       'This is your last impression at BLR. Knowledge transfer done right = reputation that travels. Make it count.',

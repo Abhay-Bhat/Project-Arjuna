@@ -257,7 +257,54 @@ const UPSCTracker = {
     setW('prelims2027Bar', covPct);
 
     this.renderLagBanner(totalCompleted, totalClasses);
+    this.renderDeadlineTracker();
     this.renderSubjectGrid();
+  },
+
+  // ── Intelligent Deadline Tracker ────────────────────────
+  renderDeadlineTracker() {
+    const el = document.getElementById('upscDeadlineTracker');
+    if (!el) return;
+    if (typeof CoachEngine === 'undefined') {
+      el.innerHTML = '<div class="empty-state" style="font-size:12px;padding:8px 0;">Coach loading…</div>';
+      return;
+    }
+
+    const p = CoachEngine.getUPSCProjection();
+    const trackColor = p.onTrack === null ? 'var(--text-muted)'
+      : p.onTrack ? 'var(--accent-green)' : 'var(--accent-rose)';
+    const trackText  = p.onTrack === null ? 'Calculating…'
+      : p.onTrack ? '✓ On Track' : '⚠ Behind Schedule';
+
+    const fmt = d => {
+      if (!d) return '—';
+      const [y, m, dy] = d.split('-');
+      return `${['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m]} ${dy}, ${y}`;
+    };
+
+    el.innerHTML = `
+      <div style="font-size:13px;font-weight:700;color:${trackColor};margin-bottom:10px;">${trackText}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+        <div class="stat-card" style="padding:10px;">
+          <div class="stat-card-title" style="font-size:10px;">Completed</div>
+          <div class="stat-card-value" style="font-size:20px;">${p.completed}</div>
+          <div class="stat-card-sub">${p.total} total</div>
+        </div>
+        <div class="stat-card" style="padding:10px;">
+          <div class="stat-card-title" style="font-size:10px;">Remaining</div>
+          <div class="stat-card-value" style="font-size:20px;">${p.remaining}</div>
+          <div class="stat-card-sub">${p.lag > 0 ? `${p.lag} behind` : p.lag < 0 ? `${Math.abs(p.lag)} ahead` : 'on schedule'}</div>
+        </div>
+      </div>
+      <div style="display:grid;gap:1px;">
+        <div class="dt-row"><span class="dt-label">30-day pace</span><span class="dt-val">${p.pacePerDay} cl/day</span></div>
+        <div class="dt-row"><span class="dt-label">Study avg (30d)</span><span class="dt-val">${p.avgStudyH30}h/day</span></div>
+        <div class="dt-row"><span class="dt-label">Projected finish</span><span class="dt-val" style="color:${trackColor};">${fmt(p.projectedEnd)}</span></div>
+        <div class="dt-row"><span class="dt-label">Target deadline</span><span class="dt-val">${fmt(p.targetEnd)}</span></div>
+        ${p.requiredPacePerDay != null ? `
+        <div class="dt-row"><span class="dt-label">Required pace</span><span class="dt-val" style="color:${p.onTrack ? 'var(--accent-green)' : 'var(--accent-amber)'};">${p.requiredPacePerDay} cl/day</span></div>
+        <div class="dt-row"><span class="dt-label">Days remaining</span><span class="dt-val">${p.daysLeft}d</span></div>` : ''}
+      </div>`;
   },
 
   // ── Lag banner: expected vs completed (irrespective of phase/schedule) ──

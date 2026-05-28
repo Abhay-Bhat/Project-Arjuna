@@ -112,11 +112,9 @@ const GrowthTracker = {
     this.renderTechPlan();
     this.renderTechSummary();
     this.renderBooks();
-    this.renderWeeklyReview();
-    this.renderMonthlyReview();
+    this.renderAutoReview();
     this.renderPartnerLog();
     this.renderWeeklyReviewChart();
-    this.renderMonthlySummary();
   },
 
   // ── Tech Upskilling Plan ─────────────────────────────────
@@ -276,133 +274,55 @@ const GrowthTracker = {
     });
   },
 
-  // ── Weekly Review ────────────────────────────────────────
-  renderWeeklyReview() {
-    const container = document.getElementById('weeklyReviewForm');
-    if (!container || container.dataset.init) return;
-    container.dataset.init = '1';
+  // ── Auto Coach Review (replaces manual weekly/monthly forms) ─
+  renderAutoReview() {
+    if (typeof CoachEngine === 'undefined') return;
+    const data = CoachEngine.getAutoReview();
 
-    const weekKey = this._weekKey();
-    const saved   = AppState.weeklyReviews?.[weekKey] || {};
+    const cdEl = document.getElementById('coachDashboard');
+    if (cdEl) {
+      cdEl.innerHTML = data.tips.length
+        ? `<div class="cd-tips-list">
+             ${data.tips.map(t => `
+               <div class="cd-tip">
+                 <span class="cd-tip-icon">${t.icon}</span>
+                 <div class="cd-tip-text">${t.text}</div>
+                 ${t.tab ? `<button class="card-tab-link" data-goto="${t.tab}" style="margin-left:auto;flex-shrink:0;">View →</button>` : ''}
+               </div>`).join('')}
+           </div>
+           <div class="cd-updated">Last computed: ${data.lastUpdated}</div>`
+        : '<div class="empty-state">No tips right now — all systems look good.</div>';
 
-    container.innerHTML = `
-      <div class="review-header">
-        Week of ${this._weekLabel()} — Sun 20-min check-in
-        ${saved.submitted_at ? `<span class="submitted-badge">Submitted ✓</span>` : ''}
-      </div>
-      ${WEEKLY_Qs.map((q, i) => `
-        <div class="review-q">
-          <label class="review-qlabel">Q${i+1}. ${q}</label>
-          <div class="star-row" data-q="${i}">
-            ${[1,2,3,4,5].map(v => `
-              <button type="button" class="star-btn ${(saved.answers?.[i] || 0) >= v ? 'active' : ''}"
-                data-val="${v}">★</button>`).join('')}
-            <span class="star-score">${saved.answers?.[i] || 0}/5</span>
-          </div>
-        </div>`).join('')}
-      <div class="review-actions">
-        <button class="btn btn-primary" id="weeklySubmitBtn">Submit Review</button>
-        ${saved.submitted_at ? `<span class="review-ts">Last submitted: ${saved.submitted_at}</span>` : ''}
-      </div>`;
-
-    // Star interactions
-    container.querySelectorAll('.star-row').forEach(row => {
-      row.querySelectorAll('.star-btn').forEach(btn => {
+      cdEl.querySelectorAll('.card-tab-link[data-goto]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const val = parseInt(btn.dataset.val);
-          const qi  = parseInt(row.dataset.q);
-          row.querySelectorAll('.star-btn').forEach((b, idx) => b.classList.toggle('active', idx < val));
-          row.querySelector('.star-score').textContent = val + '/5';
-          // Store temp
-          if (!row.dataset.val) row.setAttribute('data-current', val);
-          else row.setAttribute('data-current', val);
+          if (typeof UI !== 'undefined') UI._navigateToTab(btn.dataset.goto);
         });
       });
-    });
+    }
 
-    document.getElementById('weeklySubmitBtn')?.addEventListener('click', () => {
-      const answers = [];
-      container.querySelectorAll('.star-row').forEach(row => {
-        const active = row.querySelectorAll('.star-btn.active').length;
-        answers.push(active);
-      });
-      AppState.weeklyReviews = AppState.weeklyReviews || {};
-      AppState.weeklyReviews[weekKey] = {
-        answers,
-        submitted_at: new Date().toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
-      };
-      AppState.save();
-      container.dataset.init = '';
-      this.renderWeeklyReview();
-    });
-  },
-
-  // ── Monthly Review ───────────────────────────────────────
-  renderMonthlyReview() {
-    const container = document.getElementById('monthlyReviewForm');
-    if (!container || container.dataset.init) return;
-    container.dataset.init = '1';
-
-    const monthKey = AppState.getTodayKey().slice(0, 7);
-    const saved    = AppState.monthlyReviews?.[monthKey] || {};
-
-    container.innerHTML = `
-      <div class="review-header">
-        ${this._fmtMonth(monthKey)} Monthly Review — 45 min
-        ${saved.submitted_at ? `<span class="submitted-badge">Submitted ✓</span>` : ''}
-      </div>
-      ${MONTHLY_DOMAINS.map(d => {
-        const prev = saved.domains?.[d.id];
-        const savedScore = prev?.score || 0;
-        const savedNote  = prev?.note  || '';
-        return `
-          <div class="review-domain">
-            <div class="rd-label">${d.label}</div>
-            <div class="rd-q">${d.q}</div>
-            <div class="star-row" data-domain="${d.id}" style="margin-bottom:8px;">
-              ${[1,2,3,4,5].map(v => `
-                <button type="button" class="star-btn ${savedScore >= v ? 'active' : ''}"
-                  data-val="${v}">★</button>`).join('')}
-              <span class="star-score">${savedScore || 0}/5</span>
+    const mgsEl = document.getElementById('monthlyGrowthSummary');
+    if (mgsEl) {
+      mgsEl.innerHTML = data.domains.map(d => `
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:13px;font-weight:600;color:var(--text);">${d.label}</span>
+              ${d.tab ? `<button class="card-tab-link cd-nav" data-goto="${d.tab}" style="font-size:10px;">→</button>` : ''}
             </div>
-            <textarea class="rd-textarea" data-domain-note="${d.id}"
-              placeholder="Your reflection (optional)..." rows="2">${savedNote}</textarea>
-          </div>`;
-      }).join('')}
-      <div class="review-actions">
-        <button class="btn btn-primary" id="monthlySubmitBtn">Submit Monthly Review</button>
-        ${saved.submitted_at ? `<span class="review-ts">Last submitted: ${saved.submitted_at}</span>` : ''}
-      </div>`;
+            <span style="font-size:14px;font-weight:700;color:${d.color};">${d.score}</span>
+          </div>
+          <div style="background:var(--border);border-radius:4px;height:6px;overflow:hidden;">
+            <div style="width:${d.score}%;height:100%;background:${d.color};border-radius:4px;transition:width 0.4s ease;"></div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${d.note}</div>
+        </div>`).join('');
 
-    // Star interactions for monthly review
-    container.querySelectorAll('.star-row').forEach(row => {
-      row.querySelectorAll('.star-btn').forEach(btn => {
+      mgsEl.querySelectorAll('.cd-nav[data-goto]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const val = parseInt(btn.dataset.val);
-          row.querySelectorAll('.star-btn').forEach((b, idx) => b.classList.toggle('active', idx < val));
-          row.querySelector('.star-score').textContent = val + '/5';
+          if (typeof UI !== 'undefined') UI._navigateToTab(btn.dataset.goto);
         });
       });
-    });
-
-    document.getElementById('monthlySubmitBtn')?.addEventListener('click', () => {
-      const domains = {};
-      container.querySelectorAll('.star-row[data-domain]').forEach(row => {
-        const id    = row.dataset.domain;
-        const score = row.querySelectorAll('.star-btn.active').length;
-        const note  = container.querySelector(`[data-domain-note="${id}"]`)?.value || '';
-        domains[id] = { score, note };
-      });
-      AppState.monthlyReviews = AppState.monthlyReviews || {};
-      AppState.monthlyReviews[monthKey] = {
-        domains,
-        submitted_at: new Date().toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric' })
-      };
-      AppState.save();
-      container.dataset.init = '';
-      this.renderMonthlyReview();
-      if (typeof UI !== 'undefined') UI.tryCompletePendingActivity('growth');
-    });
+    }
   },
 
   // ── Life Partner Log ─────────────────────────────────────
@@ -481,101 +401,58 @@ const GrowthTracker = {
     return `${names[parseInt(m)]} ${y}`;
   },
 
-  // ── Weekly Review Scores Chart ────────────────────────────
+  // ── Study Hours — Last 7 Days bar chart ──────────────────
   renderWeeklyReviewChart() {
     const canvas = document.getElementById('weeklyReviewChart');
-    if (!canvas) return;
+    if (!canvas || typeof CoachEngine === 'undefined') return;
 
-    const reviews = AppState.weeklyReviews || {};
-    const keys = Object.keys(reviews).sort().slice(-8); // last 8 weeks
-
-    if (!keys.length) {
-      canvas.parentElement.innerHTML = '<div class="empty-state" style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">No weekly reviews yet. Complete a Sunday review to see trends.</div>';
-      return;
+    const hours   = CoachEngine._studyHours(7).reverse(); // oldest first
+    const today   = new Date();
+    const labels  = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today); d.setDate(d.getDate() - i);
+      labels.push(d.toLocaleDateString('en-IN', { weekday: 'short' }));
     }
-
-    const labels = keys.map(k => k.replace(/^\d{4}-/, ''));
-    const avgData = keys.map(k => {
-      const r = reviews[k];
-      const vals = (r.answers || [r.q1,r.q2,r.q3,r.q4,r.q5,r.q6,r.q7,r.q8,r.q9,r.q10]).filter(v => v != null && v > 0);
-      return vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
-    });
 
     if (window.weeklyReviewChartInstance) { window.weeklyReviewChartInstance.destroy(); }
 
     const isDark    = document.documentElement.getAttribute('data-theme') !== 'light';
     const textColor = isDark ? '#697098' : '#5a6380';
     const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const goalH     = parseFloat(localStorage.getItem('skadi_study_goal') || '4');
 
     window.weeklyReviewChartInstance = new Chart(canvas, {
-      type: 'line',
+      type: 'bar',
       data: {
         labels,
         datasets: [{
-          label: 'Avg Weekly Score (1–5)',
-          data: avgData,
-          borderColor: '#a56eff',
-          backgroundColor: 'rgba(165,110,255,0.12)',
-          tension: 0.4,
-          pointRadius: 5,
-          fill: true,
-          spanGaps: true
+          label: 'Hours studied',
+          data: hours,
+          backgroundColor: hours.map(h =>
+            h >= goalH ? 'rgba(0,212,124,0.75)'
+            : h >= goalH * 0.5 ? 'rgba(255,165,0,0.65)'
+            : 'rgba(255,80,80,0.55)'),
+          borderRadius: 4,
+        }, {
+          label: `Goal (${goalH}h)`,
+          data: Array(7).fill(goalH),
+          type: 'line',
+          borderColor: 'rgba(92,128,255,0.55)',
+          borderWidth: 1.5,
+          borderDash: [4, 4],
+          pointRadius: 0,
+          fill: false,
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 12 } } } },
+        plugins: { legend: { labels: { color: textColor, font: { family: 'Inter, Segoe UI, system-ui, sans-serif', size: 12 } } } },
         scales: {
-          x: { ticks: { color: textColor, font: { family: 'Aptos, Segoe UI, system-ui, sans-serif', size: 11 } }, grid: { color: gridColor } },
-          y: { min: 1, max: 5, ticks: { color: textColor, stepSize: 1 }, grid: { color: gridColor } }
+          x: { ticks: { color: textColor, font: { size: 11 } }, grid: { color: gridColor } },
+          y: { min: 0, suggestedMax: Math.max(goalH + 1, ...hours) + 0.5,
+               ticks: { color: textColor, stepSize: 1 }, grid: { color: gridColor } }
         }
       }
     });
   },
-
-  // ── Monthly Growth Summary ────────────────────────────────
-  renderMonthlySummary() {
-    const container = document.getElementById('monthlyGrowthSummary');
-    if (!container) return;
-
-    const reviews = AppState.monthlyReviews || {};
-    const keys = Object.keys(reviews).sort().slice(-3);
-
-    if (!keys.length) {
-      container.innerHTML = '<div class="empty-state" style="padding:16px;text-align:center;color:var(--text-muted);font-size:13px;">No monthly reviews yet. Complete your first review above.</div>';
-      return;
-    }
-
-    container.innerHTML = keys.reverse().map(k => {
-      const r = reviews[k];
-      const domains = r.domains || {};
-      const filled = Object.values(domains).filter(v => v?.score != null);
-      const avg = filled.length ? (filled.reduce((s,d) => s + (d.score||0), 0) / filled.length).toFixed(1) : '—';
-
-      const domainBars = MONTHLY_DOMAINS.map(d => {
-        const entry = domains[d.id];
-        const score = entry?.score;
-        const pct = score ? (score / 5) * 100 : 0;
-        const color = score >= 4 ? 'var(--accent-green)' : score >= 3 ? 'var(--accent-amber)' : 'var(--accent-rose)';
-        return `<div style="margin-bottom:6px;">
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;">
-            <span style="color:var(--text-muted)">${d.label}</span>
-            <span style="color:var(--text);font-weight:600">${score ?? '—'}/5</span>
-          </div>
-          <div style="background:var(--border);border-radius:3px;height:4px;overflow:hidden;">
-            <div style="width:${pct}%;height:100%;background:${color};transition:width 0.4s ease;"></div>
-          </div>
-          ${entry?.note ? `<div style="font-size:10px;color:var(--text-faint);margin-top:2px;">${esc(entry.note)}</div>` : ''}
-        </div>`;
-      }).join('');
-
-      return `<div class="stat-card" style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div style="font-size:14px;font-weight:600;color:var(--text);">${this._fmtMonth(k)}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--accent-violet);">${avg}/5</div>
-        </div>
-        ${domainBars}
-      </div>`;
-    }).join('');
-  }
 };

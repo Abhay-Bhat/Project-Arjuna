@@ -5444,3 +5444,41 @@ html { scroll-behavior: smooth; }
   display: flex;
   align-items: center;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v54 — Coach Engine: dashboard, deadline tracker, auto-badge
+   ═══════════════════════════════════════════════════════════ */
+
+.auto-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--brand), var(--accent-violet));
+  color: #fff;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+.cd-tips-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+.cd-tip {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.cd-tip-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.cd-tip-text { font-size: 12.5px; color: var(--text-muted); line-height: 1.6; flex: 1; }
+.cd-updated { font-size: 10px; color: var(--text-faint); text-align: right; margin-top: 4px; }
+
+.dt-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+.dt-row:last-child { border-bottom: none; }
+.dt-label { font-size: 11px; color: var(--text-muted); }
+.dt-val { font-size: 12px; font-weight: 600; color: var(--text); }
