@@ -54,68 +54,82 @@ const StudyAnalytics = (() => {
 
   // ── Contextual one-liner insight ─────────────────────────
 
-  // Always returns a non-empty string — shown as a persistent banner.
-  function _insightText(sessions, range, all) {
-    const now    = new Date();
-    const curMin = _total(sessions);
-    const goal   = AppState.studyDailyGoal || 240;
+  function _allSessionsTotal(all) {
+    // Count ALL sessions (including withered) for all-time stats
+    return (all || []).reduce((a, s) => a + (s.duration_min || 0), 0);
+  }
 
-    // All-time average — used as fallback in every range
-    const allDone    = _done(all);
-    const allTotal   = _total(all);
-    const activeDays = Object.keys(_byDay(all)).length;
+  function _allSessionsByDay(all) {
+    const m = {};
+    (all || []).forEach(s => { if (s.duration_min > 0) m[s.date] = (m[s.date] || 0) + s.duration_min; });
+    return m;
+  }
+
+  function _insightText(sessions, range, all) {
+    const now  = new Date();
+    const goal = AppState.studyDailyGoal || 240;
+
+    // All-time stats using ALL sessions (including partial/withered) for accurate picture
+    const allByDay   = _allSessionsByDay(all);
+    const activeDays = Object.keys(allByDay).length;
+    const allTotal   = _allSessionsTotal(all);
     const avgPerDay  = activeDays > 0 ? Math.round(allTotal / activeDays) : 0;
     const goalPct    = goal > 0 ? Math.round((avgPerDay / goal) * 100) : 0;
+
     const allTimeStr = activeDays > 0
-      ? `All-time avg: ${_fmtDur(avgPerDay)}/day across ${activeDays} day${activeDays === 1 ? '' : 's'} (${goalPct}% of goal)`
+      ? `All-time avg: ${_fmtDur(avgPerDay)}/day across ${activeDays} active day${activeDays === 1 ? '' : 's'} (${goalPct}% of 4h goal)`
       : 'No sessions logged yet — start your first study session! 📖';
+
+    // Range-specific comparison
+    const curMin  = (sessions || []).reduce((a, s) => a + (s.duration_min || 0), 0);
+    const prevMin = _total(_prevPeriod(range, all));
 
     if (range === 'today') {
       const yk      = _dk(_add(now, -1));
       const nowHour = now.getHours() + now.getMinutes() / 60;
-      const ystMin  = allDone.filter(s => {
+      const ystMin  = (all || []).filter(s => {
         if (s.date !== yk || !s.started_at) return false;
         const h = new Date(s.started_at).getHours() + new Date(s.started_at).getMinutes() / 60;
         return h <= nowHour;
-      }).reduce((a, s) => a + s.duration_min, 0);
+      }).reduce((a, s) => a + (s.duration_min || 0), 0);
 
       const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
       if (ystMin === 0 && curMin === 0) return allTimeStr;
-      if (ystMin === 0) return `No data for yesterday — you've studied ${_fmtDur(curMin)} today so far 🚀`;
+      if (ystMin === 0) return `You've studied ${curMin > 0 ? _fmtDur(curMin) : 'nothing'} today — no yesterday data to compare  ·  ${allTimeStr}`;
       const diff  = curMin - ystMin;
       const emoji = diff >= 0 ? '🔥' : '📉';
-      return `Yesterday by ${timeStr} you'd studied ${_fmtDur(ystMin)} — you're ${_fmtDur(Math.abs(diff))} ${diff >= 0 ? 'ahead' : 'behind'} ${emoji}`;
+      return `Yesterday by ${timeStr} you'd studied ${_fmtDur(ystMin)} — you're ${_fmtDur(Math.abs(diff))} ${diff >= 0 ? 'ahead' : 'behind'} ${emoji}  ·  ${allTimeStr}`;
 
     } else if (range === '7d') {
-      const prevMin = _total(_prevPeriod('7d', all));
       if (prevMin === 0 && curMin === 0) return allTimeStr;
-      if (prevMin === 0) return `First week tracked — ${_fmtDur(curMin)} total. Great start! 🌱  ·  ${allTimeStr}`;
+      if (prevMin === 0) return `First week tracked — ${_fmtDur(curMin)} total 🌱  ·  ${allTimeStr}`;
       const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
-      return `Last week you studied ${_fmtDur(prevMin)} — this week ${Math.abs(pct)}% ${pct >= 0 ? 'more' : 'less'} so far ${pct >= 0 ? '📈' : '📉'}`;
+      return `Last week: ${_fmtDur(prevMin)} — this week ${Math.abs(pct)}% ${pct >= 0 ? 'more 📈' : 'less 📉'}  ·  ${allTimeStr}`;
 
     } else if (range === '30d') {
-      const prevMin = _total(_prevPeriod('30d', all));
       if (prevMin === 0 && curMin === 0) return allTimeStr;
       if (prevMin === 0) return `First month tracked — ${_fmtDur(curMin)} total 🧱  ·  ${allTimeStr}`;
       const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
-      return `Previous 30 days: ${_fmtDur(prevMin)} — you're ${Math.abs(pct)}% ${pct >= 0 ? 'ahead 📈' : 'behind 📉'}`;
+      return `Prev 30 days: ${_fmtDur(prevMin)} — you're ${Math.abs(pct)}% ${pct >= 0 ? 'ahead 📈' : 'behind 📉'}  ·  ${allTimeStr}`;
 
     } else if (range === '3m') {
-      const prevMin = _total(_prevPeriod('3m', all));
       if (prevMin === 0 && curMin === 0) return allTimeStr;
       if (prevMin === 0) return `First quarter tracked — ${_fmtDur(curMin)} total 💪  ·  ${allTimeStr}`;
       const pct = Math.round(((curMin - prevMin) / prevMin) * 100);
-      return `Previous quarter: ${_fmtDur(prevMin)} — this quarter ${Math.abs(pct)}% ${pct >= 0 ? 'higher 🏆' : 'lower 📉'}`;
+      return `Prev quarter: ${_fmtDur(prevMin)} — this quarter ${Math.abs(pct)}% ${pct >= 0 ? 'higher 🏆' : 'lower 📉'}  ·  ${allTimeStr}`;
 
     } else { // all
-      return allTimeStr;
+      if (!activeDays) return 'No sessions logged yet — start your first study session! 📖';
+      const goalDays = Object.values(allByDay).filter(m => m >= goal).length;
+      return `${allTimeStr}  ·  Goal hit ${goalDays}/${activeDays} active day${activeDays === 1 ? '' : 's'}`;
     }
   }
 
   function _insight(sessions, range, all) {
     const el = document.getElementById('saInsight');
     if (!el) return;
-    el.textContent = _insightText(sessions, range, all);
+    const text = _insightText(sessions, range, all);
+    el.textContent = text;
   }
 
   // ── Chart.js theme ────────────────────────────────────────

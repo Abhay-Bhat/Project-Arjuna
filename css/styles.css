@@ -4490,17 +4490,17 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 .sa-insight {
   font-size: 13px;
-  color: var(--text-muted);
-  background: var(--card);
-  border: 1px solid var(--border);
+  font-weight: 500;
+  color: var(--text);
+  background: rgba(77,121,255,0.07);
+  border: 1px solid rgba(77,121,255,0.25);
+  border-left: 3px solid var(--accent);
   border-radius: var(--radius-md);
-  padding: 9px 14px;
+  padding: 10px 14px;
   margin-bottom: 14px;
-  min-height: 0;
-  line-height: 1.5;
-  font-style: italic;
+  line-height: 1.6;
 }
-.sa-insight:empty { display: none; } /* always populated now; kept as safety net */
+.sa-insight:empty { display: none; }
 .sa-up       { color: var(--accent-teal); font-size: 12px; font-weight: 700; }
 .sa-dn       { color: #e87070; font-size: 12px; font-weight: 700; }
 
