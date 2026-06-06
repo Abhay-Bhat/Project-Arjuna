@@ -374,7 +374,7 @@ const UI = {
     if (!banner) return;
 
     const today = AppState.getTodayKey();
-    const tasks = (AppState.tasks || []).filter(t => !t.done && t.dueDate && t.dueDate <= today);
+    const tasks = (AppState.tasks || []).filter(t => !t.deleted && !t.done && t.dueDate && t.dueDate <= today);
     if (!tasks.length) { banner.style.display = 'none'; return; }
 
     tasks.sort((a, b) => a.dueDate.localeCompare(b.dueDate));
