@@ -45,8 +45,12 @@ const CA_START = '2026-10-01'; // Current Affairs daily from Oct 2026
 
 const UPSCTracker = {
 
+  _subjectTotal(s) {
+    return AppState.upscSubjectTotals?.[s.id] ?? s.classes;
+  },
+
   totalClasses() {
-    return UPSC_SUBJECTS.reduce((s, x) => s + x.classes, 0);
+    return UPSC_SUBJECTS.reduce((sum, s) => sum + this._subjectTotal(s), 0);
   },
 
   initSchedule(force = false) {
@@ -207,8 +211,9 @@ const UPSCTracker = {
   // ── Current subject (first incomplete) ───────────────────
   getCurrentSubject() {
     for (const s of UPSC_SUBJECTS) {
-      const done = AppState.upscSubjectProgress?.[s.id] || 0;
-      if (done < s.classes) return { subject: s, done };
+      const done  = AppState.upscSubjectProgress?.[s.id] || 0;
+      const total = this._subjectTotal(s);
+      if (done < total) return { subject: s, done };
     }
     return null;
   },
@@ -360,7 +365,8 @@ const UPSCTracker = {
 
     UPSC_SUBJECTS.forEach(s => {
       const done   = AppState.upscSubjectProgress?.[s.id] || 0;
-      const pct    = s.classes > 0 ? Math.round((done / s.classes) * 100) : 0;
+      const total  = this._subjectTotal(s);
+      const pct    = total > 0 ? Math.round((done / total) * 100) : 0;
       const status = pct === 100 ? 'completed' : pct > 0 ? 'in-progress' : 'not-started';
       const { start, end } = this.getDateRange(s.id);
 
@@ -381,7 +387,7 @@ const UPSCTracker = {
         </div>
         <div class="upsc-card-progress">
           <div class="upsc-prog-labels">
-            <span><b>${done}</b> / ${s.classes}</span>
+            <span><b>${done}</b> / ${total}</span>
             <span>${pct}%</span>
           </div>
           <div class="upsc-prog-bar">
@@ -391,16 +397,25 @@ const UPSCTracker = {
         <div class="upsc-card-dates">${start ? `${start} → ${end}` : 'Not yet scheduled'}</div>
         <div class="upsc-card-input">
           <label>Classes done:</label>
-          <input type="number" min="0" max="${s.classes}" value="${done}" class="upsc-num-input">
+          <input type="number" min="0" max="${total}" value="${done}" class="upsc-num-input">
           <button type="button" class="btn-xs btn-primary upsc-update-btn">Save</button>
+        </div>
+        <div class="upsc-card-total-edit">
+          <label>Total classes:</label>
+          <input type="number" min="1" value="${total}" class="upsc-total-input" title="Override total classes for this subject">
+          <button type="button" class="btn-xs upsc-total-btn">Update</button>
         </div>`;
 
-      const inp = card.querySelector('.upsc-num-input');
-      const btn = card.querySelector('.upsc-update-btn');
+      const inp    = card.querySelector('.upsc-num-input');
+      const btn    = card.querySelector('.upsc-update-btn');
+      const totInp = card.querySelector('.upsc-total-input');
+      const totBtn = card.querySelector('.upsc-total-btn');
+
       const apply = () => {
+        const currentTotal = this._subjectTotal(s);
         let v = parseInt(inp.value, 10);
         if (isNaN(v) || v < 0) v = 0;
-        if (v > s.classes) v = s.classes;
+        if (v > currentTotal) v = currentTotal;
         inp.value = v;
         AppState.upscSubjectProgress = AppState.upscSubjectProgress || {};
         AppState.upscSubjectProgress[s.id] = v;
@@ -408,8 +423,23 @@ const UPSCTracker = {
         this.updateMetrics();
         if (typeof UI !== 'undefined') UI.tryCompletePendingActivity('upsc');
       };
+
+      const applyTotal = () => {
+        let t = parseInt(totInp.value, 10);
+        if (isNaN(t) || t < 1) t = s.classes;
+        const done = AppState.upscSubjectProgress?.[s.id] || 0;
+        if (t < done) { totInp.value = done; t = done; }
+        AppState.upscSubjectTotals = AppState.upscSubjectTotals || {};
+        AppState.upscSubjectTotals[s.id] = t;
+        AppState.save();
+        this.renderSubjectGrid();
+        this.updateMetrics();
+      };
+
       btn.addEventListener('click', apply);
       inp.addEventListener('keydown', e => { if (e.key === 'Enter') apply(); });
+      totBtn.addEventListener('click', applyTotal);
+      totInp.addEventListener('keydown', e => { if (e.key === 'Enter') applyTotal(); });
 
       grid.appendChild(card);
     });
