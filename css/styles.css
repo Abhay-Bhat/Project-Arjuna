@@ -3358,6 +3358,18 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .due-week    { color: var(--accent-blue);  background: rgba(91,127,255,.10); }
 .due-normal  { color: var(--text-muted);   background: rgba(110,122,170,.10); border-color: var(--border); }
 
+/* Estimated time badge */
+.task-est-badge {
+  font-size: 10px; padding: 1px 6px; border-radius: 8px; font-weight: 600;
+  color: var(--accent-teal); background: rgba(0,212,200,.10); border: 1px solid currentColor;
+  font-family: 'Space Mono', monospace;
+}
+.task-add-est, .task-edit-est {
+  width: 80px; padding: 5px 8px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 12px;
+}
+.task-add-est:focus, .task-edit-est:focus { outline: none; border-color: var(--accent-teal); }
+
 /* Task description */
 .task-desc {
   font-size: 11px; color: var(--text-muted); margin-top: 3px;
