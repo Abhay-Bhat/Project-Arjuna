@@ -174,6 +174,7 @@ const TasksTracker = {
                 <select class="task-add-pri" id="taskAddPri-${bucket.id}" title="Priority">
                   ${this.PRIORITIES.map(p => `<option value="${p.value}">${p.icon} ${p.label}</option>`).join('')}
                 </select>
+                <input type="number" class="task-add-est" id="taskAddEst-${bucket.id}" min="0" max="9999" step="5" placeholder="⏱ min" title="Estimated time (minutes)">
               </div>
               <div class="task-add-actions">
                 <button class="btn btn-xs btn-primary task-add-save" data-bid="${bucket.id}">Add Task</button>
@@ -215,6 +216,7 @@ const TasksTracker = {
             <span class="task-pri-dot" style="background:${pri.color};" title="Priority: ${pri.label}"></span>
             <span class="task-pri-label" style="color:${pri.color};">${pri.label}</span>
             ${due ? `<span class="task-due-badge ${due.cls}" title="Due: ${t.dueDate}">${due.label}</span>` : ''}
+            ${t.estimatedMin != null && t.estimatedMin > 0 ? `<span class="task-est-badge" title="Estimated time">⏱ ${this._fmtEst(t.estimatedMin)}</span>` : ''}
             ${statusBadge}
           </div>
         </div>
@@ -222,6 +224,13 @@ const TasksTracker = {
         <button class="task-dup-btn" data-dup-tid="${t.id}" title="Duplicate task">📋</button>
         <button class="task-del-btn" data-tid="${t.id}" title="Delete task">🗑</button>
       </div>`;
+  },
+
+  _fmtEst(min) {
+    if (!min) return '';
+    if (min < 60) return `${min}m`;
+    const h = Math.floor(min / 60), m = min % 60;
+    return m === 0 ? `${h}h` : `${h}h ${m}m`;
   },
 
   _esc(str) {
@@ -258,6 +267,7 @@ const TasksTracker = {
         <select class="task-edit-bucket" title="Move to bucket">
           ${(AppState.taskBuckets || []).filter(b => !b.deleted).map(b => `<option value="${b.id}" ${t.bucketId === b.id ? 'selected' : ''}>${this._esc(b.title)}</option>`).join('')}
         </select>
+        <input type="number" class="task-edit-est" min="0" max="9999" step="5" value="${t.estimatedMin != null ? t.estimatedMin : ''}" placeholder="⏱ min" title="Estimated time (minutes)">
       </div>
       <div class="task-edit-actions">
         <button class="btn btn-xs btn-primary task-edit-save">Save</button>
@@ -278,6 +288,8 @@ const TasksTracker = {
       t.priority    = editDiv.querySelector('.task-edit-pri').value;
       t.status      = editDiv.querySelector('.task-edit-status').value;
       t.bucketId    = parseInt(editDiv.querySelector('.task-edit-bucket').value);
+      const estRaw  = editDiv.querySelector('.task-edit-est').value;
+      t.estimatedMin = estRaw === '' ? null : Math.max(0, parseInt(estRaw) || 0);
       t.modifiedAt  = new Date().toISOString();
       AppState.save();
       this.render();
@@ -715,8 +727,10 @@ const TasksTracker = {
     const dateEl  = document.getElementById(`taskAddDate-${bid}`);
     const priEl   = document.getElementById(`taskAddPri-${bid}`);
     const descEl  = document.getElementById(`taskAddDesc-${bid}`);
+    const estEl   = document.getElementById(`taskAddEst-${bid}`);
     const title   = titleEl?.value.trim();
     if (!title) { titleEl?.focus(); return; }
+    const estRaw  = estEl?.value;
     AppState.tasks = AppState.tasks || [];
     AppState.tasks.push({
       id:          Date.now(),
@@ -727,6 +741,7 @@ const TasksTracker = {
       priority:    priEl?.value   || 'medium',
       status:      'todo',
       done:        false,
+      estimatedMin: estRaw === '' || estRaw == null ? null : Math.max(0, parseInt(estRaw) || 0),
       createdAt:   new Date().toISOString(),
     });
     AppState.save();
