@@ -43,8 +43,7 @@ const UI = {
           'f': 'finance',
           'h': 'health',
           'g': 'growth',
-          'k': 'tasks',
-          'x': 'tech-study'
+          'k': 'tasks'
         };
         const tab = tabMap[e.key.toLowerCase()];
         if (tab) {
@@ -331,7 +330,6 @@ const UI = {
       case 'health':   this._renderHealth();  break;
       case 'growth':   this._renderGrowth();  break;
       case 'tasks':    this._renderTasks();   break;
-      case 'tech-study': this._renderTechStudy(); break;
     }
   },
 
@@ -1002,20 +1000,15 @@ const UI = {
     HealthTracker.render();
   },
 
-  // ── Mind tab ─────────────────────────────────────────────
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
     GrowthTracker.render();
+    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tasks tab ────────────────────────────────────────────
   _renderTasks() {
     TasksTracker.render();
-  },
-
-  // ── Tech Study tab ───────────────────────────────────────
-  _renderTechStudy() {
-    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tab navigation ───────────────────────────────────────
