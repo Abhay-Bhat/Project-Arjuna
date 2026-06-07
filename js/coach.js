@@ -12,7 +12,6 @@ const CoachEngine = {
   computeScores() {
     const todayKey = AppState.getTodayKey();
     const h7  = this._healthData(7);
-    const m7  = this._mindData(7);
     const sh7 = this._studyHours(7).reduce((s, v) => s + v, 0);
 
     // UPSC: scheduled-vs-completed ratio
@@ -30,15 +29,6 @@ const CoachEngine = {
       : 12; // no data → neutral
     hs += h7.habitPct >= 80 ? 20 : h7.habitPct >= 60 ? 14 : h7.habitPct >= 40 ? 8 : h7.habitPct >= 20 ? 3 : 0;
 
-    // Mind: streak (40) + meditation (30) + loneliness-managed (30)
-    const streak = AppState.getPastimeStreak();
-    let ms = 0;
-    ms += streak >= 60 ? 40 : streak >= 30 ? 32 : streak >= 14 ? 22 : streak >= 7 ? 14 : streak >= 1 ? 6 : 0;
-    ms += m7.medDays >= 5 ? 30 : m7.medDays >= 3 ? 20 : m7.medDays >= 1 ? 10 : 15;
-    ms += m7.lonN > 0
-      ? (m7.avgLon >= 4 ? 30 : m7.avgLon >= 3 ? 20 : m7.avgLon >= 2 ? 10 : 0)
-      : 15;
-
     // Study: hours vs goal
     const goalH = parseFloat(localStorage.getItem('skadi_study_goal') || '4');
     const studyScore = Math.min(100, Math.round((sh7 / 7 / Math.max(0.5, goalH)) * 100));
@@ -54,7 +44,6 @@ const CoachEngine = {
     return {
       upsc:   Math.min(100, upscScore),
       health: Math.min(100, hs),
-      mind:   Math.min(100, ms),
       study:  Math.min(100, studyScore),
       tasks:  Math.min(100, taskScore),
     };
@@ -67,7 +56,6 @@ const CoachEngine = {
     const tips    = [];
     const today   = AppState.getTodayKey();
     const h7      = this._healthData(7);
-    const streak  = AppState.getPastimeStreak();
     const schedule = AppState.upscSchedule || [];
     const expected  = schedule.filter(e => e.date <= today).length;
     const completed = Object.values(AppState.upscSubjectProgress || {}).reduce((s, v) => s + v, 0);
@@ -114,14 +102,6 @@ const CoachEngine = {
       tips.push({ p: 2, icon: '⏱', tab: 'upsc',
         text: `Study avg ${avgStudy.toFixed(1)}h/day — below ${goalH}h target. Protect the morning block first; add afternoon if possible.` });
 
-    // Pastime streak
-    if (streak === 0)
-      tips.push({ p: 1, icon: '🔥', tab: 'mind',
-        text: `Streak reset. The first 72h are the hardest — commit now and log a trigger note to identify the pattern.` });
-    else if (streak >= 60)
-      tips.push({ p: 4, icon: '🔥', tab: 'mind',
-        text: `${streak}-day streak — exceptional. You're building identity, not just habit. Protect high-risk situations.` });
-
     // Overdue tasks
     const tasks  = (AppState.tasks || []).filter(t => !t.deleted);
     const overdue = tasks.filter(t => t.dueDate && t.dueDate < today && t.status !== 'done');
@@ -138,9 +118,9 @@ const CoachEngine = {
         text: `Nutrition habits at ${Math.round(h7.habitPct)}% this week. Consistent fuelling is the backbone of daily energy.` });
 
     // All clear
-    if (!tips.find(t => t.p <= 2) && streak >= 7)
+    if (!tips.find(t => t.p <= 2))
       tips.push({ p: 5, icon: '✦', tab: null,
-        text: `Systems running well — streak ${streak}d · sleep ${h7.avgSleep.toFixed(1)}h · study ${avgStudy.toFixed(1)}h/day. Stay consistent.` });
+        text: `Systems running well — sleep ${h7.avgSleep.toFixed(1)}h · study ${avgStudy.toFixed(1)}h/day. Stay consistent.` });
 
     return tips.sort((a, b) => a.p - b.p);
   },
@@ -240,9 +220,6 @@ const CoachEngine = {
         { key: 'health', label: 'Health',              score: scores.health,
           note: h7.sleepN > 0 ? `Sleep ${h7.avgSleep.toFixed(1)}h · Gym ${h7.gymDays}d · Habits ${Math.round(h7.habitPct)}%` : 'Log in Health tab',
           color: color(scores.health), tab: 'health' },
-        { key: 'mind',   label: 'Mental Discipline',  score: scores.mind,
-          note: `${streak}d pastime streak`,
-          color: color(scores.mind), tab: 'mind' },
         { key: 'tasks',  label: 'Execution',           score: scores.tasks,
           note: `${openCnt} open${overCnt > 0 ? ` · ${overCnt} overdue` : ''}`,
           color: color(scores.tasks), tab: 'tasks' },
@@ -281,19 +258,6 @@ const CoachEngine = {
       avgPhone: phoneN > 0 ? phoneS / phoneN : 0, phoneN,
       habitPct: habMax > 0 ? (habDone / habMax) * 100 : 0, habitN: habN,
     };
-  },
-
-  _mindData(days) {
-    let lonS = 0, lonN = 0, medDays = 0;
-    const today = new Date();
-    for (let i = 0; i < days; i++) {
-      const d = new Date(today); d.setDate(d.getDate() - i);
-      const key = d.toISOString().split('T')[0];
-      const m = (AppState.mindLog || {})[key] || {};
-      if (m.loneliness != null) { lonS += m.loneliness; lonN++; }
-      if (m.meditation_min > 0) medDays++;
-    }
-    return { avgLon: lonN > 0 ? lonS / lonN : 0, lonN, medDays };
   },
 
   _studyHours(days) {

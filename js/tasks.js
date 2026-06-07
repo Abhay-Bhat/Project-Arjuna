@@ -219,6 +219,7 @@ const TasksTracker = {
           </div>
         </div>
         <button class="task-edit-btn" data-edit-tid="${t.id}" title="Edit task">✏️</button>
+        <button class="task-dup-btn" data-dup-tid="${t.id}" title="Duplicate task">📋</button>
         <button class="task-del-btn" data-tid="${t.id}" title="Delete task">🗑</button>
       </div>`;
   },
@@ -388,6 +389,23 @@ const TasksTracker = {
         );
         AppState.save();
         this.render();
+      });
+    });
+
+    // Duplicate task
+    board.querySelectorAll('.task-dup-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const src = (AppState.tasks || []).find(t => t.id === parseInt(btn.dataset.dupTid));
+        if (!src) return;
+        const now = new Date().toISOString();
+        const copy = { ...src, id: Date.now(), title: 'Copy of ' + src.title,
+                       done: false, status: 'todo', deleted: false,
+                       createdAt: now, modifiedAt: now };
+        delete copy.deletedAt;
+        AppState.tasks = [...(AppState.tasks || []), copy];
+        AppState.save();
+        this.render();
+        if (typeof UI !== 'undefined') UI.showToast('Task duplicated');
       });
     });
 
