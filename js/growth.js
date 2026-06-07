@@ -3,50 +3,141 @@
 // Career · Books · Reviews · Life Partner
 // ============================================================
 
-// ── Dubai Tech Upskilling Plan (Jul 2026 – Jun 2027) ─────────
-const TECH_PHASES = [
+// ── DevOps Career Elevation Plan (2026 Edition) ──────────────
+// 12-month plan based on the textbook personalised for Abhay Sreepathi Bhat.
+// Target: INR 35 LPA Senior DevOps role. Constraint: 30 minutes/day.
+// Prerequisite chain (left → right, do not skip any link):
+//   Linux+Networking → Docker → Kubernetes → Terraform → Python → CI/CD
+//   → DevSecOps → ArgoCD → Multi-Cloud → AIOps → System Design
+const DEVOPS_PLAN = [
   {
-    id: 'foundation', label: 'Phase 1 — Foundation', period: 'Jul – Sep 2026',
-    color: '#00d47c', hoursWeek: '2–3 hrs/week',
-    tasks: [
-      { id: 'github_repo',   label: 'Create GitHub repo: helm-charts (public + MIT license)' },
-      { id: 'helm_basics',   label: 'Learn Helm basics — chart structure, values.yaml, templates' },
-      { id: 'chart1_webapp', label: 'Chart 1: web-app (Deployment + Service + Route + ConfigMap)' },
-      { id: 'chart2_db',     label: 'Chart 2: database (PostgreSQL + PVC + Service)' },
-      { id: 'platform_arch', label: 'Understand OpenShift platform architecture & deploy 1 app' },
-    ]
+    id: 's1', label: 'Semester 1 — Foundations',
+    period: 'Months 1–3 · Jun–Aug 2026',
+    color: '#4d79ff', commitment: '30 min/day',
+    summary: 'Linux, Docker, and Kubernetes from first principles. Build organised K8s understanding from operational exposure.',
+    chapters: [
+      { id: 's1_f1',  code: 'F1',   label: 'Linux & Networking Fundamentals',     gap: 'Foundational' },
+      { id: 's1_f2',  code: 'F2',   label: 'Docker from First Principles',        gap: 'Foundational' },
+      { id: 's1_ch2', code: 'Ch 2', label: 'Kubernetes from Zero (CKA-level)',     gap: 'HIGH' },
+    ],
+    projects: [
+      { id: 's1_p_linux_audit',  label: 'linux-server-audit — Bash audit script (OS, disk, ports, SSH attempts)' },
+      { id: 's1_p_docker_flask', label: 'docker-flask-app — multi-stage Dockerfile + Compose + healthcheck' },
+      { id: 's1_p_k8s_msvc',     label: 'k8s-microservices-deploy — 3-svc app on k3s with NetPol + HPA' },
+    ],
+    cert: { id: 's1_cert_cka', label: 'CKA — Certified Kubernetes Administrator', cost: 'USD 395', priority: 'CRITICAL', targetMonth: 'End of Month 3' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 1: Foundation',
+      period: 'Jul – Sep 2026 · 2–3 hrs/week',
+      note: 'Parallel hands-on practice on OpenShift / Helm. Feeds the Sem-1 Kubernetes chapter.',
+      tasks: [
+        { id: 'github_repo',   label: 'Create GitHub repo: helm-charts (public + MIT license)' },
+        { id: 'helm_basics',   label: 'Learn Helm basics — chart structure, values.yaml, templates' },
+        { id: 'chart1_webapp', label: 'Chart 1: web-app (Deployment + Service + Route + ConfigMap)' },
+        { id: 'chart2_db',     label: 'Chart 2: database (PostgreSQL + PVC + Service)' },
+        { id: 'platform_arch', label: 'Understand OpenShift platform architecture & deploy 1 app' },
+      ],
+    },
   },
   {
-    id: 'cert_start', label: 'Phase 2 — RHCOA Cert Start', period: 'Oct – Dec 2026',
-    color: '#5b7fff', hoursWeek: '6–8 hrs/week',
-    tasks: [
-      { id: 'rhcoa_enroll', label: 'Enroll: RedHat Learning Subscription (USD 500)' },
-      { id: 'modules_1_6',  label: 'RHCOA Modules 1–6: architecture, RBAC, networking, storage' },
-      { id: 'chart3_cache', label: 'Chart 3: cache (Redis + ConfigMap + Service)' },
-      { id: 'modules_7_9',  label: 'RHCOA Modules 7–9: advanced + troubleshooting' },
-      { id: 'helm_docs',    label: 'Full chart documentation & README written' },
-    ]
+    id: 's2', label: 'Semester 2 — Core Infrastructure Tools',
+    period: 'Months 3–6 · Aug–Nov 2026',
+    color: '#7b42bc', commitment: '30 min/day',
+    summary: 'Close the Terraform gap (the #1 blocker on your resume). Build Python scripting fluency. Articulate your CI/CD depth.',
+    chapters: [
+      { id: 's2_ch1',  code: 'Ch 1',  label: 'Terraform — IaC from Zero',           gap: 'CRITICAL' },
+      { id: 's2_ch4',  code: 'Ch 4',  label: 'Python for DevOps (scripting + DSA)', gap: 'HIGH' },
+      { id: 's2_chci', code: 'Ch CI', label: 'CI/CD Mastery — Jenkins, Groovy, Helm', gap: 'Articulation' },
+    ],
+    projects: [
+      { id: 's2_p_aws_tf',     label: 'aws-infra-terraform — VPC/EC2/S3/RDS modules + remote state (Portfolio 1 core)' },
+      { id: 's2_p_aws_audit',  label: 'aws-audit-cli — boto3 governance tool (compliance scan, JSON/CSV output)' },
+      { id: 's2_p_cicd_cmp',   label: 'cicd-pipeline-comparison — same app via Jenkinsfile + GitLab CI + Actions' },
+    ],
+    cert: { id: 's2_cert_tf', label: 'HashiCorp Terraform Associate', cost: 'USD 70', priority: 'CRITICAL', targetMonth: 'End of Month 5' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 2: RHCOA Cert Start',
+      period: 'Oct – Dec 2026 · 6–8 hrs/week',
+      note: 'RHCOA learning subscription begins. Concepts overlap with Sem-1 K8s and feed Sem-4 OpenShift chapter.',
+      tasks: [
+        { id: 'rhcoa_enroll', label: 'Enroll: RedHat Learning Subscription (USD 500)' },
+        { id: 'modules_1_6',  label: 'RHCOA Modules 1–6: architecture, RBAC, networking, storage' },
+        { id: 'chart3_cache', label: 'Chart 3: cache (Redis + ConfigMap + Service)' },
+        { id: 'modules_7_9',  label: 'RHCOA Modules 7–9: advanced + troubleshooting' },
+        { id: 'helm_docs',    label: 'Full chart documentation & README written' },
+      ],
+    },
   },
   {
-    id: 'cert_push', label: 'Phase 3 — Certification Push', period: 'Jan – Mar 2027',
-    color: '#ff9933', hoursWeek: '3–5 hrs/week',
-    tasks: [
-      { id: 'mock_exam_1',    label: 'Mock Exam 1 — target score 65%+ (mid-Jan)' },
-      { id: 'mock_exam_2',    label: 'Mock Exam 2 — target score 70%+ (mid-Feb)' },
-      { id: 'mock_exam_3',    label: 'Mock Exam 3 — target score 75%+ (mid-Mar)' },
-      { id: 'chart4_monitor', label: 'Chart 4: monitoring (Prometheus sidecar, optional)' },
-    ]
+    id: 's3', label: 'Semester 3 — Advanced Topics',
+    period: 'Months 6–9 · Nov 2026–Feb 2027',
+    color: '#00d47c', commitment: '30 min/day',
+    summary: 'DevSecOps, GitOps (ArgoCD), and Multi-Cloud translation. AWS SAA formalises your existing operational AWS depth.',
+    chapters: [
+      { id: 's3_ch5', code: 'Ch 5', label: 'DevSecOps — Snyk, Trivy, Vault, Checkov', gap: 'MEDIUM-HIGH' },
+      { id: 's3_ch6', code: 'Ch 6', label: 'GitOps — ArgoCD & Pull-Based Delivery',  gap: 'HIGH' },
+      { id: 's3_ch3', code: 'Ch 3', label: 'Multi-Cloud — AWS depth + Azure/GCP translation', gap: 'MEDIUM' },
+    ],
+    projects: [
+      { id: 's3_p_sec_pipe',  label: 'secure-pipeline-template — SAST + Snyk + Trivy + Checkov + Gitleaks (Portfolio 3)' },
+      { id: 's3_p_gitops_lab', label: 'gitops-homelab — ArgoCD App of Apps + two-repo CI/CD pattern' },
+      { id: 's3_p_azure_tf',   label: 'azure-terraform-bridge — Add AKS via azurerm provider to aws-infra-terraform' },
+    ],
+    cert: { id: 's3_cert_aws', label: 'AWS Solutions Architect Associate (SAA-C03)', cost: 'USD 150', priority: 'HIGH', targetMonth: 'End of Month 8 · AZ-900 optional same week' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 3: Certification Push',
+      period: 'Jan – Mar 2027 · 3–5 hrs/week',
+      note: 'Three mock exams scaling 65% → 75%. Chart 4 monitoring extends portfolio.',
+      tasks: [
+        { id: 'mock_exam_1',    label: 'Mock Exam 1 — target score 65%+ (mid-Jan)' },
+        { id: 'mock_exam_2',    label: 'Mock Exam 2 — target score 70%+ (mid-Feb)' },
+        { id: 'mock_exam_3',    label: 'Mock Exam 3 — target score 75%+ (mid-Mar)' },
+        { id: 'chart4_monitor', label: 'Chart 4: monitoring (Prometheus sidecar, optional)' },
+      ],
+    },
   },
   {
-    id: 'exam_wrap', label: 'Phase 4 — Exam & Wrap-Up', period: 'Apr – Jun 2027',
-    color: '#a56eff', hoursWeek: '1–3 hrs/week',
-    tasks: [
-      { id: 'final_review',   label: 'Final weak-area review & confidence building' },
-      { id: 'rhcoa_exam',     label: '🎯 RHCOA Exam (EX280) — May 31, 2027' },
-      { id: 'portfolio_done', label: 'GitHub portfolio polished — 3–4 charts, complete docs' },
-      { id: 'blog_post',      label: 'Technical blog post published (500–1000 words)' },
-    ]
-  }
+    id: 's4', label: 'Semester 4 — Specialisation & Career',
+    period: 'Months 9–12 · Feb–May 2027',
+    color: '#ff9933', commitment: '30 min/day',
+    summary: 'Make your AI work visible (open-source ci-log-analyst). Master infra system design via PACED. Apply, interview, negotiate.',
+    chapters: [
+      { id: 's4_ch8',     code: 'Ch 8',     label: 'AIOps — your strategic moat (RAG, LLMs)',    gap: 'LOW gap, RARE moat' },
+      { id: 's4_ch7',     code: 'Ch 7',     label: 'OpenShift — BFSI/Enterprise (optional)',    gap: 'Conditional' },
+      { id: 's4_chsd',    code: 'Ch SD',    label: 'System Design — PACED framework, 6 scenarios', gap: 'HIGH' },
+      { id: 's4_ch11',    code: 'Ch 11',    label: 'Coding Strategy — 50 easy LeetCode',         gap: 'Sustaining' },
+      { id: 's4_ch12_13', code: 'Ch 12–13', label: 'Applications, Referrals, STAR Interviews',   gap: 'Closing' },
+    ],
+    projects: [
+      { id: 's4_p_ci_log',  label: 'ci-log-analyst — FastAPI + Ollama/OpenAI LLM tool (Portfolio 2 — your differentiator)' },
+      { id: 's4_p_design',  label: 'design-docs — 3 PACED architecture docs (CI/CD, Observability, Secrets)' },
+      { id: 's4_p_lc50',    label: 'LeetCode 50-easy — arrays, strings, hashmaps only' },
+      { id: 's4_p_5_star',  label: '5 STAR stories — written, timed at 90–120s, practiced aloud' },
+      { id: 's4_p_apply',   label: '5+ Tier-A applications submitted (PhonePe, Razorpay, CRED, BrowserStack…)' },
+    ],
+    cert: { id: 's4_cert_cks', label: 'CKS or AZ-104 (role-dependent, optional)', cost: 'USD 395 / 165', priority: 'CONDITIONAL', targetMonth: 'Month 11–12 if BFSI/Security roles in pipeline' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 4: RHCOA Exam & Wrap-Up',
+      period: 'Apr – Jun 2027 · 1–3 hrs/week',
+      note: 'EX280 exam culminates the Dubai track and the OpenShift chapter (Ch 7) together.',
+      tasks: [
+        { id: 'final_review',   label: 'Final weak-area review & confidence building' },
+        { id: 'rhcoa_exam',     label: '🎯 RHCOA Exam (EX280) — May 31, 2027' },
+        { id: 'portfolio_done', label: 'GitHub portfolio polished — 3–4 charts, complete docs' },
+        { id: 'blog_post',      label: 'Technical blog post published (500–1000 words)' },
+      ],
+    },
+  },
+];
+
+// Aggregated certifications view — for the cert roadmap card
+const DEVOPS_CERTS = [
+  { id: 'cert_cka',      label: 'CKA — Certified Kubernetes Administrator', cost: 'USD 395', month: 3,  priority: 'CRITICAL', via: 'KodeKloud labs + every mock' },
+  { id: 'cert_tf',       label: 'HashiCorp Terraform Associate',            cost: 'USD 70',  month: 5,  priority: 'CRITICAL', via: 'KodeKloud Terraform Associate course' },
+  { id: 'cert_aws_saa',  label: 'AWS Solutions Architect Associate (SAA-C03)', cost: 'USD 150', month: 8, priority: 'HIGH',     via: 'Stephane Maarek Udemy + Tutorials Dojo' },
+  { id: 'cert_az_900',   label: 'AZ-900 Azure Fundamentals (optional)',      cost: 'USD 165', month: 8,  priority: 'OPTIONAL', via: '1-week prep alongside SAA' },
+  { id: 'cert_cks',      label: 'CKS — Kubernetes Security Specialist',     cost: 'USD 395', month: 12, priority: 'BFSI/SEC',  via: 'Requires CKA. Add only if role demands.' },
+  { id: 'cert_az_104',   label: 'AZ-104 Azure Administrator',                cost: 'USD 165', month: 12, priority: 'BFSI/MNC',  via: '~6 weeks prep. Add only if Azure roles active.' },
 ];
 
 // ── Books queue (from the plan) ────────────────────────────
@@ -117,40 +208,91 @@ const GrowthTracker = {
     this.renderWeeklyReviewChart();
   },
 
-  // ── Tech Upskilling Plan ─────────────────────────────────
+  // ── DevOps Career Elevation Plan ─────────────────────────
+  // Counts: each semester has chapters + projects + 1 cert. Total items
+  // tracked toward semester progress = chapters.length + projects.length + 1.
+  _semesterItems(sem) {
+    return [
+      ...sem.chapters.map(c => c.id),
+      ...sem.projects.map(p => p.id),
+      sem.cert.id,
+      ...(sem.dubaiTrack?.tasks || []).map(t => t.id),
+    ];
+  },
+  _semesterDone(sem, log) {
+    return this._semesterItems(sem).filter(id => log[id]?.done).length;
+  },
+
   renderTechPlan() {
     const container = document.getElementById('techPlanContainer');
     if (!container) return;
     const log = AppState.careerLog || {};
 
-    container.innerHTML = TECH_PHASES.map(phase => {
-      const total = phase.tasks.length;
-      const done  = phase.tasks.filter(t => log[t.id]?.done).length;
+    container.innerHTML = DEVOPS_PLAN.map(sem => {
+      const items = this._semesterItems(sem);
+      const total = items.length;
+      const done  = this._semesterDone(sem, log);
       const pct   = total ? Math.round((done / total) * 100) : 0;
       const isComplete = done === total;
       const isActive   = done > 0 && !isComplete;
+      const certDone = !!log[sem.cert.id]?.done;
+
+      const chapterRows = sem.chapters.map(ch => {
+        const s = log[ch.id] || {};
+        return `<div class="tp-task${s.done ? ' tp-done' : ''}">
+          <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(ch.id)}">${s.done ? '✓' : ''}</button>
+          <span class="tp-tlabel"><strong style="font-family:'Space Mono',monospace;color:${sem.color}">${esc(ch.code)}</strong> ${esc(ch.label)} <span style="font-size:10px;color:var(--text-faint);">[${esc(ch.gap)}]</span></span>
+          ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
+        </div>`;
+      }).join('');
+
+      const projectRows = sem.projects.map(pr => {
+        const s = log[pr.id] || {};
+        return `<div class="tp-task${s.done ? ' tp-done' : ''}">
+          <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(pr.id)}">${s.done ? '✓' : ''}</button>
+          <span class="tp-tlabel">🛠️ ${esc(pr.label)}</span>
+          ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
+        </div>`;
+      }).join('');
 
       return `
         <div class="tech-phase${isComplete ? ' tp-complete' : isActive ? ' tp-active' : ''}"
-             style="--phase-color:${phase.color}">
+             style="--phase-color:${sem.color}">
           <div class="tp-head">
             <div>
-              <div class="tp-label">${phase.label}</div>
-              <div class="tp-meta">${phase.period} &nbsp;·&nbsp; ${phase.hoursWeek}</div>
+              <div class="tp-label">${esc(sem.label)}</div>
+              <div class="tp-meta">${esc(sem.period)} &nbsp;·&nbsp; ${esc(sem.commitment)}</div>
             </div>
             <div class="tp-score">${isComplete ? '<span class="tp-tick">✓</span>' : `${done}/${total}`}</div>
           </div>
-          <div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${phase.color}"></div></div>
+          <div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${sem.color}"></div></div>
+          <div style="font-size:11px;color:var(--text-muted);margin:6px 0 10px;line-height:1.5;">${esc(sem.summary)}</div>
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:6px;">Chapters</div>
+          <div class="tp-tasks">${chapterRows}</div>
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px;">Module Projects</div>
+          <div class="tp-tasks">${projectRows}</div>
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px;">Target Certification</div>
           <div class="tp-tasks">
-            ${phase.tasks.map(t => {
+            <div class="tp-task${certDone ? ' tp-done' : ''}" style="background:rgba(255,255,255,0.02);border:1px dashed ${sem.color};border-radius:6px;padding:6px 8px;">
+              <button class="tp-chk${certDone ? ' on' : ''}" data-phase-task="${esc(sem.cert.id)}">${certDone ? '✓' : ''}</button>
+              <span class="tp-tlabel">🎯 <strong>${esc(sem.cert.label)}</strong> — ${esc(sem.cert.cost)} · ${esc(sem.cert.priority)} · ${esc(sem.cert.targetMonth)}</span>
+              ${certDone && log[sem.cert.id]?.date ? `<span class="tp-tdate">${esc(log[sem.cert.id].date)}</span>` : ''}
+            </div>
+          </div>
+          ${sem.dubaiTrack ? `
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--accent-amber);text-transform:uppercase;letter-spacing:.05em;margin-top:14px;padding-top:10px;border-top:1px dashed var(--border);">🏗️ ${esc(sem.dubaiTrack.label)}</div>
+          <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;line-height:1.5;"><strong style="color:var(--text-muted);">${esc(sem.dubaiTrack.period)}</strong> &nbsp;·&nbsp; <em>${esc(sem.dubaiTrack.note)}</em></div>
+          <div class="tp-tasks">
+            ${sem.dubaiTrack.tasks.map(t => {
               const s = log[t.id] || {};
               return `<div class="tp-task${s.done ? ' tp-done' : ''}">
                 <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(t.id)}">${s.done ? '✓' : ''}</button>
-                <span class="tp-tlabel">${t.label}</span>
-                ${s.done && s.date ? `<span class="tp-tdate">${s.date}</span>` : ''}
+                <span class="tp-tlabel">${esc(t.label)}</span>
+                ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
               </div>`;
             }).join('')}
           </div>
+          ` : ''}
         </div>`;
     }).join('');
 
@@ -165,6 +307,7 @@ const GrowthTracker = {
         }
         AppState.save();
         this.renderTechPlan();
+        this.renderTechSummary();
         if (typeof UI !== 'undefined') UI.tryCompletePendingActivity('growth');
       });
     });
@@ -174,13 +317,15 @@ const GrowthTracker = {
     const el = document.getElementById('techSummary');
     if (!el) return;
     const log = AppState.careerLog || {};
-    el.innerHTML = TECH_PHASES.map(p => {
-      const total = p.tasks.length;
-      const done  = p.tasks.filter(t => log[t.id]?.done).length;
+    el.innerHTML = DEVOPS_PLAN.map(sem => {
+      const items = this._semesterItems(sem);
+      const total = items.length;
+      const done  = this._semesterDone(sem, log);
       const pct   = total ? Math.round((done / total) * 100) : 0;
+      const shortLabel = sem.label.split('—')[1]?.trim() || sem.label;
       return `<div class="ts-row">
-        <div class="ts-name" style="color:${p.color}">${p.label.split('—')[1]?.trim() || p.label}</div>
-        <div class="ts-bar"><div class="ts-fill" style="width:${pct}%;background:${p.color}"></div></div>
+        <div class="ts-name" style="color:${sem.color}">${esc(shortLabel)}</div>
+        <div class="ts-bar"><div class="ts-fill" style="width:${pct}%;background:${sem.color}"></div></div>
         <div class="ts-pct">${done}/${total}</div>
       </div>`;
     }).join('');
