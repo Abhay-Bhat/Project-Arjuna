@@ -139,7 +139,7 @@ const SCHEDULE_DATA = {
     { time:"14:30–17:00", activity:"UPSC tertiary block — answer writing / mocks",    duration:2.5,  category:"Learning"   },
     { time:"17:00–18:30", activity:"Walk + family time / errands",                    duration:1.5,  category:"Daily"      },
     { time:"19:00–20:00", activity:"Book reading / DevOps light (keep skills fresh)", duration:1,    category:"Hobby"      },
-    { time:"20:00–21:00", activity:"Dinner + journal + mind check-in",                duration:1,    category:"Reflection" },
+    { time:"20:00–21:00", activity:"Dinner + journal",                                duration:1,    category:"Reflection" },
     { time:"22:00",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
   ],
 
@@ -200,18 +200,11 @@ const ACTIVITY_META = [
     logHint:'📖 Log pages read in Growth → Books'
   },
   {
-    match: /pastime check|mind check|journal|check-in.*mind/i,
-    desc:  'Daily Pastime check-in. Log your status in the Mind tab.',
-    expect:'Log your check-in in the Mind tab.',
-    navTab:'mind', focusId:'mindTodayForm',
-    logHint:'🧠 Log Mind check-in'
-  },
-  {
-    match: /parents|video call.*parent/i,
-    desc:  'Scheduled call with parents — non-negotiable Saturday ritual.',
-    expect:'Log the call in Mind → Parents tracking after you hang up.',
-    navTab:'mind', focusId:'mParents',
-    logHint:'☎️ Log parents call in Mind tab'
+    match: /journal|plan next day/i,
+    desc:  'Evening journal — reflect on the day and plan tomorrow.',
+    expect:'Write in your journal.',
+    navTab:null, focusId:null,
+    logHint:'📓 Journal done'
   },
   {
     match: /ca reading|current affairs/i,
