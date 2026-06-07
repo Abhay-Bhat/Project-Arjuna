@@ -15,7 +15,6 @@ const UI = {
     this._bindKeyboardShortcuts();
     this._bindSidebarToggle();
     this._initScrollReveal();
-    MindTracker.bindEvents();
     this._fetchQuote(); // Fetch once per session — not on every updateAll()
     this.updateAll();
   },
@@ -1049,7 +1048,6 @@ const UI = {
 
       // Mark all chart caches as dirty so next render forces recreation
       if (typeof HealthTracker !== 'undefined') HealthTracker._themeChanged = true;
-      if (typeof MindTracker   !== 'undefined') MindTracker._themeChanged   = true;
       if (typeof FinanceTracker !== 'undefined') FinanceTracker._themeChanged = true;
 
       // Re-render all charts on the currently visible tab immediately
