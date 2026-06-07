@@ -26,6 +26,18 @@ const DEVOPS_PLAN = [
       { id: 's1_p_k8s_msvc',     label: 'k8s-microservices-deploy — 3-svc app on k3s with NetPol + HPA' },
     ],
     cert: { id: 's1_cert_cka', label: 'CKA — Certified Kubernetes Administrator', cost: 'USD 395', priority: 'CRITICAL', targetMonth: 'End of Month 3' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 1: Foundation',
+      period: 'Jul – Sep 2026 · 2–3 hrs/week',
+      note: 'Parallel hands-on practice on OpenShift / Helm. Feeds the Sem-1 Kubernetes chapter.',
+      tasks: [
+        { id: 'github_repo',   label: 'Create GitHub repo: helm-charts (public + MIT license)' },
+        { id: 'helm_basics',   label: 'Learn Helm basics — chart structure, values.yaml, templates' },
+        { id: 'chart1_webapp', label: 'Chart 1: web-app (Deployment + Service + Route + ConfigMap)' },
+        { id: 'chart2_db',     label: 'Chart 2: database (PostgreSQL + PVC + Service)' },
+        { id: 'platform_arch', label: 'Understand OpenShift platform architecture & deploy 1 app' },
+      ],
+    },
   },
   {
     id: 's2', label: 'Semester 2 — Core Infrastructure Tools',
@@ -43,6 +55,18 @@ const DEVOPS_PLAN = [
       { id: 's2_p_cicd_cmp',   label: 'cicd-pipeline-comparison — same app via Jenkinsfile + GitLab CI + Actions' },
     ],
     cert: { id: 's2_cert_tf', label: 'HashiCorp Terraform Associate', cost: 'USD 70', priority: 'CRITICAL', targetMonth: 'End of Month 5' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 2: RHCOA Cert Start',
+      period: 'Oct – Dec 2026 · 6–8 hrs/week',
+      note: 'RHCOA learning subscription begins. Concepts overlap with Sem-1 K8s and feed Sem-4 OpenShift chapter.',
+      tasks: [
+        { id: 'rhcoa_enroll', label: 'Enroll: RedHat Learning Subscription (USD 500)' },
+        { id: 'modules_1_6',  label: 'RHCOA Modules 1–6: architecture, RBAC, networking, storage' },
+        { id: 'chart3_cache', label: 'Chart 3: cache (Redis + ConfigMap + Service)' },
+        { id: 'modules_7_9',  label: 'RHCOA Modules 7–9: advanced + troubleshooting' },
+        { id: 'helm_docs',    label: 'Full chart documentation & README written' },
+      ],
+    },
   },
   {
     id: 's3', label: 'Semester 3 — Advanced Topics',
@@ -60,6 +84,17 @@ const DEVOPS_PLAN = [
       { id: 's3_p_azure_tf',   label: 'azure-terraform-bridge — Add AKS via azurerm provider to aws-infra-terraform' },
     ],
     cert: { id: 's3_cert_aws', label: 'AWS Solutions Architect Associate (SAA-C03)', cost: 'USD 150', priority: 'HIGH', targetMonth: 'End of Month 8 · AZ-900 optional same week' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 3: Certification Push',
+      period: 'Jan – Mar 2027 · 3–5 hrs/week',
+      note: 'Three mock exams scaling 65% → 75%. Chart 4 monitoring extends portfolio.',
+      tasks: [
+        { id: 'mock_exam_1',    label: 'Mock Exam 1 — target score 65%+ (mid-Jan)' },
+        { id: 'mock_exam_2',    label: 'Mock Exam 2 — target score 70%+ (mid-Feb)' },
+        { id: 'mock_exam_3',    label: 'Mock Exam 3 — target score 75%+ (mid-Mar)' },
+        { id: 'chart4_monitor', label: 'Chart 4: monitoring (Prometheus sidecar, optional)' },
+      ],
+    },
   },
   {
     id: 's4', label: 'Semester 4 — Specialisation & Career',
@@ -81,6 +116,17 @@ const DEVOPS_PLAN = [
       { id: 's4_p_apply',   label: '5+ Tier-A applications submitted (PhonePe, Razorpay, CRED, BrowserStack…)' },
     ],
     cert: { id: 's4_cert_cks', label: 'CKS or AZ-104 (role-dependent, optional)', cost: 'USD 395 / 165', priority: 'CONDITIONAL', targetMonth: 'Month 11–12 if BFSI/Security roles in pipeline' },
+    dubaiTrack: {
+      label: 'Dubai OpenShift Track — Phase 4: RHCOA Exam & Wrap-Up',
+      period: 'Apr – Jun 2027 · 1–3 hrs/week',
+      note: 'EX280 exam culminates the Dubai track and the OpenShift chapter (Ch 7) together.',
+      tasks: [
+        { id: 'final_review',   label: 'Final weak-area review & confidence building' },
+        { id: 'rhcoa_exam',     label: '🎯 RHCOA Exam (EX280) — May 31, 2027' },
+        { id: 'portfolio_done', label: 'GitHub portfolio polished — 3–4 charts, complete docs' },
+        { id: 'blog_post',      label: 'Technical blog post published (500–1000 words)' },
+      ],
+    },
   },
 ];
 
@@ -170,6 +216,7 @@ const GrowthTracker = {
       ...sem.chapters.map(c => c.id),
       ...sem.projects.map(p => p.id),
       sem.cert.id,
+      ...(sem.dubaiTrack?.tasks || []).map(t => t.id),
     ];
   },
   _semesterDone(sem, log) {
@@ -232,6 +279,20 @@ const GrowthTracker = {
               ${certDone && log[sem.cert.id]?.date ? `<span class="tp-tdate">${esc(log[sem.cert.id].date)}</span>` : ''}
             </div>
           </div>
+          ${sem.dubaiTrack ? `
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--accent-amber);text-transform:uppercase;letter-spacing:.05em;margin-top:14px;padding-top:10px;border-top:1px dashed var(--border);">🏗️ ${esc(sem.dubaiTrack.label)}</div>
+          <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;line-height:1.5;"><strong style="color:var(--text-muted);">${esc(sem.dubaiTrack.period)}</strong> &nbsp;·&nbsp; <em>${esc(sem.dubaiTrack.note)}</em></div>
+          <div class="tp-tasks">
+            ${sem.dubaiTrack.tasks.map(t => {
+              const s = log[t.id] || {};
+              return `<div class="tp-task${s.done ? ' tp-done' : ''}">
+                <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(t.id)}">${s.done ? '✓' : ''}</button>
+                <span class="tp-tlabel">${esc(t.label)}</span>
+                ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
+              </div>`;
+            }).join('')}
+          </div>
+          ` : ''}
         </div>`;
     }).join('');
 
