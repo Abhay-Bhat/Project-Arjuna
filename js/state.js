@@ -137,7 +137,7 @@ const AppState = {
     if (!d) return;
     try {
       this._savedAt             = d._savedAt             || null;
-      this.currentTab           = d.currentTab           || 'today';
+      this.currentTab           = (d.currentTab === 'tech-study' ? 'growth' : d.currentTab) || 'today';
       this.theme                = d.theme                || 'dark';
       this.dashboardCollapsed   = d.dashboardCollapsed   || false;
       this.nriAccountLive       = d.nriAccountLive       || false;
