@@ -76,6 +76,15 @@ const AppState = {
   studyPomoBreak:  5,    // short break
   studyPomoLong:   15,   // long break after 4 rounds
 
+  // ── Tech Study Log (DevOps Career Elevation tracker) ─────
+  techStudyLog:        [],   // mirror of studyLog, separate dataset
+  techStudySubjects:   null,
+  techStudyActivities: null,
+  techStudyDailyGoal:  30,   // minutes per day (textbook 30-min/day mandate)
+  techStudyPomoWork:   25,
+  techStudyPomoBreak:  5,
+  techStudyPomoLong:   15,
+
   // ─────────────────────────────────────────────────────────
 
   // Phase 1 — always runs first, uses only local IndexedDB/localStorage
@@ -169,6 +178,14 @@ const AppState = {
       this.studyPomoWork        = d.studyPomoWork   ?? 25;
       this.studyPomoBreak       = d.studyPomoBreak  ?? 5;
       this.studyPomoLong        = d.studyPomoLong   ?? 15;
+      // Tech study tracker (parallel to UPSC study tracker)
+      this.techStudyLog         = pick('techStudyLog', []);
+      this.techStudySubjects    = d.techStudySubjects   ?? null;
+      this.techStudyActivities  = d.techStudyActivities ?? null;
+      this.techStudyDailyGoal   = d.techStudyDailyGoal  ?? 30;
+      this.techStudyPomoWork    = d.techStudyPomoWork   ?? 25;
+      this.techStudyPomoBreak   = d.techStudyPomoBreak  ?? 5;
+      this.techStudyPomoLong    = d.techStudyPomoLong   ?? 15;
     } catch(e) {
       console.error('State load error:', e);
     }
@@ -225,7 +242,14 @@ const AppState = {
       studyDailyGoal:  this.studyDailyGoal,
       studyPomoWork:   this.studyPomoWork,
       studyPomoBreak:  this.studyPomoBreak,
-      studyPomoLong:   this.studyPomoLong
+      studyPomoLong:   this.studyPomoLong,
+      techStudyLog:        this.techStudyLog,
+      techStudySubjects:   this.techStudySubjects,
+      techStudyActivities: this.techStudyActivities,
+      techStudyDailyGoal:  this.techStudyDailyGoal,
+      techStudyPomoWork:   this.techStudyPomoWork,
+      techStudyPomoBreak:  this.techStudyPomoBreak,
+      techStudyPomoLong:   this.techStudyPomoLong
     };
   },
 
@@ -339,6 +363,7 @@ const AppState = {
       tasksOrderedAt:       local.tasksOrderedAt > (cloudData.tasksOrderedAt||'') ? local.tasksOrderedAt : (cloudData.tasksOrderedAt||null),
       taskBucketsOrderedAt: local.taskBucketsOrderedAt > (cloudData.taskBucketsOrderedAt||'') ? local.taskBucketsOrderedAt : (cloudData.taskBucketsOrderedAt||null),
       studyLog:        _byId(local.studyLog,         cloudData.studyLog),
+      techStudyLog:    _byId(local.techStudyLog,     cloudData.techStudyLog),
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),

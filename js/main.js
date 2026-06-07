@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     UI.init();
     Events.init();
     if (window.DevOpsGuide)    window.DevOpsGuide.init();
-    if (window.StudyAnalytics) StudyAnalytics.init();
+    if (window.StudyAnalytics)     StudyAnalytics.init();
+    if (window.TechStudyAnalytics) TechStudyAnalytics.init();
     if (window.FocusGuard)     FocusGuard.init();
     CloudSync.startBroadcastListening(); // cross-tab sync (works in all modes)
 
