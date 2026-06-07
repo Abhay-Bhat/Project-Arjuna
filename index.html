@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css?v=56">
+    <link rel="stylesheet" href="css/styles.css?v=57">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -186,13 +186,6 @@
           <span class="nav-label">Health</span>
         </button>
 
-        <button class="nav-item tab-btn" data-tab="mind" title="Mind">
-          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          <span class="nav-label">Mind</span>
-        </button>
-
         <button class="nav-item tab-btn" data-tab="growth" title="Growth">
           <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
@@ -270,14 +263,6 @@
               <div class="qc-card" id="qcCACard">
                 <div class="qc-label">CA</div>
                 <div class="qc-value" id="qcCAValue">—</div>
-              </div>
-              <div class="qc-card" id="qcParentsCard">
-                <div class="qc-label">Parents</div>
-                <div class="qc-value" id="qcParentsValue">—</div>
-              </div>
-              <div class="qc-card" id="qcStreakCard">
-                <div class="qc-label">Streak</div>
-                <div class="qc-value" id="qcStreak">—</div>
               </div>
             </div>
 
@@ -1573,106 +1558,6 @@
       </div><!-- end tab-layout-2 -->
     </div><!-- end HEALTH TAB -->
 
-    <!-- ═ MIND TAB ═ -->
-    <div id="tab-mind" class="tab-panel">
-      <div class="tab-layout-2">
-
-        <!-- ── LEFT SIDEBAR: Pastime streak + daily check-in + protocol ── -->
-        <div class="pane-left">
-
-          <div class="pane-card" style="text-align:center;">
-            <div class="pane-card-title" style="text-align:center;margin-bottom:8px;">🚫 Pastime</div>
-            <div class="pastime-streak-num" id="pastimeStreak" style="font-size:52px;">0</div>
-            <div class="pastime-days" id="pastimeDays">days</div>
-            <div class="pastime-start" id="pastimeStart" style="font-size:11px;margin-top:4px;">Not started</div>
-            <div class="pastime-badges" id="pastimeBadges" style="justify-content:center;margin:12px 0;"></div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;padding:0 8px;">
-              Every day clean is a day reclaimed.<br>Build the streak. Protect the mind.
-            </div>
-            <div class="pastime-actions">
-              <button class="btn btn-sm btn-primary" id="pastimeStartBtn">Start Clean Streak</button>
-              <button class="btn btn-sm btn-danger" id="pastimeResetBtn" style="display:none;">Log Relapse</button>
-            </div>
-          </div>
-
-          <div class="pane-card">
-            <div class="pane-card-title">📋 Today's Check-in</div>
-            <form id="mindTodayForm">
-              <div class="form-field" style="margin-bottom:14px;">
-                <label>Loneliness (1–5)</label>
-                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                  <input type="range" id="mLoneliness" min="1" max="5" value="1" style="flex:1;">
-                  <span id="mLonelinessLbl" style="font-size:11px;color:var(--text-muted);min-width:90px;">Not Lonely 😊</span>
-                </div>
-              </div>
-              <div class="form-field" style="margin-bottom:12px;">
-                <label for="mMeditation">Meditation (min)</label>
-                <input type="number" id="mMeditation" min="0" max="120" value="0">
-              </div>
-              <div class="hf-toggle">
-                <input type="checkbox" id="mParents">
-                <label for="mParents">Called Parents</label>
-              </div>
-            </form>
-          </div>
-
-          <div class="pane-card">
-            <div class="pane-card-title">📖 Protocol</div>
-            <div style="color:var(--text-muted);font-size:12px;line-height:1.9;">
-              <p><strong>❌ Don't</strong> open incognito at night. <strong>✅ Do</strong> close the device.</p>
-              <p><strong>Urge surfing:</strong> Surf the urge 15 min — it always passes.</p>
-              <p><strong>Evening:</strong> 30-min walk, phone in another room.</p>
-              <p><strong>Trigger → Replace:</strong><br>
-                Lonely → call someone &nbsp;|&nbsp; Bored → push-ups<br>
-                Stressed → breathwork &nbsp;|&nbsp; Night → sleep early
-              </p>
-              <p style="margin-top:8px;"><strong>Last parents call:</strong><br>
-                <span id="lastParentsCall" style="color:var(--accent-teal);">Not logged yet</span>
-              </p>
-            </div>
-          </div>
-
-        </div><!-- end pane-left -->
-
-        <!-- ── MAIN: Charts + Reset log ── -->
-        <div class="pane-main">
-
-          <div class="section-title">Loneliness Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="lonelinessChart"></canvas></div>
-
-          <div class="section-title">Meditation Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="meditationChart"></canvas></div>
-
-          <div class="section-title">Parents Call Frequency</div>
-          <div class="chart-wrap"><canvas id="parentsCallChart"></canvas></div>
-
-          <div class="section-title">Relapse Log</div>
-          <div class="pastime-reset-panel open" id="pastimeResetPanel">
-            <div class="form-field" style="margin-bottom:12px;">
-              <label for="pastimeResetReason">Trigger / Reason</label>
-              <select id="pastimeResetReason">
-                <option value="Loneliness">Loneliness / isolation</option>
-                <option value="Boredom">Boredom / restlessness</option>
-                <option value="Stress">Stress / anxiety</option>
-                <option value="Phone">Phone / social media spiral</option>
-                <option value="Late Night">Late night alone</option>
-                <option value="Accountability">Lack of accountability</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-field" style="margin-bottom:12px;">
-              <label for="pastimeResetNote">Note</label>
-              <input type="text" id="pastimeResetNote" placeholder="Optional">
-            </div>
-            <button type="button" class="btn btn-sm btn-primary" id="pastimeResetSubmitBtn">Log Relapse & Reset</button>
-          </div>
-          <div class="pastime-reset-log" id="pastimeResetLog"></div>
-
-        </div><!-- end pane-main -->
-
-      </div><!-- end tab-layout-2 -->
-    </div><!-- end MIND TAB -->
-
     <!-- ═ GROWTH TAB ═ -->
     <div id="tab-growth" class="tab-panel">
       <div class="tab-layout-2">
@@ -1858,8 +1743,7 @@
                     <div class="odp-item">📚 <strong>UPSC</strong> — Civil Service exam prep (586 classes)</div>
                     <div class="odp-item">💰 <strong>Finance</strong> — Dubai savings goal (199,800 AED)</div>
                     <div class="odp-item">❤️ <strong>Health</strong> — Sleep, gym, cholesterol tracking</div>
-                    <div class="odp-item">🧠 <strong>Mind</strong> — Pastime streaks, loneliness tracking</div>
-                    <div class="odp-item">🌱 <strong>Growth</strong> — Career milestones, books, reviews</div>
+<div class="odp-item">🌱 <strong>Growth</strong> — Career milestones, books, reviews</div>
                     <div class="odp-item">⏱️ <strong>Routine</strong> — Daily schedule & habit tracking</div>
                 </div>
             </div>
@@ -1978,9 +1862,6 @@
             </div>
             <div class="glos-item">
                 <strong>INR</strong> — Indian Rupee (currency)
-            </div>
-            <div class="glos-item">
-                <strong>Pastime</strong> — Personal discipline streak tracker in the Mind tab
             </div>
         </div>
     </div>
@@ -2219,20 +2100,19 @@
 <script defer src="js/sync.js?v=39"></script>
 <script defer src="js/phases.js?v=39"></script>
 <script defer src="js/storage.js?v=39"></script>
-<script defer src="js/state.js?v=47"></script>
-<script defer src="js/scheduler.js?v=39"></script>
-<script defer src="js/upsc.js?v=54"></script>
+<script defer src="js/state.js?v=48"></script>
+<script defer src="js/scheduler.js?v=40"></script>
+<script defer src="js/upsc.js?v=55"></script>
 <script defer src="js/finance.js?v=39"></script>
 <script defer src="js/health-data.js?v=39"></script>
 <script defer src="js/health.js?v=39"></script>
-<script defer src="js/mind.js?v=39"></script>
 <script defer src="js/growth.js?v=54"></script>
-<script defer src="js/tasks.js?v=57"></script>
+<script defer src="js/tasks.js?v=58"></script>
 <script defer src="js/study.js?v=51"></script>
 <script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
-<script defer src="js/coach.js?v=54"></script>
-<script defer src="js/ui.js?v=58"></script>
+<script defer src="js/coach.js?v=55"></script>
+<script defer src="js/ui.js?v=59"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>

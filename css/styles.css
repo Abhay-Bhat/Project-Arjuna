@@ -814,6 +814,19 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .upsc-num-input:focus { outline: none; border-color: var(--accent-blue); }
 
+.upsc-card-total-edit {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13px; color: var(--text-faint); margin-top: 6px; padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+.upsc-total-input {
+  width: 70px; padding: 4px 7px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 13px;
+}
+.upsc-total-input:focus { outline: none; border-color: var(--accent-amber); }
+.upsc-total-btn { color: var(--text-muted); }
+.upsc-total-btn:hover { color: var(--accent-amber); }
+
 .prelims-cov-card {
   background: rgba(0,212,124,0.06); border: 1px solid rgba(0,212,124,0.2);
   border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 16px;
@@ -3458,6 +3471,15 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .task-item:hover .task-edit-btn { opacity: 1; }
 .task-edit-btn:hover { color: var(--accent-blue); }
 .task-item-editing { border-color: var(--accent-blue) !important; background: var(--card-hover) !important; }
+
+/* Duplicate task button */
+.task-dup-btn {
+  opacity: 0; font-size: 13px; background: none; border: none;
+  cursor: pointer; color: var(--text-faint); padding: 0 2px;
+  transition: opacity 0.15s, color 0.15s; flex-shrink: 0;
+}
+.task-item:hover .task-dup-btn { opacity: 1; }
+.task-dup-btn:hover { color: var(--accent-green); }
 
 /* Inline edit area */
 .task-edit-area {
