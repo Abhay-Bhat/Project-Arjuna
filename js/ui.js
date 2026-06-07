@@ -43,7 +43,6 @@ const UI = {
           'u': 'upsc',
           'f': 'finance',
           'h': 'health',
-          'm': 'mind',
           'g': 'growth',
           'k': 'tasks'
         };
@@ -330,7 +329,6 @@ const UI = {
       case 'upsc':     this._renderUPSC();    break;
       case 'finance':  this._renderFinance(); break;
       case 'health':   this._renderHealth();  break;
-      case 'mind':     this._renderMind();    break;
       case 'growth':   this._renderGrowth();  break;
       case 'tasks':    this._renderTasks();   break;
     }
@@ -455,11 +453,6 @@ const UI = {
     );
     const healthPct = Math.round(healthScore);
 
-    const todayMind = AppState.getSelectedMind();
-    const pastimeStreak = AppState.getPastimeStreak();
-    const mindStatus = pastimeStreak > 0 ? `${pastimeStreak}d` : 'Start';
-    const mindPct = Math.min((pastimeStreak / 30) * 100, 100);
-
     const careerDone = Object.values(AppState.careerLog || {}).filter(c => c.done).length;
     const careerPct = Math.round((careerDone / 5) * 100);
 
@@ -471,7 +464,6 @@ const UI = {
       { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
       { id: 'finance', emoji: '💰', name: 'Finance', metric: `${financeAED.toLocaleString('en-IN')}`, label: 'AED saved', pct: financePct, status: financePct >= 80 ? 'On Track' : 'Behind',  tip: 'Click to open Finance tab — savings, investments, currency converter' },
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
-      { id: 'mind',    emoji: '🧠', name: 'Mind',    metric: mindStatus,                  label: 'Pastime streak',  pct: mindPct,    status: pastimeStreak > 0 ? 'Strong' : 'Start Now', tip: 'Click to open Mind tab — Pastime streak, loneliness, meditation' },
       { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
       { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' }
     ];
@@ -620,25 +612,19 @@ const UI = {
 
   // Quick check-in row on Today tab
   syncQuickCheckins() {
-    const sel    = AppState.getSelectedHealth();
-    const mind   = AppState.getSelectedMind();
-    const streak = AppState.getPastimeStreak();
-
+    const sel = AppState.getSelectedHealth();
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     const cls = (id, c, on) => { const el = document.getElementById(id); if (el) el.classList.toggle(c, on); };
 
     const ca = AppState.getSelectedCA();
 
-    set('qcSleep',        sel.sleep_h != null ? sel.sleep_h + 'h' : '—');
-    set('qcGymValue',     sel.gym     ? '✓' : '—');
-    set('qcPhone',        sel.phone_h != null ? sel.phone_h + 'h' : '—');
-    set('qcCAValue',      ca.done ? (ca.articles?.length || '✓') + (ca.articles?.length > 0 ? ' read' : '') : '—');
-    set('qcParentsValue', mind.parents ? '✓' : '—');
-    set('qcStreak',       streak + 'd');
+    set('qcSleep',    sel.sleep_h != null ? sel.sleep_h + 'h' : '—');
+    set('qcGymValue', sel.gym     ? '✓' : '—');
+    set('qcPhone',    sel.phone_h != null ? sel.phone_h + 'h' : '—');
+    set('qcCAValue',  ca.done ? (ca.articles?.length || '✓') + (ca.articles?.length > 0 ? ' read' : '') : '—');
 
-    cls('qcGymCard',      'active', !!sel.gym);
-    cls('qcCACard',       'active', !!ca.done);
-    cls('qcParentsCard',  'active', !!mind.parents);
+    cls('qcGymCard', 'active', !!sel.gym);
+    cls('qcCACard',  'active', !!ca.done);
   },
 
   _bindQCCards() {
@@ -683,28 +669,6 @@ const UI = {
       caCard.addEventListener('click', () => {
         this._navigateToTab('upsc', 'caTitle');
         this.showToast('📰 Log your CA reading in UPSC → Current Affairs');
-      });
-    }
-
-    // Parents — toggle directly
-    const parCard = document.getElementById('qcParentsCard');
-    if (parCard && !parCard.dataset.bound) {
-      parCard.dataset.bound = '1';
-      parCard.addEventListener('click', () => {
-        const cur = AppState.getSelectedMind().parents;
-        AppState.setSelectedMind({ parents: !cur });
-        this.syncQuickCheckins();
-        this.showToast(!cur ? '☎️ Called parents' : '☎️ Unmarked');
-      });
-    }
-
-    // Streak — navigate to Mind tab
-    const streakCard = document.getElementById('qcStreakCard');
-    if (streakCard && !streakCard.dataset.bound) {
-      streakCard.dataset.bound = '1';
-      streakCard.addEventListener('click', () => {
-        this._navigateToTab('mind', 'pastimeStartBtn');
-        this.showToast('🔥 Pastime streak tracked in Mind tab');
       });
     }
 
@@ -1038,10 +1002,6 @@ const UI = {
   },
 
   // ── Mind tab ─────────────────────────────────────────────
-  _renderMind() {
-    MindTracker.render();
-  },
-
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
     GrowthTracker.render();
@@ -1098,11 +1058,6 @@ const UI = {
         HealthTracker.renderSleepChart();
         HealthTracker.renderPhoneChart();
         HealthTracker.renderCholesterolChart();
-      }
-      if (tab === 'mind') {
-        MindTracker.renderLonelinessChart();
-        MindTracker.renderMeditationChart();
-        MindTracker.renderParentsCallChart();
       }
       if (tab === 'finance')  FinanceTracker.renderCharts();
       if (tab === 'growth')   GrowthTracker.renderWeeklyReviewChart();

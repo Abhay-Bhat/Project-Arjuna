@@ -518,27 +518,6 @@ const AppState = {
     return this.financeEntries.reduce((s, e) => s + (e.transferred_inr || 0), 0);
   },
 
-  // ── Mind helpers ─────────────────────────────────────────
-  getTodayMind() {
-    return this.mindLog[this.getTodayKey()] || { loneliness: null, meditation_min: 0, parents: false };
-  },
-
-  setTodayMind(updates) {
-    const key = this.getTodayKey();
-    this.mindLog[key] = { ...(this.mindLog[key] || {}), ...updates };
-    this.save();
-  },
-
-  getSelectedMind() {
-    return this.mindLog[this.getDateKey()] || { loneliness: null, meditation_min: 0, parents: false };
-  },
-
-  setSelectedMind(updates) {
-    const key = this.getDateKey();
-    this.mindLog[key] = { ...(this.mindLog[key] || {}), ...updates };
-    this.save();
-  },
-
   // ── Export/Import ───────────────────────────────────────
   exportData() {
     const data = this._buildPayload();
