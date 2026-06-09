@@ -45,6 +45,7 @@ const TechStudyTracker = {
 
   // ── Runtime state ─────────────────────────────────────────
 
+  _timerStateKey: 'skadi_tech_study_timer',
   _timerInterval: null,
   _clockInterval: null,
   _elapsed:           0,  // seconds elapsed in current phase
@@ -177,6 +178,7 @@ const TechStudyTracker = {
     this._renderClock();
     this._startClock();
     this._renderTimerPanel();
+    this._restoreTimerState();
     this._renderForestPanel();
   },
 
@@ -380,6 +382,106 @@ const TechStudyTracker = {
       : `Round ${this._pomoRound + 1}`;
   },
 
+  // ── Timer persistence (survives refresh / tab close) ─────
+
+  _saveTimerState() {
+    if (!this._running) return;
+    try {
+      localStorage.setItem(this._timerStateKey, JSON.stringify({
+        running:          true,
+        mode:             this._mode,
+        elapsed:          this._elapsed,
+        treePhaseElapsed: this._treePhaseElapsed,
+        countdown:        this._countdown,
+        pomoPhase:        this._pomoPhase,
+        pomoRound:        this._pomoRound,
+        pomoWorkMin:      this._pomoWorkMin,
+        pomoBreakMin:     this._pomoBreakMin,
+        pomoLongMin:      this._pomoLongMin,
+        subject:          this._activeSubject,
+        activity:         this._activeActivity,
+        startedAt:        this._startedAt,
+        savedAt:          Date.now(),
+      }));
+    } catch(e) {}
+  },
+
+  _clearTimerState() {
+    try { localStorage.removeItem(this._timerStateKey); } catch(e) {}
+  },
+
+  _restoreTimerState() {
+    if (this._running) return;
+    try {
+      const raw = localStorage.getItem(this._timerStateKey);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (!s?.running) return;
+
+      const wallElapsed = Math.floor((Date.now() - (s.savedAt || Date.now())) / 1000);
+
+      this._mode          = s.mode || 'stopwatch';
+      this._activeSubject = s.subject;
+      this._activeActivity= s.activity;
+      this._startedAt     = s.startedAt;
+      this._countdown     = s.countdown || 0;
+      this._pomoPhase     = s.pomoPhase || 'idle';
+      this._pomoRound     = s.pomoRound || 0;
+      this._pomoWorkMin   = s.pomoWorkMin  || 25;
+      this._pomoBreakMin  = s.pomoBreakMin || 5;
+      this._pomoLongMin   = s.pomoLongMin  || 15;
+
+      const modeRow = document.getElementById('techStudyModeToggle');
+      if (modeRow) modeRow.querySelectorAll('.study-mode-btn').forEach(b =>
+        b.classList.toggle('active', b.dataset.mode === this._mode));
+      const cdEl = document.getElementById('techStudyCountdownSet');
+      if (cdEl) cdEl.style.display = this._mode === 'countdown' ? 'flex' : 'none';
+      const pcEl = document.getElementById('techStudyPomoConfig');
+      if (pcEl) pcEl.style.display = this._mode === 'pomodoro' ? 'flex' : 'none';
+      const psEl = document.getElementById('techStudyPomoStatus');
+      if (psEl) psEl.style.display = this._mode === 'pomodoro' ? '' : 'none';
+
+      if (this._mode === 'countdown' && this._countdown > 0 &&
+          (s.elapsed || 0) + wallElapsed >= this._countdown) {
+        this._treePhaseElapsed = s.treePhaseElapsed || 0;
+        if (Math.round(this._treePhaseElapsed / 60) >= 1)
+          this._saveSession(Math.round(this._treePhaseElapsed / 60), false);
+        this._clearTimerState();
+        return;
+      }
+
+      if (this._mode !== 'pomodoro') {
+        let tpe = s.treePhaseElapsed || 0;
+        let remaining = wallElapsed;
+        while (tpe + remaining >= 1500) {
+          remaining -= (1500 - tpe);
+          this._saveSession(25, true);
+          tpe = 0;
+        }
+        this._treePhaseElapsed = tpe + remaining;
+      } else {
+        this._treePhaseElapsed = s.treePhaseElapsed || 0;
+      }
+
+      this._elapsed = (s.elapsed || 0) + wallElapsed;
+      this._running = true;
+
+      const subSel = document.getElementById('techStudySubjectSel');
+      const actSel = document.getElementById('techStudyActivitySel');
+      if (subSel) { subSel.value = this._activeSubject; subSel.disabled = true; }
+      if (actSel) { actSel.value = this._activeActivity; actSel.disabled = true; }
+
+      this._timerInterval = setInterval(() => { this._elapsed++; this._onTick(); }, 1000);
+      this._updateTimerDisplay();
+      this._updateLiveTree();
+      this._startForestAnim();
+      this._updatePomoStatus();
+    } catch(e) {
+      console.warn('Tech study timer restore failed:', e);
+      this._clearTimerState();
+    }
+  },
+
   // ── Timer lifecycle ───────────────────────────────────────
 
   _startTimer() {
@@ -411,11 +513,13 @@ const TechStudyTracker = {
     this._updateTimerDisplay();
     this._updateLiveTree();
     this._startForestAnim();
+    this._saveTimerState();
     // No FocusGuard for tech track — reserved for UPSC focus blocks.
   },
 
   _onTick() {
     this._updateTimerDisplay();
+    if (this._elapsed % 10 === 0) this._saveTimerState();
     if (this._elapsed % 60 === 0) this._updateLiveTree();
 
     if (this._mode !== 'pomodoro') {
@@ -502,6 +606,7 @@ const TechStudyTracker = {
   _stopTimer() {
     clearInterval(this._timerInterval);
     this._running = false; this._timerInterval = null;
+    this._clearTimerState();
 
     // Save any partial tree cycle as a withered entry (full trees auto-save at 25-min marks)
     if (this._mode === 'pomodoro') {
