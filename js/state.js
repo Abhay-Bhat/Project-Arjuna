@@ -29,6 +29,9 @@ const AppState = {
 
   // ── UPSC ─────────────────────────────────────────────────
   upscSubjectProgress: {},  // { subject_id: classes_done }
+  upscSubjectTotals:   {},  // { subject_id: total_classes } — user-edited totals
+  upscSubjectProgressUpdatedAt: null, // ISO — bumped on every progress write
+  upscSubjectTotalsUpdatedAt:   null, // ISO — bumped on every totals write
   upscSchedule:        [],
   upscProgress:        0,   // legacy total
 
@@ -137,7 +140,7 @@ const AppState = {
     if (!d) return;
     try {
       this._savedAt             = d._savedAt             || null;
-      this.currentTab           = d.currentTab           || 'today';
+      this.currentTab           = (d.currentTab === 'tech-study' ? 'growth' : d.currentTab) || 'today';
       this.theme                = d.theme                || 'dark';
       this.dashboardCollapsed   = d.dashboardCollapsed   || false;
       this.nriAccountLive       = d.nriAccountLive       || false;
@@ -150,6 +153,9 @@ const AppState = {
       this.holidayOverrides     = pick('holidayOverrides', {});
       this.dailyHistory         = pick('dailyHistory',     {});
       this.upscSubjectProgress  = pick('upscSubjectProgress', {});
+      this.upscSubjectTotals    = pick('upscSubjectTotals',   {});
+      this.upscSubjectProgressUpdatedAt = d.upscSubjectProgressUpdatedAt ?? null;
+      this.upscSubjectTotalsUpdatedAt   = d.upscSubjectTotalsUpdatedAt   ?? null;
       this.upscSchedule         = pick('upscSchedule',    []);
       this.upscProgress         = pick('upscProgress',    0);
       this.financeEntries       = pick('financeEntries',  []);
@@ -216,6 +222,9 @@ const AppState = {
       holidayOverrides: this.holidayOverrides,
       dailyHistory: this.dailyHistory,
       upscSubjectProgress: this.upscSubjectProgress,
+      upscSubjectTotals:   this.upscSubjectTotals,
+      upscSubjectProgressUpdatedAt: this.upscSubjectProgressUpdatedAt,
+      upscSubjectTotalsUpdatedAt:   this.upscSubjectTotalsUpdatedAt,
       upscSchedule: this.upscSchedule,
       upscProgress: this.upscProgress,
       financeEntries: this.financeEntries,
@@ -341,12 +350,14 @@ const AppState = {
     // Object logs: cloud base + local keys override (local = current device)
     const _mergeObj = (lo, co) => ({ ...(co || {}), ...(lo || {}) });
 
-    // UPSC progress: take the maximum per subject (don't regress)
-    const _maxProgress = (lo, co) => {
-      const merged = { ...(co || {}) };
-      Object.entries(lo || {}).forEach(([k, v]) => { merged[k] = Math.max(merged[k] || 0, v || 0); });
-      return merged;
+    // UPSC progress / totals: last-write-wins so intentional reductions sync correctly.
+    // Each field carries its own *UpdatedAt timestamp; the more-recently-written side wins.
+    // Falls back to local-wins when neither side has a timestamp (legacy data).
+    const _lwwObj = (localVal, cloudVal, localTs, cloudTs) => {
+      if (!localTs && !cloudTs) return { ...(cloudVal || {}), ...(localVal || {}) };
+      return (localTs || '') >= (cloudTs || '') ? (localVal || {}) : (cloudVal || {});
     };
+    const _laterTs = (a, b) => (!a ? b : !b ? a : a >= b ? a : b);
 
     // Streak start: keep the LATER date — a later pastimeStart means a more
     // recent reset, so the reset must win over an older cloud value.
@@ -383,7 +394,16 @@ const AppState = {
       weeklyReviews:       _mergeObj(local.weeklyReviews,       cloudData.weeklyReviews),
       monthlyReviews:      _mergeObj(local.monthlyReviews,      cloudData.monthlyReviews),
       dubaiChecklist:      _mergeObj(local.dubaiChecklist,      cloudData.dubaiChecklist),
-      upscSubjectProgress: _maxProgress(local.upscSubjectProgress, cloudData.upscSubjectProgress),
+      upscSubjectProgress: _lwwObj(
+        local.upscSubjectProgress, cloudData.upscSubjectProgress,
+        local.upscSubjectProgressUpdatedAt, cloudData.upscSubjectProgressUpdatedAt
+      ),
+      upscSubjectTotals: _lwwObj(
+        local.upscSubjectTotals, cloudData.upscSubjectTotals,
+        local.upscSubjectTotalsUpdatedAt, cloudData.upscSubjectTotalsUpdatedAt
+      ),
+      upscSubjectProgressUpdatedAt: _laterTs(local.upscSubjectProgressUpdatedAt, cloudData.upscSubjectProgressUpdatedAt),
+      upscSubjectTotalsUpdatedAt:   _laterTs(local.upscSubjectTotalsUpdatedAt,   cloudData.upscSubjectTotalsUpdatedAt),
       upscProgress:        Math.max(local.upscProgress || 0,    cloudData.upscProgress || 0),
       upscSchedule: (local.upscSchedule || []).length >= (cloudData.upscSchedule || []).length
         ? local.upscSchedule : cloudData.upscSchedule,
