@@ -419,6 +419,7 @@ const UPSCTracker = {
         inp.value = v;
         AppState.upscSubjectProgress = AppState.upscSubjectProgress || {};
         AppState.upscSubjectProgress[s.id] = v;
+        AppState.upscSubjectProgressUpdatedAt = new Date().toISOString();
         AppState.save();
         this.updateMetrics();
         if (typeof UI !== 'undefined') UI.tryCompletePendingActivity('upsc');
@@ -431,6 +432,7 @@ const UPSCTracker = {
         if (t < done) { totInp.value = done; t = done; }
         AppState.upscSubjectTotals = AppState.upscSubjectTotals || {};
         AppState.upscSubjectTotals[s.id] = t;
+        AppState.upscSubjectTotalsUpdatedAt = new Date().toISOString();
         AppState.save();
         this.renderSubjectGrid();
         this.updateMetrics();
