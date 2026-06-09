@@ -257,7 +257,7 @@ const CloudSync = {
                   'monthlyExpenses','cholesterol','pastimeLog','partnerLog','studyLog','techStudyLog'];
     const objs = ['checkedItems','dailyHistory','healthLog','mindLog',
                   'caLog','careerLog','booksLog','weeklyReviews',
-                  'monthlyReviews','dubaiChecklist','upscSubjectProgress'];
+                  'monthlyReviews','dubaiChecklist','upscSubjectProgress','upscSubjectTotals'];
     return arrs.some(k => (merged[k]||[]).length > (cloud[k]||[]).length) ||
            objs.some(k => Object.keys(merged[k]||{}).length > Object.keys(cloud[k]||{}).length);
   },

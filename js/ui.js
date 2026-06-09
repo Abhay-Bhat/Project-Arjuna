@@ -1002,10 +1002,10 @@ const UI = {
     HealthTracker.render();
   },
 
-  // ── Mind tab ─────────────────────────────────────────────
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
     GrowthTracker.render();
+    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tasks tab ────────────────────────────────────────────
