@@ -60,6 +60,7 @@ const AppState = {
   weeklyReviews:   {},   // { 'YYYY-Www': { q1..q10, submitted_at } }
   monthlyReviews:  {},   // { 'YYYY-MM': { domains, submitted_at } }
   partnerLog:      [],   // [{ date, type:'msg'|'call'|'meet', note }]
+  habitStacks:     {},   // { stack1: true, ... } — Habit Stack Rollout (Jul 2026)
 
   // ── Dubai Checklist ──────────────────────────────────────
   dubaiChecklist:  {},   // { item_id: true }
@@ -171,6 +172,7 @@ const AppState = {
       this.weeklyReviews        = pick('weeklyReviews',   {});
       this.monthlyReviews       = pick('monthlyReviews',  {});
       this.partnerLog           = pick('partnerLog',      []);
+      this.habitStacks          = pick('habitStacks',     {});
       this.dubaiChecklist       = pick('dubaiChecklist',  {});
       this.taskBuckets          = pick('taskBuckets',     []);
       this.tasks                = pick('tasks',           []);
@@ -240,6 +242,7 @@ const AppState = {
       weeklyReviews: this.weeklyReviews,
       monthlyReviews: this.monthlyReviews,
       partnerLog: this.partnerLog,
+      habitStacks: this.habitStacks,
       dubaiChecklist: this.dubaiChecklist,
       taskBuckets:          this.taskBuckets,
       tasks:                this.tasks,
@@ -393,6 +396,7 @@ const AppState = {
       booksLog:            _mergeObj(local.booksLog,            cloudData.booksLog),
       weeklyReviews:       _mergeObj(local.weeklyReviews,       cloudData.weeklyReviews),
       monthlyReviews:      _mergeObj(local.monthlyReviews,      cloudData.monthlyReviews),
+      habitStacks:         _mergeObj(local.habitStacks,         cloudData.habitStacks),
       dubaiChecklist:      _mergeObj(local.dubaiChecklist,      cloudData.dubaiChecklist),
       upscSubjectProgress: _lwwObj(
         local.upscSubjectProgress, cloudData.upscSubjectProgress,

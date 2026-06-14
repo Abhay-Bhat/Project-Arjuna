@@ -345,6 +345,8 @@ const UI = {
     this._renderCalendarNav();
     this._renderHolidayToggle();
     this._renderTasksDueBanner();
+    if (typeof StudyTracker !== 'undefined') StudyTracker.render();
+    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   _syncTodayHabits() {
@@ -714,17 +716,18 @@ const UI = {
 
     const indicator = document.getElementById('dayIndicator');
     const labels = {
-      notice_weekday: '🏁 Notice Period — Weekday',
-      notice_weekend: '🏁 Notice Period — Weekend',
-      settle_weekday: '✈️ Dubai Settle — Weekday',
-      settle_weekend: '✈️ Dubai Settle — Weekend',
-      dubai_weekday:  '🏗️ Dubai Foundation — Weekday',
-      dubai_saturday: '🏗️ Dubai Foundation — Saturday',
-      dubai_sunday:   '🏗️ Dubai Foundation — Sunday',
-      sprint_weekday: '🎯 Prelims Sprint — Weekday',
-      sprint_weekend: '🎯 Prelims Sprint — Weekend',
-      india_weekday:  '🏡 India Full-time — Weekday',
-      india_weekend:  '🏡 India Full-time — Weekend'
+      notice_weekday: '🏁 Notice & Decision — Weekday',
+      notice_weekend: '🏁 Notice & Decision — Weekend',
+      foundation_india_weekday_tech: '🏗️ Foundation Build (India) — Weekday + Tech',
+      foundation_india_weekday_rest: '🏗️ Foundation Build (India) — Weekday',
+      foundation_dubai_weekday_tech: '🏗️ Foundation Build (Dubai) — Weekday + Tech',
+      foundation_dubai_weekday_rest: '🏗️ Foundation Build (Dubai) — Weekday',
+      dubai_saturday: '🏗️ Foundation Build (Dubai) — Saturday',
+      dubai_sunday:   '🏗️ Foundation Build (Dubai) — Sunday',
+      sprint_weekday: '🎯 Mock & Consolidation — Weekday',
+      sprint_weekend: '🎯 Mock & Consolidation — Weekend',
+      india_weekday:  '📜 Intensive Prep — Weekday',
+      india_weekend:  '📜 Intensive Prep — Weekend'
     };
     if (indicator) indicator.textContent = labels[scheduleKey] || scheduleKey;
   },
@@ -872,7 +875,6 @@ const UI = {
 
   // ── UPSC tab ─────────────────────────────────────────────
   _renderUPSC() {
-    if (typeof StudyTracker !== 'undefined') StudyTracker.render();
     UPSCTracker.updateMetrics();
     this._renderUPSCScheduleTable();
     UPSCTracker.renderCASection();
@@ -886,9 +888,9 @@ const UI = {
 
     const getDateRange = (subj) => {
       if (subj.priority === 1) {
-        return 'Oct 2026 — May 2027';
+        return 'Jul 2026 — Dec 2026';
       } else {
-        return 'Aug 2027 — May 2028';
+        return 'Jan 2027 — Apr 2027';
       }
     };
 
@@ -1003,7 +1005,6 @@ const UI = {
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
     GrowthTracker.render();
-    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tasks tab ────────────────────────────────────────────
@@ -1059,6 +1060,10 @@ const UI = {
       }
       if (tab === 'finance')  FinanceTracker.renderCharts();
       if (tab === 'growth')   GrowthTracker.renderWeeklyReviewChart();
+      if (tab === 'today') {
+        if (typeof StudyTracker !== 'undefined') StudyTracker._renderForestContent?.();
+        if (typeof TechStudyTracker !== 'undefined') TechStudyTracker._renderForestContent?.();
+      }
     });
     btn.textContent = AppState.theme === 'dark' ? '☀️ Theme' : '🌙 Theme';
   },

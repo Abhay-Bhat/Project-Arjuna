@@ -18,10 +18,14 @@ const TasksTracker = {
     '#a56eff', '#00d47c', '#ffc107', '#ff6b6b',
   ],
 
+  // Task ids whose subtask checklist is currently expanded (UI-only, not persisted)
+  _openSubtaskIds: new Set(),
+
   // ── Entry point called by UI ─────────────────────────────
   render() {
     this._renderBoard();
     this._renderStats();
+    this._renderAnalytics();
     this._bindFilters();
     this._renderNewBucketPane();
   },
@@ -44,6 +48,20 @@ const TasksTracker = {
     if (diffDays <= 3) return { label: `${diffDays}d`,  cls: 'due-soon' };
     if (diffDays <= 7) return { label: dateStr.slice(5), cls: 'due-week' };
     return { label: dateStr.slice(5), cls: 'due-normal' };
+  },
+
+  // Returns { days } if a completed task's completedAt is after its dueDate, else null
+  _isLate(t) {
+    if (!t.done || !t.dueDate || !t.completedAt) return null;
+    const due       = new Date(t.dueDate + 'T23:59:59');
+    const completed = new Date(t.completedAt);
+    if (completed <= due) return null;
+    return { days: Math.max(1, Math.round((completed - due) / 86400000)) };
+  },
+
+  _subtaskProgress(t) {
+    const subs = t.subtasks || [];
+    return { done: subs.filter(s => s.done).length, total: subs.length };
   },
 
   _activeFilter() {
@@ -114,6 +132,44 @@ const TasksTracker = {
       <div class="tasks-stat"><span class="tasks-stat-n" style="color:var(--accent-green);">${done}</span><span class="tasks-stat-l">Done</span></div>
       <div class="tasks-stat"><span class="tasks-stat-n" style="color:var(--accent-rose);">${overdue}</span><span class="tasks-stat-l">Overdue</span></div>
       <div class="tasks-stat"><span class="tasks-stat-n" style="color:var(--accent-amber);">${urgent}</span><span class="tasks-stat-l">Urgent</span></div>
+    `;
+  },
+
+  // ── Completion analytics — flags tasks finished after their deadline ──
+  _renderAnalytics() {
+    const el = document.getElementById('tasksAnalytics');
+    if (!el) return;
+
+    const withDue = this._tasks().filter(t => t.done && t.dueDate && t.completedAt);
+    const late    = withDue.filter(t => this._isLate(t));
+    const onTime  = withDue.length - late.length;
+    const pct     = withDue.length ? Math.round((onTime / withDue.length) * 100) : null;
+
+    if (!withDue.length) {
+      el.innerHTML = `<div class="tasks-analytics-empty">Complete tasks with due dates to see on-time stats.</div>`;
+      return;
+    }
+
+    const lateRows = [...late]
+      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+      .slice(0, 5)
+      .map(t => {
+        const { days } = this._isLate(t);
+        return `
+          <div class="task-late-row" title="${this._esc(t.title)} — due ${t.dueDate}, completed ${t.completedAt.slice(0, 10)}">
+            <span class="task-late-title">${this._esc(t.title)}</span>
+            <span class="task-late-days">+${days}d</span>
+          </div>`;
+      }).join('');
+
+    el.innerHTML = `
+      <div class="tasks-analytics-grid">
+        <div class="tasks-stat"><span class="tasks-stat-n" style="color:var(--accent-green);">${onTime}</span><span class="tasks-stat-l">On Time</span></div>
+        <div class="tasks-stat"><span class="tasks-stat-n" style="color:var(--accent-rose);">${late.length}</span><span class="tasks-stat-l">Late</span></div>
+      </div>
+      <div class="tasks-ontime-bar"><div class="tasks-ontime-fill" style="width:${pct}%;"></div></div>
+      <div class="tasks-ontime-pct">${pct}% on-time · ${withDue.length} completed w/ due date</div>
+      ${lateRows ? `<div class="tasks-late-list">${lateRows}</div>` : ''}
     `;
   },
 
@@ -194,6 +250,8 @@ const TasksTracker = {
     const pri    = this._priorityMeta(t.priority);
     const due    = this._dueMeta(t.dueDate);
     const status = t.status || 'todo';
+    const late   = this._isLate(t);
+    const sub    = this._subtaskProgress(t);
     const statusBadge = !t.done
       ? `<span class="task-status-badge ${status === 'in-progress' ? 'status-inprogress' : 'status-todo'}"
              data-status-tid="${t.id}" title="Click to toggle status">
@@ -203,8 +261,19 @@ const TasksTracker = {
     const descHtml = t.description
       ? `<div class="task-desc">${this._esc(t.description)}</div>`
       : '';
+    const subtasksHtml = sub.total > 0 ? `
+      <details class="task-subtasks"${this._openSubtaskIds.has(t.id) ? ' open' : ''} data-tid="${t.id}">
+        <summary class="task-subtasks-summary">Subtasks (${sub.done}/${sub.total})</summary>
+        <div class="task-subtasks-list">
+          ${t.subtasks.map(st => `
+            <label class="task-subtask-row">
+              <input type="checkbox" class="task-subtask-cb" data-tid="${t.id}" data-stid="${this._esc(st.id)}" ${st.done ? 'checked' : ''}>
+              <span class="${st.done ? 'task-subtask-done' : ''}">${this._esc(st.title)}</span>
+            </label>`).join('')}
+        </div>
+      </details>` : '';
     return `
-      <div class="task-item${t.done ? ' task-done' : ''}" data-tid="${t.id}" draggable="true">
+      <div class="task-item${t.done ? ' task-done' : ''}${late ? ' task-late' : ''}" data-tid="${t.id}" draggable="true">
         <label class="task-checkbox-wrap" title="${t.done ? 'Mark incomplete' : 'Mark complete'}">
           <input type="checkbox" class="task-cb" data-tid="${t.id}" ${t.done ? 'checked' : ''}>
           <span class="task-cb-visual"></span>
@@ -217,8 +286,11 @@ const TasksTracker = {
             <span class="task-pri-label" style="color:${pri.color};">${pri.label}</span>
             ${due ? `<span class="task-due-badge ${due.cls}" title="Due: ${t.dueDate}">${due.label}</span>` : ''}
             ${t.estimatedMin != null && t.estimatedMin > 0 ? `<span class="task-est-badge" title="Estimated time">⏱ ${this._fmtEst(t.estimatedMin)}</span>` : ''}
+            ${sub.total > 0 ? `<span class="task-subtask-badge" title="Subtasks completed">☑ ${sub.done}/${sub.total}</span>` : ''}
+            ${late ? `<span class="task-late-badge" title="Completed ${late.days}d after the ${t.dueDate} deadline">⏰ +${late.days}d late</span>` : ''}
             ${statusBadge}
           </div>
+          ${subtasksHtml}
         </div>
         <button class="task-edit-btn" data-edit-tid="${t.id}" title="Edit task">✏️</button>
         <button class="task-dup-btn" data-dup-tid="${t.id}" title="Duplicate task">📋</button>
@@ -269,6 +341,14 @@ const TasksTracker = {
         </select>
         <input type="number" class="task-edit-est" min="0" max="9999" step="5" value="${t.estimatedMin != null ? t.estimatedMin : ''}" placeholder="⏱ min" title="Estimated time (minutes)">
       </div>
+      <div class="task-edit-subtasks">
+        <div class="task-edit-subtasks-label">Subtasks</div>
+        <div class="task-edit-subtask-list"></div>
+        <div class="task-edit-subtask-add">
+          <input class="task-edit-subtask-input" placeholder="Add subtask…" maxlength="200">
+          <button class="btn btn-xs task-edit-subtask-add-btn">+ Add</button>
+        </div>
+      </div>
       <div class="task-edit-actions">
         <button class="btn btn-xs btn-primary task-edit-save">Save</button>
         <button class="btn btn-xs task-edit-cancel">Cancel</button>
@@ -278,6 +358,50 @@ const TasksTracker = {
     const titleInput = editDiv.querySelector('.task-edit-title');
     titleInput.focus();
     titleInput.select();
+
+    // ── Subtasks editor — local working copy, committed on Save ──
+    let workingSubtasks = (t.subtasks || []).map(s => ({ ...s }));
+    const subtaskListEl = editDiv.querySelector('.task-edit-subtask-list');
+    const renderSubtaskList = () => {
+      subtaskListEl.innerHTML = workingSubtasks.length
+        ? workingSubtasks.map((s, i) => `
+            <div class="task-edit-subtask-row">
+              <label class="task-subtask-row">
+                <input type="checkbox" class="task-edit-subtask-cb" data-idx="${i}" ${s.done ? 'checked' : ''}>
+                <span class="${s.done ? 'task-subtask-done' : ''}">${this._esc(s.title)}</span>
+              </label>
+              <button class="task-edit-subtask-del" data-idx="${i}" title="Remove subtask">✕</button>
+            </div>`).join('')
+        : `<div class="task-edit-subtask-empty">No subtasks yet</div>`;
+
+      subtaskListEl.querySelectorAll('.task-edit-subtask-cb').forEach(cb => {
+        cb.addEventListener('change', () => {
+          workingSubtasks[parseInt(cb.dataset.idx)].done = cb.checked;
+          renderSubtaskList();
+        });
+      });
+      subtaskListEl.querySelectorAll('.task-edit-subtask-del').forEach(btn => {
+        btn.addEventListener('click', () => {
+          workingSubtasks.splice(parseInt(btn.dataset.idx), 1);
+          renderSubtaskList();
+        });
+      });
+    };
+    renderSubtaskList();
+
+    const subtaskInput = editDiv.querySelector('.task-edit-subtask-input');
+    const addSubtask = () => {
+      const title = subtaskInput.value.trim();
+      if (!title) return;
+      workingSubtasks.push({ id: `st-${Date.now()}-${Math.floor(Math.random() * 10000)}`, title, done: false });
+      subtaskInput.value = '';
+      renderSubtaskList();
+      subtaskInput.focus();
+    };
+    editDiv.querySelector('.task-edit-subtask-add-btn').addEventListener('click', addSubtask);
+    subtaskInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); addSubtask(); }
+    });
 
     const save = () => {
       const newTitle = editDiv.querySelector('.task-edit-title').value.trim();
@@ -290,6 +414,7 @@ const TasksTracker = {
       t.bucketId    = parseInt(editDiv.querySelector('.task-edit-bucket').value);
       const estRaw  = editDiv.querySelector('.task-edit-est').value;
       t.estimatedMin = estRaw === '' ? null : Math.max(0, parseInt(estRaw) || 0);
+      t.subtasks    = workingSubtasks;
       t.modifiedAt  = new Date().toISOString();
       AppState.save();
       this.render();
@@ -363,11 +488,41 @@ const TasksTracker = {
         const t  = (AppState.tasks || []).find(x => x.id === id);
         if (t) {
           t.done = cb.checked;
-          if (!t.done) t.status = 'todo'; // reset status when un-completing
+          if (!t.done) {
+            t.status = 'todo'; // reset status when un-completing
+            t.completedAt = null;
+          } else {
+            t.completedAt = new Date().toISOString();
+          }
           t.modifiedAt = new Date().toISOString();
           AppState.save();
           this.render();
         }
+      });
+    });
+
+    // Subtask checkbox toggle
+    board.querySelectorAll('.task-subtask-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const tid = parseInt(cb.dataset.tid);
+        const t   = (AppState.tasks || []).find(x => x.id === tid);
+        const st  = t?.subtasks?.find(s => String(s.id) === String(cb.dataset.stid));
+        if (st) {
+          st.done = cb.checked;
+          t.modifiedAt = new Date().toISOString();
+          AppState.save();
+          this._openSubtaskIds.add(tid); // keep checklist open after toggle
+          this.render();
+        }
+      });
+    });
+
+    // Track open/closed state of subtask checklists across re-renders
+    board.querySelectorAll('.task-subtasks').forEach(det => {
+      det.addEventListener('toggle', () => {
+        const tid = parseInt(det.dataset.tid);
+        if (det.open) this._openSubtaskIds.add(tid);
+        else this._openSubtaskIds.delete(tid);
       });
     });
 
@@ -411,7 +566,8 @@ const TasksTracker = {
         if (!src) return;
         const now = new Date().toISOString();
         const copy = { ...src, id: Date.now(), title: 'Copy of ' + src.title,
-                       done: false, status: 'todo', deleted: false,
+                       done: false, status: 'todo', deleted: false, completedAt: null,
+                       subtasks: (src.subtasks || []).map(s => ({ ...s, done: false })),
                        createdAt: now, modifiedAt: now };
         delete copy.deletedAt;
         AppState.tasks = [...(AppState.tasks || []), copy];
@@ -741,6 +897,8 @@ const TasksTracker = {
       priority:    priEl?.value   || 'medium',
       status:      'todo',
       done:        false,
+      completedAt: null,
+      subtasks:    [],
       estimatedMin: estRaw === '' || estRaw == null ? null : Math.max(0, parseInt(estRaw) || 0),
       createdAt:   new Date().toISOString(),
     });

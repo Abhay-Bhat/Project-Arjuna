@@ -21,10 +21,11 @@ function currentEPFRate() {
   return EPF_FY_RATES[`${yr}-${String(yr+1).slice(2)}`] || 8.25;
 }
 
-const FINANCE_TARGET_AED  = 199800;
-const FINANCE_TARGET_INR  = 4600000;
+// Dubai savings target: ~12,000 AED/month (22,000 income - 10,000 expenses) x 12 months
+const FINANCE_TARGET_AED  = 144000;
+const FINANCE_TARGET_INR  = 3300000;
 const FINANCE_BASELINE    = 0;
-const FINANCE_TOTAL_GOAL  = 5900000;
+const FINANCE_TOTAL_GOAL  = 4600000;
 const MONTHLY_TRANSFER    = 250000;
 
 // API Keys for stock price providers (optional, improves reliability)
