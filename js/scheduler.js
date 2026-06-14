@@ -152,6 +152,88 @@ const SCHEDULE_DATA = {
     { time:"19:00–20:00", activity:"Dinner",                                           duration:1,    category:"Break"      },
     { time:"20:00–21:00", activity:"Weekly review + plan",                             duration:1,    category:"Reflection" },
     { time:"22:00",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  ],
+
+  // ── 6. Phase 1 — Foundation Build, India track (Jun–Dec 2026) ──
+  // Tech study on Mon/Wed/Thu (Sat covered by weekend schedule).
+  foundation_india_weekday_tech: [
+    { time:"06:00–06:30", activity:"Wake, water, no phone",                            duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:05", activity:"Breakfast prep + breakfast",                       duration:0.58, category:"Break"      },
+    { time:"07:05–09:00", activity:"Commute to work",                                  duration:1.92, category:"Daily"      },
+    { time:"09:00–17:00", activity:"Work — full focus",                                duration:8,    category:"Work"       },
+    { time:"17:00–17:30", activity:"Commute home",                                     duration:0.5,  category:"Daily"      },
+    { time:"17:30–18:00", activity:"Rest / decompress",                                duration:0.5,  category:"Break"      },
+    { time:"18:00–18:45", activity:"Tech study — DevOps plan (Docker/K8s/AWS/CI-CD)",  duration:0.75, category:"Learning"   },
+    { time:"18:45–19:30", activity:"Dinner prep — cholesterol-safe Indian meal",       duration:0.75, category:"Daily"      },
+    { time:"19:30–19:50", activity:"Dinner",                                           duration:0.33, category:"Break"      },
+    { time:"19:50–20:00", activity:"Wind down before UPSC block",                      duration:0.17, category:"Mind"       },
+    { time:"20:00–21:30", activity:"⭐ UPSC — class watch (1.5 hrs)",                 duration:1.5,  category:"Learning"   },
+    { time:"21:30–21:45", activity:"Break",                                            duration:0.25, category:"Break"      },
+    { time:"21:45–23:30", activity:"⭐ UPSC — revision (1h45m)",                      duration:1.75, category:"Learning"   },
+    { time:"23:30–00:00", activity:"Wind down — no screens",                          duration:0.5,  category:"Daily"      },
+    { time:"00:00",       activity:"Sleep",                                            duration:6,    category:"Health"     }
+  ],
+
+  // Tue/Fri — same shape, no tech session
+  foundation_india_weekday_rest: [
+    { time:"06:00–06:30", activity:"Wake, water, no phone",                            duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:05", activity:"Breakfast prep + breakfast",                       duration:0.58, category:"Break"      },
+    { time:"07:05–09:00", activity:"Commute to work",                                  duration:1.92, category:"Daily"      },
+    { time:"09:00–17:00", activity:"Work — full focus",                                duration:8,    category:"Work"       },
+    { time:"17:00–17:30", activity:"Commute home",                                     duration:0.5,  category:"Daily"      },
+    { time:"17:30–18:00", activity:"Rest / decompress",                                duration:0.5,  category:"Break"      },
+    { time:"18:00–18:45", activity:"Rest / free time — no tech today",                 duration:0.75, category:"Hobby"      },
+    { time:"18:45–19:30", activity:"Dinner prep — cholesterol-safe Indian meal",       duration:0.75, category:"Daily"      },
+    { time:"19:30–19:50", activity:"Dinner",                                           duration:0.33, category:"Break"      },
+    { time:"19:50–20:00", activity:"Wind down before UPSC block",                      duration:0.17, category:"Mind"       },
+    { time:"20:00–21:30", activity:"⭐ UPSC — class watch (1.5 hrs)",                 duration:1.5,  category:"Learning"   },
+    { time:"21:30–21:45", activity:"Break",                                            duration:0.25, category:"Break"      },
+    { time:"21:45–23:30", activity:"⭐ UPSC — revision (1h45m)",                      duration:1.75, category:"Learning"   },
+    { time:"23:30–00:00", activity:"Wind down — no screens",                          duration:0.5,  category:"Daily"      },
+    { time:"00:00",       activity:"Sleep",                                            duration:6,    category:"Health"     }
+  ],
+
+  // ── 7. Phase 1 — Foundation Build, Dubai track (if relocated) ──
+  // Tech study on Tue/Thu only (timezone-compressed day).
+  foundation_dubai_weekday_tech: [
+    { time:"04:00–04:30", activity:"Wake, water, no phone",                            duration:0.5,  category:"Daily"      },
+    { time:"04:30–05:15", activity:"Breakfast",                                        duration:0.75, category:"Break"      },
+    { time:"05:15–06:45", activity:"⭐ UPSC — class watch (1.5 hrs)",                 duration:1.5,  category:"Learning"   },
+    { time:"06:45–07:00", activity:"Break",                                            duration:0.25, category:"Break"      },
+    { time:"07:00–08:30", activity:"⭐ UPSC — revision (1.5 hrs)",                    duration:1.5,  category:"Learning"   },
+    { time:"08:30–09:00", activity:"UPSC — concept mapping",                          duration:0.5,  category:"Learning"   },
+    { time:"09:00–09:15", activity:"Freshen up",                                       duration:0.25, category:"Daily"      },
+    { time:"09:15–13:30", activity:"Emirates NBD — Work (Part 1)",                     duration:4.25, category:"Work"       },
+    { time:"13:30–14:30", activity:"Lunch",                                            duration:1,    category:"Break"      },
+    { time:"14:30–17:00", activity:"Emirates NBD — Work (Part 2)",                     duration:2.5,  category:"Work"       },
+    { time:"17:00–18:00", activity:"Rest / nap",                                       duration:1,    category:"Break"      },
+    { time:"18:00–19:00", activity:"Cook + dinner",                                    duration:1,    category:"Daily"      },
+    { time:"19:00–19:45", activity:"Tech study — DevOps plan (Docker/K8s/AWS/CI-CD)",  duration:0.75, category:"Learning"   },
+    { time:"19:45–20:15", activity:"Wind down",                                        duration:0.5,  category:"Daily"      },
+    { time:"20:15–21:15", activity:"Light UPSC / Current Affairs (optional)",          duration:1,    category:"Learning"   },
+    { time:"21:15–22:00", activity:"Personal time / book reading",                     duration:0.75, category:"Hobby"      },
+    { time:"22:00",       activity:"Sleep",                                            duration:6,    category:"Health"     }
+  ],
+
+  // Mon/Wed/Fri — same shape, no tech session
+  foundation_dubai_weekday_rest: [
+    { time:"04:00–04:30", activity:"Wake, water, no phone",                            duration:0.5,  category:"Daily"      },
+    { time:"04:30–05:15", activity:"Breakfast",                                        duration:0.75, category:"Break"      },
+    { time:"05:15–06:45", activity:"⭐ UPSC — class watch (1.5 hrs)",                 duration:1.5,  category:"Learning"   },
+    { time:"06:45–07:00", activity:"Break",                                            duration:0.25, category:"Break"      },
+    { time:"07:00–08:30", activity:"⭐ UPSC — revision (1.5 hrs)",                    duration:1.5,  category:"Learning"   },
+    { time:"08:30–09:00", activity:"UPSC — concept mapping",                          duration:0.5,  category:"Learning"   },
+    { time:"09:00–09:15", activity:"Freshen up",                                       duration:0.25, category:"Daily"      },
+    { time:"09:15–13:30", activity:"Emirates NBD — Work (Part 1)",                     duration:4.25, category:"Work"       },
+    { time:"13:30–14:30", activity:"Lunch",                                            duration:1,    category:"Break"      },
+    { time:"14:30–17:00", activity:"Emirates NBD — Work (Part 2)",                     duration:2.5,  category:"Work"       },
+    { time:"17:00–18:00", activity:"Rest / nap",                                       duration:1,    category:"Break"      },
+    { time:"18:00–19:00", activity:"Cook + dinner",                                    duration:1,    category:"Daily"      },
+    { time:"19:00–19:45", activity:"Rest / free time — no tech today",                 duration:0.75, category:"Hobby"      },
+    { time:"19:45–20:15", activity:"Wind down",                                        duration:0.5,  category:"Daily"      },
+    { time:"20:15–21:15", activity:"Light UPSC / Current Affairs (optional)",          duration:1,    category:"Learning"   },
+    { time:"21:15–22:00", activity:"Personal time / book reading",                     duration:0.75, category:"Hobby"      },
+    { time:"22:00",       activity:"Sleep",                                            duration:6,    category:"Health"     }
   ]
 };
 

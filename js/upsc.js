@@ -4,37 +4,36 @@
 // Schedule design:
 //  Track A — GS Main (Subjects 1–14): Mon–Fri, 1 class/day
 //             Light phase May–Jun'26: Mon/Wed/Fri only
-//             Full pause Jul 1 – Sep 30, 2026
 //  Track B — CSAT (Subject 17): Tue/Thu from Nov 1, 2026
 //  Track C — Sociology P1 (Subject 15): Saturdays from Oct 1, 2026
 //  Track D — Sociology P2 (Subject 16): Saturdays, after P1
 //  Track E — Essay (Subject 18): after main track + buffer
 //
-// Strategic priority for Prelims 2027:
-//  Priority subjects (1–8) targeted before May 2027 Prelims.
-//  Remaining subjects + Soc + Essay continue towards Prelims 2028.
+// Strategic priority for Prelims 2027 (Dec 2027):
+//  Priority-1 subjects targeted first (Phase 1, Jul–Dec 2026).
+//  Remaining subjects + Sociology Optional follow in Phase 2 (Jan–Apr 2027).
 // ============================================================
 
 const UPSC_SUBJECTS = [
-  // GS Spine — Prelims 2027 priority
+  // GS Spine — Phase 1 priority (start first)
   { id:  1, name: "Indian Polity",                                 classes: 39,  track: 'main',     priority: 1 },
   { id:  2, name: "Modern History & Post-Independence",            classes: 32,  track: 'main',     priority: 1 },
   { id:  3, name: "Geography",                                     classes: 39,  track: 'main',     priority: 1 },
   { id:  4, name: "Economy",                                       classes: 33,  track: 'main',     priority: 1 },
-  { id:  5, name: "Ancient & Medieval History, Art & Culture",     classes: 36,  track: 'main',     priority: 1 },
-  { id:  6, name: "Environment & Ecology",                         classes: 16,  track: 'main',     priority: 1 },
-  { id:  7, name: "Science & Technology",                          classes: 34,  track: 'main',     priority: 1 },
-  // GS Extended — Prelims 2028
+  { id:  5, name: "Ancient & Medieval History, Art & Culture",     classes: 36,  track: 'main',     priority: 2 },
+  { id:  6, name: "Environment & Ecology",                         classes: 16,  track: 'main',     priority: 2 },
+  { id:  7, name: "Science & Technology",                          classes: 34,  track: 'main',     priority: 2 },
+  // GS Extended — Phase 2 onward
   { id:  8, name: "International Relations",                       classes: 26,  track: 'main',     priority: 2 },
   { id:  9, name: "Governance",                                    classes: 11,  track: 'main',     priority: 2 },
-  { id: 10, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 2 },
+  { id: 10, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 1 },
   { id: 11, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
   { id: 12, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
   { id: 13, name: "World History",                                 classes: 12,  track: 'main',     priority: 2 },
   { id: 14, name: "Ethics, Integrity & Aptitude",                  classes: 30,  track: 'main',     priority: 2 },
   // Optional — Parallel
-  { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 1 },
-  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 1 },
+  { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 2 },
+  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 2 },
   // CSAT — Parallel from Nov 2026
   { id: 17, name: "CSAT",                                          classes: 69,  track: 'csat',     priority: 1 },
   // Essay
@@ -42,6 +41,10 @@ const UPSC_SUBJECTS = [
 ];
 
 const CA_START = '2026-10-01'; // Current Affairs daily from Oct 2026
+
+// Bump whenever _buildSchedule()'s logic/priorities change so existing users'
+// cached AppState.upscSchedule (a derived, non-user-data cache) gets rebuilt.
+const SCHEDULE_VERSION = 2;
 
 const UPSCTracker = {
 
@@ -55,9 +58,12 @@ const UPSCTracker = {
 
   initSchedule(force = false) {
     if (!Array.isArray(AppState.upscSchedule)) AppState.upscSchedule = [];
-    if (force || AppState.upscSchedule.length === 0) {
+    let stale = false;
+    try { stale = localStorage.getItem('skadi_schedule_version') !== String(SCHEDULE_VERSION); } catch (e) {}
+    if (force || AppState.upscSchedule.length === 0 || stale) {
       AppState.upscSchedule = this._buildSchedule();
       AppState.save();
+      try { localStorage.setItem('skadi_schedule_version', String(SCHEDULE_VERSION)); } catch (e) {}
     }
   },
 
@@ -67,9 +73,7 @@ const UPSCTracker = {
 
     const str = d => d.toISOString().split('T')[0];
 
-    const isPaused   = d => { const s = str(d); return s >= '2026-07-01' && s <= '2026-09-30'; };
     const isLight    = d => { const s = str(d); return s >= '2026-05-10' && s <= '2026-06-26'; };
-    const isSprint   = d => { const s = str(d); return s >= '2027-04-01' && s <= '2027-05-25'; };
 
     const push = (d, subj, classNum) => schedule.push({
       date:         str(d),
@@ -89,8 +93,6 @@ const UPSCTracker = {
     for (const subj of mainSubjects) {
       let left = subj.classes;
       while (left > 0) {
-        // Skip pause
-        while (isPaused(mainDate)) mainDate = new Date(mainDate.getTime() + DAY);
         // Skip Sunday always
         while (mainDate.getDay() === 0) mainDate = new Date(mainDate.getTime() + DAY);
         // Light phase: Mon/Wed/Fri only
@@ -98,8 +100,6 @@ const UPSCTracker = {
           mainDate = new Date(mainDate.getTime() + DAY);
           continue;
         }
-        // Sprint phase (Apr–May 2027): revision only, no new schedule entries on this track
-        // We'll still schedule but mark as sprint
         push(mainDate, subj, subj.classes - left + 1);
         left--;
         mainDate = new Date(mainDate.getTime() + DAY);
@@ -107,7 +107,7 @@ const UPSCTracker = {
       // 2-working-day buffer after each subject
       for (let i = 0; i < 2; i++) {
         mainDate = new Date(mainDate.getTime() + DAY);
-        while (mainDate.getDay() === 0 || isPaused(mainDate)) mainDate = new Date(mainDate.getTime() + DAY);
+        while (mainDate.getDay() === 0) mainDate = new Date(mainDate.getTime() + DAY);
       }
     }
 
@@ -179,7 +179,7 @@ const UPSCTracker = {
 
   // ── Prelims 2027 milestone coverage ──────────────────────
   getPrelims2027Coverage() {
-    const cutoff = '2027-05-22';
+    const cutoff = '2027-11-30';
     const p1Subjects = UPSC_SUBJECTS.filter(s => s.priority === 1 && s.track === 'main');
     let totalP1 = 0, scheduledBeforePrelims = 0;
     p1Subjects.forEach(s => {
