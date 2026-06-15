@@ -1767,7 +1767,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .domain-card.mind     { --card-color: var(--accent-violet); }
 .domain-card.growth   { --card-color: var(--accent-rose); }
 .domain-card.routine  { --card-color: var(--text-muted); }
-.domain-card.planning { --card-color: var(--accent-gold); }
+.domain-card.goals    { --card-color: var(--accent-gold); }
 
 .domain-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -3704,10 +3704,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   PLANNING TAB — Time Management Matrix + SMART Goals
+   TIME MANAGEMENT MATRIX (Today tab) + SMART GOALS (Growth tab)
    ═══════════════════════════════════════════════════════════ */
-
-.planning-layout { padding: 32px 0; }
 
 .matrix-intro {
   font-size: 13px; color: var(--text-muted); margin: -8px 0 16px; line-height: 1.6;
@@ -3715,7 +3713,9 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 .matrix-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* Cap at 2 columns (a 2x2 Eisenhower grid) but collapse to 1 when the
+     pane is too narrow for two 280px quadrants side by side. */
+  grid-template-columns: repeat(auto-fit, minmax(max(280px, (100% - 14px) / 2), 1fr));
   gap: 14px;
   margin-bottom: 8px;
 }
@@ -3726,6 +3726,12 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   border-radius: var(--radius-md); padding: 16px;
   display: flex; flex-direction: column; gap: 4px;
   min-height: 180px;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.matrix-quadrant:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
 .matrix-quadrant.q1 { --card-color: var(--accent-rose); }
@@ -3762,9 +3768,14 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   background: var(--surface); border: 1px solid var(--border);
   cursor: pointer; transition: all var(--transition);
   font-size: 13px;
+  animation: matrixItemIn 0.35s ease both;
+  animation-delay: calc(var(--i, 0) * 40ms);
 }
 
-.matrix-item:hover { border-color: var(--card-color); background: var(--card-hover); }
+.matrix-item:hover {
+  border-color: var(--card-color); background: var(--card-hover);
+  transform: translateX(2px);
+}
 
 .matrix-item-cb   { flex-shrink: 0; cursor: pointer; accent-color: var(--card-color); }
 .matrix-item-icon { flex-shrink: 0; font-size: 14px; }
@@ -3776,6 +3787,11 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 .matrix-empty {
   font-size: 12px; color: var(--text-faint); text-align: center; padding: 24px 0;
+}
+
+@keyframes matrixItemIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 /* ── SMART Goals ──────────────────────────────────────────── */
@@ -3798,9 +3814,19 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   border-radius: var(--radius-md); padding: 16px;
   display: flex; flex-direction: column; gap: 10px;
   transition: all var(--transition);
+  animation: goalCardIn 0.4s ease both;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
-.goal-card:hover { border-color: var(--border-bright); box-shadow: var(--shadow-sm); }
+.goal-card:hover {
+  border-color: var(--border-bright); box-shadow: var(--shadow-sm);
+  transform: translateY(-3px);
+}
 .goal-card.goal-complete { opacity: 0.7; }
+
+@keyframes goalCardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .goal-card.upsc    { --card-color: var(--accent-blue); }
 .goal-card.finance { --card-color: var(--accent-amber); }
@@ -3876,11 +3902,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .goal-edit-milestone-del:hover { color: var(--accent-rose); background: var(--card-hover); }
 .goal-milestone-empty { font-size: 12px; color: var(--text-faint); padding: 6px 0; }
-
-@media (max-width: 768px) {
-  .matrix-grid { grid-template-columns: 1fr; }
-  .goals-grid  { grid-template-columns: 1fr; }
-}
 
 /* ── Backup Manager ─────────────────────────────────────── */
 .backup-row {

@@ -71,7 +71,7 @@ const AppState = {
   tasksOrderedAt:       null, // ISO — updated on drag-and-drop reorder; used to pick ordering in merge
   taskBucketsOrderedAt: null, // ISO — updated on bucket drag-and-drop reorder
 
-  // ── SMART Goals (Planning tab) ───────────────────────────
+  // ── SMART Goals (Growth tab) ──────────────────────────────
   goals: [], // [{ id, title, domain, specific, measurable, achievable, relevant,
               //    timebound, targetDate, progress, status, milestones, createdAt, modifiedAt }]
 

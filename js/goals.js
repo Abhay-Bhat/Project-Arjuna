@@ -1,5 +1,5 @@
 // ============================================================
-// Skadi — SMART Goals Tracker (Planning tab)
+// Skadi — SMART Goals Tracker (Growth tab)
 // Specific / Measurable / Achievable / Relevant / Time-bound
 // goals, with optional milestone checklists driving progress.
 // ============================================================
@@ -35,7 +35,7 @@ const GoalsTracker = {
 
     const goals = this._goals();
     grid.innerHTML = goals.length
-      ? goals.map(g => this._goalCardHTML(g)).join('')
+      ? goals.map((g, i) => this._goalCardHTML(g, i)).join('')
       : `<div class="goals-empty">No goals yet — click "+ New Goal" to set your first SMART goal.</div>`;
 
     this._bindCardEvents();
@@ -82,7 +82,7 @@ const GoalsTracker = {
   },
 
   // ── Card rendering ────────────────────────────────────────
-  _goalCardHTML(g) {
+  _goalCardHTML(g, idx = 0) {
     const dm  = this._domainMeta(g.domain);
     const pct = this._progress(g);
     const linked = g.domain === 'upsc' && !(g.milestones && g.milestones.length);
@@ -108,7 +108,7 @@ const GoalsTracker = {
       </div>` : '';
 
     return `
-      <div class="goal-card ${dm.cls}${pct >= 100 ? ' goal-complete' : ''}" data-gid="${g.id}">
+      <div class="goal-card ${dm.cls}${pct >= 100 ? ' goal-complete' : ''}" style="--i:${idx}" data-gid="${g.id}">
         <div class="goal-card-header">
           <span class="goal-domain-badge">${dm.icon} ${dm.label}</span>
           <div class="goal-card-actions">

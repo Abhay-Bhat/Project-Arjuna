@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css?v=61">
+    <link rel="stylesheet" href="css/styles.css?v=62">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -200,13 +200,6 @@
           <span class="nav-label">Tasks</span>
         </button>
 
-        <button class="nav-item tab-btn" data-tab="planning" title="Planning">
-          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
-          </svg>
-          <span class="nav-label">Planning</span>
-        </button>
-
       </nav>
     </aside><!-- /.app-sidebar -->
 
@@ -338,6 +331,44 @@
               <div class="day-indicator" id="dayIndicator"></div>
             </div>
             <div id="scheduleContainer"></div>
+          </div>
+
+          <!-- ── Time Management Matrix (Eisenhower) ── -->
+          <div class="section-title">🧭 Time Management Matrix</div>
+          <p class="matrix-intro">Auto-sorted from your Tasks, today's Routine, and upcoming Milestones — Eisenhower-style. Check items off here and they update everywhere else too.</p>
+          <div class="matrix-grid">
+            <div class="matrix-quadrant q1">
+              <div class="matrix-quadrant-header">
+                <span class="matrix-quadrant-title">🔥 Do First</span>
+                <span class="matrix-count" id="matrixCount1">0</span>
+              </div>
+              <div class="matrix-quadrant-sub">Urgent &amp; Important</div>
+              <div class="matrix-item-list" id="matrixQ1"></div>
+            </div>
+            <div class="matrix-quadrant q2">
+              <div class="matrix-quadrant-header">
+                <span class="matrix-quadrant-title">📅 Schedule</span>
+                <span class="matrix-count" id="matrixCount2">0</span>
+              </div>
+              <div class="matrix-quadrant-sub">Important, Not Urgent</div>
+              <div class="matrix-item-list" id="matrixQ2"></div>
+            </div>
+            <div class="matrix-quadrant q3">
+              <div class="matrix-quadrant-header">
+                <span class="matrix-quadrant-title">⚡ Quick Wins</span>
+                <span class="matrix-count" id="matrixCount3">0</span>
+              </div>
+              <div class="matrix-quadrant-sub">Urgent, Not Important</div>
+              <div class="matrix-item-list" id="matrixQ3"></div>
+            </div>
+            <div class="matrix-quadrant q4">
+              <div class="matrix-quadrant-header">
+                <span class="matrix-quadrant-title">🌙 Eliminate</span>
+                <span class="matrix-count" id="matrixCount4">0</span>
+              </div>
+              <div class="matrix-quadrant-sub">Neither</div>
+              <div class="matrix-item-list" id="matrixQ4"></div>
+            </div>
           </div>
 
         </div><!-- end pane-main -->
@@ -1777,7 +1808,14 @@
         <!-- ── MAIN: Books, Reviews, Summary charts ── -->
         <div class="pane-main">
 
-          <div class="section-title" style="margin-top:0;">DevOps Career Elevation — Semester Tracker</div>
+          <!-- ── SMART Goals ── -->
+          <div class="goals-section-header">
+            <div class="section-title" style="margin-top:0;">🎯 SMART Goals</div>
+            <button class="btn btn-sm btn-primary" id="goalAddBtn">+ New Goal</button>
+          </div>
+          <div class="goals-grid" id="goalsGrid"></div>
+
+          <div class="section-title">DevOps Career Elevation — Semester Tracker</div>
           <div id="techPlanContainer"></div>
 
           <div class="section-title">Books Queue</div>
@@ -1863,57 +1901,6 @@
 
       </div>
     </div><!-- end TASKS TAB -->
-
-    <!-- ═ PLANNING TAB ═══════════════════════════════════════ -->
-    <div id="tab-planning" class="tab-panel">
-      <div class="planning-layout">
-
-        <div class="section-title">🧭 Time Management Matrix</div>
-        <p class="matrix-intro">Auto-sorted from your Tasks, today's Routine, and upcoming Milestones — Eisenhower-style. Check items off here and they update everywhere else too.</p>
-        <div class="matrix-grid">
-          <div class="matrix-quadrant q1">
-            <div class="matrix-quadrant-header">
-              <span class="matrix-quadrant-title">🔥 Do First</span>
-              <span class="matrix-count" id="matrixCount1">0</span>
-            </div>
-            <div class="matrix-quadrant-sub">Urgent &amp; Important</div>
-            <div class="matrix-item-list" id="matrixQ1"></div>
-          </div>
-          <div class="matrix-quadrant q2">
-            <div class="matrix-quadrant-header">
-              <span class="matrix-quadrant-title">📅 Schedule</span>
-              <span class="matrix-count" id="matrixCount2">0</span>
-            </div>
-            <div class="matrix-quadrant-sub">Important, Not Urgent</div>
-            <div class="matrix-item-list" id="matrixQ2"></div>
-          </div>
-          <div class="matrix-quadrant q3">
-            <div class="matrix-quadrant-header">
-              <span class="matrix-quadrant-title">⚡ Quick Wins</span>
-              <span class="matrix-count" id="matrixCount3">0</span>
-            </div>
-            <div class="matrix-quadrant-sub">Urgent, Not Important</div>
-            <div class="matrix-item-list" id="matrixQ3"></div>
-          </div>
-          <div class="matrix-quadrant q4">
-            <div class="matrix-quadrant-header">
-              <span class="matrix-quadrant-title">🌙 Eliminate</span>
-              <span class="matrix-count" id="matrixCount4">0</span>
-            </div>
-            <div class="matrix-quadrant-sub">Neither</div>
-            <div class="matrix-item-list" id="matrixQ4"></div>
-          </div>
-        </div>
-
-        <div class="goals-section-header">
-          <div class="section-title">🎯 SMART Goals</div>
-          <button class="btn btn-sm btn-primary" id="goalAddBtn">+ New Goal</button>
-        </div>
-        <div class="goals-grid" id="goalsGrid"></div>
-
-      </div>
-    </div><!-- end PLANNING TAB -->
-
 
     </main>
 
@@ -2395,7 +2382,7 @@
 <script defer src="js/sync.js?v=42"></script>
 <script defer src="js/phases.js?v=40"></script>
 <script defer src="js/storage.js?v=39"></script>
-<script defer src="js/state.js?v=53"></script>
+<script defer src="js/state.js?v=54"></script>
 <script defer src="js/scheduler.js?v=41"></script>
 <script defer src="js/upsc.js?v=57"></script>
 <script defer src="js/finance.js?v=40"></script>
@@ -2403,15 +2390,15 @@
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/growth.js?v=57"></script>
 <script defer src="js/tasks.js?v=60"></script>
-<script defer src="js/matrix.js?v=2"></script>
-<script defer src="js/goals.js?v=1"></script>
+<script defer src="js/matrix.js?v=3"></script>
+<script defer src="js/goals.js?v=2"></script>
 <script defer src="js/study.js?v=52"></script>
 <script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/tech-study.js?v=2"></script>
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=55"></script>
-<script defer src="js/ui.js?v=64"></script>
+<script defer src="js/ui.js?v=65"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>
