@@ -330,14 +330,7 @@ const UI = {
       case 'health':   this._renderHealth();  break;
       case 'growth':   this._renderGrowth();  break;
       case 'tasks':    this._renderTasks();   break;
-      case 'planning': this._renderPlanning(); break;
     }
-  },
-
-  // ── PLANNING tab (Time Management Matrix + SMART Goals) ──
-  _renderPlanning() {
-    if (typeof TimeMatrix   !== 'undefined') TimeMatrix.render();
-    if (typeof GoalsTracker !== 'undefined') GoalsTracker.render();
   },
 
   // ── TODAY tab ────────────────────────────────────────────
@@ -352,6 +345,7 @@ const UI = {
     this._renderCalendarNav();
     this._renderHolidayToggle();
     this._renderTasksDueBanner();
+    if (typeof TimeMatrix !== 'undefined') TimeMatrix.render();
     if (typeof StudyTracker !== 'undefined') StudyTracker.render();
     if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
@@ -468,8 +462,7 @@ const UI = {
     const routine = AppState.dailyHistory[selectedKey];
     const routinePct = routine ? Math.round((routine.completed / routine.total) * 100) : 0;
 
-    const planningUrgent = typeof TimeMatrix !== 'undefined' ? TimeMatrix.categorize()[1].length : 0;
-    const planningPct    = typeof GoalsTracker !== 'undefined' ? GoalsTracker._avgProgress() : 0;
+    const goalsPct = typeof GoalsTracker !== 'undefined' ? GoalsTracker._avgProgress() : 0;
 
     const domains = [
       { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
@@ -477,11 +470,11 @@ const UI = {
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
       { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
       { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' },
-      { id: 'planning', emoji: '🧭', name: 'Planning', metric: `${planningUrgent}`,       label: 'need attention', pct: planningPct, status: planningUrgent === 0 ? 'Clear' : 'Focus', tip: 'Click to open Planning tab — Time Management Matrix & SMART Goals' }
+      { id: 'goals',   emoji: '🎯', name: 'Goals',   metric: `${goalsPct}%`,             label: 'avg progress', pct: goalsPct,   status: goalsPct >= 50 ? 'On Track' : 'Early Days', tip: 'Click to open Growth tab — SMART Goals progress' }
     ];
 
     grid.innerHTML = domains.map(d => `
-      <div class="domain-card ${d.id}" data-tab="${d.id === 'routine' ? 'today' : d.id}">
+      <div class="domain-card ${d.id}" data-tab="${d.id === 'routine' ? 'today' : d.id === 'goals' ? 'growth' : d.id}">
         <div class="domain-header">
           <span class="domain-emoji">${d.emoji}</span>
           <span class="domain-name">${d.name}</span>
@@ -1015,6 +1008,7 @@ const UI = {
 
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
+    if (typeof GoalsTracker !== 'undefined') GoalsTracker.render();
     GrowthTracker.render();
   },
 

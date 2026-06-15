@@ -71,7 +71,8 @@ const TimeMatrix = {
           meta: item.time,
           quadrant: this._quadrantFor(important, urgent),
           action: { type: 'routine', key: `${dateKey}-${i}` },
-          nav: 'today'
+          nav: 'today',
+          scrollTo: 'scheduleContainer'
         };
       });
   },
@@ -91,7 +92,8 @@ const TimeMatrix = {
           meta: daysUntil === 0 ? 'Today' : `${daysUntil}d`,
           quadrant: this._quadrantFor(true, urgent),
           action: null,
-          nav: 'today'
+          nav: 'today',
+          scrollTo: 'phaseHero'
         };
       })
       .filter(Boolean);
@@ -118,8 +120,8 @@ const TimeMatrix = {
       if (count) count.textContent = items.length;
 
       list.innerHTML = items.length
-        ? items.map(it => `
-          <div class="matrix-item" data-source="${it.source}" data-nav="${it.nav}">
+        ? items.map((it, idx) => `
+          <div class="matrix-item" style="--i:${idx}" data-source="${it.source}" data-nav="${it.nav}" data-scroll-to="${it.scrollTo || ''}">
             ${it.action
               ? `<input type="checkbox" class="matrix-item-cb" data-action='${esc(JSON.stringify(it.action))}' title="Mark done">`
               : `<span class="matrix-item-icon">${this.SOURCE_ICONS[it.source]}</span>`}
@@ -145,7 +147,14 @@ const TimeMatrix = {
     document.querySelectorAll('.matrix-item').forEach(el => {
       el.addEventListener('click', (e) => {
         if (e.target.classList.contains('matrix-item-cb')) return;
-        UI._navigateToTab(el.dataset.nav);
+        const { nav, scrollTo } = el.dataset;
+        // Matrix lives on the Today tab — if the target is the current
+        // tab, just smooth-scroll to it instead of re-rendering in place.
+        if (nav === AppState.currentTab && scrollTo) {
+          document.getElementById(scrollTo)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          UI._navigateToTab(nav, scrollTo);
+        }
       });
     });
   },
