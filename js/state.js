@@ -71,6 +71,10 @@ const AppState = {
   tasksOrderedAt:       null, // ISO — updated on drag-and-drop reorder; used to pick ordering in merge
   taskBucketsOrderedAt: null, // ISO — updated on bucket drag-and-drop reorder
 
+  // ── SMART Goals (Planning tab) ───────────────────────────
+  goals: [], // [{ id, title, domain, specific, measurable, achievable, relevant,
+              //    timebound, targetDate, progress, status, milestones, createdAt, modifiedAt }]
+
   // ── Study Log ────────────────────────────────────────────
   studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
   studySubjects:   null, // null = use defaults; array = user-customized list
@@ -178,6 +182,7 @@ const AppState = {
       this.tasks                = pick('tasks',           []);
       this.tasksOrderedAt       = d.tasksOrderedAt       ?? null;
       this.taskBucketsOrderedAt = d.taskBucketsOrderedAt ?? null;
+      this.goals                = pick('goals',           []);
       this.studyLog             = pick('studyLog',        []);
       this.studySubjects        = d.studySubjects  ?? null;
       this.studyActivities      = d.studyActivities ?? null;
@@ -248,6 +253,7 @@ const AppState = {
       tasks:                this.tasks,
       tasksOrderedAt:       this.tasksOrderedAt,
       taskBucketsOrderedAt: this.taskBucketsOrderedAt,
+      goals:                this.goals,
       studyLog:        this.studyLog,
       studySubjects:   this.studySubjects,
       studyActivities: this.studyActivities,
@@ -381,6 +387,7 @@ const AppState = {
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),
+      goals:           _byId(local.goals,            cloudData.goals),
       // Arrays without id
       cholesterol: _byDate(local.cholesterol,     cloudData.cholesterol),
       pastimeLog:  _byDateType(local.pastimeLog || local.nofapLog, cloudData.pastimeLog || cloudData.nofapLog),

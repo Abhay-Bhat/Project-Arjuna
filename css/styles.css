@@ -1761,12 +1761,13 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* Any other child (e.g. injected info icons) must NOT become grid items */
 .domains-grid > :not(.domain-card) { display: none !important; }
 
-.domain-card.upsc    { --card-color: var(--accent-blue); }
-.domain-card.finance { --card-color: var(--accent-amber); }
-.domain-card.health  { --card-color: var(--accent-teal); }
-.domain-card.mind    { --card-color: var(--accent-violet); }
-.domain-card.growth  { --card-color: var(--accent-rose); }
-.domain-card.routine { --card-color: var(--text-muted); }
+.domain-card.upsc     { --card-color: var(--accent-blue); }
+.domain-card.finance  { --card-color: var(--accent-amber); }
+.domain-card.health   { --card-color: var(--accent-teal); }
+.domain-card.mind     { --card-color: var(--accent-violet); }
+.domain-card.growth   { --card-color: var(--accent-rose); }
+.domain-card.routine  { --card-color: var(--text-muted); }
+.domain-card.planning { --card-color: var(--accent-gold); }
 
 .domain-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -2996,7 +2997,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .fin-modal-box {
   background: var(--card); border: 1px solid var(--border-bright);
   border-radius: var(--radius-lg); padding: 26px 30px;
-  width: 90%; max-width: 430px; box-shadow: var(--shadow-lg);
+  width: 90%; max-width: 430px; max-height: 90vh; overflow-y: auto;
+  box-shadow: var(--shadow-lg);
   animation: fadeIn 0.18s ease;
 }
 .fin-modal-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
@@ -3699,6 +3701,185 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .task-bucket { flex: 0 0 240px; }
   .tasks-layout { grid-template-columns: 1fr; }
   .tasks-left-pane { position: static; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PLANNING TAB — Time Management Matrix + SMART Goals
+   ═══════════════════════════════════════════════════════════ */
+
+.planning-layout { padding: 32px 0; }
+
+.matrix-intro {
+  font-size: 13px; color: var(--text-muted); margin: -8px 0 16px; line-height: 1.6;
+}
+
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.matrix-quadrant {
+  background: var(--card); border: 1px solid var(--border);
+  border-top: 3px solid var(--card-color);
+  border-radius: var(--radius-md); padding: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 180px;
+}
+
+.matrix-quadrant.q1 { --card-color: var(--accent-rose); }
+.matrix-quadrant.q2 { --card-color: var(--accent-blue); }
+.matrix-quadrant.q3 { --card-color: var(--accent-amber); }
+.matrix-quadrant.q4 { --card-color: var(--accent-teal); }
+
+.matrix-quadrant-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.matrix-quadrant-title { font-size: 14px; font-weight: 700; color: var(--text); }
+
+.matrix-quadrant-sub {
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.matrix-count {
+  font-size: 12px; font-weight: 700; color: var(--card-color);
+  background: color-mix(in srgb, var(--card-color) 16%, transparent);
+  border-radius: 10px; padding: 2px 9px; min-width: 22px; text-align: center;
+}
+
+.matrix-item-list {
+  display: flex; flex-direction: column; gap: 6px;
+  max-height: 220px; overflow-y: auto;
+}
+
+.matrix-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px; border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--transition);
+  font-size: 13px;
+}
+
+.matrix-item:hover { border-color: var(--card-color); background: var(--card-hover); }
+
+.matrix-item-cb   { flex-shrink: 0; cursor: pointer; accent-color: var(--card-color); }
+.matrix-item-icon { flex-shrink: 0; font-size: 14px; }
+.matrix-item-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.matrix-item-meta {
+  flex-shrink: 0; font-size: 10px; color: var(--text-muted);
+  background: var(--card); border-radius: 8px; padding: 2px 7px;
+}
+
+.matrix-empty {
+  font-size: 12px; color: var(--text-faint); text-align: center; padding: 24px 0;
+}
+
+/* ── SMART Goals ──────────────────────────────────────────── */
+
+.goals-section-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.goals-section-header .section-title { flex: 1; margin-bottom: 0; }
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.goal-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 3px solid var(--card-color);
+  border-radius: var(--radius-md); padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: all var(--transition);
+}
+.goal-card:hover { border-color: var(--border-bright); box-shadow: var(--shadow-sm); }
+.goal-card.goal-complete { opacity: 0.7; }
+
+.goal-card.upsc    { --card-color: var(--accent-blue); }
+.goal-card.finance { --card-color: var(--accent-amber); }
+.goal-card.health  { --card-color: var(--accent-teal); }
+.goal-card.mind    { --card-color: var(--accent-violet); }
+.goal-card.growth  { --card-color: var(--accent-rose); }
+
+.goal-card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.goal-domain-badge {
+  font-size: 11px; font-weight: 700; color: var(--card-color);
+  background: color-mix(in srgb, var(--card-color) 16%, transparent);
+  border-radius: 10px; padding: 3px 10px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.goal-card-actions { display: flex; gap: 4px; }
+.goal-card-actions button {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 14px; padding: 2px 4px; border-radius: 4px;
+  opacity: 0.6; transition: opacity var(--transition);
+}
+.goal-card-actions button:hover { opacity: 1; background: var(--card-hover); }
+
+.goal-title { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.4; }
+
+.goal-progress-bar  { height: 6px; border-radius: 4px; background: var(--surface); overflow: hidden; }
+.goal-progress-fill { height: 100%; background: var(--card-color); border-radius: 4px; transition: width 0.3s ease; }
+
+.goal-progress-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--text-muted);
+}
+
+.goal-due { font-weight: 600; }
+.goal-due.goal-overdue { color: var(--accent-rose); }
+
+.goal-smart { font-size: 12px; }
+.goal-smart summary { cursor: pointer; color: var(--text-muted); font-weight: 600; user-select: none; }
+.goal-smart-row {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.goal-smart-row:last-child { border-bottom: none; }
+.goal-smart-label {
+  font-size: 10px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.goal-smart-value { font-size: 12px; color: var(--text); line-height: 1.5; }
+
+.goal-milestones { display: flex; flex-direction: column; gap: 4px; }
+.goal-milestone-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--text); cursor: pointer;
+}
+.goal-milestone-done { text-decoration: line-through; color: var(--text-muted); }
+
+.goals-empty {
+  font-size: 13px; color: var(--text-faint); text-align: center;
+  padding: 32px 0; grid-column: 1/-1;
+}
+
+/* ── Goal editor modal: milestone list ──────────────────────── */
+.goal-milestone-edit-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.goal-milestone-edit-row:last-child { border-bottom: none; }
+.goal-edit-milestone-del {
+  background: transparent; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 13px; padding: 2px 6px;
+  border-radius: 4px; transition: all var(--transition);
+}
+.goal-edit-milestone-del:hover { color: var(--accent-rose); background: var(--card-hover); }
+.goal-milestone-empty { font-size: 12px; color: var(--text-faint); padding: 6px 0; }
+
+@media (max-width: 768px) {
+  .matrix-grid { grid-template-columns: 1fr; }
+  .goals-grid  { grid-template-columns: 1fr; }
 }
 
 /* ── Backup Manager ─────────────────────────────────────── */
