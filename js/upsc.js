@@ -3,15 +3,15 @@
 //
 // Schedule design:
 //  Track A — GS Main (Subjects 1–14): Mon–Fri, 1 class/day
-//             Light phase May–Jun'26: Mon/Wed/Fri only
-//  Track B — CSAT (Subject 17): Tue/Thu from Nov 1, 2026
-//  Track C — Sociology P1 (Subject 15): Saturdays from Oct 1, 2026
+//             Light phase Jun–Aug'26: Mon/Wed/Fri only
+//  Track B — CSAT (Subject 17): Tue/Thu from Dec 19, 2026
+//  Track C — Sociology P1 (Subject 15): Saturdays from Nov 20, 2026
 //  Track D — Sociology P2 (Subject 16): Saturdays, after P1
 //  Track E — Essay (Subject 18): after main track + buffer
 //
-// Strategic priority for Prelims 2027 (Dec 2027):
-//  Priority-1 subjects targeted first (Phase 1, Jul–Dec 2026).
-//  Remaining subjects + Sociology Optional follow in Phase 2 (Jan–Apr 2027).
+// Strategic priority for Prelims 2027 (early 2028):
+//  Priority-1 subjects targeted first (Phase 1, Aug 2026–Feb 2027).
+//  Remaining subjects + Sociology Optional follow in Phase 2 (Feb–Jun 2027).
 // ============================================================
 
 const UPSC_SUBJECTS = [
@@ -40,11 +40,15 @@ const UPSC_SUBJECTS = [
   { id: 18, name: "Essay",                                         classes:  5,  track: 'essay',    priority: 2 }
 ];
 
-const CA_START = '2026-10-01'; // Current Affairs daily from Oct 2026
+const CA_START = '2026-11-18'; // Current Affairs daily from Nov 2026
 
 // Bump whenever _buildSchedule()'s logic/priorities change so existing users'
 // cached AppState.upscSchedule (a derived, non-user-data cache) gets rebuilt.
-const SCHEDULE_VERSION = 2;
+const SCHEDULE_VERSION = 3;
+
+// Bump to force a one-time reset of AppState.upscSubjectProgress (e.g. after
+// a UPSC timeline restart) for existing users — mirrors SCHEDULE_VERSION.
+const PROGRESS_RESET_VERSION = 1;
 
 const UPSCTracker = {
 
@@ -65,6 +69,18 @@ const UPSCTracker = {
       AppState.save();
       try { localStorage.setItem('skadi_schedule_version', String(SCHEDULE_VERSION)); } catch (e) {}
     }
+    this._resetProgressIfStale();
+  },
+
+  _resetProgressIfStale() {
+    let stale = false;
+    try { stale = localStorage.getItem('skadi_progress_reset_version') !== String(PROGRESS_RESET_VERSION); } catch (e) {}
+    if (!stale) return;
+    AppState.upscSubjectProgress = {};
+    AppState.upscProgress = 0;
+    AppState.upscSubjectProgressUpdatedAt = new Date().toISOString();
+    AppState.save();
+    try { localStorage.setItem('skadi_progress_reset_version', String(PROGRESS_RESET_VERSION)); } catch (e) {}
   },
 
   _buildSchedule() {
@@ -73,7 +89,7 @@ const UPSCTracker = {
 
     const str = d => d.toISOString().split('T')[0];
 
-    const isLight    = d => { const s = str(d); return s >= '2026-05-10' && s <= '2026-06-26'; };
+    const isLight    = d => { const s = str(d); return s >= '2026-06-27' && s <= '2026-08-13'; };
 
     const push = (d, subj, classNum) => schedule.push({
       date:         str(d),
@@ -88,7 +104,7 @@ const UPSCTracker = {
 
     // ── TRACK A: GS Main (subjects 1–14) ──────────────────
     const mainSubjects = UPSC_SUBJECTS.filter(s => s.track === 'main');
-    let mainDate = new Date('2026-05-11'); // First Mon in light phase
+    let mainDate = new Date('2026-06-28'); // First Mon in light phase
 
     for (const subj of mainSubjects) {
       let left = subj.classes;
@@ -113,7 +129,7 @@ const UPSCTracker = {
 
     // ── TRACK B: CSAT — Tue & Thu from Nov 1, 2026 ────────
     const csat = UPSC_SUBJECTS.find(s => s.id === 17);
-    let csatDate = new Date('2026-11-01');
+    let csatDate = new Date('2026-12-19');
     // Advance to first Tuesday
     while (csatDate.getDay() !== 2) csatDate = new Date(csatDate.getTime() + DAY);
     let csatLeft = csat.classes;
@@ -126,7 +142,7 @@ const UPSCTracker = {
 
     // ── TRACK C: Sociology P1 — Saturdays from Oct 4, 2026 ─
     const socP1 = UPSC_SUBJECTS.find(s => s.id === 15);
-    let socDate = new Date('2026-10-03');
+    let socDate = new Date('2026-11-20');
     while (socDate.getDay() !== 6) socDate = new Date(socDate.getTime() + DAY);
     let socLeft = socP1.classes;
     while (socLeft > 0) {
@@ -179,7 +195,7 @@ const UPSCTracker = {
 
   // ── Prelims 2027 milestone coverage ──────────────────────
   getPrelims2027Coverage() {
-    const cutoff = '2027-11-30';
+    const cutoff = '2028-01-17';
     const p1Subjects = UPSC_SUBJECTS.filter(s => s.priority === 1 && s.track === 'main');
     let totalP1 = 0, scheduledBeforePrelims = 0;
     p1Subjects.forEach(s => {

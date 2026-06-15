@@ -9,8 +9,8 @@ const PHASES = [
     id: 'notice',
     name: 'Phase 0 — Notice & Decision',
     emoji: '🏁',
-    start: '2026-05-10',
-    end: '2026-06-26',
+    start: '2026-06-27',
+    end: '2026-08-13',
     color: '#ffb230',
     description: 'Exit Bangalore job by Jun 26. Decide India vs Dubai by Jun 21. Light UPSC reading begins.',
     scheduleBase: 'notice'
@@ -19,8 +19,8 @@ const PHASES = [
     id: 'phase1',
     name: 'Phase 1 — Foundation Build',
     emoji: '🏗️',
-    start: '2026-06-27',
-    end: '2026-12-31',
+    start: '2026-08-14',
+    end: '2027-02-17',
     color: '#4d79ff',
     description: '60% of UPSC syllabus (210 GS + 30 Sociology classes). Docker → K8s → AWS tech build. Establish 5 habit stacks.',
     scheduleBase: 'foundation'
@@ -29,8 +29,8 @@ const PHASES = [
     id: 'phase2',
     name: 'Phase 2 — Depth & Breadth',
     emoji: '📚',
-    start: '2027-01-01',
-    end: '2027-04-30',
+    start: '2027-02-18',
+    end: '2027-06-17',
     color: '#7b42bc',
     description: 'Remaining 40% syllabus + Sociology Optional. Answer writing 2–3 hrs/week. AWS + CI/CD & GitOps tech.',
     scheduleBase: 'foundation'
@@ -39,8 +39,8 @@ const PHASES = [
     id: 'phase3',
     name: 'Phase 3 — Mock & Consolidation',
     emoji: '🎯',
-    start: '2027-05-01',
-    end: '2027-06-30',
+    start: '2027-06-18',
+    end: '2027-08-17',
     color: '#00d4c8',
     description: '4–6 full Prelims mocks. Weak-area analysis. Tech: maintenance only.',
     scheduleBase: 'sprint'
@@ -49,8 +49,8 @@ const PHASES = [
     id: 'phase4',
     name: 'Phase 4 — Intensive Prep & Mains',
     emoji: '📜',
-    start: '2027-07-01',
-    end: '2028-03-31',
+    start: '2027-08-18',
+    end: '2028-05-18',
     color: '#a56eff',
     description: 'Target: Prelims Dec 2027. If cleared → Mains prep from Apr 2028. 4–5 hrs/day UPSC. Tech paused.',
     scheduleBase: 'india'
@@ -59,8 +59,8 @@ const PHASES = [
     id: 'phase5',
     name: 'Phase 5 — Mains Execution',
     emoji: '⚡',
-    start: '2028-04-01',
-    end: '2028-06-30',
+    start: '2028-05-19',
+    end: '2028-08-17',
     color: '#ff5c80',
     description: 'Mains written exam Apr 2028. Interview (Personality Test) prep May–Jun 2028.',
     scheduleBase: 'india'
@@ -85,20 +85,24 @@ const MILESTONES = [
   { label: 'Habit Stacks Rolled Out',       date: '2026-08-24', done: false },
   { label: 'Book Return Flight',            date: '2026-10-15', done: false },
   { label: 'Home Visit — Christmas',        date: '2026-12-20', done: false },
-  { label: 'Foundation Build Complete (60% Syllabus)', date: '2026-12-31', done: false },
-  { label: 'Depth & Breadth Complete (100% Syllabus)', date: '2027-04-30', done: false },
-  { label: 'Apply — UPSC Prelims 2027',     date: '2027-07-01', done: false },
-  { label: 'Prelims Mocks Complete',        date: '2027-06-30', done: false },
+  { label: 'Foundation Build Complete (60% Syllabus)', date: '2027-02-17', done: false },
+  { label: 'Depth & Breadth Complete (100% Syllabus)', date: '2027-06-17', done: false },
+  { label: 'Apply — UPSC Prelims 2027',     date: '2027-08-18', done: false },
+  { label: 'Prelims Mocks Complete',        date: '2027-08-17', done: false },
   { label: 'Give Dubai Notice',             date: '2027-06-01', done: false },
   { label: 'Return to India',               date: '2027-07-01', done: false },
-  { label: 'Prelims 2027',                  date: '2027-12-05', done: false },
-  { label: 'Mains 2028 — Written Exam',     date: '2028-04-10', done: false }
+  { label: 'Prelims 2027',                  date: '2028-01-22', done: false },
+  { label: 'Mains 2028 — Written Exam',     date: '2028-05-28', done: false }
 ];
 
 const PhaseManager = {
   getPhase(date = new Date()) {
     const s = this._toStr(date);
-    return PHASES.find(p => s >= p.start && s <= p.end) || PHASES[PHASES.length - 1];
+    const found = PHASES.find(p => s >= p.start && s <= p.end);
+    if (found) return found;
+    // Before Phase 0 starts (e.g. the gap left by a UPSC timeline restart),
+    // treat it as Phase 0 rather than falling through to the last phase.
+    return s < PHASES[0].start ? PHASES[0] : PHASES[PHASES.length - 1];
   },
 
   // Reads the Phase 0 decision (India vs Dubai) — defaults to 'india' until changed.
@@ -127,12 +131,12 @@ const PhaseManager = {
 
   isLightUPSC(date = new Date()) {
     const s = this._toStr(date);
-    return s >= '2026-05-10' && s <= '2026-06-26';
+    return s >= '2026-06-27' && s <= '2026-08-13';
   },
 
   isPrelimsRevision(date = new Date()) {
     const s = this._toStr(date);
-    return s >= '2027-10-01' && s <= '2027-11-30';
+    return s >= '2027-11-18' && s <= '2028-01-17';
   },
 
   getScheduleKey(date = new Date()) {

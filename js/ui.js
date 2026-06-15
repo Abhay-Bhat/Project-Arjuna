@@ -892,9 +892,9 @@ const UI = {
 
     const getDateRange = (subj) => {
       if (subj.priority === 1) {
-        return 'Jul 2026 — Dec 2026';
+        return 'Aug 2026 — Feb 2027';
       } else {
-        return 'Jan 2027 — Apr 2027';
+        return 'Feb 2027 — Jun 2027';
       }
     };
 
