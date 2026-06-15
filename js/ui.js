@@ -330,7 +330,14 @@ const UI = {
       case 'health':   this._renderHealth();  break;
       case 'growth':   this._renderGrowth();  break;
       case 'tasks':    this._renderTasks();   break;
+      case 'planning': this._renderPlanning(); break;
     }
+  },
+
+  // ── PLANNING tab (Time Management Matrix + SMART Goals) ──
+  _renderPlanning() {
+    if (typeof TimeMatrix   !== 'undefined') TimeMatrix.render();
+    if (typeof GoalsTracker !== 'undefined') GoalsTracker.render();
   },
 
   // ── TODAY tab ────────────────────────────────────────────
@@ -461,12 +468,16 @@ const UI = {
     const routine = AppState.dailyHistory[selectedKey];
     const routinePct = routine ? Math.round((routine.completed / routine.total) * 100) : 0;
 
+    const planningUrgent = typeof TimeMatrix !== 'undefined' ? TimeMatrix.categorize()[1].length : 0;
+    const planningPct    = typeof GoalsTracker !== 'undefined' ? GoalsTracker._avgProgress() : 0;
+
     const domains = [
       { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
       { id: 'finance', emoji: '💰', name: 'Finance', metric: `${financeAED.toLocaleString('en-IN')}`, label: 'AED saved', pct: financePct, status: financePct >= 80 ? 'On Track' : 'Behind',  tip: 'Click to open Finance tab — savings, investments, currency converter' },
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
       { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
-      { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' }
+      { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' },
+      { id: 'planning', emoji: '🧭', name: 'Planning', metric: `${planningUrgent}`,       label: 'need attention', pct: planningPct, status: planningUrgent === 0 ? 'Clear' : 'Focus', tip: 'Click to open Planning tab — Time Management Matrix & SMART Goals' }
     ];
 
     grid.innerHTML = domains.map(d => `

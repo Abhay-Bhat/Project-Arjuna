@@ -25,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css?v=60">
+    <link rel="stylesheet" href="css/styles.css?v=61">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -200,6 +200,12 @@
           <span class="nav-label">Tasks</span>
         </button>
 
+        <button class="nav-item tab-btn" data-tab="planning" title="Planning">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+          </svg>
+          <span class="nav-label">Planning</span>
+        </button>
 
       </nav>
     </aside><!-- /.app-sidebar -->
@@ -1858,6 +1864,56 @@
       </div>
     </div><!-- end TASKS TAB -->
 
+    <!-- ═ PLANNING TAB ═══════════════════════════════════════ -->
+    <div id="tab-planning" class="tab-panel">
+      <div class="planning-layout">
+
+        <div class="section-title">🧭 Time Management Matrix</div>
+        <p class="matrix-intro">Auto-sorted from your Tasks, today's Routine, and upcoming Milestones — Eisenhower-style. Check items off here and they update everywhere else too.</p>
+        <div class="matrix-grid">
+          <div class="matrix-quadrant q1">
+            <div class="matrix-quadrant-header">
+              <span class="matrix-quadrant-title">🔥 Do First</span>
+              <span class="matrix-count" id="matrixCount1">0</span>
+            </div>
+            <div class="matrix-quadrant-sub">Urgent &amp; Important</div>
+            <div class="matrix-item-list" id="matrixQ1"></div>
+          </div>
+          <div class="matrix-quadrant q2">
+            <div class="matrix-quadrant-header">
+              <span class="matrix-quadrant-title">📅 Schedule</span>
+              <span class="matrix-count" id="matrixCount2">0</span>
+            </div>
+            <div class="matrix-quadrant-sub">Important, Not Urgent</div>
+            <div class="matrix-item-list" id="matrixQ2"></div>
+          </div>
+          <div class="matrix-quadrant q3">
+            <div class="matrix-quadrant-header">
+              <span class="matrix-quadrant-title">⚡ Quick Wins</span>
+              <span class="matrix-count" id="matrixCount3">0</span>
+            </div>
+            <div class="matrix-quadrant-sub">Urgent, Not Important</div>
+            <div class="matrix-item-list" id="matrixQ3"></div>
+          </div>
+          <div class="matrix-quadrant q4">
+            <div class="matrix-quadrant-header">
+              <span class="matrix-quadrant-title">🌙 Eliminate</span>
+              <span class="matrix-count" id="matrixCount4">0</span>
+            </div>
+            <div class="matrix-quadrant-sub">Neither</div>
+            <div class="matrix-item-list" id="matrixQ4"></div>
+          </div>
+        </div>
+
+        <div class="goals-section-header">
+          <div class="section-title">🎯 SMART Goals</div>
+          <button class="btn btn-sm btn-primary" id="goalAddBtn">+ New Goal</button>
+        </div>
+        <div class="goals-grid" id="goalsGrid"></div>
+
+      </div>
+    </div><!-- end PLANNING TAB -->
+
 
     </main>
 
@@ -2162,6 +2218,72 @@
 </div>
 
 <!-- ═════════════════════════════════════════════════════ -->
+<!-- SMART GOAL MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="goalModal">
+  <div class="fin-modal-box" style="max-width:600px;width:94%;">
+    <div class="fin-modal-title" id="goalModalTitle">🎯 New Goal</div>
+    <input type="hidden" id="goalId">
+    <div class="fin-form-grid" style="grid-template-columns:2fr 1fr;gap:12px;margin-top:12px;margin-bottom:0;">
+      <div class="form-field">
+        <label>Goal Title</label>
+        <input type="text" id="goalTitle" placeholder="e.g. Clear UPSC Prelims 2026">
+      </div>
+      <div class="form-field">
+        <label>Domain</label>
+        <select id="goalDomain">
+          <option value="upsc">📚 UPSC</option>
+          <option value="career">💻 Career</option>
+          <option value="finance">💰 Finance</option>
+          <option value="health">❤️ Health</option>
+          <option value="personal">🧠 Personal</option>
+        </select>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Target Date</label>
+        <input type="date" id="goalTargetDate">
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>S — Specific</label>
+        <textarea id="goalSpecific" rows="2" placeholder="What exactly do you want to achieve?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>M — Measurable</label>
+        <textarea id="goalMeasurable" rows="2" placeholder="How will you measure progress / success?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>A — Achievable</label>
+        <textarea id="goalAchievable" rows="2" placeholder="Is this realistic given your resources?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>R — Relevant</label>
+        <textarea id="goalRelevant" rows="2" placeholder="Why does this matter right now?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>T — Time-bound</label>
+        <textarea id="goalTimebound" rows="2" placeholder="What's the deadline / timeline?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Milestones <span style="text-transform:none;font-weight:400;">(optional — drives progress automatically)</span></label>
+        <div id="goalMilestoneList"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input type="text" id="goalMilestoneInput" placeholder="Add a milestone…" style="flex:1;">
+          <button class="btn btn-sm" id="goalMilestoneAddBtn">+ Add</button>
+        </div>
+      </div>
+      <div class="form-field" id="goalProgressRow" style="grid-column:1/-1;">
+        <label>Progress: <span id="goalProgressVal">0</span>%</label>
+        <input type="range" id="goalProgress" min="0" max="100" step="5" value="0">
+      </div>
+    </div>
+    <div class="fin-modal-actions">
+      <button class="btn btn-primary" id="goalSaveBtn">✅ Save Goal</button>
+      <button class="btn" id="goalCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
 
 <div class="fin-modal-overlay" id="manualPriceModal">
   <div class="fin-modal-box" style="max-width:560px;width:94%;">
@@ -2270,10 +2392,10 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <script defer src="js/firebase-config.js?v=39"></script>
 <script defer src="js/auth.js?v=43"></script>
-<script defer src="js/sync.js?v=41"></script>
+<script defer src="js/sync.js?v=42"></script>
 <script defer src="js/phases.js?v=40"></script>
 <script defer src="js/storage.js?v=39"></script>
-<script defer src="js/state.js?v=52"></script>
+<script defer src="js/state.js?v=53"></script>
 <script defer src="js/scheduler.js?v=41"></script>
 <script defer src="js/upsc.js?v=57"></script>
 <script defer src="js/finance.js?v=40"></script>
@@ -2281,13 +2403,15 @@
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/growth.js?v=57"></script>
 <script defer src="js/tasks.js?v=60"></script>
+<script defer src="js/matrix.js?v=1"></script>
+<script defer src="js/goals.js?v=1"></script>
 <script defer src="js/study.js?v=52"></script>
 <script defer src="js/study-analytics.js?v=51"></script>
 <script defer src="js/tech-study.js?v=2"></script>
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=55"></script>
-<script defer src="js/ui.js?v=63"></script>
+<script defer src="js/ui.js?v=64"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>
