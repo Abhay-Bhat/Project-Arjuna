@@ -13,7 +13,11 @@ const TimeMatrix = {
     { id: 4, cls: 'q4', icon: '🌙', label: 'Eliminate',  sub: 'Neither'               }
   ],
 
-  ROUTINE_IMPORTANT: new Set(['Work', 'Learning', 'Health', 'Fitness', 'Mind', 'Reflection']),
+  // Break/Hobby (meals, rest, family time, leisure) are treated as important —
+  // they sustain health and wellbeing, so they belong in "Schedule" (protect
+  // this time), never "Eliminate". Only ad-hoc low-priority Tasks should ever
+  // land in Q4 — the daily routine itself is never something to cut.
+  ROUTINE_IMPORTANT: new Set(['Work', 'Learning', 'Health', 'Fitness', 'Mind', 'Reflection', 'Break', 'Hobby']),
   ROUTINE_URGENT:    new Set(['Daily']),
 
   // Milestones beyond this horizon are not shown — keeps the matrix focused.
