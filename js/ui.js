@@ -881,6 +881,7 @@ const UI = {
   _renderUPSC() {
     UPSCTracker.updateMetrics();
     this._renderUPSCScheduleTable();
+    UPSCTracker.renderCalendar();
     UPSCTracker.renderCASection();
   },
 

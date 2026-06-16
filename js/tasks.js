@@ -322,6 +322,9 @@ const TasksTracker = {
 
     el.classList.add('task-item-editing');
 
+    let workingMatrixQ = t.matrixQ ?? null;
+    const mqA = (q) => workingMatrixQ === q ? ' active' : '';
+
     const editDiv = document.createElement('div');
     editDiv.className = 'task-edit-area';
     editDiv.innerHTML = `
@@ -348,6 +351,14 @@ const TasksTracker = {
           <input class="task-edit-subtask-input" placeholder="Add subtask…" maxlength="200">
           <button class="btn btn-xs task-edit-subtask-add-btn">+ Add</button>
         </div>
+      </div>
+      <div class="task-edit-matrix">
+        <span class="task-edit-matrix-label">Matrix:</span>
+        <button class="task-edit-mq-btn${mqA(null)}" data-q="null">Auto</button>
+        <button class="task-edit-mq-btn q1${mqA(1)}" data-q="1">🔥 Q1</button>
+        <button class="task-edit-mq-btn q2${mqA(2)}" data-q="2">📅 Q2</button>
+        <button class="task-edit-mq-btn q3${mqA(3)}" data-q="3">⚡ Q3</button>
+        <button class="task-edit-mq-btn q4${mqA(4)}" data-q="4">🌙 Q4</button>
       </div>
       <div class="task-edit-actions">
         <button class="btn btn-xs btn-primary task-edit-save">Save</button>
@@ -403,6 +414,14 @@ const TasksTracker = {
       if (e.key === 'Enter') { e.preventDefault(); addSubtask(); }
     });
 
+    editDiv.querySelectorAll('.task-edit-mq-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        workingMatrixQ = btn.dataset.q === 'null' ? null : parseInt(btn.dataset.q);
+        editDiv.querySelectorAll('.task-edit-mq-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
     const save = () => {
       const newTitle = editDiv.querySelector('.task-edit-title').value.trim();
       if (!newTitle) { editDiv.querySelector('.task-edit-title').focus(); return; }
@@ -415,6 +434,7 @@ const TasksTracker = {
       const estRaw  = editDiv.querySelector('.task-edit-est').value;
       t.estimatedMin = estRaw === '' ? null : Math.max(0, parseInt(estRaw) || 0);
       t.subtasks    = workingSubtasks;
+      t.matrixQ     = workingMatrixQ;
       t.modifiedAt  = new Date().toISOString();
       AppState.save();
       this.render();
@@ -900,6 +920,7 @@ const TasksTracker = {
       completedAt: null,
       subtasks:    [],
       estimatedMin: estRaw === '' || estRaw == null ? null : Math.max(0, parseInt(estRaw) || 0),
+      matrixQ:     null,
       createdAt:   new Date().toISOString(),
     });
     AppState.save();

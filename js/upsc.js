@@ -661,5 +661,164 @@ const UPSCTracker = {
     document.body.appendChild(n);
     requestAnimationFrame(() => n.classList.add('show'));
     setTimeout(() => { n.classList.remove('show'); setTimeout(() => n.remove(), 400); }, 3000);
+  },
+
+  // ── Yearlong Study Calendar ───────────────────────────────
+  _calMonth: null,
+
+  renderCalendar() {
+    if (!this._calMonth) this._calMonth = new Date();
+    this.initSchedule(false);
+    this._renderCalGrid();
+    this._bindCalendar();
+  },
+
+  _calDateStr(y, mo, day) {
+    const p = n => String(n).padStart(2, '0');
+    return `${y}-${p(mo + 1)}-${p(day)}`;
+  },
+
+  _calMonthLabel() {
+    const d = this._calMonth || new Date();
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  },
+
+  _calDayState(entries, dateStr) {
+    if (!entries.length) return 'empty';
+    const prog   = AppState.upscSubjectProgress || {};
+    const today  = AppState.getTodayKey();
+    const allDone = entries.every(e => (prog[e.subject_id] || 0) >= e.class_number);
+    const anyDone = entries.some(e =>  (prog[e.subject_id] || 0) >= e.class_number);
+    if (allDone)          return 'complete';
+    if (anyDone)          return 'partial';
+    if (dateStr < today)  return 'behind';
+    return 'future';
+  },
+
+  _renderCalGrid() {
+    const grid = document.getElementById('upscCalGrid');
+    if (!grid) return;
+    const detail = document.getElementById('upscCalDetail');
+    if (detail) { detail.classList.remove('show'); detail.innerHTML = ''; }
+
+    const d     = this._calMonth || new Date();
+    const y     = d.getFullYear();
+    const mo    = d.getMonth();
+    const today = AppState.getTodayKey();
+
+    const firstDay = new Date(y, mo, 1);
+    const lastDay  = new Date(y, mo + 1, 0);
+    // Start grid on Monday (0=Mon … 6=Sun)
+    const startDow = (firstDay.getDay() + 6) % 7;
+
+    const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const trackDotClass = { main: 'upsc-dot-main', sociology: 'upsc-dot-sociology', csat: 'upsc-dot-csat', essay: 'upsc-dot-essay' };
+
+    let html = `
+      <div class="upsc-cal-nav">
+        <button class="btn btn-sm" id="upscCalPrev">‹</button>
+        <span class="upsc-cal-label">${this._calMonthLabel()}</span>
+        <button class="btn btn-sm" id="upscCalNext">›</button>
+        <button class="btn btn-sm" id="upscCalToday">Today</button>
+      </div>
+      <div class="upsc-cal-weekdays">${DAYS.map(w => `<div class="upsc-cal-wd">${w}</div>`).join('')}</div>
+      <div class="upsc-cal-cells">`;
+
+    for (let i = 0; i < startDow; i++) html += `<div class="upsc-cal-day other-month"></div>`;
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = this._calDateStr(y, mo, day);
+      const entries = this.getForDate(dateStr);
+      const tasks   = (AppState.tasks || []).filter(t => !t.deleted && !t.done && t.dueDate === dateStr);
+      const state   = this._calDayState(entries, dateStr);
+      const isToday = dateStr === today;
+
+      const cls = ['upsc-cal-day', state !== 'empty' && state !== 'future' ? state : '', isToday ? 'today' : ''].filter(Boolean).join(' ');
+      const tracks = [...new Set(entries.map(e => e.track))];
+      const dots   = tracks.map(tr => `<span class="upsc-cal-dot ${trackDotClass[tr] || ''}" title="${tr}"></span>`).join('');
+      const taskDot = tasks.length ? `<span class="upsc-cal-dot upsc-dot-task" title="${tasks.length} task(s) due"></span>` : '';
+
+      html += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}">
+        <span class="upsc-cal-day-num">${day}</span>
+        <div class="upsc-cal-day-dots">${dots}${taskDot}</div>
+        ${entries.length ? `<span class="upsc-cal-day-count">${entries.length} class${entries.length > 1 ? 'es' : ''}</span>` : ''}
+      </div>`;
+    }
+
+    html += '</div>';
+    grid.innerHTML = html;
+  },
+
+  _calDetailHTML(dateStr) {
+    const entries = this.getForDate(dateStr);
+    const tasks   = (AppState.tasks || []).filter(t => !t.deleted && !t.done && t.dueDate === dateStr);
+    const prog    = AppState.upscSubjectProgress || {};
+    const escFn   = typeof esc === 'function' ? esc : s => s;
+
+    const [y, m, dd] = dateStr.split('-').map(Number);
+    const dt      = new Date(y, m - 1, dd);
+    const heading = dt.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const trackLabel = { main: 'GS', sociology: 'SOC', csat: 'CSAT', essay: 'ESSAY' };
+    const classRows  = entries.length
+      ? entries.map(e => {
+          const done = (prog[e.subject_id] || 0) >= e.class_number;
+          return `<div class="upsc-cal-entry ${done ? 'done' : ''}">
+            <span class="upsc-cal-track-badge upsc-badge-${e.track}">${trackLabel[e.track] || e.track.toUpperCase()}</span>
+            <span class="upsc-cal-entry-num">Class ${e.class_number}/${e.total_classes}</span>
+            <span class="upsc-cal-entry-name">${escFn(e.subject_name)}</span>
+            <span class="upsc-cal-entry-status">${done ? '✅' : '⬜'}</span>
+          </div>`;
+        }).join('')
+      : `<div class="upsc-cal-empty-day">No classes scheduled for this date.</div>`;
+
+    const taskRows = tasks.length
+      ? `<div class="upsc-cal-detail-section">Tasks Due</div>` +
+        tasks.map(t => `<div class="upsc-cal-task-row">
+          <span class="upsc-cal-task-dot" style="background:var(--accent-violet)"></span>
+          <span class="upsc-cal-task-title">${escFn(t.title)}</span>
+          <span class="upsc-cal-task-pri">${t.priority}</span>
+        </div>`).join('')
+      : '';
+
+    return `<div class="upsc-cal-detail-heading">${heading}</div>
+      <div class="upsc-cal-detail-section">Classes</div>
+      ${classRows}${taskRows}`;
+  },
+
+  _bindCalendar() {
+    const grid   = document.getElementById('upscCalGrid');
+    const detail = document.getElementById('upscCalDetail');
+    if (!grid) return;
+
+    const nav = (delta) => {
+      const d = this._calMonth || new Date();
+      this._calMonth = new Date(d.getFullYear(), d.getMonth() + delta, 1);
+      this._renderCalGrid();
+      this._bindCalendar();
+    };
+
+    grid.querySelector('#upscCalPrev')?.addEventListener('click', () => nav(-1));
+    grid.querySelector('#upscCalNext')?.addEventListener('click', () => nav(+1));
+    grid.querySelector('#upscCalToday')?.addEventListener('click', () => {
+      this._calMonth = new Date();
+      this._renderCalGrid();
+      this._bindCalendar();
+      if (detail) {
+        detail.innerHTML = this._calDetailHTML(AppState.getTodayKey());
+        detail.classList.add('show');
+      }
+    });
+
+    grid.querySelectorAll('.upsc-cal-day[data-date]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        grid.querySelectorAll('.upsc-cal-day').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+        if (detail) {
+          detail.innerHTML = this._calDetailHTML(cell.dataset.date);
+          detail.classList.add('show');
+        }
+      });
+    });
   }
 };

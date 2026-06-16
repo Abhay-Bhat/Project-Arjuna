@@ -3605,6 +3605,24 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .task-edit-pri:focus,
 .task-edit-status:focus,
 .task-edit-bucket:focus { outline: none; border-color: var(--accent-blue); }
+.task-edit-matrix {
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 2px 0;
+}
+.task-edit-matrix-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--text-muted); margin-right: 2px;
+}
+.task-edit-mq-btn {
+  font-size: 11px; padding: 3px 8px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg-tertiary);
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+.task-edit-mq-btn:hover  { border-color: var(--accent-blue); color: var(--text); }
+.task-edit-mq-btn.active { color: var(--text); background: var(--card-hover); border-color: var(--accent-blue); }
+.task-edit-mq-btn.q1.active { border-color: var(--accent-rose); }
+.task-edit-mq-btn.q2.active { border-color: var(--accent-blue); }
+.task-edit-mq-btn.q3.active { border-color: var(--accent-amber); }
+.task-edit-mq-btn.q4.active { border-color: var(--accent-teal); }
 .task-edit-actions { display: flex; gap: 6px; }
 
 /* Subtasks editor (inline edit area) */
@@ -5992,4 +6010,117 @@ html { scroll-behavior: smooth; }
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── UPSC Yearlong Study Calendar ─────────────────────────── */
+#upscCalendar { margin-bottom: 24px; }
+
+.upsc-cal-nav {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+}
+.upsc-cal-label {
+  flex: 1; text-align: center; font-size: 15px; font-weight: 700; color: var(--text);
+}
+
+.upsc-cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 3px; margin-bottom: 3px;
+}
+.upsc-cal-wd {
+  text-align: center; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--text-muted); padding: 4px 0;
+}
+
+.upsc-cal-cells {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+}
+.upsc-cal-day {
+  min-height: 64px; padding: 5px 6px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--card); transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.upsc-cal-day:hover   { border-color: var(--accent-blue); }
+.upsc-cal-day.other-month { opacity: 0.3; cursor: default; pointer-events: none; }
+.upsc-cal-day.today   { border-color: var(--accent-blue); border-width: 2px; }
+.upsc-cal-day.selected { background: var(--accent-blue); border-color: var(--accent-blue); }
+.upsc-cal-day.selected .upsc-cal-day-num { color: #fff; }
+.upsc-cal-day.selected .upsc-cal-day-count { color: rgba(255,255,255,0.85); }
+.upsc-cal-day.complete { border-color: var(--accent-green); background: rgba(0,212,124,0.07); }
+.upsc-cal-day.partial  { border-color: var(--accent-amber); background: rgba(255,178,48,0.07); }
+.upsc-cal-day.behind   { border-color: var(--accent-rose);  background: rgba(255,92,128,0.05); }
+
+.upsc-cal-day-num {
+  font-size: 12px; font-weight: 700; color: var(--text); line-height: 1;
+}
+.upsc-cal-day-dots {
+  display: flex; gap: 2px; flex-wrap: wrap; margin-top: 2px;
+}
+.upsc-cal-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.upsc-dot-main     { background: var(--accent-blue); }
+.upsc-dot-sociology { background: var(--accent-teal); }
+.upsc-dot-csat     { background: var(--accent-amber); }
+.upsc-dot-essay    { background: var(--accent-rose); }
+.upsc-dot-task     { background: var(--accent-violet); }
+
+.upsc-cal-day-count {
+  font-size: 10px; color: var(--text-muted); margin-top: auto;
+  font-weight: 600;
+}
+
+/* Day detail panel */
+.upsc-cal-detail {
+  display: none; margin-top: 10px; padding: 16px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.upsc-cal-detail.show { display: block; }
+.upsc-cal-detail-heading {
+  font-size: 14px; font-weight: 700; color: var(--text);
+  margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.upsc-cal-detail-section {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--text-muted); margin: 10px 0 6px;
+}
+.upsc-cal-entry {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+}
+.upsc-cal-entry:last-child { border-bottom: none; }
+.upsc-cal-entry.done .upsc-cal-entry-name { color: var(--text-muted); text-decoration: line-through; }
+.upsc-cal-entry-num  { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.upsc-cal-entry-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upsc-cal-entry-status { flex-shrink: 0; font-size: 14px; }
+.upsc-cal-track-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px;
+  text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0; color: #fff;
+}
+.upsc-badge-main     { background: var(--accent-blue); }
+.upsc-badge-sociology { background: var(--accent-teal); }
+.upsc-badge-csat     { background: var(--accent-amber); color: #000; }
+.upsc-badge-essay    { background: var(--accent-rose); }
+
+.upsc-cal-task-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px;
+}
+.upsc-cal-task-row:last-child { border-bottom: none; }
+.upsc-cal-task-dot   { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.upsc-cal-task-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+.upsc-cal-task-pri   { font-size: 10px; color: var(--text-muted); flex-shrink: 0; }
+.upsc-cal-empty-day  { font-size: 12px; color: var(--text-faint); padding: 6px 0; }
+
+.matrix-item-pin { font-size: 12px; flex-shrink: 0; }
+
+/* Responsive: small screens */
+@media (max-width: 600px) {
+  .upsc-cal-day { min-height: 44px; padding: 4px; }
+  .upsc-cal-day-dots { display: none; }
+  .upsc-cal-day-count { display: none; }
+  .upsc-cal-day-num { font-size: 11px; }
 }

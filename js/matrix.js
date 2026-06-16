@@ -1,7 +1,8 @@
 // ============================================================
 // Skadi — Time Management Matrix (Eisenhower)
-// Auto-categorizes Tasks, today's Routine, and upcoming
-// Milestones into the Urgent/Important 2x2 grid.
+// Auto-categorizes Tasks into the Urgent/Important 2x2 grid.
+// Routine and Milestones are excluded — they have dedicated
+// sections on the Today tab and need no triage.
 // ============================================================
 
 const TimeMatrix = {
@@ -39,14 +40,17 @@ const TimeMatrix = {
           ? Math.floor((new Date(t.dueDate) - new Date()) / 86400000)
           : null;
         const important = t.priority === 'urgent' || t.priority === 'high';
-        const urgent     = t.priority === 'urgent' || (daysUntil != null && daysUntil <= 2);
-        const due        = t.dueDate ? TasksTracker._dueMeta(t.dueDate) : null;
+        const urgent    = t.priority === 'urgent' || (daysUntil != null && daysUntil <= 2);
+        const due       = t.dueDate ? TasksTracker._dueMeta(t.dueDate) : null;
+        // t.matrixQ (1-4) overrides auto-classification when manually pinned.
+        const quadrant  = t.matrixQ ?? this._quadrantFor(important, urgent);
         return {
           id: `task-${t.id}`,
           title: t.title,
           source: 'task',
           meta: due ? due.label : '',
-          quadrant: this._quadrantFor(important, urgent),
+          quadrant,
+          pinned: t.matrixQ != null,
           action: { type: 'task', tid: t.id },
           nav: 'tasks'
         };
@@ -102,7 +106,7 @@ const TimeMatrix = {
   SOURCE_ICONS: { task: '📋', routine: '🗓️', milestone: '🏁' },
 
   categorize() {
-    const all = [...this._fromTasks(), ...this._fromRoutine(), ...this._fromMilestones()];
+    const all = [...this._fromTasks()];
     const out = { 1: [], 2: [], 3: [], 4: [] };
     all.forEach(item => out[item.quadrant].push(item));
     return out;
@@ -122,9 +126,8 @@ const TimeMatrix = {
       list.innerHTML = items.length
         ? items.map((it, idx) => `
           <div class="matrix-item" style="--i:${idx}" data-source="${it.source}" data-nav="${it.nav}" data-scroll-to="${it.scrollTo || ''}">
-            ${it.action
-              ? `<input type="checkbox" class="matrix-item-cb" data-action='${esc(JSON.stringify(it.action))}' title="Mark done">`
-              : `<span class="matrix-item-icon">${this.SOURCE_ICONS[it.source]}</span>`}
+            <input type="checkbox" class="matrix-item-cb" data-action='${esc(JSON.stringify(it.action))}' title="Mark done">
+            ${it.pinned ? `<span class="matrix-item-pin" title="Pinned to this quadrant">📌</span>` : ''}
             <span class="matrix-item-title">${esc(it.title)}</span>
             ${it.meta ? `<span class="matrix-item-meta">${esc(it.meta)}</span>` : ''}
           </div>`).join('')
