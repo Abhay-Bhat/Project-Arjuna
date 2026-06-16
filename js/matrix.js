@@ -125,7 +125,7 @@ const TimeMatrix = {
 
       list.innerHTML = items.length
         ? items.map((it, idx) => `
-          <div class="matrix-item" style="--i:${idx}" data-source="${it.source}" data-nav="${it.nav}" data-scroll-to="${it.scrollTo || ''}">
+          <div class="matrix-item" style="--i:${idx}" data-source="${it.source}" data-nav="${it.nav}" data-scroll-to="${it.scrollTo || ''}" data-tid="${it.action.tid ?? ''}">
             <input type="checkbox" class="matrix-item-cb" data-action='${esc(JSON.stringify(it.action))}' title="Mark done">
             ${it.pinned ? `<span class="matrix-item-pin" title="Pinned to this quadrant">📌</span>` : ''}
             <span class="matrix-item-title">${esc(it.title)}</span>
@@ -158,6 +158,44 @@ const TimeMatrix = {
         } else {
           UI._navigateToTab(nav, scrollTo);
         }
+      });
+    });
+
+    // Drag-and-drop: let tasks be moved between quadrants
+    document.querySelectorAll('.matrix-item[data-tid]').forEach(el => {
+      if (!el.dataset.tid) return;
+      el.setAttribute('draggable', 'true');
+      el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', el.dataset.tid);
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('matrix-dragging');
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('matrix-dragging');
+        document.querySelectorAll('.matrix-item-list').forEach(l => l.classList.remove('matrix-drop-over'));
+      });
+    });
+
+    document.querySelectorAll('.matrix-item-list').forEach(list => {
+      list.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        list.classList.add('matrix-drop-over');
+      });
+      list.addEventListener('dragleave', e => {
+        if (!list.contains(e.relatedTarget)) list.classList.remove('matrix-drop-over');
+      });
+      list.addEventListener('drop', e => {
+        e.preventDefault();
+        list.classList.remove('matrix-drop-over');
+        const tid = parseInt(e.dataTransfer.getData('text/plain'));
+        const q   = parseInt(list.id.replace('matrixQ', ''));
+        const t   = (AppState.tasks || []).find(x => x.id === tid);
+        if (!t || isNaN(tid) || isNaN(q)) return;
+        t.matrixQ    = q;
+        t.modifiedAt = new Date().toISOString();
+        AppState.save();
+        UI.updateAll();
       });
     });
   },

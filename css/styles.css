@@ -6117,6 +6117,17 @@ html { scroll-behavior: smooth; }
 
 .matrix-item-pin { font-size: 12px; flex-shrink: 0; }
 
+/* Drag-and-drop states */
+.matrix-item[draggable="true"] { cursor: grab; }
+.matrix-item[draggable="true"]:active { cursor: grabbing; }
+.matrix-item.matrix-dragging { opacity: 0.4; transform: scale(0.97); }
+.matrix-item-list.matrix-drop-over {
+  background: rgba(77,121,255,0.08);
+  border-radius: var(--radius-sm);
+  outline: 2px dashed var(--accent-blue);
+  outline-offset: -2px;
+}
+
 /* Responsive: small screens */
 @media (max-width: 600px) {
   .upsc-cal-day { min-height: 44px; padding: 4px; }
