@@ -5712,15 +5712,10 @@ html { scroll-behavior: smooth; }
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   margin: 0 calc(-1 * clamp(12px, 2vw, 32px));
-<<<<<<< HEAD
-  padding-left: clamp(12px, 2vw, 32px);
-  padding-right: clamp(12px, 2vw, 32px);
-=======
   width: calc(100% + 2 * clamp(12px, 2vw, 32px));
   padding-left: clamp(12px, 2vw, 32px);
   padding-right: clamp(12px, 2vw, 32px);
   box-sizing: border-box;
->>>>>>> claude/add-upsc-lag-banner-Sq6Ze
 }
 [data-theme="light"] .app-content .quote-strip {
   background: var(--surface);
@@ -6134,4 +6129,460 @@ html { scroll-behavior: smooth; }
   .upsc-cal-day-dots { display: none; }
   .upsc-cal-day-count { display: none; }
   .upsc-cal-day-num { font-size: 11px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   PRODUCTION GRADE POLISH — v65
+   Unified transitions, button fade effects, smooth tab switching,
+   anti-overlap guards, alignment uniformity.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Universal interactive element transitions ─────────────── */
+button, a, [role="button"], [tabindex], input, select, textarea,
+.btn, .hdr-dd-item, .hdr-menu-btn, .sidebar-toggle,
+.nav-item, .tab-btn, .cal-day-btn, .qc-card,
+.task-item, .task-bucket, .task-add-btn,
+.matrix-item, .matrix-quadrant,
+.domain-card, .stat-card, .card, .pane-card,
+.upsc-card, .book-card, .career-card,
+.tech-phase, .goal-card,
+.checklist-item, .time-slot,
+.study-range-btn, .study-mode-btn,
+.gx-card-hdr, .inv-section-hdr, .fin-help-header,
+.th-chip, .star-btn, .toggle-switch,
+.backup-row, .ai-tip-item, .cd-tip,
+.task-edit-mq-btn, .task-status-badge,
+.supplement-row, .meal-row,
+.gn-item, .gcl-box, .fg-add-btn {
+  transition: background 0.2s ease, border-color 0.2s ease,
+              color 0.2s ease, opacity 0.2s ease,
+              transform 0.18s ease, box-shadow 0.2s ease;
+}
+
+/* ── 2. Button fade + press effects ───────────────────────────── */
+.btn:hover,
+.hdr-dd-item:hover,
+.hdr-menu-btn:hover,
+.nav-item:hover,
+.task-add-btn:hover,
+.fg-add-btn:hover,
+.gm-studied-btn:hover {
+  opacity: 1;
+}
+
+.btn:active:not(:disabled),
+.hdr-dd-item:active,
+.hdr-menu-btn:active,
+.nav-item:active,
+.sidebar-toggle:active,
+.task-add-btn:active,
+.star-btn:active,
+.th-chip:active,
+.cal-day-btn:active,
+.fg-add-btn:active,
+.task-edit-mq-btn:active,
+.task-status-badge:active,
+.gm-studied-btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary:active:not(:disabled) { transform: scale(0.96); }
+.btn-sm:active:not(:disabled),
+.btn-xs:active:not(:disabled) { transform: scale(0.94); }
+
+/* ── 3. Smooth tab panel entrance ─────────────────────────────── */
+@keyframes tabFadeSlide {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tab-panel.active {
+  animation: tabFadeSlide 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 4. Nav item active indicator ─────────────────────────────── */
+.nav-item.active {
+  position: relative;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 60%;
+  border-radius: 0 3px 3px 0;
+  background: var(--brand);
+  opacity: 1;
+}
+@media (max-width: 768px) {
+  .nav-item.active::before {
+    left: 50%; top: auto; bottom: 0;
+    transform: translateX(-50%);
+    width: 60%; height: 3px;
+    border-radius: 3px 3px 0 0;
+  }
+}
+
+/* ── 5. Uniform card hover lifts ──────────────────────────────── */
+.pane-card:hover,
+.qc-card:hover,
+.ai-tip-item:hover,
+.cd-tip:hover,
+.backup-row:hover,
+.maturity-alert:hover,
+.pm-metric:hover,
+.career-card:hover,
+.sa-section:hover,
+.fg-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-bright);
+}
+
+/* ── 6. Input focus ring consistency ──────────────────────────── */
+input:not([type=checkbox]):not([type=radio]):not([type=color]):focus,
+select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--ring);
+  background: var(--card);
+}
+[data-theme="light"] input:not([type=checkbox]):not([type=radio]):not([type=color]):focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(58,86,240,0.15);
+}
+
+/* ── 7. Checkbox/radio smooth transitions ─────────────────────── */
+input[type=checkbox], input[type=radio] {
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+input[type=checkbox]:focus-visible, input[type=radio]:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* ── 8. Text overflow safety — no overlaps ────────────────────── */
+.stat-card-value,
+.stat-card-title,
+.stat-card-sub,
+.fh-value,
+.fh-title,
+.fh-target,
+.domain-metric,
+.domain-name,
+.domain-label,
+.domain-status,
+.pane-card-title,
+.nw-value,
+.nw-label,
+.nw-sub,
+.pm-value,
+.pm-label,
+.pm-sub,
+.upsc-card-title,
+.task-title,
+.task-bucket-title-input,
+.goal-title,
+.book-title,
+.book-author,
+.cc-label,
+.cc-quarter,
+.tp-label,
+.tp-score,
+.section-title,
+.matrix-quadrant-title,
+.matrix-item-title,
+.hs-name,
+.study-session-subj,
+.sa-lg-lbl,
+.topbar-brand-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Multi-line text clamping for descriptions */
+.task-desc,
+.pro-tip-text,
+.book-why,
+.cc-why,
+.phase-desc,
+.cd-tip-text,
+.ai-tip-desc,
+.gm-sub {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── 9. Uniform border radius consistency ─────────────────────── */
+.task-bucket { border-radius: var(--radius-md); }
+.task-item { border-radius: var(--radius-sm); }
+.inv-section { border-radius: var(--radius-md); }
+.maturity-alert { border-radius: var(--radius-sm); }
+.pastime-badge { border-radius: var(--radius-sm); }
+.backup-row { border-radius: var(--radius-sm); }
+
+/* ── 10. App loader fade-out smoothness ───────────────────────── */
+#appLoader {
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.5s;
+}
+#appLoader.al-done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ── 11. Dropdown menu entrance ────────────────────────────────── */
+@keyframes dropdownIn {
+  from { opacity: 0; transform: scale(0.95) translateY(-6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.hdr-dropdown.open {
+  animation: dropdownIn 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 12. Toast entrance refinement ────────────────────────────── */
+.toast {
+  transition: opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-width: 400px;
+}
+
+/* ── 13. Calendar modal fade ──────────────────────────────────── */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.calendar-modal.active {
+  animation: modalFadeIn 0.25s ease both;
+}
+.calendar-modal.active .calendar-content {
+  animation: modalScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 14. Onboarding/glossary modal entrance ───────────────────── */
+.onboarding-modal.show {
+  animation: modalFadeIn 0.3s ease both;
+}
+.onboarding-modal.show .onboarding-content {
+  animation: modalScaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.glossary-modal.show {
+  animation: modalFadeIn 0.25s ease both;
+}
+.glossary-modal.show .glossary-content {
+  animation: modalScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 15. Finance modal entrance ───────────────────────────────── */
+.fin-modal-overlay.open {
+  animation: modalFadeIn 0.25s ease both;
+}
+.fin-modal-overlay.open .fin-modal-box {
+  animation: modalScaleIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 16. Milestone banner smooth reveal ───────────────────────── */
+.milestone-banner {
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+/* ── 17. Pane card uniform spacing ────────────────────────────── */
+.pane-card + .pane-card { margin-top: 0; }
+.pane-card:first-child { margin-top: 0; }
+
+/* ── 18. Sidebar smooth collapse ──────────────────────────────── */
+.app-sidebar {
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-content {
+  transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 19. Schedule time-slot hover ─────────────────────────────── */
+.time-slot:hover:not(.completed) {
+  background: var(--card-hover);
+}
+.time-slot {
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.time-slot.completed {
+  transition: opacity 0.3s ease;
+}
+
+/* ── 20. Progress bar animated widths ─────────────────────────── */
+.prog-bar-fill,
+.upsc-prog-fill,
+.phase-prog-fill,
+.tp-fill,
+.book-prog-fill,
+.ts-fill,
+.domain-bar-fill,
+.goal-progress-fill,
+.tasks-ontime-fill,
+.marker-bar-fill,
+.study-subj-fill,
+#progressBar {
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 21. Collapsible chevron smooth rotate ────────────────────── */
+
+/* ── 22. Chevron rotation smooth ──────────────────────────────── */
+.gx-chev,
+.inv-sec-chev,
+.fin-help-chevron,
+.gqa-toggle {
+  transition: transform 0.25s ease;
+}
+
+/* ── 23. Matrix quadrant grid alignment ───────────────────────── */
+.matrix-grid {
+  align-items: stretch;
+}
+.matrix-quadrant {
+  display: flex;
+  flex-direction: column;
+}
+.matrix-item-list {
+  flex: 1;
+}
+
+/* ── 24. Uniform gap/spacing for grids ────────────────────────── */
+.analytics-grid,
+.finance-grid,
+.health-stats-row,
+.wealth-grid,
+.career-grid,
+.goals-grid,
+.upsc-grid,
+.books-container {
+  gap: 14px;
+}
+
+/* ── 25. Scrollbar uniformity ─────────────────────────────────── */
+.matrix-item-list,
+.task-list,
+#scheduleContainer,
+.data-table-wrap,
+.pastime-reset-log,
+#partnerLogContainer,
+#upscSubjectsGrid,
+.books-container,
+.wealth-grid {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-bright) transparent;
+}
+
+/* ── 26. Star buttons hover glow ──────────────────────────────── */
+.star-btn:hover {
+  filter: drop-shadow(0 0 4px rgba(255,193,7,0.5));
+}
+.star-btn.active {
+  filter: drop-shadow(0 0 6px rgba(255,193,7,0.6));
+}
+
+/* ── 27. Toggle switch smooth ─────────────────────────────────── */
+.toggle-switch {
+  transition: background 0.25s ease;
+}
+.toggle-switch::after {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.2s ease;
+}
+
+/* ── 28. Skill/study mode buttons ─────────────────────────────── */
+.study-mode-btn {
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.study-mode-btn.active {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+/* ── 29. QC cards uniform sizing ──────────────────────────────── */
+.qc-sidebar-grid .qc-card {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 72px;
+}
+
+/* ── 30. Fix pane-card overflow for image backgrounds ─────────── */
+.pane-card {
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── 31. Data table row hover fade ────────────────────────────── */
+.data-table tr {
+  transition: background 0.15s ease;
+}
+
+/* ── 32. Auth overlay smooth ──────────────────────────────────── */
+.auth-overlay.show {
+  animation: modalFadeIn 0.35s ease both;
+}
+.auth-overlay.show .auth-card {
+  animation: modalScaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── 33. Sidebar nav item hover bg radius ─────────────────────── */
+.nav-item {
+  border-radius: 10px;
+}
+
+/* ── 34. Card body content padding uniformity ─────────────────── */
+.book-card > :not(.book-cover-wrap) {
+  padding-left: 16px; padding-right: 16px;
+}
+.book-card > :last-child { padding-bottom: 16px; }
+.book-card .book-month { padding-top: 14px; }
+
+/* ── 35. Dropdown hidden state (stays display:none via base rule) ── */
+
+/* ── 36. Smooth scroll for pane sidebars ──────────────────────── */
+.pane-left, .pane-right {
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+/* ── 37. Consistent focus-visible for custom controls ─────────── */
+.qc-card:focus-visible,
+.domain-card:focus-visible,
+.th-chip:focus-visible,
+.cal-day-btn:focus-visible,
+.task-edit-mq-btn:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* ── 38. Disabled state for all button variants ───────────────── */
+button:disabled, [disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── 39. Empty state fade-in ──────────────────────────────────── */
+.tasks-empty, .matrix-empty, .goals-empty,
+.empty-state, .empty-td, .task-list-empty {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ── 40. Mobile bottom nav safe area ──────────────────────────── */
+@media (max-width: 768px) {
+  .app-sidebar {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .app-content {
+    padding-bottom: calc(var(--topbar-h) + env(safe-area-inset-bottom, 0) + 24px);
+  }
 }
