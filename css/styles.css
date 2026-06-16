@@ -6586,3 +6586,522 @@ button:disabled, [disabled] {
     padding-bottom: calc(var(--topbar-h) + env(safe-area-inset-bottom, 0) + 24px);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   HIERARCHY & DENSITY CLEANUP — v66
+   Keep visual richness, reduce clutter, improve readability.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────────────────────────
+   A. SPACING — The single biggest lever for reducing density.
+      More air between sections, inside cards, between panes.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Pane layout gaps: wider channels between columns */
+.tab-layout-3 { gap: 36px; padding: 36px 0; }
+.tab-layout-2 { gap: 36px; padding: 36px 0; }
+
+/* App content: a touch more horizontal breathing room */
+.app-content {
+  padding: 0 clamp(16px, 2.5vw, 40px) 80px;
+}
+
+/* Section titles: more vertical breathing room */
+.pane-main .section-title {
+  margin-top: 48px;
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+}
+.pane-main .section-title:first-child { margin-top: 4px; }
+
+/* Pane cards: more internal padding, more gap between */
+.pane-card {
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+
+/* Stat cards: generous padding, cleaner proportions */
+.stat-card {
+  padding: 22px 24px;
+  gap: 14px;
+}
+.pane-left .stat-card,
+.pane-right .stat-card {
+  padding: 18px 16px;
+  gap: 12px;
+}
+
+/* Analytics grids: wider gaps */
+.analytics-grid { gap: 16px; margin-bottom: 28px; }
+
+/* Matrix grid: more breathing room between quadrants */
+.matrix-grid { gap: 18px; margin-bottom: 12px; }
+.matrix-quadrant { padding: 20px; gap: 6px; min-height: 200px; }
+.matrix-item-list { gap: 8px; max-height: 240px; }
+.matrix-item { padding: 10px 12px; gap: 10px; }
+
+/* Routine schedule: airier slots */
+.time-slot { min-height: 52px; }
+.slot-body { padding: 14px 10px; }
+.slot-time { padding: 14px 14px; }
+
+/* UPSC subject grid: more gap */
+.upsc-grid { gap: 16px; }
+.upsc-card { padding: 18px 20px; }
+
+/* Goals grid */
+.goals-grid { gap: 18px; }
+.goal-card { padding: 20px; gap: 12px; }
+
+/* Books */
+.books-container { gap: 20px; }
+
+/* Finance grid */
+.finance-grid { gap: 16px; }
+
+/* Health */
+.health-stats-row { gap: 14px; }
+
+/* Phase timeline */
+.phase-timeline { gap: 14px; }
+.phase-card { padding: 20px 22px; }
+
+/* Career grid */
+.career-grid { gap: 16px; }
+
+/* Tasks board */
+.tasks-board { gap: 20px; }
+
+/* Quick-check sidebar grid */
+.qc-sidebar-grid { gap: 8px; }
+.qc-sidebar-grid .qc-card { min-height: 78px; padding: 12px 10px; }
+
+/* Domain cards in sidebar right pane */
+.pane-right .domains-grid { gap: 8px; }
+.pane-right .domains-grid > .domain-card { padding: 12px 14px; }
+
+/* UPSC calendar cells */
+.upsc-cal-cells { gap: 4px; }
+
+/* Study analytics */
+.sa-comparison-row { gap: 14px; margin-bottom: 18px; }
+.sa-charts-row { gap: 18px; margin-bottom: 18px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   B. BORDERS & SHADOWS — Soften borders, let shadows do more.
+      Cards feel lifted, not boxed in.
+   ────────────────────────────────────────────────────────────────── */
+
+.pane-card,
+.stat-card,
+.card,
+.upsc-card,
+.career-card,
+.book-card,
+.goal-card,
+.qc-card,
+.tech-phase,
+.sa-section,
+.fg-section,
+.ai-tip-item,
+.cd-tip,
+.maturity-alert,
+.inv-section,
+.routine-card,
+.today-upsc-card,
+.section-card,
+.net-worth-card,
+.study-panel {
+  border-color: color-mix(in srgb, var(--border) 60%, transparent);
+}
+[data-theme="light"] .pane-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .card,
+[data-theme="light"] .upsc-card,
+[data-theme="light"] .career-card,
+[data-theme="light"] .book-card,
+[data-theme="light"] .goal-card,
+[data-theme="light"] .qc-card,
+[data-theme="light"] .routine-card,
+[data-theme="light"] .today-upsc-card {
+  border-color: color-mix(in srgb, var(--border) 70%, transparent);
+  box-shadow: 0 1px 3px rgba(40,60,160,0.05), 0 4px 16px rgba(40,60,160,0.06);
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   C. BACKGROUND IMAGE OVERLAYS — Slightly more opaque so
+      text is effortlessly readable without squinting.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Today tab pane cards */
+#tab-today .pane-left .pane-card:first-child {
+  background:
+    linear-gradient(160deg, rgba(6,8,24,0.90) 0%, rgba(8,12,34,0.80) 100%),
+    url('../assets/img/night-sky.jpg') center/cover no-repeat;
+}
+#tab-today .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(20,8,4,0.90) 0%, rgba(30,14,4,0.80) 100%),
+    url('../assets/img/sunrise.jpg') center/cover no-repeat;
+}
+#tab-today .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(8,10,26,0.90) 0%, rgba(10,12,30,0.80) 100%),
+    url('../assets/img/upsc.jpg') center/cover no-repeat;
+}
+#tab-today .pane-right .pane-card {
+  background:
+    linear-gradient(160deg, rgba(6,10,22,0.92) 0%, rgba(8,14,32,0.82) 100%),
+    url('../assets/img/dubai-city.jpg') center/cover no-repeat;
+}
+
+/* UPSC tab */
+#tab-upsc .pane-left .pane-card:first-child {
+  background:
+    linear-gradient(160deg, rgba(8,12,28,0.90) 0%, rgba(10,18,40,0.82) 100%),
+    url('../assets/img/upsc.jpg') center/cover no-repeat;
+}
+#tab-upsc .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(6,8,20,0.90) 0%, rgba(8,10,26,0.80) 100%),
+    url('../assets/img/career.jpg') center/cover no-repeat;
+}
+#tab-upsc .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(8,6,4,0.90) 0%, rgba(12,10,6,0.80) 100%),
+    url('../assets/img/newspaper.jpg') center/cover no-repeat;
+}
+
+/* Finance tab */
+#tab-finance .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(4,10,18,0.90) 0%, rgba(6,12,22,0.80) 100%),
+    url('../assets/img/dubai-city.jpg') center 60%/cover no-repeat;
+}
+#tab-finance .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(4,14,10,0.90) 0%, rgba(6,16,12,0.80) 100%),
+    url('../assets/img/finance.jpg') center/cover no-repeat;
+}
+#tab-finance .pane-left .pane-card:nth-child(4) {
+  background:
+    linear-gradient(160deg, rgba(4,8,20,0.91) 0%, rgba(6,10,24,0.82) 100%),
+    url('../assets/img/stars.jpg') center/cover no-repeat;
+}
+
+/* Health tab */
+#tab-health .pane-left .pane-card:first-child {
+  background:
+    linear-gradient(160deg, rgba(0,14,10,0.90) 0%, rgba(0,20,14,0.80) 100%),
+    url('../assets/img/health.jpg') center/cover no-repeat;
+}
+#tab-health .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(0,12,6,0.90) 0%, rgba(0,16,8,0.80) 100%),
+    url('../assets/img/running.jpg') center/cover no-repeat;
+}
+#tab-health .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(16,4,8,0.90) 0%, rgba(22,6,10,0.80) 100%),
+    url('../assets/img/heart-health.jpg') center/cover no-repeat;
+}
+
+/* Mind tab */
+#tab-mind .pane-left .pane-card:first-child {
+  background:
+    linear-gradient(160deg, rgba(0,14,8,0.90) 0%, rgba(0,18,12,0.80) 100%),
+    url('../assets/img/warrior.jpg') center/cover no-repeat;
+  border-color: rgba(0,212,124,0.3);
+}
+#tab-mind .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(10,6,22,0.90) 0%, rgba(14,8,28,0.80) 100%),
+    url('../assets/img/meditation.jpg') center/cover no-repeat;
+}
+#tab-mind .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(4,8,18,0.91) 0%, rgba(6,10,22,0.82) 100%),
+    url('../assets/img/stars.jpg') center/cover no-repeat;
+}
+
+/* Growth tab */
+#tab-growth .pane-left .pane-card:first-child {
+  background:
+    linear-gradient(160deg, rgba(10,8,26,0.90) 0%, rgba(14,10,30,0.82) 100%),
+    url('../assets/img/growth.jpg') center 30%/cover no-repeat;
+}
+#tab-growth .pane-left .pane-card:nth-child(2) {
+  background:
+    linear-gradient(160deg, rgba(12,8,4,0.90) 0%, rgba(16,10,4,0.80) 100%),
+    url('../assets/img/journal.jpg') center/cover no-repeat;
+}
+#tab-growth .pane-left .pane-card:nth-child(3) {
+  background:
+    linear-gradient(160deg, rgba(18,8,2,0.90) 0%, rgba(24,10,2,0.80) 100%),
+    url('../assets/img/sunrise.jpg') center/cover no-repeat;
+}
+
+/* Light theme overlays: also bump opacity for readability */
+[data-theme="light"] #tab-today .pane-left .pane-card:first-child,
+[data-theme="light"] #tab-today .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-today .pane-left .pane-card:nth-child(3),
+[data-theme="light"] #tab-today .pane-right .pane-card,
+[data-theme="light"] #tab-upsc .pane-left .pane-card:first-child,
+[data-theme="light"] #tab-upsc .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-upsc .pane-left .pane-card:nth-child(3),
+[data-theme="light"] #tab-finance .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-finance .pane-left .pane-card:nth-child(3),
+[data-theme="light"] #tab-finance .pane-left .pane-card:nth-child(4),
+[data-theme="light"] #tab-health .pane-left .pane-card:first-child,
+[data-theme="light"] #tab-health .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-health .pane-left .pane-card:nth-child(3),
+[data-theme="light"] #tab-mind .pane-left .pane-card:first-child,
+[data-theme="light"] #tab-mind .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-mind .pane-left .pane-card:nth-child(3),
+[data-theme="light"] #tab-growth .pane-left .pane-card:first-child,
+[data-theme="light"] #tab-growth .pane-left .pane-card:nth-child(2),
+[data-theme="light"] #tab-growth .pane-left .pane-card:nth-child(3) {
+  background-blend-mode: normal;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   D. TYPOGRAPHY HIERARCHY — Primary numbers bigger and bolder,
+      secondary labels smaller and more muted.
+   ────────────────────────────────────────────────────────────────── */
+
+/* Primary stat values: heroic sizing */
+.stat-card-value {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.pane-left .stat-card-value,
+.pane-right .stat-card-value {
+  font-size: clamp(16px, 3vw, 22px);
+}
+
+/* Stat labels: whisper-quiet */
+.stat-card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+
+/* Stat sub-text */
+.stat-card-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* Section titles: clear hierarchy marker */
+.section-title {
+  font-size: 10.5px;
+  letter-spacing: 0.11em;
+  color: color-mix(in srgb, var(--text-muted) 85%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+
+/* Pane card titles: slightly bolder */
+.pane-card-title {
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  font-weight: 800;
+}
+
+/* Domain card metrics: commanding */
+.domain-metric {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.pane-right .domain-metric {
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* Matrix quadrant titles */
+.matrix-quadrant-title { font-size: 15px; font-weight: 800; }
+.matrix-quadrant-sub { font-size: 10px; letter-spacing: 0.06em; margin-bottom: 10px; }
+.matrix-count { font-size: 11px; font-weight: 800; }
+
+/* Phase hero: clean hierarchy */
+.phase-hero-title { font-size: 20px; font-weight: 800; }
+.phase-hero-label { font-size: 10px; letter-spacing: 0.09em; }
+
+/* Finance hero */
+.fh-value { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; }
+.fh-title { font-size: 10px; letter-spacing: 0.09em; font-weight: 700; }
+
+/* UPSC card title */
+.upsc-card-title { font-size: 15px; font-weight: 700; }
+
+/* Goal card title */
+.goal-title { font-size: 16px; font-weight: 800; }
+
+/* Book title */
+.book-title { font-size: 17px; font-weight: 800; line-height: 1.3; }
+
+/* ──────────────────────────────────────────────────────────────────
+   E. QUOTE STRIP — Slimmer, more elegant, less dominant.
+   ────────────────────────────────────────────────────────────────── */
+
+.quote-strip {
+  min-height: 40px;
+  padding: 8px clamp(16px, 2vw, 32px);
+  gap: 14px;
+}
+.qs-icon { font-size: 15px; }
+.qs-text {
+  font-size: 13.5px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+.qs-author {
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   F. MILESTONE BANNER — More compact, less visual weight.
+   ────────────────────────────────────────────────────────────────── */
+
+.milestone-banner {
+  padding: 6px 20px;
+  font-size: 12.5px;
+  gap: 14px;
+  opacity: 0.9;
+}
+.ms-days {
+  font-size: 11px;
+  padding: 2px 6px;
+  min-width: 30px;
+}
+.ms-label { font-size: 11.5px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   G. TOPBAR — Slightly taller for breathing room.
+   ────────────────────────────────────────────────────────────────── */
+
+:root { --topbar-h: 56px; }
+.app-topbar { padding: 0 20px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   H. SIDEBAR — Wider item padding, relaxed nav items.
+   ────────────────────────────────────────────────────────────────── */
+
+.side-nav { padding: 12px 10px; gap: 3px; }
+.nav-item { padding: 11px 14px; font-size: 13.5px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   I. ROUTINE SCHEDULE — Cleaner slot appearance.
+   ────────────────────────────────────────────────────────────────── */
+
+.routine-header { padding: 16px 20px; }
+.slot-activity { font-size: 13.5px; line-height: 1.5; }
+.slot-meta { margin-top: 4px; gap: 12px; }
+.slot-check { padding: 14px 16px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   J. TODAY TAB — Less dense class/UPSC cards.
+   ────────────────────────────────────────────────────────────────── */
+
+.today-upsc-card { padding: 18px 20px; margin-bottom: 24px; }
+.today-upsc-item, .today-class-item {
+  padding: 10px 0;
+  gap: 12px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   K. UPSC LAG BANNER — Slightly more padding.
+   ────────────────────────────────────────────────────────────────── */
+
+.upsc-lag-banner {
+  padding: 14px 20px;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   L. DATA TABLES — Airier rows.
+   ────────────────────────────────────────────────────────────────── */
+
+.data-table th { padding: 12px 14px; }
+.data-table td { padding: 12px 14px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   M. FORMS — More generous field spacing.
+   ────────────────────────────────────────────────────────────────── */
+
+.fin-form-grid { gap: 18px; margin-bottom: 24px; }
+.form-field { gap: 8px; }
+.form-field input,
+.form-field select,
+.form-field textarea {
+  padding: 12px 16px;
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   N. TASKS — Airier task items, bucket headers.
+   ────────────────────────────────────────────────────────────────── */
+
+.task-item { padding: 10px 12px; gap: 10px; }
+.task-bucket-header { padding: 14px 14px 12px; }
+.task-list { padding: 10px 10px 6px; gap: 8px; }
+.task-add-area { padding: 10px 12px; gap: 8px; }
+.task-edit-area { padding: 12px; gap: 10px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   O. PRO-TIP CARD — Slightly more spacious.
+   ────────────────────────────────────────────────────────────────── */
+
+.pro-tip-card { padding: 20px 24px; gap: 18px; margin-bottom: 28px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   P. CHECKLIST / HEALTH ITEMS — Airier.
+   ────────────────────────────────────────────────────────────────── */
+
+.checklist-item { padding: 12px 14px; gap: 12px; }
+.health-form-row { gap: 14px; margin-bottom: 24px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   Q. STUDY TRACKER — Clean spacing.
+   ────────────────────────────────────────────────────────────────── */
+
+.study-summary-row { border-bottom: none; gap: 12px; padding: 8px 0; display: flex; flex-wrap: wrap; justify-content: center; }
+.study-stat-chip { padding: 12px 18px; }
+.study-sessions-wrap { padding: 0 18px 10px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   R. GROWTH TAB — Collapsible cards spacier.
+   ────────────────────────────────────────────────────────────────── */
+
+.gx-card-wrap { margin-bottom: 24px; }
+.gx-card-hdr { padding: 18px 22px; }
+.gx-card-body { padding: 0 22px 22px; }
+
+/* ──────────────────────────────────────────────────────────────────
+   S. RESPONSIVE — Tighten spacing on mobile to compensate.
+   ────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 960px) {
+  .tab-layout-3, .tab-layout-2 { padding: 20px 0; gap: 20px; }
+}
+
+@media (max-width: 600px) {
+  .pane-card { padding: 16px 18px; margin-bottom: 16px; }
+  .stat-card { padding: 16px 18px; }
+  .stat-card-value { font-size: 24px; }
+  .matrix-quadrant { padding: 14px; min-height: 160px; }
+  .matrix-grid { gap: 12px; }
+  .analytics-grid { gap: 10px; }
+  .section-title { margin-top: 32px; margin-bottom: 16px; }
+  .task-item { padding: 8px 10px; }
+  .quote-strip { min-height: 36px; padding: 6px 12px; }
+  .qs-text { font-size: 12px; }
+  .milestone-banner { padding: 4px 12px; font-size: 11px; }
+}
