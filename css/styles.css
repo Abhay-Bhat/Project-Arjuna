@@ -7105,3 +7105,446 @@ button:disabled, [disabled] {
   .qs-text { font-size: 12px; }
   .milestone-banner { padding: 4px 12px; font-size: 11px; }
 }
+
+/* =====================================================================
+   REDESIGN v67 — Visual Hierarchy, Accent System & Section Polish
+   All overrides appended here (source-order wins specificity).
+   ===================================================================== */
+
+/* ── Design tokens ── */
+:root {
+  --topbar-h: 60px;
+  --card-accent-h: 3px;
+  --section-gap: 40px;
+  --stat-font-size: 34px;
+}
+
+/* ── Shell: Topbar ── */
+.app-topbar {
+  height: var(--topbar-h) !important;
+  background: linear-gradient(90deg, var(--surface) 0%, color-mix(in srgb, var(--accent-blue) 6%, var(--surface)) 100%) !important;
+  border-bottom: 1px solid var(--border-bright) !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.45) !important;
+}
+
+/* ── Shell: Sidebar nav pills ── */
+.side-nav-item {
+  border-radius: var(--radius-sm) !important;
+  margin: 2px 8px !important;
+  padding: 10px 14px !important;
+  transition: background 0.15s, color 0.15s !important;
+}
+.side-nav-item.active {
+  background: color-mix(in srgb, var(--accent-blue) 18%, transparent) !important;
+  color: var(--accent-blue) !important;
+  box-shadow: inset 3px 0 0 var(--accent-blue) !important;
+}
+.side-nav-item:not(.active):hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent) !important;
+}
+
+/* ── Stat Cards — accented top border + gradient tint ── */
+.stat-card {
+  border-top: var(--card-accent-h) solid var(--accent-blue) !important;
+  background: linear-gradient(160deg, var(--card) 80%, color-mix(in srgb, var(--accent-blue) 5%, var(--card))) !important;
+  overflow: hidden;
+}
+.stat-card.sc-finance { border-top-color: var(--accent-amber) !important; }
+.stat-card.sc-health  { border-top-color: var(--accent-teal) !important; }
+.stat-card.sc-growth  { border-top-color: var(--accent-rose) !important; }
+.stat-card.sc-tasks   { border-top-color: var(--accent-violet) !important; }
+.stat-card.sc-green   { border-top-color: var(--accent-green) !important; }
+
+.stat-card-value {
+  font-size: var(--stat-font-size) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.1 !important;
+}
+.stat-card-title {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--text-muted) !important;
+}
+
+/* ── Section Titles — left accent bar ── */
+.section-title {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--text-muted) !important;
+  padding-left: 12px !important;
+  border-left: 3px solid var(--accent-blue) !important;
+  border-bottom: none !important;
+  margin: var(--section-gap) 0 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+.section-title.t-finance { border-left-color: var(--accent-amber) !important; }
+.section-title.t-health  { border-left-color: var(--accent-teal) !important; }
+.section-title.t-growth  { border-left-color: var(--accent-rose) !important; }
+.section-title.t-tasks   { border-left-color: var(--accent-violet) !important; }
+.section-title[style*="margin-top:0"] { margin-top: 0 !important; }
+
+/* ── Data Tables — striped, rounded container ── */
+.data-table-wrap {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 28px !important;
+}
+.data-table thead th {
+  background: color-mix(in srgb, var(--border) 60%, var(--card)) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.07em !important;
+  color: var(--text-muted) !important;
+  padding: 12px 14px !important;
+  border-bottom: 1px solid var(--border-bright) !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+.data-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--border) 20%, transparent) !important;
+}
+.data-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent-blue) 6%, transparent) !important;
+}
+.data-table td {
+  padding: 11px 14px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent) !important;
+  font-size: 13.5px !important;
+}
+
+/* ── Pane Card titles ── */
+.pane-card-title {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.09em !important;
+  color: var(--text-muted) !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid var(--border) !important;
+  margin-bottom: 14px !important;
+}
+
+/* ── Chart cards ── */
+.chart-wrap {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 20px 20px 16px !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 28px !important;
+}
+
+/* ── Status & priority badges — pill style ── */
+.status-badge, .priority-badge {
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+}
+.inv-status {
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* ── Form inputs — refined ── */
+.form-field label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.07em !important;
+  color: var(--text-muted) !important;
+  margin-bottom: 6px !important;
+}
+.form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.form-field select,
+.form-field textarea {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--text) !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+.form-field input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-blue) 20%, transparent) !important;
+  outline: none !important;
+}
+
+/* ── Matrix Quadrants — elevated with domain tints ── */
+.matrix-quadrant {
+  border-top-width: 4px !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.matrix-quadrant.q1 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-rose) 6%, var(--card))) !important;
+}
+.matrix-quadrant.q2 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-blue) 6%, var(--card))) !important;
+}
+.matrix-quadrant.q3 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-amber) 6%, var(--card))) !important;
+}
+.matrix-quadrant.q4 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-teal) 6%, var(--card))) !important;
+}
+
+/* ── Domain Cards — bold metric + accent border ── */
+.domain-card {
+  border-top: 3px solid var(--accent-blue) !important;
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-blue) 4%, var(--card))) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 16px 18px !important;
+  transition: transform 0.18s, box-shadow 0.18s !important;
+}
+.domain-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.domain-metric {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
+}
+.domain-label {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.09em !important;
+  color: var(--text-muted) !important;
+}
+.domain-card[data-domain="finance"] { border-top-color: var(--accent-amber) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-amber) 4%, var(--card))) !important; }
+.domain-card[data-domain="health"]  { border-top-color: var(--accent-teal) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-teal) 4%, var(--card))) !important; }
+.domain-card[data-domain="growth"]  { border-top-color: var(--accent-rose) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-rose) 4%, var(--card))) !important; }
+.domain-card[data-domain="routine"] { border-top-color: var(--accent-green) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-green) 4%, var(--card))) !important; }
+.domain-card[data-domain="goals"]   { border-top-color: var(--accent-gold) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-gold) 4%, var(--card))) !important; }
+.domain-card[data-domain="mind"]    { border-top-color: var(--accent-violet) !important; background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-violet) 4%, var(--card))) !important; }
+
+/* ── Tasks Tab — kanban polish ── */
+.task-bucket {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.task-bucket-header {
+  border-bottom: 1px solid var(--border) !important;
+  padding: 14px 16px !important;
+  background: color-mix(in srgb, var(--border) 30%, var(--surface)) !important;
+  border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
+}
+.task-card {
+  border-radius: var(--radius-sm) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  padding: 12px 14px !important;
+  transition: box-shadow 0.15s, transform 0.15s !important;
+}
+.task-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Today Tab: Phase Hero & Milestone Banner ── */
+.phase-hero {
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-lg) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 25%, transparent) !important;
+}
+.milestone-banner {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent-amber) 15%, var(--surface)),
+    color-mix(in srgb, var(--accent-rose) 10%, var(--surface))) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-amber) 30%, transparent) !important;
+  font-size: 12.5px !important;
+  padding: 7px 20px !important;
+}
+
+/* ── Finance Tab: Hero & Net Worth ── */
+.finance-hero {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid color-mix(in srgb, var(--accent-amber) 25%, transparent) !important;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-amber) 10%, var(--card)),
+    var(--card)) !important;
+  padding: 22px 24px !important;
+}
+.net-worth-card {
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 30%, transparent) !important;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent-blue) 10%, var(--card)),
+    var(--card)) !important;
+}
+
+/* ── UPSC Tab: Subject Cards ── */
+.upsc-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+.upsc-card.status-in-progress {
+  border-color: color-mix(in srgb, var(--accent-blue) 50%, var(--border)) !important;
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-blue) 4%, var(--card))) !important;
+}
+.upsc-card.status-completed {
+  border-color: color-mix(in srgb, var(--accent-green) 40%, var(--border)) !important;
+}
+
+/* ── Quick Check-In Cards ── */
+.qc-card {
+  border-radius: var(--radius-md) !important;
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s !important;
+}
+.qc-card.checked {
+  border-color: color-mix(in srgb, var(--accent-green) 50%, var(--border)) !important;
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-green) 6%, var(--card))) !important;
+}
+.qc-card:hover {
+  box-shadow: var(--shadow-sm) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ── Routine Time Slots ── */
+.time-slot {
+  padding: 10px 14px !important;
+  border-radius: var(--radius-sm) !important;
+  margin-bottom: 4px !important;
+  background: color-mix(in srgb, var(--border) 20%, transparent) !important;
+  border: 1px solid transparent !important;
+  transition: background 0.15s, border-color 0.15s !important;
+}
+.time-slot:hover { background: color-mix(in srgb, var(--border) 35%, transparent) !important; }
+.time-slot.checked {
+  background: color-mix(in srgb, var(--accent-green) 8%, transparent) !important;
+  border-color: color-mix(in srgb, var(--accent-green) 25%, transparent) !important;
+}
+
+/* ── Progress Bars — glowing fills ── */
+.prog-bar-fill {
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal)) !important;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent-blue) 60%, transparent) !important;
+  border-radius: 99px !important;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.prog-bar-fill.green {
+  background: linear-gradient(90deg, var(--accent-green), #00e89c) !important;
+  box-shadow: 0 0 6px color-mix(in srgb, var(--accent-green) 60%, transparent) !important;
+}
+.prog-bar-track {
+  border-radius: 99px !important;
+  overflow: hidden !important;
+}
+
+/* ── Growth Tab: Books ── */
+.book-card {
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border) !important;
+  background: var(--card) !important;
+  overflow: hidden !important;
+  transition: box-shadow 0.18s, transform 0.18s !important;
+}
+.book-card:hover { box-shadow: var(--shadow-md) !important; transform: translateY(-2px) !important; }
+.book-card.current {
+  border-color: color-mix(in srgb, var(--accent-violet) 50%, var(--border)) !important;
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-violet) 5%, var(--card))) !important;
+}
+
+/* ── Reference Details (Plan Reference & Resilience) ── */
+.ref-details {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  margin: 24px 0;
+}
+.ref-details > summary {
+  padding: 14px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  transition: color 0.15s;
+}
+.ref-details > summary::-webkit-details-marker { display: none; }
+.ref-details > summary:hover { color: var(--text); }
+.ref-details[open] > summary {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.ref-details > div { padding: 0 20px 20px; }
+
+/* ── Goals section header (Growth tab) ── */
+.goals-section-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 0 !important;
+}
+.goals-section-header .section-title {
+  margin-bottom: 0 !important;
+}
+
+/* ── Currency converter card ── */
+.currency-converter-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 20px !important;
+  box-shadow: var(--shadow-sm) !important;
+  margin-bottom: 28px !important;
+}
+
+/* ── Pro Tip Card (in right pane, borderless) ── */
+.pane-right .pro-tip-card {
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* ── Pane Card general hover ── */
+.pane-card {
+  transition: box-shadow 0.2s, border-color 0.2s !important;
+}
+.pane-card:hover {
+  border-color: var(--border-bright) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* ── Buttons — press effect ── */
+.btn:active { transform: scale(0.97) !important; }
+.btn-primary { box-shadow: 0 0 8px color-mix(in srgb, var(--accent-blue) 30%, transparent) !important; }
+.btn-primary:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--accent-blue) 45%, transparent) !important; }
+
+/* ── Mobile compensation ── */
+@media (max-width: 600px) {
+  .stat-card-value { font-size: 24px !important; }
+  .domain-metric { font-size: 22px !important; }
+  .section-title { margin: 28px 0 16px !important; }
+  .data-table td, .data-table thead th { padding: 8px 10px !important; }
+}
