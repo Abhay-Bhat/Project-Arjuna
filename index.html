@@ -24,7 +24,8 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
     <link rel="stylesheet" href="css/styles.css?v=68">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
@@ -433,16 +434,16 @@
           <!-- Timer display + countdown inputs + buttons -->
           <div class="study-timer-center-col">
             <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
-              <input type="number" id="studyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
-              <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
+              <input type="number" id="studyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
+              <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
             </div>
             <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
               <span class="study-pomo-cfg-lbl">Focus</span>
-              <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25"> <span>m</span>
+              <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
               <span class="study-pomo-cfg-lbl">Break</span>
-              <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5"> <span>m</span>
+              <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
               <span class="study-pomo-cfg-lbl">Long</span>
-              <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15"> <span>m</span>
+              <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
             </div>
             <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
             <div class="study-timer-btns">
@@ -577,7 +578,7 @@
           </div>
           <p class="fg-desc">Block distracting sites during study sessions. Add domains you <em>need</em> — everything else is blocked when the timer runs.</p>
           <div class="fg-input-row">
-            <input type="text" id="fgDomainInput" placeholder="ncert.nic.in" class="fg-input" />
+            <input type="text" id="fgDomainInput" placeholder="ncert.nic.in" class="fg-input" aria-label="Domain to allow" />
             <button class="fg-add-btn" id="fgAddBtn">Add</button>
           </div>
           <ul class="fg-domain-list" id="fgDomainList">
@@ -1693,16 +1694,16 @@
               </div>
               <div class="study-timer-center-col">
                 <div class="study-countdown-set" id="techStudyCountdownSet" style="display:none">
-                  <input type="number" id="techStudyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
-                  <input type="number" id="techStudyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
+                  <input type="number" id="techStudyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
+                  <input type="number" id="techStudyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
                 </div>
                 <div class="study-pomo-config" id="techStudyPomoConfig" style="display:none">
                   <span class="study-pomo-cfg-lbl">Focus</span>
-                  <input type="number" id="techPomoWorkMin"  min="1" max="120" placeholder="25"> <span>m</span>
+                  <input type="number" id="techPomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
                   <span class="study-pomo-cfg-lbl">Break</span>
-                  <input type="number" id="techPomoBreakMin" min="1" max="60"  placeholder="5"> <span>m</span>
+                  <input type="number" id="techPomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
                   <span class="study-pomo-cfg-lbl">Long</span>
-                  <input type="number" id="techPomoLongMin"  min="5" max="120" placeholder="15"> <span>m</span>
+                  <input type="number" id="techPomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
                 </div>
                 <div class="study-timer-display" id="techStudyTimerDisplay">00:00</div>
                 <div class="study-timer-btns">
@@ -1875,25 +1876,25 @@
           <div class="tasks-pane-section">
             <div class="tasks-pane-label">Filter &amp; Sort</div>
             <div class="tasks-filters">
-              <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority">
+              <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority" aria-label="Filter by priority">
                 <option value="all">All priorities</option>
                 <option value="urgent">🔴 Urgent</option>
                 <option value="high">🟠 High</option>
                 <option value="medium">🔵 Medium</option>
                 <option value="low">🟢 Low</option>
               </select>
-              <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status">
+              <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status" aria-label="Filter by status">
                 <option value="all">All statuses</option>
                 <option value="todo">○ Todo</option>
                 <option value="in-progress">⏳ In Progress</option>
               </select>
-              <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date">
+              <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date" aria-label="Filter by due date">
                 <option value="all">All dates</option>
                 <option value="overdue">⚠️ Overdue</option>
                 <option value="today">📅 Due today</option>
                 <option value="week">📆 Due this week</option>
               </select>
-              <select id="taskSort" class="tasks-filter-select" title="Sort tasks">
+              <select id="taskSort" class="tasks-filter-select" title="Sort tasks" aria-label="Sort tasks">
                 <option value="default">Sort: Default</option>
                 <option value="priority">Sort: Priority</option>
                 <option value="due">Sort: Due date</option>
@@ -1928,7 +1929,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="calendar-modal" id="phasesModal">
     <div class="calendar-content" style="max-width:660px;width:95%;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;">
-        <button style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" id="phasesClose">×</button>
+        <button style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" id="phasesClose" aria-label="Close">×</button>
         <div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
             <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">🗺️ Mission Phases — 2026–2028</h2>
             <p style="font-size:13px;color:var(--text-muted);">Your complete journey from Bangalore exit to UPSC success.</p>
@@ -1942,7 +1943,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="calendar-modal" id="calendarModal">
     <div class="calendar-content">
-        <button style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text);" id="calendarClose">×</button>
+        <button style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text);" id="calendarClose" aria-label="Close">×</button>
         <div class="calendar-header">
             <button class="calendar-nav-btn" id="prevMonth">← Prev</button>
             <h2 id="calendarMonthYear"></h2>
@@ -1957,7 +1958,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="onboarding-modal" id="onboardingModal">
     <div class="onboarding-content">
-        <button class="onboarding-close" id="onboardingClose">✕</button>
+        <button class="onboarding-close" id="onboardingClose" aria-label="Close">✕</button>
 
         <div class="onboarding-screen active" data-screen="1">
             <div class="obs-header">
@@ -2062,7 +2063,7 @@
 <!-- GLOSSARY MODAL -->
 <div class="glossary-modal" id="glossaryModal">
     <div class="glossary-content">
-        <button class="glossary-close" id="glossaryClose">✕</button>
+        <button class="glossary-close" id="glossaryClose" aria-label="Close">✕</button>
         <h2>Glossary</h2>
         <div class="glossary-list">
             <div class="glos-item">
@@ -2320,7 +2321,7 @@
           Device ID: <code id="backupDeviceId" style="font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:3px;">—</code>
         </div>
       </div>
-      <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" onclick="BackupManager.closeModal()">×</button>
+      <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" onclick="BackupManager.closeModal()" aria-label="Close">×</button>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;flex-wrap:wrap;">
