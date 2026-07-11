@@ -332,7 +332,15 @@ const StudyTracker = {
 
       document.getElementById('studyGoalInput')?.addEventListener('change', e => {
         const v = parseInt(e.target.value);
-        if (v > 0) { AppState.studyDailyGoal = v * 60; AppState.save(); this._updateTodayStats(); }
+        if (v > 0) {
+          if (this._domain === 'tech') {
+            AppState.techStudyDailyGoal = v;
+          } else {
+            AppState.studyDailyGoal = v * 60;
+          }
+          AppState.save();
+          this._updateTodayStats();
+        }
       });
 
       // Pomodoro duration inputs — persist to AppState and sync runtime vars
