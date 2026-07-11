@@ -33,16 +33,19 @@ const GUIDE_MODULES = [
     subtitle:'12-month roadmap + self-assessment + your real story',
     content: ()=>`
       ${_note('Your 3 stated gaps: <strong>CD/GitOps</strong>, <strong>fundamentals</strong> (Docker/K8s/AWS), and <strong>articulating wins in interviews</strong>. This roadmap closes all three.')}
-      ${_sec('12-MONTH TECH ROADMAP', `
+      ${_sec('76-WEEK TECH ROADMAP', `
         <table class="gfl-table">
-          <tr><th>Phase</th><th>Period</th><th>Hours</th><th>Focus</th><th>Target</th></tr>
-          <tr><td>1</td><td>Jul – Aug 2026</td><td>20h</td><td>Docker Foundations</td><td>2/10 → 4/10</td></tr>
-          <tr><td>2</td><td>Sep – Oct 2026</td><td>24h</td><td>Kubernetes Fundamentals</td><td>1/10 → 3/10</td></tr>
-          <tr><td>3</td><td>Nov – Dec 2026</td><td>24h</td><td>AWS Fundamentals</td><td>1/10 → 2–3/10</td></tr>
-          <tr><td>4</td><td>Jan – Feb 2027</td><td>16h</td><td>CI/CD & GitOps (GitLab focus)</td><td>2/10 → 3–4/10</td></tr>
-          <tr><td>5</td><td>Mar – Jun 2027</td><td>60h</td><td>Maintenance, Depth & Interview Drills</td><td>3/10 → 4–5/10</td></tr>
+          <tr><th>Phase</th><th>Period</th><th>Hours</th><th>Focus</th><th>Cert Target</th></tr>
+          <tr><td>1</td><td>Wk 1–2 · Jul 2026</td><td>9h</td><td>Docker Foundations</td><td>—</td></tr>
+          <tr><td>2</td><td>Wk 3–12 · Jul–Sep 2026</td><td>45h</td><td>Kubernetes + CKA</td><td>CKA (Wk 10–12)</td></tr>
+          <tr><td>3</td><td>Wk 13–18 · Oct–Nov 2026</td><td>27h</td><td>OpenShift Deep-dive</td><td>—</td></tr>
+          <tr><td>4</td><td>Wk 19–30 · Nov 2026–Feb 2027</td><td>54h</td><td>Groovy + Jenkins + ArgoCD</td><td>—</td></tr>
+          <tr><td>5</td><td>Wk 31–44 · Feb–May 2027</td><td>63h</td><td>Terraform + AWS SAA</td><td>Terraform Assoc (Wk 34–36), AWS SAA (Wk 43–44)</td></tr>
+          <tr><td>6</td><td>Wk 45–54 · May–Aug 2027</td><td>45h</td><td>Python + Networking + Mesh</td><td>—</td></tr>
+          <tr><td>7</td><td>Wk 55–63 · Aug–Sep 2027</td><td>40h</td><td>Observability + Security</td><td>—</td></tr>
+          <tr><td>8</td><td>Wk 64–76 · Sep–Dec 2027</td><td>58h</td><td>System Design + GenAI + PSM I</td><td>PSM I (Wk 74)</td></tr>
         </table>
-        ${_note('Cadence: Mon / Wed / Thu / Sat · 45 min/session ≈ 3 hrs/week ≈ 12 hrs/month ≈ 144 hrs/year.')}
+        ${_note('Cadence: 30 min weekdays + 1h Saturdays ≈ 4.5 hrs/week ≈ 341 hrs total over 76 weeks.')}
       `)}
       ${_sec('SELF-ASSESSMENT — Scores = operational depth without AI/docs help (1–10)', `
         <table class="gfl-table">

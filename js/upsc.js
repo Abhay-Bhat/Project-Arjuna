@@ -1,50 +1,38 @@
 // ============================================================
-// Skadi — UPSC Tracking System (Recalibrated)
+// Skadi — UPSC Tracking System (Integrated Master Plan)
 //
-// Schedule design:
-//  Track A — GS Main (Subjects 1–14): Mon–Fri, 1 class/day
-//             Light phase Jun–Aug'26: Mon/Wed/Fri only
-//  Track B — CSAT (Subject 17): Tue/Thu from Dec 19, 2026
-//  Track C — Sociology P1 (Subject 15): Saturdays from Nov 20, 2026
-//  Track D — Sociology P2 (Subject 16): Saturdays, after P1
-//  Track E — Essay (Subject 18): after main track + buffer
-//
-// Strategic priority for Prelims 2027 (early 2028):
-//  Priority-1 subjects targeted first (Phase 1, Aug 2026–Feb 2027).
-//  Remaining subjects + Sociology Optional follow in Phase 2 (Feb–Jun 2027).
+// Phase 4 — Sequential Subject Classes (Sep 14, 2026 – Dec 31, 2027)
+// All 18 subjects studied one after another in a fixed order.
+// Phases 1-3 (Orientation + NCERT + Syllabus mapping) precede this.
+// All classes complete by Dec 31, 2027.
+// Mock phase Jan–Apr 2028 → Prelims May/Jun 2028.
 // ============================================================
 
 const UPSC_SUBJECTS = [
-  // GS Spine — Phase 1 priority (start first)
-  { id:  1, name: "Indian Polity",                                 classes: 39,  track: 'main',     priority: 1 },
-  { id:  2, name: "Modern History & Post-Independence",            classes: 32,  track: 'main',     priority: 1 },
-  { id:  3, name: "Geography",                                     classes: 39,  track: 'main',     priority: 1 },
-  { id:  4, name: "Economy",                                       classes: 33,  track: 'main',     priority: 1 },
-  { id:  5, name: "Ancient & Medieval History, Art & Culture",     classes: 36,  track: 'main',     priority: 2 },
-  { id:  6, name: "Environment & Ecology",                         classes: 16,  track: 'main',     priority: 2 },
-  { id:  7, name: "Science & Technology",                          classes: 34,  track: 'main',     priority: 2 },
-  // GS Extended — Phase 2 onward
-  { id:  8, name: "International Relations",                       classes: 26,  track: 'main',     priority: 2 },
-  { id:  9, name: "Governance",                                    classes: 11,  track: 'main',     priority: 2 },
-  { id: 10, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 1 },
-  { id: 11, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
-  { id: 12, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
-  { id: 13, name: "World History",                                 classes: 12,  track: 'main',     priority: 2 },
-  { id: 14, name: "Ethics, Integrity & Aptitude",                  classes: 30,  track: 'main',     priority: 2 },
-  // Optional — Parallel
-  { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 2 },
-  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 2 },
-  // CSAT — Parallel from Nov 2026
-  { id: 17, name: "CSAT",                                          classes: 69,  track: 'csat',     priority: 1 },
-  // Essay
-  { id: 18, name: "Essay",                                         classes:  5,  track: 'essay',    priority: 2 }
+  // Sequential order per Integrated Master Plan Phase 4
+  { id:  1, name: "Indian Polity",                             classes: 39,  hours: 136.5, start: '2026-09-14', end: '2026-10-18' },
+  { id:  2, name: "Modern History & Post-Independence",        classes: 32,  hours: 112,   start: '2026-10-19', end: '2026-11-15' },
+  { id:  3, name: "Geography",                                 classes: 39,  hours: 136.5, start: '2026-11-16', end: '2026-12-20' },
+  { id:  4, name: "Economy",                                   classes: 33,  hours: 115.5, start: '2026-12-21', end: '2027-01-17' },
+  { id:  5, name: "Indian Society & Social Justice",           classes: 31,  hours: 108.5, start: '2027-01-18', end: '2027-02-14' },
+  { id:  6, name: "CSAT",                                      classes: 69,  hours: 241.5, start: '2027-02-15', end: '2027-04-12' },
+  { id:  7, name: "Ancient & Medieval History, Art & Culture", classes: 36,  hours: 126,   start: '2027-04-13', end: '2027-05-10' },
+  { id:  8, name: "Environment & Ecology",                     classes: 16,  hours: 56,    start: '2027-05-11', end: '2027-05-24' },
+  { id:  9, name: "Science & Technology",                      classes: 34,  hours: 119,   start: '2027-05-25', end: '2027-06-21' },
+  { id: 10, name: "International Relations",                   classes: 26,  hours: 91,    start: '2027-06-22', end: '2027-07-12' },
+  { id: 11, name: "Governance",                                classes: 11,  hours: 38.5,  start: '2027-07-13', end: '2027-07-22' },
+  { id: 12, name: "Internal Security",                         classes: 14,  hours: 49,    start: '2027-07-23', end: '2027-08-05' },
+  { id: 13, name: "Disaster Management",                       classes:  4,  hours: 14,    start: '2027-08-06', end: '2027-08-09' },
+  { id: 14, name: "World History",                              classes: 12,  hours: 42,    start: '2027-08-10', end: '2027-08-20' },
+  { id: 15, name: "Ethics, Integrity & Aptitude",              classes: 30,  hours: 105,   start: '2027-08-21', end: '2027-09-17' },
+  { id: 16, name: "Sociology — Paper 01",                      classes: 105, hours: 367.5, start: '2027-09-18', end: '2027-12-10' },
+  { id: 17, name: "Sociology — Paper 02",                      classes: 30,  hours: 105,   start: '2027-12-11', end: '2027-12-31' },
+  { id: 18, name: "Essay",                                      classes:  5,  hours: 17.5,  start: '2027-12-15', end: '2027-12-31' }
 ];
 
-const CA_START = '2026-11-18'; // Current Affairs daily from Nov 2026
+const CA_START = '2026-07-13';
 
-// Bump whenever _buildSchedule()'s logic/priorities change so existing users'
-// cached AppState.upscSchedule (a derived, non-user-data cache) gets rebuilt.
-const SCHEDULE_VERSION = 3;
+const SCHEDULE_VERSION = 4;
 
 // Bump to force a one-time reset of AppState.upscSubjectProgress (e.g. after
 // a UPSC timeline restart) for existing users — mirrors SCHEDULE_VERSION.
@@ -86,10 +74,7 @@ const UPSCTracker = {
   _buildSchedule() {
     const schedule = [];
     const DAY = 864e5;
-
     const str = d => d.toISOString().split('T')[0];
-
-    const isLight    = d => { const s = str(d); return s >= '2026-06-27' && s <= '2026-08-13'; };
 
     const push = (d, subj, classNum) => schedule.push({
       date:         str(d),
@@ -97,80 +82,18 @@ const UPSCTracker = {
       subject_id:   subj.id,
       subject_name: subj.name,
       class_number: classNum,
-      total_classes: subj.classes,
-      track:        subj.track,
-      priority:     subj.priority
+      total_classes: subj.classes
     });
 
-    // ── TRACK A: GS Main (subjects 1–14) ──────────────────
-    const mainSubjects = UPSC_SUBJECTS.filter(s => s.track === 'main');
-    let mainDate = new Date('2026-06-28'); // First Mon in light phase
-
-    for (const subj of mainSubjects) {
+    for (const subj of UPSC_SUBJECTS) {
+      let d = new Date(subj.start);
       let left = subj.classes;
       while (left > 0) {
-        // Skip Sunday always
-        while (mainDate.getDay() === 0) mainDate = new Date(mainDate.getTime() + DAY);
-        // Light phase: Mon/Wed/Fri only
-        if (isLight(mainDate) && ![1,3,5].includes(mainDate.getDay())) {
-          mainDate = new Date(mainDate.getTime() + DAY);
-          continue;
-        }
-        push(mainDate, subj, subj.classes - left + 1);
+        while (d.getDay() === 0) d = new Date(d.getTime() + DAY);
+        push(d, subj, subj.classes - left + 1);
         left--;
-        mainDate = new Date(mainDate.getTime() + DAY);
+        d = new Date(d.getTime() + DAY);
       }
-      // 2-working-day buffer after each subject
-      for (let i = 0; i < 2; i++) {
-        mainDate = new Date(mainDate.getTime() + DAY);
-        while (mainDate.getDay() === 0) mainDate = new Date(mainDate.getTime() + DAY);
-      }
-    }
-
-    // ── TRACK B: CSAT — Tue & Thu from Nov 1, 2026 ────────
-    const csat = UPSC_SUBJECTS.find(s => s.id === 17);
-    let csatDate = new Date('2026-12-19');
-    // Advance to first Tuesday
-    while (csatDate.getDay() !== 2) csatDate = new Date(csatDate.getTime() + DAY);
-    let csatLeft = csat.classes;
-    while (csatLeft > 0) {
-      while (![2,4].includes(csatDate.getDay())) csatDate = new Date(csatDate.getTime() + DAY);
-      push(csatDate, csat, csat.classes - csatLeft + 1);
-      csatLeft--;
-      csatDate = new Date(csatDate.getTime() + DAY);
-    }
-
-    // ── TRACK C: Sociology P1 — Saturdays from Oct 4, 2026 ─
-    const socP1 = UPSC_SUBJECTS.find(s => s.id === 15);
-    let socDate = new Date('2026-11-20');
-    while (socDate.getDay() !== 6) socDate = new Date(socDate.getTime() + DAY);
-    let socLeft = socP1.classes;
-    while (socLeft > 0) {
-      push(socDate, socP1, socP1.classes - socLeft + 1);
-      socLeft--;
-      socDate = new Date(socDate.getTime() + 7 * DAY); // next Saturday
-    }
-
-    // ── TRACK D: Sociology P2 — Saturdays after P1 ends ───
-    const socP2 = UPSC_SUBJECTS.find(s => s.id === 16);
-    let soc2Left = socP2.classes;
-    while (soc2Left > 0) {
-      push(socDate, socP2, socP2.classes - soc2Left + 1);
-      soc2Left--;
-      socDate = new Date(socDate.getTime() + 7 * DAY);
-    }
-
-    // ── TRACK E: Essay — after main track, 2-week buffer ──
-    const essay = UPSC_SUBJECTS.find(s => s.id === 18);
-    const mainEnd = schedule
-      .filter(e => e.track === 'main')
-      .map(e => e.date).sort().pop();
-    let essayDate = mainEnd ? new Date(new Date(mainEnd).getTime() + 14 * DAY) : new Date('2027-12-01');
-    while (essayDate.getDay() === 0) essayDate = new Date(essayDate.getTime() + DAY);
-    for (let i = 0; i < essay.classes; i++) {
-      while (essayDate.getDay() === 0) essayDate = new Date(essayDate.getTime() + DAY);
-      push(essayDate, essay, i + 1);
-      essayDate = new Date(essayDate.getTime() + DAY);
     }
 
     return schedule.sort((a, b) => a.date.localeCompare(b.date) ||
@@ -186,6 +109,8 @@ const UPSCTracker = {
   },
 
   getDateRange(subjectId) {
+    const subj = UPSC_SUBJECTS.find(s => s.id === subjectId);
+    if (subj) return { start: subj.start, end: subj.end };
     const rows = (AppState.upscSchedule || [])
       .filter(e => e.subject_id === subjectId)
       .map(e => e.date).sort();
@@ -193,17 +118,13 @@ const UPSCTracker = {
     return { start: rows[0], end: rows[rows.length - 1] };
   },
 
-  // ── Prelims 2027 milestone coverage ──────────────────────
-  getPrelims2027Coverage() {
-    const cutoff = '2028-01-17';
-    const p1Subjects = UPSC_SUBJECTS.filter(s => s.priority === 1 && s.track === 'main');
-    let totalP1 = 0, scheduledBeforePrelims = 0;
-    p1Subjects.forEach(s => {
-      totalP1 += s.classes;
-      scheduledBeforePrelims += (AppState.upscSchedule || [])
-        .filter(e => e.subject_id === s.id && e.date <= cutoff).length;
+  getPrelimsCoverage() {
+    const total = UPSC_SUBJECTS.reduce((s, sub) => s + sub.classes, 0);
+    let done = 0;
+    UPSC_SUBJECTS.forEach(s => {
+      done += (AppState.upscSubjectProgress?.[s.id] || 0);
     });
-    return { scheduled: scheduledBeforePrelims, total: totalP1 };
+    return { done, total };
   },
 
   // ── Weekly count (from per-subject progress vs schedule) ─
@@ -272,7 +193,7 @@ const UPSCTracker = {
     set('upscCurrentProgress', cur ? `${cur.done} / ${cur.subject.classes} classes` : '');
 
     // Prelims 2027 coverage
-    const cov = this.getPrelims2027Coverage();
+    const cov = this.getPrelimsCoverage();
     const covPct = cov.total > 0 ? Math.round((cov.scheduled / cov.total) * 100) : 0;
     set('prelims2027Cov', covPct + '%');
     setW('prelims2027Bar', covPct);
@@ -366,10 +287,9 @@ const UPSCTracker = {
     const classes = this.getForDate(dateKey);
     el.innerHTML = classes.length
       ? classes.map(c =>
-          `<div class="today-class-item track-${c.track}">
+          `<div class="today-class-item">
             <span class="tc-num">Class ${c.class_number}/${c.total_classes}</span>
             <span class="tc-name">${c.subject_name}</span>
-            <span class="tc-track">${c.track.toUpperCase()}</span>
           </div>`).join('')
       : `<div class="empty-state">No classes scheduled for ${dateLabel}</div>`;
   },
@@ -386,10 +306,8 @@ const UPSCTracker = {
       const status = pct === 100 ? 'completed' : pct > 0 ? 'in-progress' : 'not-started';
       const { start, end } = this.getDateRange(s.id);
 
-      const trackClass = `track-badge-${s.track}`;
-      const priorityBadge = s.priority === 1
-        ? '<span class="priority-badge">2027</span>'
-        : '<span class="priority-badge p2">2028</span>';
+      const statusLabel = status === 'completed' ? 'Done' : status === 'in-progress' ? 'Active' : 'Upcoming';
+      const statusBadgeClass = status === 'completed' ? 'done' : status === 'in-progress' ? 'active' : 'upcoming';
 
       const card = document.createElement('div');
       card.className = `upsc-card status-${status}`;
@@ -397,8 +315,7 @@ const UPSCTracker = {
         <div class="upsc-card-header">
           <div class="upsc-card-title">${s.name}</div>
           <div class="upsc-card-badges">
-            ${priorityBadge}
-            <span class="${trackClass} track-badge">${s.track.toUpperCase()}</span>
+            <span class="status-badge ${statusBadgeClass}">${statusLabel}</span>
           </div>
         </div>
         <div class="upsc-card-progress">
@@ -759,12 +676,10 @@ const UPSCTracker = {
     const dt      = new Date(y, m - 1, dd);
     const heading = dt.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    const trackLabel = { main: 'GS', sociology: 'SOC', csat: 'CSAT', essay: 'ESSAY' };
     const classRows  = entries.length
       ? entries.map(e => {
           const done = (prog[e.subject_id] || 0) >= e.class_number;
           return `<div class="upsc-cal-entry ${done ? 'done' : ''}">
-            <span class="upsc-cal-track-badge upsc-badge-${e.track}">${trackLabel[e.track] || e.track.toUpperCase()}</span>
             <span class="upsc-cal-entry-num">Class ${e.class_number}/${e.total_classes}</span>
             <span class="upsc-cal-entry-name">${escFn(e.subject_name)}</span>
             <span class="upsc-cal-entry-status">${done ? '✅' : '⬜'}</span>
