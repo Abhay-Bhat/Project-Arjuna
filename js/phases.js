@@ -74,8 +74,8 @@ const MILESTONES = [
   { label: 'ALL CLASSES COMPLETE',                    date: '2027-12-31', done: false },
   { label: 'PSM I Exam (~Dec 2027)',                  date: '2027-12-12', done: false },
   { label: 'Mock Phase begins',                      date: '2028-01-01', done: false },
-  { label: 'UPSC Prelims 2028',                      date: '2028-05-15', done: false },
-  { label: 'UPSC Mains 2028',                        date: '2028-09-15', done: false }
+  { label: 'UPSC Prelims 2028',                      date: '2028-05-26', done: false },
+  { label: 'UPSC Mains 2028',                        date: '2028-09-20', done: false }
 ];
 
 const PhaseManager = {
