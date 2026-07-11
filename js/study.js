@@ -64,6 +64,7 @@ const StudyTracker = {
   _pomoWorkMin:    25,
   _pomoBreakMin:   5,
   _pomoLongMin:    15,
+  _domain:        'upsc',  // 'upsc' | 'tech'
 
   // ── Accessors ─────────────────────────────────────────────
 
@@ -81,6 +82,76 @@ const StudyTracker = {
       AppState.studySubjects = [...AppState.studySubjects, ...missing];
       AppState.save();
     }
+  },
+
+  // ── Combined sessions (UPSC + Tech) for analytics ─────────
+
+  _getAllSessions() {
+    const upsc = (AppState.studyLog || []).map(s => ({ ...s, domain: 'upsc' }));
+    const tech = (AppState.techStudyLog || []).map(s => ({ ...s, domain: 'tech' }));
+    return [...upsc, ...tech].sort((a, b) => (b.id || 0) - (a.id || 0));
+  },
+
+  // ── Domain switching (UPSC / Tech) ────────────────────────
+
+  switchDomain(domain) {
+    if (this._running) this._stopTimer();
+    this._domain = domain;
+
+    const subSel = document.getElementById('studySubjectSel');
+    const actSel = document.getElementById('studyActivitySel');
+
+    if (domain === 'tech' && typeof TechStudyTracker !== 'undefined') {
+      const subjects = TechStudyTracker.getSubjects();
+      const activities = TechStudyTracker.getActivities();
+      if (subSel) subSel.innerHTML = subjects.map(s =>
+        `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
+      if (actSel) actSel.innerHTML = activities.map(a =>
+        `<option value="${esc(a.id)}">${esc(a.tree||'🌱')} ${esc(a.label)}</option>`).join('');
+
+      const goalEl = document.getElementById('studyGoalInput');
+      if (goalEl) {
+        goalEl.value = Math.round((AppState.techStudyDailyGoal || 30));
+        goalEl.max = 240;
+        const lbl = goalEl.parentElement?.querySelector('label');
+        if (lbl) lbl.textContent = 'Daily goal (min)';
+        const unit = goalEl.nextSibling;
+        if (unit && unit.nodeType === 3) unit.textContent = ' min';
+      }
+    } else {
+      this._populateSelects();
+      const goalEl = document.getElementById('studyGoalInput');
+      if (goalEl) {
+        goalEl.value = Math.round((AppState.studyDailyGoal || 240) / 60);
+        goalEl.max = 24;
+        const lbl = goalEl.parentElement?.querySelector('label');
+        if (lbl) lbl.textContent = 'Daily goal';
+        const unit = goalEl.nextSibling;
+        if (unit && unit.nodeType === 3) unit.textContent = ' h';
+      }
+    }
+
+    const toggle = document.getElementById('studyDomainToggle');
+    if (toggle) {
+      toggle.querySelectorAll('.study-domain-btn').forEach(btn => {
+        const active = btn.dataset.domain === domain;
+        btn.classList.toggle('active', active);
+        btn.style.background = active ? 'var(--accent-blue)' : 'transparent';
+        btn.style.color = active ? '#fff' : 'var(--text-muted)';
+      });
+    }
+
+    this._updateTodayStats();
+    this._renderForestPanel();
+  },
+
+  _bindDomainToggle() {
+    const toggle = document.getElementById('studyDomainToggle');
+    if (!toggle || toggle.dataset.init) return;
+    toggle.dataset.init = '1';
+    toggle.querySelectorAll('.study-domain-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.switchDomain(btn.dataset.domain));
+    });
   },
 
   // ── Tree logic: 25 min = full tree ────────────────────────
@@ -175,6 +246,7 @@ const StudyTracker = {
 
   render() {
     this._ensureDefaultSubjects();
+    this._bindDomainToggle();
     this._renderClock();
     this._startClock();
     this._renderTimerPanel();
@@ -354,7 +426,9 @@ const StudyTracker = {
 
   _updateTodayStats() {
     const min  = this.getTodayTotalMin();
-    const goal = AppState.studyDailyGoal || 240;
+    const goal = this._domain === 'tech'
+      ? (AppState.techStudyDailyGoal || 30)
+      : (AppState.studyDailyGoal || 240);
     const pct  = goal > 0 ? Math.min(100, Math.round((min / goal) * 100)) : 0;
     const s    = id => document.getElementById(id);
     if (s('studyTodayTotal')) s('studyTodayTotal').textContent = this.fmtDur(min);
@@ -362,7 +436,9 @@ const StudyTracker = {
     if (s('studyGoalPct'))    s('studyGoalPct').textContent  = `${pct}% of ${this.fmtDur(goal)} goal`;
     if (s('studyTodayBadge')) s('studyTodayBadge').textContent = this.fmtDur(min) + ' today';
     if (s('studyGoalInput') && !s('studyGoalInput').dataset.set) {
-      s('studyGoalInput').value = Math.round(goal / 60);
+      s('studyGoalInput').value = this._domain === 'tech'
+        ? Math.round(goal)
+        : Math.round(goal / 60);
       s('studyGoalInput').dataset.set = '1';
     }
   },
@@ -645,8 +721,9 @@ const StudyTracker = {
 
   _saveSession(durationMin, completed) {
     if (durationMin < 1) return;
-    if (!AppState.studyLog) AppState.studyLog = [];
-    AppState.studyLog.push({
+    const logKey = this._domain === 'tech' ? 'techStudyLog' : 'studyLog';
+    if (!AppState[logKey]) AppState[logKey] = [];
+    AppState[logKey].push({
       id:           Date.now(),
       date:         AppState.getTodayKey(),
       subject:      this._activeSubject  || 'history',
