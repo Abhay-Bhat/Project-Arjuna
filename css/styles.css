@@ -805,7 +805,28 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .status-completed .upsc-prog-fill { background: linear-gradient(90deg, var(--accent-green), #00e89c); }
 
-.upsc-card-dates { font-size: 14px; color: var(--text-faint); font-family: 'Space Mono', monospace; margin-bottom: 10px; }
+.upsc-card-dates {
+  font-size: 12px;
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 10px;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent-blue) 10%, var(--surface));
+  color: var(--accent-blue);
+  border: 1px solid color-mix(in srgb, var(--accent-blue) 20%, transparent);
+  font-weight: 600;
+}
+.upsc-card.status-completed .upsc-card-dates {
+  background: color-mix(in srgb, var(--accent-green) 10%, var(--surface));
+  color: var(--accent-green);
+  border-color: color-mix(in srgb, var(--accent-green) 20%, transparent);
+}
+.upsc-card.status-not-started .upsc-card-dates {
+  background: color-mix(in srgb, var(--text-muted) 8%, var(--surface));
+  color: var(--text-muted);
+  border-color: color-mix(in srgb, var(--text-muted) 15%, transparent);
+}
 
 .upsc-card-input { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; color: var(--text-muted); }
 .upsc-num-input {

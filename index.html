@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
-    <link rel="stylesheet" href="css/styles.css?v=71">
+    <link rel="stylesheet" href="css/styles.css?v=72">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -226,6 +226,72 @@
 
     <!-- ═ TODAY TAB ═ -->
     <div id="tab-today" class="tab-panel active">
+
+      <!-- ═ STUDY TIMER — top of home page ═ -->
+      <div class="section-title" style="margin-top:0;">📚 Integrated Study Timer</div>
+      <div class="study-timer-panel pane-card" style="margin-bottom:20px;">
+        <div class="study-domain-toggle" id="studyDomainToggle" style="display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);">
+          <button class="study-domain-btn active" data-domain="upsc" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--accent-blue);color:#fff;transition:background 0.15s,color 0.15s;">📚 UPSC</button>
+          <button class="study-domain-btn" data-domain="tech" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:background 0.15s,color 0.15s;">💻 Tech</button>
+        </div>
+        <div class="study-timer-toprow">
+          <div class="study-mode-toggle" id="studyModeToggle">
+            <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
+            <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
+            <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
+          </div>
+          <div class="study-goal-inline">
+            <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
+            <input type="number" id="studyGoalInput" min="1" max="24" value="4" style="width:44px;text-align:center;"> h
+          </div>
+        </div>
+        <div class="study-timer-desc" id="studyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
+        <div class="study-pomo-status" id="studyPomoStatus" style="display:none">
+          <span class="study-pomo-phase" id="studyPomoPhase">🍅</span>
+          <span class="study-pomo-round" id="studyPomoRound">Ready to start</span>
+        </div>
+        <div class="study-timer-main-row">
+          <div class="study-live-tree-col">
+            <div class="study-live-tree" id="studyLiveTree">🌱</div>
+            <div class="study-live-tree-label" id="studyLiveTreeLabel" style="display:none"></div>
+          </div>
+          <div class="study-timer-center-col">
+            <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
+              <input type="number" id="studyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
+              <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
+            </div>
+            <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
+              <span class="study-pomo-cfg-lbl">Focus</span>
+              <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
+              <span class="study-pomo-cfg-lbl">Break</span>
+              <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
+              <span class="study-pomo-cfg-lbl">Long</span>
+              <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
+            </div>
+            <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
+            <div class="study-timer-btns">
+              <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
+              <button id="studyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
+            </div>
+          </div>
+          <div class="study-selectors-col">
+            <div class="form-field" style="margin-bottom:8px;">
+              <label>Subject</label>
+              <select id="studySubjectSel"></select>
+            </div>
+            <div class="form-field" style="margin-bottom:10px;">
+              <label>Activity</label>
+              <select id="studyActivitySel"></select>
+            </div>
+            <div class="study-today-mini">
+              Today: <strong id="studyTodayTotal">0m</strong>
+              <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
+              <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 4h goal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="tab-layout-3">
 
         <!-- ── LEFT PANE: Calendar + Quick Check-Ins ── -->
@@ -329,44 +395,6 @@
             <div id="scheduleContainer"></div>
           </div>
 
-          <!-- ── Time Management Matrix (Eisenhower) ── -->
-          <div class="section-title">🧭 Time Management Matrix</div>
-          <p class="matrix-intro">Auto-sorted from your Tasks, today's Routine, and upcoming Milestones — Eisenhower-style. Check items off here and they update everywhere else too.</p>
-          <div class="matrix-grid">
-            <div class="matrix-quadrant q1">
-              <div class="matrix-quadrant-header">
-                <span class="matrix-quadrant-title">🔥 Do First</span>
-                <span class="matrix-count" id="matrixCount1">0</span>
-              </div>
-              <div class="matrix-quadrant-sub">Urgent &amp; Important</div>
-              <div class="matrix-item-list" id="matrixQ1"></div>
-            </div>
-            <div class="matrix-quadrant q2">
-              <div class="matrix-quadrant-header">
-                <span class="matrix-quadrant-title">📅 Schedule</span>
-                <span class="matrix-count" id="matrixCount2">0</span>
-              </div>
-              <div class="matrix-quadrant-sub">Important, Not Urgent</div>
-              <div class="matrix-item-list" id="matrixQ2"></div>
-            </div>
-            <div class="matrix-quadrant q3">
-              <div class="matrix-quadrant-header">
-                <span class="matrix-quadrant-title">⚡ Quick Wins</span>
-                <span class="matrix-count" id="matrixCount3">0</span>
-              </div>
-              <div class="matrix-quadrant-sub">Urgent, Not Important</div>
-              <div class="matrix-item-list" id="matrixQ3"></div>
-            </div>
-            <div class="matrix-quadrant q4">
-              <div class="matrix-quadrant-header">
-                <span class="matrix-quadrant-title">🌙 Eliminate</span>
-                <span class="matrix-count" id="matrixCount4">0</span>
-              </div>
-              <div class="matrix-quadrant-sub">Neither</div>
-              <div class="matrix-item-list" id="matrixQ4"></div>
-            </div>
-          </div>
-
         </div><!-- end pane-main -->
 
         <!-- ── RIGHT PANE: Life Dashboard ── -->
@@ -394,89 +422,6 @@
         </div><!-- end pane-right -->
 
       </div><!-- end tab-layout-3 -->
-
-      <!-- ═ STUDY TRACKERS — UPSC + Tech, tracked together from Home ═ -->
-      <div class="section-title" style="margin-top:0;">📚 Integrated Study Timer</div>
-
-      <!-- ── Study Timer Panel (full-width, top of main pane) ── -->
-      <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
-
-        <!-- Study Domain Toggle: UPSC vs Tech -->
-        <div class="study-domain-toggle" id="studyDomainToggle" style="display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);">
-          <button class="study-domain-btn active" data-domain="upsc" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--accent-blue);color:#fff;transition:background 0.15s,color 0.15s;">📚 UPSC</button>
-          <button class="study-domain-btn" data-domain="tech" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:background 0.15s,color 0.15s;">💻 Tech</button>
-        </div>
-
-        <!-- Mode toggle + daily goal -->
-        <div class="study-timer-toprow">
-          <div class="study-mode-toggle" id="studyModeToggle">
-            <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
-            <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
-            <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
-          </div>
-          <div class="study-goal-inline">
-            <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
-            <input type="number" id="studyGoalInput" min="1" max="24" value="4" style="width:44px;text-align:center;"> h
-          </div>
-        </div>
-        <!-- Mode description -->
-        <div class="study-timer-desc" id="studyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
-
-        <!-- Pomodoro phase status (hidden in other modes) -->
-        <div class="study-pomo-status" id="studyPomoStatus" style="display:none">
-          <span class="study-pomo-phase" id="studyPomoPhase">🍅</span>
-          <span class="study-pomo-round" id="studyPomoRound">Ready to start</span>
-        </div>
-
-        <!-- 3-col layout: live tree | timer display | selectors -->
-        <div class="study-timer-main-row">
-
-          <!-- Live growing tree -->
-          <div class="study-live-tree-col">
-            <div class="study-live-tree" id="studyLiveTree">🌱</div>
-            <div class="study-live-tree-label" id="studyLiveTreeLabel" style="display:none"></div>
-          </div>
-
-          <!-- Timer display + countdown inputs + buttons -->
-          <div class="study-timer-center-col">
-            <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
-              <input type="number" id="studyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
-              <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
-            </div>
-            <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
-              <span class="study-pomo-cfg-lbl">Focus</span>
-              <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
-              <span class="study-pomo-cfg-lbl">Break</span>
-              <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
-              <span class="study-pomo-cfg-lbl">Long</span>
-              <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
-            </div>
-            <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
-            <div class="study-timer-btns">
-              <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
-              <button id="studyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
-            </div>
-          </div>
-
-          <!-- Subject + Activity selectors + today total -->
-          <div class="study-selectors-col">
-            <div class="form-field" style="margin-bottom:8px;">
-              <label>Subject</label>
-              <select id="studySubjectSel"></select>
-            </div>
-            <div class="form-field" style="margin-bottom:10px;">
-              <label>Activity</label>
-              <select id="studyActivitySel"></select>
-            </div>
-            <div class="study-today-mini">
-              Today: <strong id="studyTodayTotal">0m</strong>
-              <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-              <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 4h goal</div>
-            </div>
-          </div>
-
-        </div><!-- end 3-col -->
-      </div><!-- end study-timer-panel -->
 
       <!-- ── Study Log ── -->
       <div class="section-title">Study Log</div>
