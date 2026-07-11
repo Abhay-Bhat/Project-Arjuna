@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
-    <link rel="stylesheet" href="css/styles.css?v=72">
+    <link rel="stylesheet" href="css/styles.css?v=73">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -1190,6 +1190,16 @@
             <div id="gymHeatmap" style="overflow-x:auto;"></div>
           </div>
 
+          <div class="pane-card">
+            <div class="pane-card-title">😴 Sleep Trend (14d)</div>
+            <div class="chart-wrap chart-wrap-compact"><canvas id="sleepChart"></canvas></div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">📱 Phone Usage (14d)</div>
+            <div class="chart-wrap chart-wrap-compact"><canvas id="phoneChart"></canvas></div>
+          </div>
+
         </div><!-- end pane-left -->
 
         <!-- ── MAIN: Charts + Cholesterol ── -->
@@ -1513,12 +1523,6 @@
 
   </div>
 </section>
-
-          <div class="section-title">Sleep Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
-
-          <div class="section-title">Phone Usage Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="phoneChart"></canvas></div>
 
           <div class="section-title">Cholesterol Log</div>
           <form id="cholForm">
