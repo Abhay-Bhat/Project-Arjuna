@@ -441,22 +441,24 @@ const UI = {
     if (!grid) return;
 
     const upscDone = Object.values(AppState.upscSubjectProgress || {}).reduce((s, n) => s + n, 0);
-    const upscTotal = 586;
-    const upscPct = Math.round((upscDone / upscTotal) * 100);
+    const upscTotal = typeof UPSCTracker !== 'undefined' ? UPSCTracker.totalClasses() : 726;
+    const upscPct = upscTotal ? Math.round((upscDone / upscTotal) * 100) : 0;
 
     const financeAED = AppState.getTotalSavedAED();
-    const financePct = Math.round((financeAED / 199800) * 100);
+    const finTarget = typeof FINANCE_TARGET_AED !== 'undefined' ? FINANCE_TARGET_AED : 144000;
+    const financePct = finTarget ? Math.round((financeAED / finTarget) * 100) : 0;
 
     const todayHealth = AppState.getSelectedHealth();
     const healthScore = (
       (todayHealth.sleep_h ? Math.min(todayHealth.sleep_h / 8 * 100, 100) : 0) * 0.4 +
       (todayHealth.gym ? 100 : 0) * 0.3 +
-      (todayHealth.phone_h ? Math.max(0, (2 - todayHealth.phone_h) / 2 * 100) : 50) * 0.3
+      (todayHealth.phone_h != null ? Math.max(0, (2 - todayHealth.phone_h) / 2 * 100) : 0) * 0.3
     );
     const healthPct = Math.round(healthScore);
 
     const careerDone = Object.values(AppState.careerLog || {}).filter(c => c.done).length;
-    const careerPct = Math.round((careerDone / 5) * 100);
+    const careerTotal = typeof DEVOPS_PLAN !== 'undefined' ? DEVOPS_PLAN.length : 8;
+    const careerPct = careerTotal ? Math.round((careerDone / careerTotal) * 100) : 0;
 
     const selectedKey = AppState.getDateKey();
     const routine = AppState.dailyHistory[selectedKey];
@@ -465,10 +467,10 @@ const UI = {
     const goalsPct = typeof GoalsTracker !== 'undefined' ? GoalsTracker._avgProgress() : 0;
 
     const domains = [
-      { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
+      { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: upscPct >= 5 ? 'On Track' : 'Begin',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
       { id: 'finance', emoji: '💰', name: 'Finance', metric: `${financeAED.toLocaleString('en-IN')}`, label: 'AED saved', pct: financePct, status: financePct >= 80 ? 'On Track' : 'Behind',  tip: 'Click to open Finance tab — savings, investments, currency converter' },
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
-      { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
+      { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/${careerTotal}`,  label: 'phases done',   pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
       { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' },
       { id: 'goals',   emoji: '🎯', name: 'Goals',   metric: `${goalsPct}%`,             label: 'avg progress', pct: goalsPct,   status: goalsPct >= 50 ? 'On Track' : 'Early Days', tip: 'Click to open Growth tab — SMART Goals progress' }
     ];
