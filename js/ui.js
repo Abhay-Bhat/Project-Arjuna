@@ -886,73 +886,39 @@ const UI = {
   },
 
   _renderUPSCScheduleTable() {
-    const tbody = document.getElementById('upscScheduleBody');
-    if (!tbody) return;
+    const container = document.getElementById('upscStudyPlanBars');
+    if (!container) return;
 
     const completed = AppState.upscSubjectProgress || {};
     const today = new Date().toISOString().split('T')[0];
 
-    const fmtDate = d => {
-      const [y,m] = d.split('-');
+    const fmtShort = d => {
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      return `${months[+m-1]} ${+d.split('-')[2]}, ${y}`;
+      const [y, m, dd] = d.split('-');
+      return `${months[+m - 1]} ${+dd}`;
     };
 
-    const EXAM_PHASES = [
-      { name: 'Prelims Preparation', start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-amber)' },
-      { name: 'Prelims 2028', start: '2028-05-26', end: '2028-05-26', color: 'var(--accent-rose)' },
-      { name: 'Mains Preparation', start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-blue)' },
-      { name: 'Mains 2028', start: '2028-09-20', end: '2028-09-20', color: 'var(--accent-rose)' },
-      { name: 'Interview / Personality Test Prep', start: '2028-10-01', end: '2029-02-28', color: 'var(--accent-teal)' },
-    ];
-
-    const subjectRows = UPSC_SUBJECTS.map((subj, i) => {
+    container.innerHTML = UPSC_SUBJECTS.map(subj => {
       const done = completed[subj.id] || 0;
-      const pct = Math.round((done / subj.classes) * 100);
+      const total = UPSCTracker._subjectTotal(subj);
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
       const isCurrent = today >= subj.start && today <= subj.end;
-      const isDone = today > subj.end || pct >= 100;
-      const status = isDone ? 'done' : (isCurrent ? 'in-progress' : 'upcoming');
-      const statusBadge = isDone ? '<span class="status-badge done">Done</span>'
-        : isCurrent ? '<span class="status-badge pending">Active</span>'
-        : '<span class="status-badge">Upcoming</span>';
+      const isDone = pct >= 100 || today > subj.end;
+      const barClass = isDone ? 'green' : '';
+      const statusDot = isDone ? 'sp-done' : isCurrent ? 'sp-active' : 'sp-upcoming';
 
-      return `
-        <tr${isCurrent ? ' style="background:color-mix(in srgb, var(--accent-blue) 6%, transparent);"' : ''}>
-          <td><strong>${i+1}. ${subj.name}</strong></td>
-          <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${fmtDate(subj.start)} — ${fmtDate(subj.end)}</td>
-          <td>${done}/${subj.classes}</td>
-          <td style="font-size:12px;color:var(--text-muted);">${subj.hours}h</td>
-          <td>${statusBadge}</td>
-          <td>
-            <div class="prog-bar-track" style="height:4px;margin:4px 0;">
-              <div class="prog-bar-fill${isDone ? ' green' : ''}" style="width:${pct}%;"></div>
-            </div>
-            <span style="font-size:11px;color:var(--text-muted);">${pct}%</span>
-          </td>
-        </tr>`;
+      return `<div class="sp-row${isCurrent ? ' sp-current' : ''}">
+        <div class="sp-head">
+          <span class="sp-dot ${statusDot}"></span>
+          <span class="sp-name">${subj.name}</span>
+          <span class="sp-meta">${done}/${total} · ${pct}%</span>
+        </div>
+        <div class="prog-bar-track" style="height:6px;">
+          <div class="prog-bar-fill ${barClass}" style="width:${pct}%;"></div>
+        </div>
+        <div class="sp-dates">${fmtShort(subj.start)} — ${fmtShort(subj.end)}</div>
+      </div>`;
     }).join('');
-
-    const phaseRows = EXAM_PHASES.map(p => {
-      const isCurrent = today >= p.start && today <= p.end;
-      const isDone = today > p.end;
-      const isExam = p.start === p.end;
-      const badge = isDone ? '<span class="status-badge done">Done</span>'
-        : isCurrent ? '<span class="status-badge pending">Active</span>'
-        : '<span class="status-badge">Upcoming</span>';
-      return `
-        <tr style="background:color-mix(in srgb, ${p.color} ${isCurrent ? '10' : '4'}%, transparent);border-left:3px solid ${p.color};">
-          <td><strong>${isExam ? '📌 ' : ''}${p.name}</strong></td>
-          <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${isExam ? fmtDate(p.start) : fmtDate(p.start) + ' — ' + fmtDate(p.end)}</td>
-          <td style="color:var(--text-muted);font-size:12px;">${isExam ? 'Exam' : 'Revision & Mocks'}</td>
-          <td></td>
-          <td>${badge}</td>
-          <td></td>
-        </tr>`;
-    }).join('');
-
-    tbody.innerHTML = subjectRows +
-      '<tr><td colspan="6" style="padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);background:color-mix(in srgb, var(--border) 40%, transparent);">Exam Preparation Phases</td></tr>' +
-      phaseRows;
   },
 
   _renderPhaseTimeline() {
