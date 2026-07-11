@@ -146,7 +146,7 @@ const StudyAnalytics = (() => {
     const el = document.getElementById('saHeatmap');
     if (!el) return;
 
-    const all     = AppState.studyLog || [];
+    const all     = [...(AppState.studyLog || []), ...(AppState.techStudyLog || [])];
     const goal    = AppState.studyDailyGoal || 240;
     const byDate  = _byDay(all);
     const today   = new Date();
@@ -526,7 +526,7 @@ const StudyAnalytics = (() => {
     },
 
     render(sessions, range) {
-      const all = AppState.studyLog || [];
+      const all = [...(AppState.studyLog || []), ...(AppState.techStudyLog || [])];
       _heatmap();
       _comparison(sessions, range, all);
       _insight(sessions, range, all);

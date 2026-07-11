@@ -9,6 +9,7 @@
 // ============================================================
 
 const UPSC_SUBJECTS = [
+  { id:  0, name: "NCERT Foundation (Class 6-12)", classes: 160, hours: 560, start: '2026-07-20', end: '2026-09-06' },
   // Sequential order per Integrated Master Plan Phase 4
   { id:  1, name: "Indian Polity",                             classes: 39,  hours: 136.5, start: '2026-09-14', end: '2026-10-18' },
   { id:  2, name: "Modern History & Post-Independence",        classes: 32,  hours: 112,   start: '2026-10-19', end: '2026-11-15' },

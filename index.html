@@ -396,10 +396,16 @@
       </div><!-- end tab-layout-3 -->
 
       <!-- ═ STUDY TRACKERS — UPSC + Tech, tracked together from Home ═ -->
-      <div class="section-title" style="margin-top:0;">📚 UPSC Study Timer</div>
+      <div class="section-title" style="margin-top:0;">📚 Integrated Study Timer</div>
 
       <!-- ── Study Timer Panel (full-width, top of main pane) ── -->
       <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
+
+        <!-- Study Domain Toggle: UPSC vs Tech -->
+        <div class="study-domain-toggle" id="studyDomainToggle" style="display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);">
+          <button class="study-domain-btn active" data-domain="upsc" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--accent-blue);color:#fff;transition:background 0.15s,color 0.15s;">📚 UPSC</button>
+          <button class="study-domain-btn" data-domain="tech" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:background 0.15s,color 0.15s;">💻 Tech</button>
+        </div>
 
         <!-- Mode toggle + daily goal -->
         <div class="study-timer-toprow">
@@ -622,7 +628,7 @@
               <div class="stat-card-title">Overall</div>
               <div class="stat-card-value" id="upscOverallPct">0%</div>
               <div class="prog-bar-track"><div class="prog-bar-fill" id="upscOverallBar" style="width:0%;"></div></div>
-              <div class="stat-card-sub"><span id="upscCompletedCount">0</span> / <span id="upscTotalCount">586</span> classes <span class="info-icon" data-tip="586 classes = 305 GS (all 10 GS topics) + 135 Sociology Optional + 74 CSAT &amp; Essay + 72 Additional / Current Affairs">i</span></div>
+              <div class="stat-card-sub"><span id="upscCompletedCount">0</span> / <span id="upscTotalCount">746</span> classes <span class="info-icon" data-tip="746 classes = 160 NCERT Foundation + 305 GS (all 10 GS topics) + 135 Sociology Optional + 74 CSAT &amp; Essay + 72 Additional / Current Affairs">i</span></div>
             </div>
             <div class="stat-card" style="margin-bottom:10px;">
               <div class="stat-card-title">Current Subject</div>
@@ -636,7 +642,7 @@
                 <div class="stat-card-sub">classes</div>
               </div>
               <div class="stat-card">
-                <div class="stat-card-title">Prelims 2027</div>
+                <div class="stat-card-title">Prelims 2028</div>
                 <div class="stat-card-value" style="font-size:22px;" id="prelims2027Cov">0%</div>
                 <div class="prog-bar-track" style="height:3px;"><div class="prog-bar-fill" id="prelims2027Bar" style="width:0%;"></div></div>
               </div>
@@ -646,6 +652,18 @@
           <div class="pane-card">
             <div class="pane-card-title">🎯 Deadline Tracker</div>
             <div id="upscDeadlineTracker"></div>
+          </div>
+
+          <div class="pane-card">
+            <div class="pane-card-title">🎯 UPSC 2028 Milestones</div>
+            <div id="upscMilestones" style="font-size:12px;line-height:2;">
+              <div>📋 All Classes Complete — <strong>Dec 31, 2027</strong></div>
+              <div>📝 Mock Phase Begins — <strong>Jan 1, 2028</strong></div>
+              <div>📣 Notification Expected — <strong>Jan 2028</strong></div>
+              <div>📜 Prelims Expected — <strong>May/Jun 2028</strong></div>
+              <div>📑 Mains Expected — <strong>Sep/Oct 2028</strong></div>
+              <div>🎤 Interview Expected — <strong>Feb/Mar 2029</strong></div>
+            </div>
           </div>
 
           <div class="pane-card">
@@ -672,7 +690,7 @@
             <div id="upscCalDetail"></div>
           </div>
 
-          <div class="section-title">Phase 4 — Sequential Subject Classes</div>
+          <div class="section-title">UPSC Study Plan — NCERT + Sequential Subject Classes</div>
           <div class="data-table-wrap">
             <table class="data-table">
               <thead>
@@ -1667,156 +1685,15 @@
 
           <div class="section-title" style="margin-top:0;">🖥️ Daily Tech Study</div>
 
-          <!-- ── Tech Study Timer Panel ── -->
-          <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
-            <div class="study-timer-toprow">
-              <div class="study-mode-toggle" id="techStudyModeToggle">
-                <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
-                <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
-                <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
-              </div>
-              <div class="study-goal-inline">
-                <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
-                <input type="number" id="techStudyGoalInput" min="1" max="240" value="30" style="width:54px;text-align:center;"> min
-              </div>
-            </div>
-            <div class="study-timer-desc" id="techStudyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
-
-            <div class="study-pomo-status" id="techStudyPomoStatus" style="display:none">
-              <span class="study-pomo-phase" id="techStudyPomoPhase">🍅</span>
-              <span class="study-pomo-round" id="techStudyPomoRound">Ready to start</span>
-            </div>
-
-            <div class="study-timer-main-row">
-              <div class="study-live-tree-col">
-                <div class="study-live-tree" id="techStudyLiveTree">🌱</div>
-                <div class="study-live-tree-label" id="techStudyLiveTreeLabel" style="display:none"></div>
-              </div>
-              <div class="study-timer-center-col">
-                <div class="study-countdown-set" id="techStudyCountdownSet" style="display:none">
-                  <input type="number" id="techStudyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
-                  <input type="number" id="techStudyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
-                </div>
-                <div class="study-pomo-config" id="techStudyPomoConfig" style="display:none">
-                  <span class="study-pomo-cfg-lbl">Focus</span>
-                  <input type="number" id="techPomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Break</span>
-                  <input type="number" id="techPomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Long</span>
-                  <input type="number" id="techPomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
-                </div>
-                <div class="study-timer-display" id="techStudyTimerDisplay">00:00</div>
-                <div class="study-timer-btns">
-                  <button id="techStudyStartBtn" class="btn btn-primary">▶ Start</button>
-                  <button id="techStudyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
-                </div>
-              </div>
-              <div class="study-selectors-col">
-                <div class="form-field" style="margin-bottom:8px;">
-                  <label>Subject</label>
-                  <select id="techStudySubjectSel"></select>
-                </div>
-                <div class="form-field" style="margin-bottom:10px;">
-                  <label>Activity</label>
-                  <select id="techStudyActivitySel"></select>
-                </div>
-                <div class="study-today-mini">
-                  Today: <strong id="techStudyTodayTotal">0m</strong>
-                  <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="techStudyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="techStudyGoalPct">0% of 30m goal</div>
-                </div>
-              </div>
-            </div>
+          <div class="pane-card" style="text-align:center;padding:24px;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:8px;">💻 Tech Study Timer</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Tech study is now integrated with the main Study Timer on the Today tab.</div>
+            <button class="btn btn-primary" onclick="document.querySelector('.tab-btn[data-tab=&quot;today&quot;]').click(); setTimeout(() => { const t = document.getElementById('studyDomainToggle'); if(t) { t.querySelector('[data-domain=&quot;tech&quot;]').click(); t.scrollIntoView({behavior:'smooth'}); }}, 300);">Go to Study Timer &rarr; Tech</button>
           </div>
 
-          <div class="study-panel" style="margin-bottom:24px;">
-            <div class="study-forest-canvas">
-              <canvas id="techStudyForestCanvas"></canvas>
-              <div class="study-canvas-header">
-                <div class="study-canvas-clock">
-                  <span class="study-clock-time" id="techStudyClockTime">--:--</span>
-                  <span class="study-clock-date" id="techStudyClockDate"></span>
-                </div>
-                <div class="study-canvas-today">
-                  <span id="techStudyTodayBadge">0m today</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="sa-section">
-              <div class="sa-section-hdr">
-                <span class="sa-section-title">Tech Study Streak</span>
-                <span class="sa-streak-count" id="tsaStreakCount"></span>
-              </div>
-              <div id="tsaHeatmap"></div>
-              <div class="sa-heatmap-legend">
-                <span>Less</span>
-                <div class="sa-hm-dot sa-hm-l1"></div>
-                <div class="sa-hm-dot sa-hm-l2"></div>
-                <div class="sa-hm-dot sa-hm-l3"></div>
-                <div class="sa-hm-dot sa-hm-l4"></div>
-                <div class="sa-hm-dot sa-hm-l5"></div>
-                <span>More</span>
-              </div>
-            </div>
-
-            <div class="study-range-row" id="techStudyRangeRow">
-              <button class="study-range-btn active" data-range="today">Today</button>
-              <button class="study-range-btn" data-range="7d">7 Days</button>
-              <button class="study-range-btn" data-range="30d">30 Days</button>
-              <button class="study-range-btn" data-range="3m">3 Months</button>
-              <button class="study-range-btn" data-range="all">All Time</button>
-            </div>
-
-            <div class="study-summary-row" id="techStudySummaryRow"></div>
-            <div class="sa-comparison-row" id="tsaComparisonRow"></div>
-            <div class="sa-insight" id="tsaInsight"></div>
-
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title" id="tsaTrendTitle">Daily Trend</span></div>
-                <div class="sa-chart-wrap"><canvas id="tsaTrendChart"></canvas></div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">Peak Study Hours</span></div>
-                <div class="sa-chart-wrap"><canvas id="tsaHourChart"></canvas></div>
-              </div>
-            </div>
-
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Activity</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="tsaActivityChart"></canvas>
-                  <div class="sa-donut-legend" id="tsaActivityLegend"></div>
-                </div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Subject</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="tsaSubjectChart"></canvas>
-                  <div class="sa-donut-legend" id="tsaSubjectLegend"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="study-analytics-row">
-              <div class="study-subj-bars-wrap" id="techStudySubjBarsMain"></div>
-              <div class="study-subj-bars-wrap" id="techStudyActBarsMain"></div>
-            </div>
-
-            <div class="study-sessions-wrap" id="techStudySessionsList"></div>
-
-            <div class="study-manage-wrap">
-              <button class="study-manage-toggle" id="techStudyManageToggle">⚙️ Manage Subjects &amp; Activities</button>
-              <div class="study-manage-panel" id="techStudyManagePanel" style="display:none">
-                <div class="study-manage-tabs" id="techStudyManageTabs">
-                  <button class="study-mtab-btn active" data-mtab="subjects">Subjects</button>
-                  <button class="study-mtab-btn" data-mtab="activities">Activities</button>
-                </div>
-                <div id="techStudyManageContent"></div>
-              </div>
-            </div>
+          <div class="pane-card" style="text-align:center;padding:24px;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:8px;">📊 Tech Study Analytics</div>
+            <div style="font-size:12px;color:var(--text-muted);">View combined study analytics (UPSC + Tech) on the Today tab's Study Log section.</div>
           </div>
 
           <div class="section-title">🗺️ DevOps Career Elevation — Semester Tracker</div>
@@ -2394,25 +2271,25 @@
 <script defer src="js/firebase-config.js?v=39"></script>
 <script defer src="js/auth.js?v=43"></script>
 <script defer src="js/sync.js?v=42"></script>
-<script defer src="js/phases.js?v=42"></script>
+<script defer src="js/phases.js?v=43"></script>
 <script defer src="js/storage.js?v=39"></script>
 <script defer src="js/state.js?v=54"></script>
 <script defer src="js/scheduler.js?v=42"></script>
-<script defer src="js/upsc.js?v=60"></script>
-<script defer src="js/finance.js?v=41"></script>
+<script defer src="js/upsc.js?v=61"></script>
+<script defer src="js/finance.js?v=42"></script>
 <script defer src="js/health-data.js?v=39"></script>
 <script defer src="js/health.js?v=39"></script>
 <script defer src="js/growth.js?v=58"></script>
 <script defer src="js/tasks.js?v=61"></script>
 <script defer src="js/matrix.js?v=5"></script>
 <script defer src="js/goals.js?v=2"></script>
-<script defer src="js/study.js?v=52"></script>
-<script defer src="js/study-analytics.js?v=51"></script>
+<script defer src="js/study.js?v=53"></script>
+<script defer src="js/study-analytics.js?v=52"></script>
 <script defer src="js/tech-study.js?v=2"></script>
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=56"></script>
-<script defer src="js/ui.js?v=68"></script>
+<script defer src="js/ui.js?v=69"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>
