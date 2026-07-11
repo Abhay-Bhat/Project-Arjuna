@@ -2081,8 +2081,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .tab-layout-3 .pane-left,
 .tab-layout-3 .pane-right {
-  flex: 0 0 310px;
-  width: 310px;
+  flex: 0 0 370px;
+  width: 370px;
 }
 .tab-layout-3 .pane-main {
   flex: 1 1 0%;
@@ -2100,8 +2100,8 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   box-sizing: border-box;
 }
 .tab-layout-2 .pane-left {
-  flex: 0 0 310px;
-  width: 310px;
+  flex: 0 0 370px;
+  width: 370px;
 }
 .tab-layout-2 .pane-main {
   flex: 1 1 0%;
@@ -2854,11 +2854,11 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   .tab-layout-3 .pane-left,
   .tab-layout-3 .pane-right,
   .tab-layout-2 .pane-left {
-    flex: 0 0 220px;
-    width: 220px;
+    flex: 0 0 260px;
+    width: 260px;
   }
-  .tab-layout-3 { gap: 14px; }
-  .tab-layout-2 { gap: 14px; }
+  .tab-layout-3 { gap: 12px; }
+  .tab-layout-2 { gap: 12px; }
 }
 
 /* Very small phones */
@@ -6613,38 +6613,38 @@ button:disabled, [disabled] {
       More air between sections, inside cards, between panes.
    ────────────────────────────────────────────────────────────────── */
 
-/* Pane layout gaps: wider channels between columns */
-.tab-layout-3 { gap: 36px; padding: 36px 0; }
-.tab-layout-2 { gap: 36px; padding: 36px 0; }
+/* Pane layout gaps */
+.tab-layout-3 { gap: 20px; padding: 24px 0; }
+.tab-layout-2 { gap: 20px; padding: 24px 0; }
 
-/* App content: a touch more horizontal breathing room */
+/* App content */
 .app-content {
-  padding: 0 clamp(16px, 2.5vw, 40px) 80px;
+  padding: 0 clamp(12px, 2vw, 28px) 60px;
 }
 
-/* Section titles: more vertical breathing room */
+/* Section titles */
 .pane-main .section-title {
-  margin-top: 48px;
-  margin-bottom: 24px;
-  padding-bottom: 14px;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
 }
 .pane-main .section-title:first-child { margin-top: 4px; }
 
-/* Pane cards: more internal padding, more gap between */
+/* Pane cards */
 .pane-card {
-  padding: 22px 24px;
-  margin-bottom: 24px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
 }
 
-/* Stat cards: generous padding, cleaner proportions */
+/* Stat cards */
 .stat-card {
-  padding: 22px 24px;
-  gap: 14px;
+  padding: 18px 20px;
+  gap: 12px;
 }
 .pane-left .stat-card,
 .pane-right .stat-card {
-  padding: 18px 16px;
-  gap: 12px;
+  padding: 14px 14px;
+  gap: 10px;
 }
 
 /* Analytics grids: wider gaps */
@@ -7105,7 +7105,13 @@ button:disabled, [disabled] {
    ────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 960px) {
-  .tab-layout-3, .tab-layout-2 { padding: 20px 0; gap: 20px; }
+  .tab-layout-3, .tab-layout-2 { padding: 16px 0; gap: 14px; }
+  .tab-layout-3 .pane-left,
+  .tab-layout-3 .pane-right,
+  .tab-layout-2 .pane-left {
+    flex: 0 0 240px;
+    width: 240px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -7808,13 +7814,16 @@ button:disabled, [disabled] {
 
 /* ── Tighter study timer ──────────────────────────── */
 .study-timer-display {
-  font-size: 48px !important;
+  font-size: 42px !important;
 }
 .study-timer-panel {
-  padding: 16px 20px !important;
+  padding: 12px 16px !important;
 }
 .study-timer-desc {
-  margin-bottom: 8px !important;
+  margin-bottom: 6px !important;
+}
+.study-panel {
+  margin-bottom: 12px;
 }
 
 /* ── Compact empty-state charts ───────────────────── */
