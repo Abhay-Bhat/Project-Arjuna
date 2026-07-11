@@ -1121,7 +1121,7 @@ const FinanceTracker = {
   renderInvestmentSections() {
   const el = document.getElementById('investmentSections');
   if (!el) return;
-  const all = AppState.investments || [];
+  const all = this._inv();
   const L = v => this._lakh(v);
 
   const gainHtml = (val, invested) => {
