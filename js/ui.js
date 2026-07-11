@@ -603,16 +603,13 @@ const UI = {
     }
     const phase = PhaseManager.getPhase();
     const tips = {
-      notice:       'This is your last impression at BLR. Knowledge transfer done right = reputation that travels. Make it count.',
-      settle:       'The gym starts Day 3, not Day 10. Every day you skip in the first 2 weeks makes the habit 2x harder to form.',
-      foundation:   'Your 5:45 AM study block is your highest ROI activity. Protect it like it\'s sacred — nothing borrows from it.',
-      prelims_sprint:'Mock exam → immediate review → weak subject drill. That cycle, repeated daily, is Prelims prep.',
-      exit:         'Clean exit = reference letter. Reference letter = global optionality. Be the person they remember fondly.',
-      reset:        '2 weeks of genuine rest now will give you 18 months of consistent energy. Do not skip the recovery.',
-      mains:        'Answer writing is the difference between clearing and topping. Write one answer every single day.',
-      upsc2028:     'This is your real attempt. Everything you built in the last 2 years points here. Trust the process.'
+      ramp1:     'Weeks 1–2: Build the anchor habit. Same wake time, same study block. Nothing else matters yet.',
+      ramp2:     'Weeks 3–4: You extended the evening block. Protect the 7:15 PM start — it\'s your UPSC gate.',
+      ramp3:     'Weeks 5–6: 2 hours UPSC/day reached. Consistency > intensity. Don\'t chase lost days.',
+      ramp4:     'Weeks 7–8: Full capacity. NCERT is closing out. CKA prep parallel. You\'re building something real.',
+      sustained: 'Week 9+: Cruise altitude. 27.5h UPSC + 4.5h Tech/week. Trust the system — it\'s designed to last 76 weeks.'
     };
-    el.textContent = tips[phase?.id] || tips.foundation;
+    el.textContent = tips[phase?.id] || tips.sustained;
   },
 
   // Quick check-in row on Today tab
@@ -720,18 +717,21 @@ const UI = {
 
     const indicator = document.getElementById('dayIndicator');
     const labels = {
-      notice_weekday: '🏁 Notice & Decision — Weekday',
-      notice_weekend: '🏁 Notice & Decision — Weekend',
-      foundation_india_weekday_tech: '🏗️ Foundation Build (India) — Weekday + Tech',
-      foundation_india_weekday_rest: '🏗️ Foundation Build (India) — Weekday',
-      foundation_dubai_weekday_tech: '🏗️ Foundation Build (Dubai) — Weekday + Tech',
-      foundation_dubai_weekday_rest: '🏗️ Foundation Build (Dubai) — Weekday',
-      dubai_saturday: '🏗️ Foundation Build (Dubai) — Saturday',
-      dubai_sunday:   '🏗️ Foundation Build (Dubai) — Sunday',
-      sprint_weekday: '🎯 Mock & Consolidation — Weekday',
-      sprint_weekend: '🎯 Mock & Consolidation — Weekend',
-      india_weekday:  '📜 Intensive Prep — Weekday',
-      india_weekend:  '📜 Intensive Prep — Weekend'
+      ramp1_weekday:       '🏁 Stage 1 — Settling In (Weekday)',
+      ramp1_saturday:      '🏁 Stage 1 — Settling In (Saturday)',
+      ramp1_sunday:        '🏁 Stage 1 — Settling In (Sunday)',
+      ramp2_weekday:       '🔧 Stage 2 — Building Momentum (Weekday)',
+      ramp2_saturday:      '🔧 Stage 2 — Building Momentum (Saturday)',
+      ramp2_sunday:        '🔧 Stage 2 — Building Momentum (Sunday)',
+      ramp3_weekday:       '📈 Stage 3 — Deepening (Weekday)',
+      ramp3_saturday:      '📈 Stage 3 — Deepening (Saturday)',
+      ramp3_sunday:        '📈 Stage 3 — Deepening (Sunday)',
+      ramp4_weekday:       '🔥 Stage 4 — Full Capacity (Weekday)',
+      ramp4_saturday:      '🔥 Stage 4 — Full Capacity (Saturday)',
+      ramp4_sunday:        '🔥 Stage 4 — Full Capacity (Sunday)',
+      sustained_weekday:   '⚡ Sustained Cruise (Weekday)',
+      sustained_saturday:  '⚡ Sustained Cruise (Saturday)',
+      sustained_sunday:    '⚡ Sustained Cruise (Sunday)'
     };
     if (indicator) indicator.textContent = labels[scheduleKey] || scheduleKey;
   },
@@ -890,39 +890,36 @@ const UI = {
     if (!tbody) return;
 
     const completed = AppState.upscSubjectProgress || {};
+    const today = new Date().toISOString().split('T')[0];
 
-    const getDateRange = (subj) => {
-      if (subj.priority === 1) {
-        return 'Aug 2026 — Feb 2027';
-      } else {
-        return 'Feb 2027 — Jun 2027';
-      }
+    const fmtDate = d => {
+      const [y,m] = d.split('-');
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${months[+m-1]} ${+d.split('-')[2]}, ${y}`;
     };
 
-    tbody.innerHTML = UPSC_SUBJECTS.map(subj => {
+    tbody.innerHTML = UPSC_SUBJECTS.map((subj, i) => {
       const done = completed[subj.id] || 0;
       const pct = Math.round((done / subj.classes) * 100);
-      const priorityLabel = subj.priority === 1 ? '🎯 P1' : '📚 P2';
-      const trackLabel = {
-        'main': 'GS',
-        'sociology': 'Soc',
-        'csat': 'CSAT',
-        'essay': 'Essay'
-      }[subj.track] || subj.track;
-      const dateRange = getDateRange(subj);
+      const isCurrent = today >= subj.start && today <= subj.end;
+      const isDone = today > subj.end || pct >= 100;
+      const status = isDone ? 'done' : (isCurrent ? 'in-progress' : 'upcoming');
+      const statusBadge = isDone ? '<span class="status-badge done">Done</span>'
+        : isCurrent ? '<span class="status-badge pending">Active</span>'
+        : '<span class="status-badge">Upcoming</span>';
 
       return `
-        <tr>
-          <td><strong>${subj.name}</strong></td>
-          <td style="font-size: 12px; color: var(--text-muted);">${dateRange}</td>
+        <tr${isCurrent ? ' style="background:color-mix(in srgb, var(--accent-blue) 6%, transparent);"' : ''}>
+          <td><strong>${i+1}. ${subj.name}</strong></td>
+          <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${fmtDate(subj.start)} — ${fmtDate(subj.end)}</td>
           <td>${done}/${subj.classes}</td>
-          <td><span class="status-badge">${trackLabel}</span></td>
-          <td>${priorityLabel}</td>
+          <td style="font-size:12px;color:var(--text-muted);">${subj.hours}h</td>
+          <td>${statusBadge}</td>
           <td>
-            <div class="prog-bar-track" style="height: 4px; margin: 4px 0;">
-              <div class="prog-bar-fill" style="width: ${pct}%;"></div>
+            <div class="prog-bar-track" style="height:4px;margin:4px 0;">
+              <div class="prog-bar-fill${isDone ? ' green' : ''}" style="width:${pct}%;"></div>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">${pct}%</span>
+            <span style="font-size:11px;color:var(--text-muted);">${pct}%</span>
           </td>
         </tr>`;
     }).join('');
