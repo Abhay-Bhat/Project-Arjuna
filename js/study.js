@@ -217,12 +217,18 @@ const StudyTracker = {
 
   // ── Session queries ───────────────────────────────────────
 
+  _currentLog() {
+    return this._domain === 'tech'
+      ? (AppState.techStudyLog || [])
+      : (AppState.studyLog || []);
+  },
+
   getTodaySessions()    { return this.getSessionsForRange('today'); },
   getTodayTotalMin()    { return this.getTodaySessions().reduce((s,x) => s + x.duration_min, 0); },
-  getSessionsForDate(k) { return (AppState.studyLog||[]).filter(s => s.date === k); },
+  getSessionsForDate(k) { return this._currentLog().filter(s => s.date === k); },
 
   getSessionsForRange(range) {
-    const all = AppState.studyLog || [];
+    const all = this._currentLog();
     const tk  = AppState.getTodayKey();
     if (range === 'today') return all.filter(s => s.date === tk);
     if (range === 'all')   return all;
@@ -232,6 +238,19 @@ const StudyTracker = {
     if (range === '3m')  cut.setMonth(cut.getMonth() - 3);
     const ck = AppState.getDateKey(cut);
     return all.filter(s => s.date >= ck);
+  },
+
+  _getAllSessionsForRange(range) {
+    const combined = this._getAllSessions();
+    const tk = AppState.getTodayKey();
+    if (range === 'today') return combined.filter(s => s.date === tk);
+    if (range === 'all') return combined;
+    const cut = new Date();
+    if (range === '7d')  cut.setDate(cut.getDate() - 6);
+    if (range === '30d') cut.setDate(cut.getDate() - 29);
+    if (range === '3m')  cut.setMonth(cut.getMonth() - 3);
+    const ck = AppState.getDateKey(cut);
+    return combined.filter(s => s.date >= ck);
   },
 
   getStreak() {
@@ -755,13 +774,14 @@ const StudyTracker = {
   },
 
   _renderForestContent() {
-    const sessions = this.getSessionsForRange(this._range);
-    this._renderCanvasTrees(sessions);
-    this._renderStats(sessions);
-    this._renderSubjBars(sessions);
-    this._renderActivityBars(sessions);
-    this._renderSessionList(sessions);
-    if (window.StudyAnalytics) StudyAnalytics.render(sessions, this._range);
+    const combined = this._getAllSessionsForRange(this._range);
+    const domainSessions = this.getSessionsForRange(this._range);
+    this._renderCanvasTrees(combined);
+    this._renderStats(combined);
+    this._renderSubjBars(domainSessions);
+    this._renderActivityBars(domainSessions);
+    this._renderSessionList(combined);
+    if (window.StudyAnalytics) StudyAnalytics.render(domainSessions, this._range);
   },
 
   // ── Isometric Forest Canvas ───────────────────────────────────────────────
@@ -1073,17 +1093,22 @@ const StudyTracker = {
     const shown = [...sessions].reverse().slice(0, 30);
     let html = '<div class="study-sessions-hdr">Recent Sessions</div>';
     shown.forEach(s => {
-      const subj      = this.getSubject(s.subject);
-      const act       = this.getActivity(s.activity);
+      const isTech    = s.domain === 'tech';
+      const tracker   = isTech && typeof TechStudyTracker !== 'undefined' ? TechStudyTracker : this;
+      const subj      = tracker.getSubject(s.subject);
+      const act       = tracker.getActivity(s.activity);
       const completed = s.completed !== false;
-      const emoji     = this.treeEmoji(s.duration_min, s.activity, completed);
+      const emoji     = tracker.treeEmoji(s.duration_min, s.activity, completed);
+      const badge     = isTech
+        ? '<span style="font-size:9px;background:var(--accent-teal);color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;">TECH</span>'
+        : '<span style="font-size:9px;background:var(--accent-blue);color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;">UPSC</span>';
       html += `<div class="study-session-row${completed ? '' : ' study-session-dead'}">
         <span class="study-session-tree">${emoji}</span>
-        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}</span>
+        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}${badge}</span>
         <span class="study-session-act">${act?.label||s.activity}</span>
         <span class="study-session-date">${s.date !== AppState.getTodayKey() ? s.date : ''}</span>
         <span class="study-session-dur">${this.fmtDur(s.duration_min)}${completed ? '' : ' <span class="study-dead-badge">incomplete</span>'}</span>
-        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id})">✕</button>
+        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id},'${isTech ? 'tech' : 'upsc'}')">✕</button>
       </div>`;
     });
     el.innerHTML = html;
@@ -1221,8 +1246,9 @@ const StudyTracker = {
     this._populateSelects(); this._renderManageContent();
   },
 
-  deleteSession(id) {
-    AppState.studyLog = (AppState.studyLog||[]).filter(s => s.id !== id);
+  deleteSession(id, domain) {
+    const logKey = domain === 'tech' ? 'techStudyLog' : 'studyLog';
+    AppState[logKey] = (AppState[logKey]||[]).filter(s => s.id !== id);
     AppState.save();
     this._updateTodayStats();
     this._renderForestPanel();
