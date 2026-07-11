@@ -880,43 +880,82 @@ const UI = {
   // ── UPSC tab ─────────────────────────────────────────────
   _renderUPSC() {
     UPSCTracker.updateMetrics();
-    this._renderUPSCScheduleTable();
-    UPSCTracker.renderCalendar();
+    this._renderExamPhases();
     UPSCTracker.renderCASection();
   },
 
-  _renderUPSCScheduleTable() {
-    const container = document.getElementById('upscStudyPlanBars');
+  _renderExamPhases() {
+    const container = document.getElementById('upscExamPhases');
     if (!container) return;
 
-    const completed = AppState.upscSubjectProgress || {};
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const DAY_MS = 864e5;
 
-    const fmtShort = d => {
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const [y, m, dd] = d.split('-');
-      return `${months[+m - 1]} ${+dd}`;
-    };
+    const PHASES = [
+      {
+        key: 'prelims', icon: '📝', name: 'Prelims Preparation',
+        start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-amber)',
+        target: 'Prelims Exam: May 26, 2028',
+        items: ['Full syllabus revision (GS I–IV + CSAT)', 'Weekly mock tests & analysis', 'Current affairs consolidation (12 months)', 'Previous year question papers practice']
+      },
+      {
+        key: 'mains', icon: '✍️', name: 'Mains Preparation',
+        start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-blue)',
+        target: 'Mains Exam: Sep 20, 2028',
+        items: ['Answer writing practice (daily 3–4 answers)', 'Sociology optional deep revision', 'Essay writing practice (weekly)', 'Sectional & full-length Mains mock tests']
+      },
+      {
+        key: 'interview', icon: '🎤', name: 'Interview / Personality Test',
+        start: '2028-10-01', end: '2029-02-28', color: 'var(--accent-teal)',
+        target: 'Personality Test: ~Feb/Mar 2029',
+        items: ['DAF (Detailed Application Form) preparation', 'Mock interview panels', 'Current affairs & opinion formation', 'Personality development & health focus']
+      }
+    ];
 
-    container.innerHTML = UPSC_SUBJECTS.map(subj => {
-      const done = completed[subj.id] || 0;
-      const total = UPSCTracker._subjectTotal(subj);
-      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-      const isCurrent = today >= subj.start && today <= subj.end;
-      const isDone = pct >= 100 || today > subj.end;
-      const barClass = isDone ? 'green' : '';
-      const statusDot = isDone ? 'sp-done' : isCurrent ? 'sp-active' : 'sp-upcoming';
+    container.innerHTML = PHASES.map(p => {
+      const startD = new Date(p.start + 'T00:00:00');
+      const endD = new Date(p.end + 'T00:00:00');
+      const totalDays = Math.max(1, Math.round((endD - startD) / DAY_MS));
+      const elapsed = Math.max(0, Math.round((today - startD) / DAY_MS));
+      const isDone = todayStr > p.end;
+      const isActive = todayStr >= p.start && todayStr <= p.end;
+      const pct = isDone ? 100 : isActive ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
 
-      return `<div class="sp-row${isCurrent ? ' sp-current' : ''}">
-        <div class="sp-head">
-          <span class="sp-dot ${statusDot}"></span>
-          <span class="sp-name">${subj.name}</span>
-          <span class="sp-meta">${done}/${total} · ${pct}%</span>
+      let countdown = '';
+      if (!isActive && !isDone) {
+        const daysUntil = Math.max(0, Math.ceil((startD - today) / DAY_MS));
+        countdown = `<span class="ep-countdown">Starts in ${daysUntil} days</span>`;
+      } else if (isActive) {
+        const daysLeft = Math.max(0, Math.ceil((endD - today) / DAY_MS));
+        countdown = `<span class="ep-countdown ep-active">${daysLeft} days remaining</span>`;
+      }
+
+      const statusCls = isDone ? 'ep-done' : isActive ? 'ep-active-card' : '';
+
+      return `<div class="upsc-phase-card phase-${p.key} ${statusCls}">
+        <div class="ep-top">
+          <span class="upsc-phase-icon">${p.icon}</span>
+          <div class="ep-title-wrap">
+            <div class="upsc-phase-name">${p.name}</div>
+            ${countdown}
+          </div>
         </div>
-        <div class="prog-bar-track" style="height:6px;">
-          <div class="prog-bar-fill ${barClass}" style="width:${pct}%;"></div>
+        <div class="ep-target"><span class="ep-target-label">${p.target}</span></div>
+        <div class="ep-dates-row">
+          <span class="ep-date-chip">${p.start.replace(/-/g, '/')}</span>
+          <span class="ep-date-arrow">→</span>
+          <span class="ep-date-chip">${p.end.replace(/-/g, '/')}</span>
         </div>
-        <div class="sp-dates">${fmtShort(subj.start)} — ${fmtShort(subj.end)}</div>
+        <div class="ep-progress">
+          <div class="prog-bar-track" style="height:6px;">
+            <div class="prog-bar-fill${isDone ? ' green' : ''}" style="width:${pct}%;${isActive ? 'background:' + p.color + ';box-shadow:0 0 8px ' + p.color + ';' : ''}"></div>
+          </div>
+          <span class="ep-pct">${pct}%</span>
+        </div>
+        <ul class="upsc-phase-activities">
+          ${p.items.map(i => `<li>${i}</li>`).join('')}
+        </ul>
       </div>`;
     }).join('');
   },
