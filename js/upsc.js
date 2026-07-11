@@ -33,7 +33,7 @@ const UPSC_SUBJECTS = [
 
 const CA_START = '2026-07-13';
 
-const SCHEDULE_VERSION = 4;
+const SCHEDULE_VERSION = 5;
 
 // Bump to force a one-time reset of AppState.upscSubjectProgress (e.g. after
 // a UPSC timeline restart) for existing users — mirrors SCHEDULE_VERSION.
