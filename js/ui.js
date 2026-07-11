@@ -898,7 +898,15 @@ const UI = {
       return `${months[+m-1]} ${+d.split('-')[2]}, ${y}`;
     };
 
-    tbody.innerHTML = UPSC_SUBJECTS.map((subj, i) => {
+    const EXAM_PHASES = [
+      { name: 'Prelims Preparation', start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-amber)' },
+      { name: 'Prelims 2028', start: '2028-05-26', end: '2028-05-26', color: 'var(--accent-rose)' },
+      { name: 'Mains Preparation', start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-blue)' },
+      { name: 'Mains 2028', start: '2028-09-20', end: '2028-09-20', color: 'var(--accent-rose)' },
+      { name: 'Interview / Personality Test Prep', start: '2028-10-01', end: '2029-02-28', color: 'var(--accent-teal)' },
+    ];
+
+    const subjectRows = UPSC_SUBJECTS.map((subj, i) => {
       const done = completed[subj.id] || 0;
       const pct = Math.round((done / subj.classes) * 100);
       const isCurrent = today >= subj.start && today <= subj.end;
@@ -923,6 +931,28 @@ const UI = {
           </td>
         </tr>`;
     }).join('');
+
+    const phaseRows = EXAM_PHASES.map(p => {
+      const isCurrent = today >= p.start && today <= p.end;
+      const isDone = today > p.end;
+      const isExam = p.start === p.end;
+      const badge = isDone ? '<span class="status-badge done">Done</span>'
+        : isCurrent ? '<span class="status-badge pending">Active</span>'
+        : '<span class="status-badge">Upcoming</span>';
+      return `
+        <tr style="background:color-mix(in srgb, ${p.color} ${isCurrent ? '10' : '4'}%, transparent);border-left:3px solid ${p.color};">
+          <td><strong>${isExam ? '📌 ' : ''}${p.name}</strong></td>
+          <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">${isExam ? fmtDate(p.start) : fmtDate(p.start) + ' — ' + fmtDate(p.end)}</td>
+          <td style="color:var(--text-muted);font-size:12px;">${isExam ? 'Exam' : 'Revision & Mocks'}</td>
+          <td></td>
+          <td>${badge}</td>
+          <td></td>
+        </tr>`;
+    }).join('');
+
+    tbody.innerHTML = subjectRows +
+      '<tr><td colspan="6" style="padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);background:color-mix(in srgb, var(--border) 40%, transparent);">Exam Preparation Phases</td></tr>' +
+      phaseRows;
   },
 
   _renderPhaseTimeline() {
