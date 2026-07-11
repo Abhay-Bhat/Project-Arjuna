@@ -149,7 +149,7 @@ const CoachEngine = {
     const schedule  = AppState.upscSchedule || [];
     const todayKey  = AppState.getTodayKey();
     const completed = Object.values(AppState.upscSubjectProgress || {}).reduce((s, v) => s + v, 0);
-    const total     = schedule.length || 586;
+    const total     = schedule.length || (typeof UPSCTracker !== 'undefined' ? UPSCTracker.totalClasses() : 726);
     const remaining = Math.max(0, total - completed);
 
     // 30-day pace: count schedule slots that were covered

@@ -23,7 +23,9 @@ const GoalsTracker = {
   ],
 
   // UPSC syllabus total used for the domain card + linked-goal progress.
-  UPSC_SYLLABUS_TOTAL: 586,
+  get UPSC_SYLLABUS_TOTAL() {
+    return typeof UPSCTracker !== 'undefined' ? UPSCTracker.totalClasses() : 726;
+  },
 
   _workingMilestones: [],
 
