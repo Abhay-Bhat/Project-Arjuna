@@ -193,9 +193,8 @@ const UPSCTracker = {
     set('upscCurrentSubject', cur ? cur.subject.name : '✅ All subjects complete');
     set('upscCurrentProgress', cur ? `${cur.done} / ${cur.subject.classes} classes` : '');
 
-    // Prelims 2027 coverage
     const cov = this.getPrelimsCoverage();
-    const covPct = cov.total > 0 ? Math.round((cov.scheduled / cov.total) * 100) : 0;
+    const covPct = cov.total > 0 ? Math.round((cov.done / cov.total) * 100) : 0;
     set('prelims2027Cov', covPct + '%');
     setW('prelims2027Bar', covPct);
 

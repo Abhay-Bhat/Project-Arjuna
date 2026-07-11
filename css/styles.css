@@ -7627,3 +7627,70 @@ button:disabled, [disabled] {
   --shadow-md: 0 4px 12px rgba(20,50,90,0.10), 0 8px 28px rgba(20,50,90,0.09);
   --shadow-lg: 0 8px 24px rgba(20,50,90,0.13), 0 16px 48px rgba(20,50,90,0.11);
 }
+
+/* ── UPSC Exam Preparation Phase Cards ─────────────── */
+.upsc-exam-phases {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.upsc-phase-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  border-top: 3px solid var(--accent-blue);
+  transition: box-shadow 0.18s, transform 0.18s;
+}
+.upsc-phase-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.upsc-phase-card.phase-prelims { border-top-color: var(--accent-amber); }
+.upsc-phase-card.phase-mains   { border-top-color: var(--accent-blue); }
+.upsc-phase-card.phase-interview { border-top-color: var(--accent-teal); }
+.upsc-phase-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.upsc-phase-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.upsc-phase-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.upsc-phase-dates {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-family: 'Space Mono', monospace;
+}
+.upsc-phase-activities {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.upsc-phase-activities li {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 4px 0 4px 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.upsc-phase-activities li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--text-faint);
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .upsc-exam-phases { grid-template-columns: 1fr; }
+}
