@@ -4323,22 +4323,17 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 /* 3-column timer layout */
 .study-timer-main-row {
   display: grid;
-  grid-template-columns: 120px 1fr 220px;
-  gap: 20px;
+  grid-template-columns: 1fr 220px;
+  gap: 16px;
   align-items: center;
 }
 @media (max-width: 700px) {
   .study-timer-main-row { grid-template-columns: 1fr; gap: 12px; }
 }
 
-/* Live tree column */
+/* Live tree column — hidden, merged into timer display */
 .study-live-tree-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  min-height: 100px;
+  display: none;
 }
 .study-live-tree {
   font-size: 48px;
@@ -4397,7 +4392,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 
 .study-forest-canvas {
   position: relative;
-  min-height: 220px;
+  min-height: 180px;
   background:
     radial-gradient(ellipse 80% 40% at 50% 110%, rgba(0,100,40,0.45) 0%, transparent 60%),
     radial-gradient(ellipse 50% 35% at 75% 15%, rgba(180,210,255,0.07) 0%, transparent 55%),
@@ -5408,7 +5403,7 @@ html { scroll-behavior: smooth; }
 /* ── Forest canvas container ──────────────────────────────────────── */
 .study-forest-canvas {
   position: relative;
-  min-height: 290px;
+  min-height: 180px;
   padding: 0;
   overflow: hidden;
   border-radius: var(--radius-md);
@@ -7800,4 +7795,38 @@ button:disabled, [disabled] {
   .upsc-exam-phases { grid-template-columns: 1fr; }
   .upsc-phase-card { padding: 16px; }
   .upsc-phase-name { font-size: 14px; }
+}
+
+/* ── Compact chart wrapper for sidebar ─────────────── */
+.chart-wrap-compact {
+  padding: 10px 10px 6px;
+  margin-bottom: 0;
+}
+.chart-wrap-compact canvas {
+  max-height: 140px;
+}
+
+/* ── Tighter study timer ──────────────────────────── */
+.study-timer-display {
+  font-size: 48px !important;
+}
+.study-timer-panel {
+  padding: 16px 20px !important;
+}
+.study-timer-desc {
+  margin-bottom: 8px !important;
+}
+
+/* ── Compact empty-state charts ───────────────────── */
+.sa-donut-wrap:has(.sa-donut-legend:empty) {
+  min-height: auto;
+}
+.sa-chart-card:has(canvas[data-empty]) {
+  padding: 10px;
+}
+
+/* ── Tighter study summary when empty ─────────────── */
+.study-summary-row:empty,
+.sa-comparison-row:empty {
+  display: none;
 }
