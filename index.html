@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
-    <link rel="stylesheet" href="css/styles.css?v=69">
+    <link rel="stylesheet" href="css/styles.css?v=70">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -635,23 +635,11 @@
               <div class="stat-card-value" style="font-size:14px;color:var(--accent-teal);" id="upscCurrentSubject">—</div>
               <div class="stat-card-sub" id="upscCurrentProgress">—</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div class="stat-card">
-                <div class="stat-card-title">This Week</div>
-                <div class="stat-card-value" style="font-size:22px;" id="upscWeeklyCount">0</div>
-                <div class="stat-card-sub">classes</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-card-title">Prelims 2028</div>
-                <div class="stat-card-value" style="font-size:22px;" id="prelims2027Cov">0%</div>
-                <div class="prog-bar-track" style="height:3px;"><div class="prog-bar-fill" id="prelims2027Bar" style="width:0%;"></div></div>
-              </div>
+            <div class="stat-card">
+              <div class="stat-card-title">This Week</div>
+              <div class="stat-card-value" style="font-size:22px;" id="upscWeeklyCount">0</div>
+              <div class="stat-card-sub">classes completed</div>
             </div>
-          </div>
-
-          <div class="pane-card">
-            <div class="pane-card-title">🎯 Deadline Tracker</div>
-            <div id="upscDeadlineTracker"></div>
           </div>
 
           <div class="pane-card">
@@ -735,26 +723,8 @@
             </div>
           </div>
 
-          <div class="section-title">📅 Yearlong Study Calendar</div>
-          <div id="upscCalendar">
-            <div id="upscCalGrid"></div>
-            <div id="upscCalDetail"></div>
-          </div>
-
-          <div class="section-title">UPSC Study Plan — NCERT + Sequential Subject Classes</div>
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Subject</th><th>Timeline</th><th>Classes</th>
-                  <th>Hours</th><th>Status</th><th>Progress</th>
-                </tr>
-              </thead>
-              <tbody id="upscScheduleBody">
-                <tr><td colspan="6" class="empty-td">Loading schedule...</td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="section-title">📊 Study Plan Progress</div>
+          <div id="upscStudyPlanBars"></div>
 
           <div class="section-title">Current Affairs Log</div>
           <div class="card" style="margin-bottom:16px;padding:18px;">
@@ -2327,7 +2297,7 @@
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=56"></script>
-<script defer src="js/ui.js?v=70"></script>
+<script defer src="js/ui.js?v=71"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>

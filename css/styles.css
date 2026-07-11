@@ -7694,3 +7694,54 @@ button:disabled, [disabled] {
 @media (max-width: 600px) {
   .upsc-exam-phases { grid-template-columns: 1fr; }
 }
+
+/* ── Study Plan Progress Bars ──────────────────────── */
+.sp-row {
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: border-color 0.15s;
+}
+.sp-row.sp-current {
+  border-color: color-mix(in srgb, var(--accent-blue) 50%, var(--border));
+  background: color-mix(in srgb, var(--accent-blue) 4%, var(--card));
+}
+.sp-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.sp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sp-dot.sp-done { background: var(--accent-green); }
+.sp-dot.sp-active { background: var(--accent-blue); box-shadow: 0 0 6px color-mix(in srgb, var(--accent-blue) 60%, transparent); }
+.sp-dot.sp-upcoming { background: var(--border-bright, var(--border)); }
+.sp-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sp-meta {
+  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.sp-dates {
+  font-size: 10px;
+  color: var(--text-faint, var(--text-muted));
+  margin-top: 4px;
+  font-family: 'Space Mono', monospace;
+}
