@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
-    <link rel="stylesheet" href="css/styles.css?v=75">
+    <link rel="stylesheet" href="css/styles.css?v=76">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -1545,15 +1545,11 @@
     <div id="tab-tasks" class="tab-panel">
       <div class="tasks-layout">
 
-        <!-- LEFT: Stats, filters, new bucket -->
+        <!-- LEFT: Quick Add, Filters, Stats -->
         <aside class="tasks-left-pane">
           <div class="tasks-pane-section">
-            <div class="tasks-pane-label">Overview</div>
-            <div class="tasks-stats-strip" id="tasksStats"></div>
-          </div>
-          <div class="tasks-pane-section">
-            <div class="tasks-pane-label">📊 Completion Analytics</div>
-            <div id="tasksAnalytics"></div>
+            <div class="tasks-pane-label">Quick Add</div>
+            <div id="tasksQuickAdd"></div>
           </div>
           <div class="tasks-pane-section">
             <div class="tasks-pane-label">Filter &amp; Sort</div>
@@ -1585,14 +1581,23 @@
             </div>
           </div>
           <div class="tasks-pane-section">
-            <div class="tasks-pane-label">New Bucket</div>
-            <div id="tasksNewBucketPane"></div>
+            <div class="tasks-pane-label">Overview</div>
+            <div class="tasks-stats-strip" id="tasksStats"></div>
           </div>
         </aside>
 
-        <!-- RIGHT: Kanban board -->
-        <div class="tasks-board-wrap">
-          <div class="tasks-board" id="tasksBoard"></div>
+        <!-- RIGHT: Eisenhower Matrix + Analytics -->
+        <div class="tasks-main-wrap">
+          <div class="matrix-grid" id="tasksMatrixGrid"></div>
+          <details class="task-completed-section" id="tasksCompletedSection">
+            <summary class="task-completed-header">
+              <span class="task-completed-label">Completed</span>
+              <span class="task-count-badge" id="tasksCompletedCount">0</span>
+            </summary>
+            <div class="task-completed-list" id="tasksCompletedList"></div>
+          </details>
+          <div class="section-title" style="margin-top:28px;">Analytics</div>
+          <div class="tasks-analytics-grid" id="tasksAnalytics"></div>
         </div>
 
       </div>
@@ -2085,7 +2090,7 @@
 <script defer src="js/health-data.js?v=39"></script>
 <script defer src="js/health.js?v=40"></script>
 <script defer src="js/growth.js?v=58"></script>
-<script defer src="js/tasks.js?v=61"></script>
+<script defer src="js/tasks.js?v=62"></script>
 <script defer src="js/matrix.js?v=5"></script>
 <script defer src="js/goals.js?v=3"></script>
 <script defer src="js/study.js?v=53"></script>
@@ -2094,7 +2099,7 @@
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=57"></script>
-<script defer src="js/ui.js?v=74"></script>
+<script defer src="js/ui.js?v=75"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>

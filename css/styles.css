@@ -7987,3 +7987,212 @@ details.section-card[open] > summary {
   background: rgba(245,158,11,0.12);
   color: var(--accent-amber);
 }
+
+/* ══════════════════════════════════════════════════════ */
+/* Eisenhower Matrix — Tasks Tab                         */
+/* ══════════════════════════════════════════════════════ */
+
+.tasks-main-wrap {
+  flex: 1; min-width: 0; overflow-x: hidden;
+}
+
+.matrix-task-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 10px; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  transition: box-shadow 0.15s, border-color 0.15s;
+  margin-bottom: 6px;
+  cursor: default;
+}
+.matrix-task-item:hover {
+  border-color: var(--border-bright);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.matrix-task-item.task-done { opacity: 0.55; }
+.matrix-task-item[draggable="true"] { cursor: grab; }
+.matrix-task-item[draggable="true"]:active { cursor: grabbing; }
+.matrix-task-item.matrix-dragging { opacity: 0.3; transform: scale(0.96); }
+
+.matrix-task-cb-wrap {
+  flex-shrink: 0; display: flex; align-items: center; margin-top: 2px; cursor: pointer;
+}
+.matrix-task-body { flex: 1; min-width: 0; }
+.matrix-task-title {
+  font-size: 13px; font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.matrix-task-meta {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 3px; flex-wrap: wrap;
+}
+.matrix-task-actions {
+  display: flex; gap: 2px; opacity: 0;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.matrix-task-item:hover .matrix-task-actions { opacity: 1; }
+.matrix-task-actions button {
+  background: none; border: none; cursor: pointer;
+  font-size: 13px; padding: 2px 4px; border-radius: 4px;
+}
+.matrix-task-actions button:hover { background: var(--hover); }
+
+.matrix-item-list.matrix-drop-over {
+  background: rgba(91,127,255,0.08);
+  outline: 2px dashed var(--accent-blue);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+/* Completed tasks section */
+.task-completed-section {
+  margin-top: 20px; background: var(--card);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.task-completed-header {
+  padding: 12px 16px; cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-muted);
+  list-style: none;
+}
+.task-completed-header::-webkit-details-marker { display: none; }
+.task-completed-header::after {
+  content: '▸'; margin-left: auto; transition: transform 0.2s;
+}
+.task-completed-section[open] .task-completed-header::after { transform: rotate(90deg); }
+.task-completed-list { padding: 8px 12px; }
+
+/* Quick Add */
+.task-qa-input {
+  width: 100%; padding: 8px 10px; font-size: 13px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); outline: none;
+}
+.task-qa-input:focus { border-color: var(--accent-blue); }
+.task-qa-fields {
+  display: flex; gap: 6px; margin-top: 8px;
+}
+.task-qa-fields input, .task-qa-fields select {
+  flex: 1; font-size: 11px; padding: 5px 6px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text);
+}
+.task-qa-quadrant {
+  display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;
+}
+.task-qa-q-btn {
+  font-size: 11px; padding: 4px 8px; border-radius: 6px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text-muted); cursor: pointer;
+  transition: all 0.15s;
+}
+.task-qa-q-btn:hover { border-color: var(--border-bright); }
+.task-qa-q-btn.active {
+  background: var(--accent-blue); color: #fff;
+  border-color: var(--accent-blue);
+}
+.task-qa-q-btn.q1.active { background: var(--accent-rose); border-color: var(--accent-rose); }
+.task-qa-q-btn.q2.active { background: var(--accent-blue); border-color: var(--accent-blue); }
+.task-qa-q-btn.q3.active { background: var(--accent-amber); border-color: var(--accent-amber); }
+.task-qa-q-btn.q4.active { background: var(--accent-teal); border-color: var(--accent-teal); }
+
+/* Analytics grid */
+.tasks-analytics-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 12px;
+}
+@media (max-width: 1100px) { .tasks-analytics-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .tasks-analytics-grid { grid-template-columns: 1fr; } }
+
+.analytics-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.analytics-card-wide { grid-column: span 2; }
+@media (max-width: 700px) { .analytics-card-wide { grid-column: span 1; } }
+
+.analytics-card-title {
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px;
+}
+
+/* SVG chart styles */
+.gauge-svg { display: block; margin: 0 auto; width: 100%; max-width: 180px; }
+.gauge-score { font-size: 22px; font-weight: 800; fill: var(--text); }
+
+.donut-svg { display: block; margin: 0 auto; width: 100%; max-width: 120px; }
+.donut-center-n { font-size: 20px; font-weight: 800; fill: var(--text); }
+
+.stacked-bar-svg { display: block; }
+
+.area-chart-svg { display: block; }
+
+.bar-chart-svg { display: block; margin: 0 auto; width: 100%; max-width: 220px; }
+
+/* ══════════════════════════════════════════════════════ */
+/* UPSC — 5-Phase Preparation Timeline                   */
+/* ══════════════════════════════════════════════════════ */
+
+.upsc-prep-timeline {
+  position: relative; height: 18px; background: var(--border);
+  border-radius: 9px; margin-bottom: 24px; overflow: visible;
+}
+.upsc-prep-timeline-seg {
+  position: absolute; top: 0; height: 100%; border-radius: 9px;
+  opacity: 0.5; cursor: pointer; transition: opacity 0.2s;
+  min-width: 6px;
+}
+.upsc-prep-timeline-seg:hover, .upsc-prep-timeline-seg.active {
+  opacity: 1; z-index: 1;
+}
+.upsc-prep-timeline-marker {
+  position: absolute; top: -4px; width: 3px; height: 26px;
+  background: var(--text); border-radius: 2px; z-index: 2;
+  box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
+
+.phase-countdown {
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; min-width: 70px;
+}
+.phase-countdown-n {
+  font-size: 28px; font-weight: 800; color: var(--text-muted);
+  line-height: 1;
+}
+.phase-countdown.active .phase-countdown-n { color: var(--accent-amber); }
+.phase-countdown.done .phase-countdown-n { color: var(--accent-green); font-size: 24px; }
+.phase-countdown-label {
+  font-size: 10px; color: var(--text-faint); text-transform: uppercase;
+  letter-spacing: 0.04em; margin-top: 2px;
+}
+
+.ep-phase-desc {
+  font-size: 12px; color: var(--text-muted); margin-top: 4px;
+  line-height: 1.4;
+}
+
+.phase-subject-chips {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px;
+}
+.phase-subject-chip {
+  font-size: 10px; padding: 3px 8px; border-radius: 10px;
+  background: rgba(91,127,255,0.08); color: var(--text-muted);
+  border: 1px solid var(--border); white-space: nowrap;
+}
+.phase-subject-chip.chip-done {
+  background: rgba(16,185,129,0.12); color: var(--accent-green);
+  border-color: rgba(16,185,129,0.2);
+}
+.phase-subject-chip.chip-active {
+  background: rgba(245,158,11,0.12); color: var(--accent-amber);
+  border-color: rgba(245,158,11,0.2);
+}
+
+.phase-milestones { margin-top: 10px; }
+.phase-milestone-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-muted); padding: 2px 0;
+}
+.phase-milestone-row.done { color: var(--text-faint); text-decoration: line-through; }
+.phase-milestone-row .pm-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}

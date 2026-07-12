@@ -910,54 +910,123 @@ const UI = {
     const todayStr = today.toISOString().split('T')[0];
     const DAY_MS = 864e5;
 
-    const PHASES = [
+    const PREP_PHASES = [
+      {
+        key: 'foundation', icon: '📖', name: 'Foundation (NCERT)',
+        start: '2026-07-20', end: '2026-09-06', color: 'var(--accent-amber)',
+        target: 'Complete NCERT Foundation Classes',
+        description: 'Cover NCERT Class 6-12 across all subjects. Build conceptual base.',
+        subjectIds: [0]
+      },
+      {
+        key: 'mains-prep', icon: '✍️', name: 'Mains Subject Coverage',
+        start: '2026-09-14', end: '2027-09-17', color: 'var(--accent-blue)',
+        target: 'Complete all Mains-oriented subjects',
+        description: 'Sequential coverage of GS subjects, CSAT, and Optional. Develop answer writing.',
+        subjectIds: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+      },
+      {
+        key: 'optional-deep', icon: '📚', name: 'Optional + Essay Mastery',
+        start: '2027-09-18', end: '2027-12-31', color: 'var(--accent-violet)',
+        target: 'Complete Sociology Optional + Essay',
+        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by Dec 31.',
+        subjectIds: [16, 17, 18]
+      },
       {
         key: 'prelims', icon: '📝', name: 'Prelims Preparation',
-        start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-amber)',
+        start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-rose)',
         target: 'Prelims Exam: May 26, 2028',
-        items: ['Full syllabus revision (GS I–IV + CSAT)', 'Weekly mock tests & analysis', 'Current affairs consolidation (12 months)', 'Previous year question papers practice']
+        description: 'Full syllabus revision, mock tests, current affairs consolidation, PYQ practice.',
+        subjectIds: []
       },
       {
-        key: 'mains', icon: '✍️', name: 'Mains Preparation',
-        start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-blue)',
+        key: 'mains-rank', icon: '🏆', name: 'Mains Rank Enhancer',
+        start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-teal)',
         target: 'Mains Exam: Sep 20, 2028',
-        items: ['Answer writing practice (daily 3–4 answers)', 'Sociology optional deep revision', 'Essay writing practice (weekly)', 'Sectional & full-length Mains mock tests']
-      },
-      {
-        key: 'interview', icon: '🎤', name: 'Interview / Personality Test',
-        start: '2028-10-01', end: '2029-02-28', color: 'var(--accent-teal)',
-        target: 'Personality Test: ~Feb/Mar 2029',
-        items: ['DAF (Detailed Application Form) preparation', 'Mock interview panels', 'Current affairs & opinion formation', 'Personality development & health focus']
+        description: 'Mains revision, answer writing drills, mock tests, optional deep revision.',
+        subjectIds: []
       }
     ];
 
-    container.innerHTML = PHASES.map(p => {
+    const totalSpan = new Date(PREP_PHASES[PREP_PHASES.length - 1].end) - new Date(PREP_PHASES[0].start);
+    const timelineStart = new Date(PREP_PHASES[0].start);
+    const todayOffset = Math.max(0, Math.min(100, ((today - timelineStart) / totalSpan) * 100));
+
+    const timelineHtml = `
+      <div class="upsc-prep-timeline">
+        ${PREP_PHASES.map(p => {
+          const s = new Date(p.start), e = new Date(p.end);
+          const left = ((s - timelineStart) / totalSpan) * 100;
+          const width = Math.max(2, ((e - s) / totalSpan) * 100);
+          const isActive = todayStr >= p.start && todayStr <= p.end;
+          return `<div class="upsc-prep-timeline-seg ${isActive ? 'active' : ''}" style="left:${left}%;width:${width}%;background:${p.color};" title="${p.name}" data-phase="${p.key}"></div>`;
+        }).join('')}
+        <div class="upsc-prep-timeline-marker" style="left:${todayOffset}%;" title="Today"></div>
+      </div>`;
+
+    const progress = AppState.upscSubjectProgress || {};
+    const subjects = typeof UPSC_SUBJECTS !== 'undefined' ? UPSC_SUBJECTS : [];
+    const milestones = typeof MILESTONES !== 'undefined' ? MILESTONES : [];
+
+    const cardsHtml = PREP_PHASES.map(p => {
       const startD = new Date(p.start + 'T00:00:00');
       const endD = new Date(p.end + 'T00:00:00');
       const totalDays = Math.max(1, Math.round((endD - startD) / DAY_MS));
       const elapsed = Math.max(0, Math.round((today - startD) / DAY_MS));
       const isDone = todayStr > p.end;
       const isActive = todayStr >= p.start && todayStr <= p.end;
-      const pct = isDone ? 100 : isActive ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
 
-      let countdown = '';
+      let pct = 0;
+      let subjectChips = '';
+      if (p.subjectIds.length > 0) {
+        let totalClasses = 0, doneClasses = 0;
+        const chips = p.subjectIds.map(sid => {
+          const subj = subjects.find(s => s.id === sid);
+          if (!subj) return '';
+          const total = UPSCTracker._subjectTotal(subj);
+          const done = progress[sid] || 0;
+          totalClasses += total;
+          doneClasses += Math.min(done, total);
+          const subjPct = total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
+          const chipCls = subjPct >= 100 ? 'chip-done' : (todayStr >= subj.start && todayStr <= subj.end) ? 'chip-active' : '';
+          return `<span class="phase-subject-chip ${chipCls}" title="${subj.name}: ${done}/${total} classes (${subjPct}%)">${subj.name.split('(')[0].split('—')[0].trim().slice(0, 18)}${subjPct >= 100 ? ' ✓' : ` ${subjPct}%`}</span>`;
+        }).filter(Boolean);
+        pct = isDone ? 100 : totalClasses > 0 ? Math.min(100, Math.round((doneClasses / totalClasses) * 100)) : 0;
+        if (chips.length > 0) subjectChips = `<div class="phase-subject-chips">${chips.join('')}</div>`;
+      } else {
+        pct = isDone ? 100 : isActive ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
+      }
+
+      let countdownHtml = '';
       if (!isActive && !isDone) {
         const daysUntil = Math.max(0, Math.ceil((startD - today) / DAY_MS));
-        countdown = `<span class="ep-countdown">Starts in ${daysUntil} days</span>`;
+        countdownHtml = `<div class="phase-countdown"><span class="phase-countdown-n">${daysUntil}</span><span class="phase-countdown-label">days until start</span></div>`;
       } else if (isActive) {
         const daysLeft = Math.max(0, Math.ceil((endD - today) / DAY_MS));
-        countdown = `<span class="ep-countdown ep-active">${daysLeft} days remaining</span>`;
+        countdownHtml = `<div class="phase-countdown active"><span class="phase-countdown-n">${daysLeft}</span><span class="phase-countdown-label">days remaining</span></div>`;
+      } else {
+        countdownHtml = `<div class="phase-countdown done"><span class="phase-countdown-n">✓</span><span class="phase-countdown-label">Completed</span></div>`;
       }
+
+      const phaseMilestones = milestones.filter(m => m.date >= p.start && m.date <= p.end);
+      const milestonesHtml = phaseMilestones.length ? `
+        <div class="phase-milestones">
+          ${phaseMilestones.map(m => {
+            const mDone = m.date <= todayStr;
+            return `<div class="phase-milestone-row ${mDone ? 'done' : ''}"><span class="pm-dot" style="background:${mDone ? p.color : 'var(--border-bright)'}"></span><span class="pm-label">${m.label}</span></div>`;
+          }).join('')}
+        </div>` : '';
 
       const statusCls = isDone ? 'ep-done' : isActive ? 'ep-active-card' : '';
 
-      return `<div class="upsc-phase-card phase-${p.key} ${statusCls}">
+      return `<div class="upsc-phase-card phase-${p.key} ${statusCls}" id="phase-${p.key}">
         <div class="ep-top">
           <span class="upsc-phase-icon">${p.icon}</span>
           <div class="ep-title-wrap">
             <div class="upsc-phase-name">${p.name}</div>
-            ${countdown}
+            <div class="ep-phase-desc">${p.description}</div>
           </div>
+          ${countdownHtml}
         </div>
         <div class="ep-target"><span class="ep-target-label">${p.target}</span></div>
         <div class="ep-dates-row">
@@ -971,11 +1040,19 @@ const UI = {
           </div>
           <span class="ep-pct">${pct}%</span>
         </div>
-        <ul class="upsc-phase-activities">
-          ${p.items.map(i => `<li>${i}</li>`).join('')}
-        </ul>
+        ${subjectChips}
+        ${milestonesHtml}
       </div>`;
     }).join('');
+
+    container.innerHTML = timelineHtml + cardsHtml;
+
+    container.querySelectorAll('.upsc-prep-timeline-seg').forEach(seg => {
+      seg.addEventListener('click', () => {
+        const target = document.getElementById(`phase-${seg.dataset.phase}`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
   },
 
   _renderPhaseTimeline() {
