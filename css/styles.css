@@ -8050,21 +8050,28 @@ details.section-card[open] > summary {
   margin-top: 3px; flex-wrap: wrap;
 }
 .matrix-task-actions {
-  display: flex; gap: 2px; opacity: 0;
-  transition: opacity 0.15s; flex-shrink: 0;
+  display: flex; gap: 2px; flex-shrink: 0; align-items: flex-start;
 }
-.matrix-task-item:hover .matrix-task-actions { opacity: 1; }
 .matrix-task-actions button {
   background: none; border: none; cursor: pointer;
-  font-size: 13px; padding: 2px 4px; border-radius: 4px;
+  font-size: 12px; padding: 3px 5px; border-radius: 6px;
+  opacity: 0.5; transition: opacity 0.15s, background 0.15s;
 }
-.matrix-task-actions button:hover { background: var(--hover); }
+.matrix-task-actions button:hover { background: var(--hover); opacity: 1; }
 
 .matrix-item-list.matrix-drop-over {
   background: rgba(91,127,255,0.08);
   outline: 2px dashed var(--accent-blue);
   outline-offset: -2px;
   border-radius: 8px;
+}
+
+/* Edit area override for matrix context */
+.matrix-quadrant .task-edit-area,
+.task-completed-list .task-edit-area {
+  border: 1px solid var(--accent-blue);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
 }
 
 /* Completed tasks section */
@@ -8090,24 +8097,26 @@ details.section-card[open] > summary {
   width: 100%; padding: 8px 10px; font-size: 13px;
   background: var(--card); border: 1px solid var(--border);
   border-radius: 8px; color: var(--text); outline: none;
+  box-sizing: border-box;
 }
 .task-qa-input:focus { border-color: var(--accent-blue); }
 .task-qa-fields {
-  display: flex; gap: 6px; margin-top: 8px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px;
 }
 .task-qa-fields input, .task-qa-fields select {
-  flex: 1; font-size: 11px; padding: 5px 6px;
+  width: 100%; font-size: 11px; padding: 6px 8px;
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text);
+  border-radius: 6px; color: var(--text); box-sizing: border-box;
+  min-width: 0;
 }
 .task-qa-quadrant {
-  display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px;
 }
 .task-qa-q-btn {
-  font-size: 11px; padding: 4px 8px; border-radius: 6px;
+  font-size: 10px; padding: 5px 4px; border-radius: 6px;
   background: var(--card); border: 1px solid var(--border);
   color: var(--text-muted); cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.15s; text-align: center; white-space: nowrap;
 }
 .task-qa-q-btn:hover { border-color: var(--border-bright); }
 .task-qa-q-btn.active {
