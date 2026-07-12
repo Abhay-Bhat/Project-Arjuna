@@ -40,6 +40,15 @@ const TasksTracker = {
     this._renderQuickAdd();
     this._bindFilters();
     this._restoreTaskTimerState();
+    this._bindNativeResumeSync();
+  },
+
+  _bindNativeResumeSync() {
+    if (this._nativeResumeSyncBound) return;
+    this._nativeResumeSyncBound = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') this._reconcileWithNativeTimer();
+    });
   },
 
   _buckets()  { return (AppState.taskBuckets || []).filter(b => !b.deleted); },
@@ -818,7 +827,24 @@ const TasksTracker = {
       clearInterval(this._taskTimerInterval);
       this._taskTimerInterval = setInterval(() => this._onTaskTimerTick(), 1000);
       this._renderMatrix();
+      this._reconcileWithNativeTimer();
     } catch (e) {}
+  },
+
+  // On the Android wrapper, a foreground service keeps ticking (and its own
+  // elapsed clock accurate) while this page is backgrounded/screen-locked.
+  // Adopt its elapsed time on resume since it's the more trustworthy source
+  // for time that passed while this JS interval may have been throttled.
+  async _reconcileWithNativeTimer() {
+    if (typeof NativeTimerBridge === 'undefined' || !NativeTimerBridge.isNative()) return;
+    const native = await NativeTimerBridge.getElapsed();
+    if (!native || !native.running || native.taskId == null) return;
+    const nativeTaskId = parseInt(native.taskId);
+    if (this._runningTaskId !== nativeTaskId || native.elapsedSec > this._taskElapsed) {
+      this._runningTaskId = nativeTaskId;
+      this._taskElapsed = native.elapsedSec;
+      this._renderMatrix();
+    }
   },
 
   _startTaskTimer(taskId) {
@@ -834,6 +860,7 @@ const TasksTracker = {
     clearInterval(this._taskTimerInterval);
     this._taskTimerInterval = setInterval(() => this._onTaskTimerTick(), 1000);
     this._saveTaskTimerState();
+    if (typeof NativeTimerBridge !== 'undefined') NativeTimerBridge.start(taskId, t.title);
     this._refreshAfterTimerChange();
   },
 
@@ -854,6 +881,7 @@ const TasksTracker = {
     this._taskElapsed = 0;
     this._taskStartedAt = null;
     this._clearTaskTimerState();
+    if (typeof NativeTimerBridge !== 'undefined') NativeTimerBridge.stop();
     if (!suppressRefresh) this._refreshAfterTimerChange();
   },
 
