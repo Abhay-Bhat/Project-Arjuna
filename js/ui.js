@@ -365,8 +365,24 @@ const UI = {
       el.classList.toggle('th-done', item.checked);
       el.title = item.label + (item.checked ? ' ✓' : '');
     });
-    // Also refresh Health tab checklist if it's already rendered
     if (typeof updateNutritionScore === 'function') updateNutritionScore();
+
+    const summaryCount = document.getElementById('nutrition-summary-count');
+    if (summaryCount) summaryCount.textContent = `${done}/${total}`;
+
+    const streakEl = document.getElementById('nutritionStreakBadge');
+    if (streakEl && typeof ArjunaHealth !== 'undefined' && ArjunaHealth.getNutritionStreak) {
+      const streak = ArjunaHealth.getNutritionStreak();
+      streakEl.textContent = streak > 0 ? `🔥 ${streak} day streak` : `🔥 Start your streak`;
+    }
+
+    if (done === total && total > 0) {
+      const icons = document.getElementById('todayHabitsIcons');
+      if (icons && !icons.classList.contains('celebrating')) {
+        icons.classList.add('celebrating');
+        setTimeout(() => icons.classList.remove('celebrating'), 2500);
+      }
+    }
   },
 
   _renderTasksDueBanner() {

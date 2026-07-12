@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
-    <link rel="stylesheet" href="css/styles.css?v=74">
+    <link rel="stylesheet" href="css/styles.css?v=75">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
@@ -350,6 +350,9 @@
             <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
               <div class="prog-bar-track" style="flex:1;height:4px;margin:0;"><div class="prog-bar-fill" id="todayHabitsBar" style="width:0%"></div></div>
               <span id="todayHabitsScore" style="font-size:10px;color:var(--text-muted);white-space:nowrap;">0 / 7 habits</span>
+            </div>
+            <div class="today-streaks-row">
+              <span class="streak-badge" id="nutritionStreakBadge">🔥 Start your streak</span>
             </div>
           </div>
 
@@ -769,7 +772,7 @@
           <div class="data-table-wrap">
             <table class="data-table">
               <thead><tr><th>Month</th><th>Saved (AED)</th><th>Transferred (INR)</th><th>Notes</th><th>Action</th></tr></thead>
-              <tbody id="finLogBody"><tr><td colspan="5" class="empty-td">No entries yet.</td></tr></tbody>
+              <tbody id="finLogBody"><tr><td colspan="5" class="empty-td">✍️ No entries yet — log your first month's savings above!</td></tr></tbody>
             </table>
           </div>
 
@@ -852,7 +855,7 @@
           <div class="data-table-wrap">
             <table class="data-table">
               <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Savings</th><th>Rate / Action</th></tr></thead>
-              <tbody id="expenseLogBody"><tr><td colspan="5" class="empty-td">No expense entries yet.</td></tr></tbody>
+              <tbody id="expenseLogBody"><tr><td colspan="5" class="empty-td">📊 No expenses tracked yet — start logging for spending insights!</td></tr></tbody>
             </table>
           </div>
 
@@ -1042,30 +1045,13 @@
             <button type="submit" class="btn btn-primary" style="margin-top:14px;">Add Investment</button>
           </form>
 
-          <div class="stat-card" style="margin:20px 0;">
-            <div class="stat-card-title">Total Portfolio Wealth (True Value)</div>
-            <div class="stat-card-value" style="font-size:28px;" id="totalInvested">₹0</div>
-            <div class="stat-card-sub" id="investmentCount">0 investments tracked</div>
-          </div>
-
           <div class="section-title">Portfolio Summary</div>
           <div id="portfolioSummaryContainer">
             <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">Add investments to see your portfolio breakdown.</div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-            <div>
-              <div class="section-title">Investment Breakdown</div>
-              <div class="chart-wrap" style="height:280px;"><canvas id="investmentChart"></canvas></div>
-            </div>
-            <div>
-              <div class="section-title">AI Financial Insight</div>
-              <div class="pro-tip-card" id="finTipCard">
-                <span class="pro-tip-icon">💡</span>
-                <div class="pro-tip-text" id="finTipText">Start adding investments to get personalized AI tips.</div>
-              </div>
-            </div>
-          </div>
+          <div class="section-title">Investment Breakdown</div>
+          <div class="chart-wrap" style="height:280px;"><canvas id="investmentChart"></canvas></div>
 
           <div class="section-title">Wealth by Nature</div>
           <div class="wealth-grid" id="wealthGrid">
@@ -1077,10 +1063,7 @@
             <div class="wealth-card"><div class="wealth-icon">⚡</div><div class="wealth-label">Speculative</div><div class="wealth-amount">₹0</div><div class="wealth-sub">Crypto, Other</div></div>
           </div>
 
-          <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">Maturity &amp; Deadline Reminders<span id="maturityBadge" style="display:none;background:var(--accent-rose);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;"></span></div>
-          <div id="maturityAlertsMain">
-            <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:14px 0;">No maturities within 6 months. Add maturity dates when logging investments.</div>
-          </div>
+
 
           <div class="section-title">Investment Portfolio</div>
           <div id="investmentSections"></div>
@@ -1190,20 +1173,12 @@
             <div id="gymHeatmap" style="overflow-x:auto;"></div>
           </div>
 
-          <div class="pane-card">
-            <div class="pane-card-title">😴 Sleep Trend (14d)</div>
-            <div class="chart-wrap chart-wrap-compact"><canvas id="sleepChart"></canvas></div>
-          </div>
-
-          <div class="pane-card">
-            <div class="pane-card-title">📱 Phone Usage (14d)</div>
-            <div class="chart-wrap chart-wrap-compact"><canvas id="phoneChart"></canvas></div>
-          </div>
-
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN: Charts + Cholesterol ── -->
+        <!-- ── MAIN: Health dashboard ── -->
         <div class="pane-main">
+
+          <div class="section-card health-hero" id="healthScoreHero"></div>
 
           <!-- ═══════════════════════════════════════════════════════
                MODULE 1: BLOOD MARKERS PANEL
@@ -1345,135 +1320,47 @@
 </section>
 
 
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 2: DAILY NUTRITION CHECKLIST
-               ═══════════════════════════════════════════════════════ -->
-<section class="section-card" id="nutrition-checklist">
-  <div class="section-header">
-    <h3>✅ Nutrition Checklist</h3>
-    <span class="section-meta">Streak: <strong id="nutrition-streak-val">—</strong> days</span>
-  </div>
-  <p class="section-subtext">These 7 habits directly target your out-of-range markers. Log daily.</p>
+          <!-- ── Charts Grid (moved from sidebar) ── -->
+          <div class="health-charts-grid">
+            <div class="section-card">
+              <div class="pane-card-title">😴 Sleep Trend (14d)</div>
+              <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+            </div>
+            <div class="section-card">
+              <div class="pane-card-title">📱 Phone Usage (14d)</div>
+              <div class="chart-wrap"><canvas id="phoneChart"></canvas></div>
+            </div>
+          </div>
 
-  <div class="checklist-grid" id="nutrition-checklist-items">
-    <!-- Rendered by JS: renderNutritionChecklist() -->
-    <!-- Each item is a toggleable card: icon + label + target marker badge -->
+          <!-- ── Cholesterol Log ── -->
+          <section class="section-card" id="cholesterol-section">
+            <div class="section-header"><h3>🧪 Cholesterol Log</h3></div>
+            <form id="cholForm">
+              <div class="fin-form-grid">
+                <div class="form-field"><label>Test Date</label><input type="date" id="cholDate"></div>
+                <div class="form-field"><label>LDL</label><input type="number" id="cholLDL" placeholder="130"></div>
+                <div class="form-field"><label>HDL</label><input type="number" id="cholHDL" placeholder="50"></div>
+                <div class="form-field"><label>Total</label><input type="number" id="cholTotal" placeholder="200"></div>
+                <div class="form-field" style="grid-column:1/-1;"><label>Notes</label><input type="text" id="cholNotes" placeholder="Optional"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">Log Test</button>
+            </form>
+            <div class="data-table-wrap" style="margin-top:16px;">
+              <table class="data-table">
+                <thead><tr><th>Date</th><th>LDL</th><th>HDL</th><th>Total</th><th>Notes</th><th>Action</th></tr></thead>
+                <tbody id="cholBody"><tr><td colspan="6" class="empty-td">🩸 No tests logged yet — your baseline markers are tracked above.</td></tr></tbody>
+              </table>
+            </div>
+            <div class="chart-wrap" style="margin-top:16px;"><canvas id="cholChart"></canvas></div>
+          </section>
 
-    <!-- STATIC FALLBACK (replace with JS render) -->
-    <div class="checklist-item" data-id="eggs" onclick="handleNutritionToggle('eggs')">
-      <span class="checklist-icon">🥚</span>
-      <div class="checklist-text">
-        <span class="checklist-label">2 eggs eaten</span>
-        <span class="checklist-tag tag-b12">B12</span>
-      </div>
-      <span class="checklist-check" id="check-eggs">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="fish" onclick="handleNutritionToggle('fish')">
-      <span class="checklist-icon">🐟</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Fish meal today</span>
-        <span class="checklist-tag tag-hdl">HDL</span>
-      </div>
-      <span class="checklist-check" id="check-fish">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="nuts" onclick="handleNutritionToggle('nuts')">
-      <span class="checklist-icon">🌰</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Almonds + walnut</span>
-        <span class="checklist-tag tag-hdl">HDL</span>
-      </div>
-      <span class="checklist-check" id="check-nuts">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="sun" onclick="handleNutritionToggle('sun')">
-      <span class="checklist-icon">☀️</span>
-      <div class="checklist-text">
-        <span class="checklist-label">15 min morning sun</span>
-        <span class="checklist-tag tag-vitd">Vit D</span>
-      </div>
-      <span class="checklist-check" id="check-sun">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="water" onclick="handleNutritionToggle('water')">
-      <span class="checklist-icon">💧</span>
-      <div class="checklist-text">
-        <span class="checklist-label">3L water</span>
-        <span class="checklist-tag tag-kidney">Kidneys</span>
-      </div>
-      <span class="checklist-check" id="check-water">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="noFried" onclick="handleNutritionToggle('noFried')">
-      <span class="checklist-icon">🚫</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Zero fried food</span>
-        <span class="checklist-tag tag-ldl">LDL↓</span>
-      </div>
-      <span class="checklist-check" id="check-noFried">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="earlyDinner" onclick="handleNutritionToggle('earlyDinner')">
-      <span class="checklist-icon">🌙</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Dinner before 8 PM</span>
-        <span class="checklist-tag tag-sugar">HbA1c</span>
-      </div>
-      <span class="checklist-check" id="check-earlyDinner">○</span>
-    </div>
-  </div>
-
-  <!-- Progress bar -->
-  <div style="margin-top:12px">
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-      <span>Today's score</span>
-      <span id="nutrition-score-label">0 / 7</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="nutrition-score-bar" style="width:0%"></div>
-    </div>
-  </div>
-</section>
-
-
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 3: TODAY'S MEAL PLAN
-               ═══════════════════════════════════════════════════════ -->
-<section class="section-card" id="todays-meal-plan">
-  <div class="section-header">
-    <h3>🍽️ Today's Meals</h3>
-    <span class="section-meta" id="meal-day-label">— Day</span>
-  </div>
-  <p class="section-subtext" id="meal-theme-label" style="margin-bottom:12px">Loading...</p>
-
-  <!-- Fish day banner (shown only on Tue/Thu/Sat) -->
-  <div id="fish-day-banner" style="display:none;background:var(--info-bg);border:1px solid var(--info-border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--info-text)">
-    🐟 <strong>Fish day</strong> — eat fish at lunch or dinner today. This is your most important HDL-boosting habit.
-  </div>
-
-  <div id="meal-plan-list">
-    <!-- Rendered dynamically by JS: renderTodayMealPlan() -->
-    <!-- Each slot: time + item + where + tag chips + swap (collapsed) -->
-  </div>
-
-  <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-    💡 Tap any meal to see a swap option. All meals orderable on Swiggy/Zomato or from nearby eateries.
-  </div>
-</section>
-
-
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 4: SUPPLEMENT TRACKER
-               ═══════════════════════════════════════════════════════ -->
+          <!-- ── Supplements ── -->
 <section class="section-card" id="supplement-tracker">
   <div class="section-header">
     <h3>💊 Supplements</h3>
     <span class="section-meta">Doctor visit first for D3 + B12</span>
   </div>
-
   <div class="supplement-list">
-
     <div class="supplement-row" id="supp-vitd3">
       <div class="supp-icon">☀️</div>
       <div class="supp-info">
@@ -1489,7 +1376,6 @@
         <button class="btn-small btn-check" id="btn-log-vitd" onclick="logSupplement('vitd3')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
     <div class="supplement-row" id="supp-b12">
       <div class="supp-icon">🔴</div>
       <div class="supp-info">
@@ -1505,7 +1391,6 @@
         <button class="btn-small btn-check" id="btn-log-b12" onclick="logSupplement('b12')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
     <div class="supplement-row" id="supp-omega3">
       <div class="supp-icon">🐟</div>
       <div class="supp-info">
@@ -1520,30 +1405,42 @@
         <button class="btn-small btn-check" id="btn-log-omega3" onclick="logSupplement('omega3')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
   </div>
 </section>
 
-          <div class="section-title">Cholesterol Log</div>
-          <form id="cholForm">
-            <div class="fin-form-grid">
-              <div class="form-field"><label>Test Date</label><input type="date" id="cholDate"></div>
-              <div class="form-field"><label>LDL</label><input type="number" id="cholLDL" placeholder="130"></div>
-              <div class="form-field"><label>HDL</label><input type="number" id="cholHDL" placeholder="50"></div>
-              <div class="form-field"><label>Total</label><input type="number" id="cholTotal" placeholder="200"></div>
-              <div class="form-field" style="grid-column:1/-1;"><label>Notes</label><input type="text" id="cholNotes" placeholder="Optional"></div>
+          <!-- ── Collapsed: Nutrition Checklist ── -->
+          <details class="section-card" id="nutrition-checklist">
+            <summary>✅ Nutrition Checklist · <span id="nutrition-summary-count">0/7</span> · Streak: <strong id="nutrition-streak-val">—</strong> days</summary>
+            <p class="section-subtext" style="margin:12px 16px 8px;">These 7 habits directly target your out-of-range markers. Log daily.</p>
+            <div class="checklist-grid" id="nutrition-checklist-items" style="padding:0 16px;">
+              <div class="checklist-item" data-id="eggs" onclick="handleNutritionToggle('eggs')"><span class="checklist-icon">🥚</span><div class="checklist-text"><span class="checklist-label">2 eggs eaten</span><span class="checklist-tag tag-b12">B12</span></div><span class="checklist-check" id="check-eggs">○</span></div>
+              <div class="checklist-item" data-id="fish" onclick="handleNutritionToggle('fish')"><span class="checklist-icon">🐟</span><div class="checklist-text"><span class="checklist-label">Fish meal today</span><span class="checklist-tag tag-hdl">HDL</span></div><span class="checklist-check" id="check-fish">○</span></div>
+              <div class="checklist-item" data-id="nuts" onclick="handleNutritionToggle('nuts')"><span class="checklist-icon">🌰</span><div class="checklist-text"><span class="checklist-label">Almonds + walnut</span><span class="checklist-tag tag-hdl">HDL</span></div><span class="checklist-check" id="check-nuts">○</span></div>
+              <div class="checklist-item" data-id="sun" onclick="handleNutritionToggle('sun')"><span class="checklist-icon">☀️</span><div class="checklist-text"><span class="checklist-label">15 min morning sun</span><span class="checklist-tag tag-vitd">Vit D</span></div><span class="checklist-check" id="check-sun">○</span></div>
+              <div class="checklist-item" data-id="water" onclick="handleNutritionToggle('water')"><span class="checklist-icon">💧</span><div class="checklist-text"><span class="checklist-label">3L water</span><span class="checklist-tag tag-kidney">Kidneys</span></div><span class="checklist-check" id="check-water">○</span></div>
+              <div class="checklist-item" data-id="noFried" onclick="handleNutritionToggle('noFried')"><span class="checklist-icon">🚫</span><div class="checklist-text"><span class="checklist-label">Zero fried food</span><span class="checklist-tag tag-ldl">LDL↓</span></div><span class="checklist-check" id="check-noFried">○</span></div>
+              <div class="checklist-item" data-id="earlyDinner" onclick="handleNutritionToggle('earlyDinner')"><span class="checklist-icon">🌙</span><div class="checklist-text"><span class="checklist-label">Dinner before 8 PM</span><span class="checklist-tag tag-sugar">HbA1c</span></div><span class="checklist-check" id="check-earlyDinner">○</span></div>
             </div>
-            <button type="submit" class="btn btn-primary">Log Test</button>
-          </form>
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Date</th><th>LDL</th><th>HDL</th><th>Total</th><th>Notes</th><th>Action</th></tr></thead>
-              <tbody id="cholBody"><tr><td colspan="6" class="empty-td">No tests logged yet.</td></tr></tbody>
-            </table>
-          </div>
+            <div style="margin:12px 16px 16px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Today's score</span><span id="nutrition-score-label">0 / 7</span></div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" id="nutrition-score-bar" style="width:0%"></div></div>
+            </div>
+          </details>
 
-          <div class="section-title">Cholesterol Trend</div>
-          <div class="chart-wrap"><canvas id="cholChart"></canvas></div>
+          <!-- ── Collapsed: Today's Meals ── -->
+          <details class="section-card" id="todays-meal-plan">
+            <summary>🍽️ Today's Meals · <span id="meal-day-label">—</span></summary>
+            <div style="padding:12px 16px;">
+              <p class="section-subtext" id="meal-theme-label" style="margin-bottom:12px">Loading...</p>
+              <div id="fish-day-banner" style="display:none;background:var(--info-bg);border:1px solid var(--info-border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--info-text)">
+                🐟 <strong>Fish day</strong> — eat fish at lunch or dinner today. This is your most important HDL-boosting habit.
+              </div>
+              <div id="meal-plan-list"></div>
+              <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                💡 Tap any meal to see a swap option.
+              </div>
+            </div>
+          </details>
 
         </div><!-- end pane-main -->
 
@@ -2182,11 +2079,11 @@
 <script defer src="js/phases.js?v=44"></script>
 <script defer src="js/storage.js?v=39"></script>
 <script defer src="js/state.js?v=54"></script>
-<script defer src="js/scheduler.js?v=42"></script>
+<script defer src="js/scheduler.js?v=43"></script>
 <script defer src="js/upsc.js?v=63"></script>
-<script defer src="js/finance.js?v=42"></script>
+<script defer src="js/finance.js?v=43"></script>
 <script defer src="js/health-data.js?v=39"></script>
-<script defer src="js/health.js?v=39"></script>
+<script defer src="js/health.js?v=40"></script>
 <script defer src="js/growth.js?v=58"></script>
 <script defer src="js/tasks.js?v=61"></script>
 <script defer src="js/matrix.js?v=5"></script>
@@ -2197,7 +2094,7 @@
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
 <script defer src="js/coach.js?v=57"></script>
-<script defer src="js/ui.js?v=73"></script>
+<script defer src="js/ui.js?v=74"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>

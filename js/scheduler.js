@@ -502,6 +502,14 @@ const Scheduler = {
     set('completedHours', doneHours.toFixed(1) + 'h');
     setW('progressBar', pct);
 
+    if (pct === 100 && total > 0) {
+      const card = document.getElementById('progressBar')?.closest('.stat-card, .pane-card');
+      if (card && !card.classList.contains('celebrating')) {
+        card.classList.add('celebrating');
+        setTimeout(() => card.classList.remove('celebrating'), 2500);
+      }
+    }
+
     AppState.setDailyHistory(dateKey, completed, total);
   },
 

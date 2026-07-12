@@ -745,14 +745,12 @@ const FinanceTracker = {
   renderInvestments() {
     this.renderNetWorthCard();
     this.renderSummary();
-    this.renderInvestmentSummary();
     this.renderPortfolioSummary();
     this.renderInvestmentChart();
     this.renderWealthByNature();
     this.renderMaturityAlerts();
     this.renderInvestmentSections();
     this.renderAITips();
-    this.renderFinancialTip();
     this.renderHelpSection();
   },
 
@@ -781,15 +779,6 @@ const FinanceTracker = {
     bd.innerHTML = items.length
       ? items.map(i => `<div class="nw-item"><div class="nw-item-label">${i.label}</div><div class="nw-item-value">₹${this._lakh(i.value)}</div></div>`).join('')
       : '<div style="color:var(--text-muted);font-size:11px;grid-column:1/-1;text-align:center;padding:6px 0;">Add investments to see breakdown</div>';
-  },
-
-  renderInvestmentSummary() {
-    const wealth = this.calculateTrueWealth();
-    const count  = this._inv().filter(i => !['closed'].includes(i.status || '')).length;
-    const el     = document.getElementById('totalInvested');
-    const cnt    = document.getElementById('investmentCount');
-    if (el)  el.textContent  = '₹' + this._lakh(wealth);
-    if (cnt) cnt.textContent = count + ' investment' + (count !== 1 ? 's' : '') + ' tracked';
   },
 
   renderPortfolioSummary() {
@@ -1099,8 +1088,7 @@ const FinanceTracker = {
       }).join('');
     };
 
-    renderTo('maturityAlertsMain', 10);
-    renderTo('maturityAlertsSidebar', 4);
+    renderTo('maturityAlertsSidebar', 6);
 
     // Update badge count on section header
     const badge = document.getElementById('maturityBadge');
@@ -1420,18 +1408,6 @@ const FinanceTracker = {
     ${sec('Other',  '🥇', 'Gold · Bonds · Real Estate · Crypto', otherInvs, otherTbl)}
   `;
 },
-
-  renderFinancialTip() {
-    const tipEl = document.getElementById('finTipText');
-    if (!tipEl) return;
-    const total = this.calculateTrueWealth();
-    if (!total) {
-      tipEl.textContent = 'Start adding investments to get personalized AI tips.';
-      return;
-    }
-    const tips = this._generateDetailedAITips();
-    if (tips.length) tipEl.textContent = tips[0].icon + ' ' + tips[0].title + ': ' + tips[0].desc;
-  },
 
   renderAITips() {
     const container = document.getElementById('aiTipsContainer');
