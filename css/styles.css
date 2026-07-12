@@ -4584,12 +4584,6 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .study-manage-emo { width: 56px; text-align: center; font-size: 16px; }
 .study-manage-color { width: 36px; height: 32px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; padding: 0; flex-shrink: 0; }
 
-.study-manage-add-row {
-  display: flex; gap: 8px; align-items: center;
-  padding: 8px; background: rgba(91,127,255,0.06); border: 1px dashed var(--border);
-  border-radius: 8px; margin-top: 6px;
-}
-
 /* ── DevOps Guide Modal ─────────────────────────────────── */
 .guide-modal {
   display: none; position: fixed; inset: 0; z-index: 2000;
@@ -8231,4 +8225,112 @@ details.section-card[open] > summary {
 .phase-milestone-row.done { color: var(--text-faint); text-decoration: line-through; }
 .phase-milestone-row .pm-dot {
   width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════════════ */
+/* Per-task Timer                                        */
+/* ══════════════════════════════════════════════════════ */
+
+.task-timer-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 12px; padding: 3px 5px; border-radius: 6px;
+  opacity: 0.75; transition: opacity 0.15s, background 0.15s;
+}
+.task-timer-btn:hover { background: var(--hover); opacity: 1; }
+.task-timer-btn.task-timer-running {
+  opacity: 1; background: rgba(244,63,94,0.15); color: var(--accent-rose);
+}
+
+.matrix-task-item.task-timer-active {
+  border-color: var(--accent-rose);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-rose) 25%, transparent);
+}
+
+.task-timer-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+  background: rgba(244,63,94,0.12); color: var(--accent-rose);
+  font-variant-numeric: tabular-nums;
+}
+.task-timer-live-dot::before {
+  content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-rose); margin-right: 5px; vertical-align: middle;
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+.task-actual-badge {
+  font-size: 10px; padding: 2px 7px; border-radius: 8px;
+  background: rgba(0,212,200,0.1); color: var(--accent-teal);
+}
+
+.task-edit-timer-row {
+  display: flex; align-items: center; gap: 10px; padding: 6px 0;
+}
+.task-edit-timer-row .task-timer-badge { font-size: 12px; padding: 3px 9px; }
+.task-edit-timer-logged {
+  font-size: 11px; color: var(--text-muted); margin-left: auto;
+}
+
+.est-actual-chart-svg { display: block; margin: 0 auto; width: 100%; max-width: 260px; }
+
+/* ══════════════════════════════════════════════════════ */
+/* Inline Subject/Activity "+ Add" Picker                */
+/* ══════════════════════════════════════════════════════ */
+
+.sac-select-wrap {
+  display: flex; align-items: center; gap: 6px; position: relative;
+}
+.sac-select-wrap select { flex: 1; min-width: 0; }
+
+.sac-add-btn {
+  width: 26px; height: 26px; flex-shrink: 0;
+  border-radius: 6px; border: 1px solid var(--border); background: var(--card);
+  color: var(--text-muted); font-size: 15px; font-weight: 700; line-height: 1;
+  cursor: pointer; transition: all 0.15s;
+}
+.sac-add-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+.sac-popover {
+  position: absolute; top: 100%; right: 0; z-index: 500; margin-top: 6px;
+  background: var(--card); border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  padding: 12px; width: 260px;
+}
+.sac-name-input {
+  width: 100%; padding: 7px 9px; font-size: 13px; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); outline: none;
+}
+.sac-name-input:focus { border-color: var(--accent-blue); }
+.sac-icon-grid {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px;
+  margin-top: 10px; max-height: 120px; overflow-y: auto;
+}
+.sac-icon-btn {
+  font-size: 16px; padding: 5px 0; border-radius: 6px;
+  background: var(--surface); border: 1px solid transparent; cursor: pointer;
+  transition: all 0.15s;
+}
+.sac-icon-btn:hover { background: var(--hover); }
+.sac-icon-btn.selected { border-color: var(--accent-blue); background: rgba(91,127,255,0.12); }
+.sac-color-input {
+  width: 100%; height: 30px; margin-top: 10px; padding: 0;
+  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+}
+.sac-popover-actions {
+  display: flex; gap: 8px; margin-top: 12px;
+}
+.sac-popover-actions button { flex: 1; }
+
+/* ══════════════════════════════════════════════════════ */
+/* Task ↔ Subject/Activity Link                          */
+/* ══════════════════════════════════════════════════════ */
+
+.task-subject-chip {
+  font-size: 10px; padding: 2px 7px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid currentColor; opacity: 0.85;
+}
+
+.task-qa-subject, .task-edit-subject {
+  width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); margin-top: 8px;
 }
