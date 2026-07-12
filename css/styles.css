@@ -7995,6 +7995,30 @@ details.section-card[open] > summary {
 .tasks-main-wrap {
   flex: 1; min-width: 0; overflow-x: hidden;
 }
+.tasks-main-wrap > .matrix-grid {
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.tasks-main-wrap .matrix-quadrant {
+  min-height: 220px;
+  border-top-width: 4px;
+  position: relative;
+}
+.tasks-main-wrap .matrix-quadrant.q1 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-rose) 6%, var(--card)));
+}
+.tasks-main-wrap .matrix-quadrant.q2 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-blue) 6%, var(--card)));
+}
+.tasks-main-wrap .matrix-quadrant.q3 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-amber) 6%, var(--card)));
+}
+.tasks-main-wrap .matrix-quadrant.q4 {
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-teal) 6%, var(--card)));
+}
+@media (max-width: 700px) {
+  .tasks-main-wrap > .matrix-grid { grid-template-columns: 1fr; }
+}
 
 .matrix-task-item {
   display: flex; align-items: flex-start; gap: 8px;
