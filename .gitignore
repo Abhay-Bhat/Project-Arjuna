@@ -1,7 +1,10 @@
 # Dependencies
 node_modules/
-package.json
-package-lock.json
+
+# Android build/copy artifacts — android/.gitignore covers build outputs;
+# these two are Android-specific credentials/generated files it doesn't.
+android/app/google-services.json
+www/
 
 # Firebase credentials — injected at deploy time via GitHub Actions secrets
 js/firebase-config.js

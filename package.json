@@ -1,0 +1,16 @@
+{
+  "name": "project-arjuna",
+  "private": true,
+  "scripts": {
+    "android:prepare": "node scripts/copy-web-assets.mjs && npx cap sync android"
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor-firebase/authentication": "^8.3.0"
+  }
+}

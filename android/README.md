@@ -1,0 +1,41 @@
+# Skadi Android Wrapper
+
+A Capacitor wrapper around the same static web app (`index.html` + `js/` + `css/`) so it can be sideloaded as a debug APK — no Play Store publishing, no separate codebase to maintain. The web app keeps working exactly as before; this is purely an additional distribution target.
+
+## One-time Firebase console setup (required before the CI build works)
+
+1. **Firebase Console → Project Settings → Add app → Android.**
+   - Package name: `com.abhaybhat.arjuna` (must match `capacitor.config.json`'s `appId`).
+   - Debug signing certificate SHA-1: `89:7C:3E:84:B8:CA:A3:13:51:FC:ED:E9:EF:86:7D:F6:E8:32:27:CA`
+     (fingerprint of the committed `android/debug.keystore` — every CI build signs with this same key, so this only needs registering once. If the keystore is ever regenerated, re-derive the SHA-1 with `keytool -list -v -keystore android/debug.keystore -alias androiddebugkey -storepass android` and update this here.)
+2. Download the generated `google-services.json`, then:
+   ```bash
+   base64 -w0 google-services.json | pbcopy   # or | xclip, or just cat it
+   ```
+   Save the output as a repository secret named `GOOGLE_SERVICES_JSON` (Settings → Secrets and variables → Actions).
+3. Confirm the existing `FIREBASE_API_KEY` / `FIREBASE_AUTH_DOMAIN` / `FIREBASE_PROJECT_ID` / `FIREBASE_STORAGE_BUCKET` / `FIREBASE_MESSAGING_SENDER_ID` / `FIREBASE_APP_ID` secrets (already used for the web deploy) exist in the same repo — the Android build reuses them to generate `js/firebase-config.js` for the bundled web assets.
+4. Enable **Google** as a sign-in provider under Firebase Console → Authentication → Sign-in method, if not already enabled (same one the web app uses).
+
+## Building the APK
+
+Push to `main` (with changes under `android/`, `js/`, `css/`, `index.html`, etc.) or trigger manually from the **Actions** tab → "Build Android APK" → **Run workflow**. Download `skadi-debug-apk` from the completed run's artifacts — it's a debug build, so no Play Store account or app signing key is needed to install it; just enable "install unknown apps" on the phone when sideloading.
+
+## Why CI and not a local build
+
+This repo's sandboxed dev environment can't reach Google's Android SDK/Maven servers (`dl.google.com`, `maven.google.com` — blocked by network policy), so `./gradlew assembleDebug` can't run here. GitHub-hosted Actions runners have full internet access and do this instead. Everything up to that final compile step — the Capacitor project scaffold, the native Java plugin, manifest, signing config — was generated and verified locally against the actual bundled Capacitor library sources.
+
+## What's native vs. web
+
+- `MainActivity.java`, `TaskTimerPlugin.java`, `TaskTimerForegroundService.java` — a small custom Capacitor plugin (not a published package) that keeps one task's timer accurate via a real Android foreground service + persistent notification, so it keeps running when the app is backgrounded or the screen is locked (like Forest/Yeolpumta). `js/native-timer-bridge.js` is the JS-side bridge — it's a complete no-op on the web build.
+- `js/auth.js`'s `signInWithGoogle()` branches on `Capacitor.isNativePlatform()`: native uses the native Google account chooser (`@capacitor-firebase/authentication`) since Google blocks OAuth popups inside embedded WebViews, then hands the resulting credential to the same Firebase Auth JS SDK the web build uses — the web sign-in path is untouched.
+- Data sync is unchanged — the existing Firestore real-time listener + field-level merge (`js/sync.js`) works identically inside the WebView, so changes made on the phone and on the web show up on both within the same debounce/listener window.
+
+## Manual test checklist (run on a physical Android phone after installing the sideloaded APK)
+
+1. Install `app-debug.apk` (enable "install unknown apps" if prompted) — confirm the app launches to the Skadi UI, no blank/white screen.
+2. Tap sign-in — confirm a **native** Google account picker appears (not an embedded browser popup) and sign-in succeeds, reflected in the header same as web.
+3. Start a task timer, lock the screen for 5+ minutes — confirm a persistent notification stays visible showing elapsed time; unlock and confirm the in-app timer badge reflects accurate elapsed time (not reset, not frozen).
+4. Force-close the app via swipe-from-recents while a timer is running, then reopen — confirm the timer state (running task + elapsed time) recovers correctly.
+5. Cross-device sync: sign into the same account on a web browser tab and the Android app at the same time; make a change on web (e.g. add a task) and confirm it appears on Android quickly, then reverse the direction.
+6. The first time the foreground service starts, Android may prompt about battery optimization / "let app run in background" — confirm accepting it isn't required again on later runs.
+7. Spot-check no regressions: drag-and-drop between quadrants, subtasks, the existing UPSC/Tech study timers, and all other tabs render identically to the web build.
