@@ -26,6 +26,12 @@ const TasksTracker = {
 
   _openSubtaskIds: new Set(),
 
+  _taskTimerKey: 'skadi_task_timer',
+  _taskTimerInterval: null,
+  _runningTaskId: null,
+  _taskElapsed: 0,
+  _taskStartedAt: null,
+
   render() {
     this._renderMatrix();
     this._renderStats();
@@ -33,6 +39,7 @@ const TasksTracker = {
     this._renderAnalytics();
     this._renderQuickAdd();
     this._bindFilters();
+    this._restoreTaskTimerState();
   },
 
   _buckets()  { return (AppState.taskBuckets || []).filter(b => !b.deleted); },
@@ -144,6 +151,40 @@ const TasksTracker = {
     return m === 0 ? `${h}h` : `${h}h ${m}m`;
   },
 
+  // ── Subject/Activity link (Feature 2) ─────────────────
+  _allSubjectActivityOptions(selectedValue) {
+    const groups = [
+      { label: 'UPSC Subjects',   domain: 'upsc', type: 'subject',  items: typeof StudyTracker !== 'undefined' ? StudyTracker.getSubjects() : [] },
+      { label: 'UPSC Activities', domain: 'upsc', type: 'activity', items: typeof StudyTracker !== 'undefined' ? StudyTracker.getActivities() : [] },
+      { label: 'Tech Subjects',   domain: 'tech', type: 'subject',  items: typeof TechStudyTracker !== 'undefined' ? TechStudyTracker.getSubjects() : [] },
+      { label: 'Tech Activities', domain: 'tech', type: 'activity', items: typeof TechStudyTracker !== 'undefined' ? TechStudyTracker.getActivities() : [] },
+    ];
+    const optgroups = groups.filter(g => g.items.length).map(g => `
+      <optgroup label="${this._esc(g.label)}">
+        ${g.items.map(item => {
+          const val = `${g.domain}:${g.type}:${item.id}`;
+          return `<option value="${val}" ${val === selectedValue ? 'selected' : ''}>${this._esc(item.emoji || item.tree || '📌')} ${this._esc(item.label)}</option>`;
+        }).join('')}
+      </optgroup>`).join('');
+    return `<option value="" ${!selectedValue ? 'selected' : ''}>— none —</option>${optgroups}`;
+  },
+
+  _subjectRefMeta(ref) {
+    if (!ref) return null;
+    const tracker = ref.domain === 'tech' ? (typeof TechStudyTracker !== 'undefined' ? TechStudyTracker : null)
+                                            : (typeof StudyTracker !== 'undefined' ? StudyTracker : null);
+    if (!tracker) return null;
+    const item = ref.type === 'activity' ? tracker.getActivity(ref.id) : tracker.getSubject(ref.id);
+    if (!item) return null;
+    return { emoji: item.emoji || item.tree || '📌', label: item.label, color: item.color || 'var(--text-muted)' };
+  },
+
+  _parseSubjectRefValue(value) {
+    if (!value) return null;
+    const [domain, type, ...idParts] = value.split(':');
+    return { domain, type, id: idParts.join(':') };
+  },
+
   // ── Stats strip ──────────────────────────────────────
   _renderStats() {
     const el = document.getElementById('tasksStats');
@@ -199,8 +240,11 @@ const TasksTracker = {
     const due = this._dueMeta(t.dueDate);
     const sub = this._subtaskProgress(t);
     const status = t.status || 'todo';
+    const isRunning = this._runningTaskId === t.id;
+    const actualMin = t.actualMin || 0;
+    const subjMeta = this._subjectRefMeta(t.subjectRef);
     return `
-      <div class="matrix-task-item" data-tid="${t.id}" draggable="true">
+      <div class="matrix-task-item${isRunning ? ' task-timer-active' : ''}" data-tid="${t.id}" draggable="true">
         <label class="matrix-task-cb-wrap" title="${t.done ? 'Mark incomplete' : 'Mark complete'}">
           <input type="checkbox" class="matrix-task-cb" data-tid="${t.id}" ${t.done ? 'checked' : ''}>
           <span class="task-cb-visual"></span>
@@ -209,13 +253,17 @@ const TasksTracker = {
           <div class="matrix-task-title">${this._esc(t.title)}</div>
           <div class="matrix-task-meta">
             <span class="task-pri-dot" style="background:${pri.color};" title="${pri.label}"></span>
+            ${subjMeta ? `<span class="task-subject-chip" style="color:${subjMeta.color};">${subjMeta.emoji} ${this._esc(subjMeta.label)}</span>` : ''}
             ${due ? `<span class="task-due-badge ${due.cls}">${due.label}</span>` : ''}
             ${sub.total > 0 ? `<span class="task-subtask-badge">☑ ${sub.done}/${sub.total}</span>` : ''}
             ${t.estimatedMin ? `<span class="task-est-badge">⏱ ${this._fmtEst(t.estimatedMin)}</span>` : ''}
+            ${!isRunning && actualMin > 0 ? `<span class="task-actual-badge" title="Time logged">⏲ ${this._fmtEst(actualMin)}</span>` : ''}
+            ${isRunning ? `<span class="task-timer-badge task-timer-live-dot" data-timer-display-tid="${t.id}">${this._fmtTimerTask(this._taskElapsed)}</span>` : ''}
             ${status === 'in-progress' ? '<span class="task-status-badge status-inprogress" data-status-tid="' + t.id + '">⏳</span>' : ''}
           </div>
         </div>
         <div class="matrix-task-actions">
+          <button class="task-timer-btn${isRunning ? ' task-timer-running' : ''}" data-timer-tid="${t.id}" title="${isRunning ? 'Stop timer' : 'Start timer'}">${isRunning ? '⏹' : '▶️'}</button>
           <button class="task-edit-btn" data-edit-tid="${t.id}" title="Edit">✏️</button>
           <button class="task-del-btn" data-tid="${t.id}" title="Delete">🗑</button>
         </div>
@@ -267,63 +315,71 @@ const TasksTracker = {
   // ── Quick Add ────────────────────────────────────────
   _renderQuickAdd() {
     const el = document.getElementById('tasksQuickAdd');
-    if (!el || el.dataset.init) return;
-    el.dataset.init = '1';
+    if (!el) return;
 
-    el.innerHTML = `
-      <input class="task-qa-input" id="qaTitle" placeholder="New task…" maxlength="200">
-      <div class="task-qa-fields">
-        <input type="date" class="task-qa-date" id="qaDate" title="Due date">
-        <select class="task-qa-pri" id="qaPri" title="Priority">
-          ${this.PRIORITIES.map(p => `<option value="${p.value}">${p.icon} ${p.label}</option>`).join('')}
-        </select>
-      </div>
-      <div class="task-qa-quadrant">
-        <button class="task-qa-q-btn active" data-q="0">Auto</button>
-        ${this.QUADRANTS.map(q => `<button class="task-qa-q-btn ${q.key}" data-q="${q.id}">${q.icon} Q${q.id}</button>`).join('')}
-      </div>
-      <button class="btn btn-primary btn-xs" id="qaSubmit" style="width:100%;margin-top:8px;">+ Add Task</button>`;
+    if (!el.dataset.init) {
+      el.dataset.init = '1';
+      el.innerHTML = `
+        <input class="task-qa-input" id="qaTitle" placeholder="New task…" maxlength="200">
+        <div class="task-qa-fields">
+          <input type="date" class="task-qa-date" id="qaDate" title="Due date">
+          <select class="task-qa-pri" id="qaPri" title="Priority">
+            ${this.PRIORITIES.map(p => `<option value="${p.value}">${p.icon} ${p.label}</option>`).join('')}
+          </select>
+        </div>
+        <select class="task-qa-subject" id="qaSubjectRef" title="Link to subject/activity"></select>
+        <div class="task-qa-quadrant">
+          <button class="task-qa-q-btn active" data-q="0">Auto</button>
+          ${this.QUADRANTS.map(q => `<button class="task-qa-q-btn ${q.key}" data-q="${q.id}">${q.icon} Q${q.id}</button>`).join('')}
+        </div>
+        <button class="btn btn-primary btn-xs" id="qaSubmit" style="width:100%;margin-top:8px;">+ Add Task</button>`;
 
-    let selectedQ = 0;
-    el.querySelectorAll('.task-qa-q-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        el.querySelectorAll('.task-qa-q-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedQ = parseInt(btn.dataset.q);
+      let selectedQ = 0;
+      el.querySelectorAll('.task-qa-q-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          el.querySelectorAll('.task-qa-q-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedQ = parseInt(btn.dataset.q);
+        });
       });
-    });
 
-    const save = () => {
-      const title = document.getElementById('qaTitle')?.value.trim();
-      if (!title) { document.getElementById('qaTitle')?.focus(); return; }
-      const dueDate = document.getElementById('qaDate')?.value || '';
-      const priority = document.getElementById('qaPri')?.value || 'medium';
+      const save = () => {
+        const title = document.getElementById('qaTitle')?.value.trim();
+        if (!title) { document.getElementById('qaTitle')?.focus(); return; }
+        const dueDate = document.getElementById('qaDate')?.value || '';
+        const priority = document.getElementById('qaPri')?.value || 'medium';
+        const subjectRef = this._parseSubjectRefValue(document.getElementById('qaSubjectRef')?.value);
 
-      let buckets = AppState.taskBuckets || [];
-      if (!buckets.filter(b => !b.deleted).length) {
-        buckets.push({ id: Date.now() - 1, title: 'General', color: '#5b7fff', createdAt: new Date().toISOString() });
-        AppState.taskBuckets = buckets;
-      }
-      const bucketId = buckets.filter(b => !b.deleted)[0].id;
+        let buckets = AppState.taskBuckets || [];
+        if (!buckets.filter(b => !b.deleted).length) {
+          buckets.push({ id: Date.now() - 1, title: 'General', color: '#5b7fff', createdAt: new Date().toISOString() });
+          AppState.taskBuckets = buckets;
+        }
+        const bucketId = buckets.filter(b => !b.deleted)[0].id;
 
-      AppState.tasks = AppState.tasks || [];
-      AppState.tasks.push({
-        id: Date.now(), bucketId, title, description: '', dueDate, priority,
-        status: 'todo', done: false, completedAt: null, subtasks: [],
-        estimatedMin: null, matrixQ: selectedQ > 0 ? selectedQ : null,
-        createdAt: new Date().toISOString(),
+        AppState.tasks = AppState.tasks || [];
+        AppState.tasks.push({
+          id: Date.now(), bucketId, title, description: '', dueDate, priority,
+          status: 'todo', done: false, completedAt: null, subtasks: [],
+          estimatedMin: null, matrixQ: selectedQ > 0 ? selectedQ : null,
+          subjectRef, timeSessions: [], actualMin: 0,
+          createdAt: new Date().toISOString(),
+        });
+        AppState.save();
+        document.getElementById('qaTitle').value = '';
+        document.getElementById('qaDate').value = '';
+        this.render();
+        if (typeof UI !== 'undefined') UI.showToast('Task added');
+      };
+
+      document.getElementById('qaSubmit')?.addEventListener('click', save);
+      document.getElementById('qaTitle')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') save();
       });
-      AppState.save();
-      document.getElementById('qaTitle').value = '';
-      document.getElementById('qaDate').value = '';
-      this.render();
-      if (typeof UI !== 'undefined') UI.showToast('Task added');
-    };
+    }
 
-    document.getElementById('qaSubmit')?.addEventListener('click', save);
-    document.getElementById('qaTitle')?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') save();
-    });
+    const subjSel = document.getElementById('qaSubjectRef');
+    if (subjSel) subjSel.innerHTML = this._allSubjectActivityOptions(subjSel.value);
   },
 
   // ── Analytics ────────────────────────────────────────
@@ -356,6 +412,20 @@ const TasksTracker = {
     const qEstimates = [0, 0, 0, 0];
     active.forEach(t => { if (t.estimatedMin) qEstimates[this._quadrantFor(t) - 1] += t.estimatedMin; });
 
+    const qActuals = [0, 0, 0, 0];
+    all.forEach(t => { if (t.actualMin) qActuals[this._quadrantFor(t) - 1] += t.actualMin; });
+
+    const withBoth = all.filter(t => t.estimatedMin > 0 && t.actualMin > 0);
+    let overCount = 0, underCount = 0, accuracyPct = 100;
+    if (withBoth.length) {
+      const errs = withBoth.map(t => {
+        if (t.actualMin > t.estimatedMin) overCount++;
+        else if (t.actualMin < t.estimatedMin) underCount++;
+        return Math.abs(t.actualMin - t.estimatedMin) / t.estimatedMin;
+      });
+      accuracyPct = Math.max(0, Math.min(100, Math.round(100 - (errs.reduce((s, x) => s + x, 0) / errs.length) * 100)));
+    }
+
     el.innerHTML = `
       <div class="analytics-card">${this._svgGauge(prodScore, done.length, active.length, all.length)}</div>
       <div class="analytics-card">${this._svgDonut(done.length, active.length, overdue.length)}</div>
@@ -378,6 +448,13 @@ const TasksTracker = {
               <div style="font-size:10px;color:var(--text-muted);">Q${q.id}</div>
             </div>`).join('')}
         </div>
+      </div>
+      <div class="analytics-card analytics-card-wide">${this._svgEstVsActualChart(qEstimates, qActuals)}</div>
+      <div class="analytics-card">
+        <div class="analytics-card-title">Estimation Accuracy</div>
+        <div style="font-size:32px;font-weight:800;color:var(--text);text-align:center;margin:12px 0 4px;">${withBoth.length ? accuracyPct + '%' : '—'}</div>
+        <div class="tasks-ontime-bar"><div class="tasks-ontime-fill" style="width:${withBoth.length ? accuracyPct : 0}%;"></div></div>
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:6px;">${withBoth.length ? `${overCount} over-estimated · ${underCount} under-estimated` : 'No tasks with both estimate and logged time yet'}</div>
       </div>
     `;
   },
@@ -551,6 +628,32 @@ const TasksTracker = {
       </svg>`;
   },
 
+  _svgEstVsActualChart(qEstimates, qActuals) {
+    const max = Math.max(1, ...qEstimates, ...qActuals);
+    const groupW = 60, barW = 22, gap = 4, h = 90;
+    const totalW = this.QUADRANTS.length * groupW;
+
+    const groups = this.QUADRANTS.map((q, i) => {
+      const estH = Math.max(1, (qEstimates[i] / max) * (h - 20));
+      const actH = Math.max(1, (qActuals[i] / max) * (h - 20));
+      const gx = i * groupW + (groupW - (barW * 2 + gap)) / 2;
+      return `
+        <rect x="${gx}" y="${h - estH}" width="${barW}" height="${estH}" rx="3" fill="var(--text-faint)" opacity="0.6"/>
+        <rect x="${gx + barW + gap}" y="${h - actH}" width="${barW}" height="${actH}" rx="3" fill="var(--accent-blue)"/>
+        <text x="${gx + barW}" y="${h + 12}" text-anchor="middle" style="font-size:8px;fill:var(--text-muted);">Q${q.id}</text>`;
+    });
+
+    return `
+      <div class="analytics-card-title">Estimate vs Actual</div>
+      <svg class="est-actual-chart-svg" viewBox="0 0 ${totalW} ${h + 18}" style="width:100%;margin-top:8px;">
+        ${groups.join('')}
+      </svg>
+      <div style="display:flex;justify-content:center;gap:14px;margin-top:6px;font-size:10px;">
+        <span style="color:var(--text-faint);">■ Estimated</span>
+        <span style="color:var(--accent-blue);">■ Actual</span>
+      </div>`;
+  },
+
   // ── Matrix event binding ─────────────────────────────
   _bindMatrixEvents(grid) {
     grid.querySelectorAll('.matrix-task-cb').forEach(cb => {
@@ -564,6 +667,14 @@ const TasksTracker = {
           AppState.save();
           this.render();
         }
+      });
+    });
+
+    grid.querySelectorAll('.task-timer-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tid = parseInt(btn.dataset.timerTid);
+        if (this._runningTaskId === tid) this._stopTaskTimer();
+        else this._startTaskTimer(tid);
       });
     });
 
@@ -669,6 +780,110 @@ const TasksTracker = {
     });
   },
 
+  // ── Task Timer (single active timer, mirrors js/study.js pattern) ──
+  _fmtTimerTask(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    const mm = String(m).padStart(2, '0'), ss = String(s).padStart(2, '0');
+    return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+  },
+
+  _saveTaskTimerState() {
+    if (this._runningTaskId == null) return;
+    try {
+      localStorage.setItem(this._taskTimerKey, JSON.stringify({
+        running: true, taskId: this._runningTaskId, elapsed: this._taskElapsed,
+        startedAt: this._taskStartedAt, savedAt: Date.now(),
+      }));
+    } catch (e) {}
+  },
+
+  _clearTaskTimerState() {
+    try { localStorage.removeItem(this._taskTimerKey); } catch (e) {}
+  },
+
+  _restoreTaskTimerState() {
+    if (this._runningTaskId != null) return;
+    try {
+      const raw = localStorage.getItem(this._taskTimerKey);
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (!s?.running || s.taskId == null) return;
+      const t = (AppState.tasks || []).find(x => x.id === s.taskId);
+      if (!t || t.deleted || t.done) { this._clearTaskTimerState(); return; }
+
+      const wallElapsed = Math.floor((Date.now() - (s.savedAt || Date.now())) / 1000);
+      this._runningTaskId = s.taskId;
+      this._taskElapsed = (s.elapsed || 0) + Math.max(0, wallElapsed);
+      this._taskStartedAt = s.startedAt;
+      clearInterval(this._taskTimerInterval);
+      this._taskTimerInterval = setInterval(() => this._onTaskTimerTick(), 1000);
+      this._renderMatrix();
+    } catch (e) {}
+  },
+
+  _startTaskTimer(taskId) {
+    const t = (AppState.tasks || []).find(x => x.id === taskId);
+    if (!t || t.done) return;
+    if (this._runningTaskId != null && this._runningTaskId !== taskId) {
+      this._stopTaskTimer(true);
+      if (typeof UI !== 'undefined') UI.showToast(`⏱ Switched timer to "${t.title}"`);
+    }
+    this._runningTaskId = taskId;
+    this._taskElapsed = 0;
+    this._taskStartedAt = new Date().toISOString();
+    clearInterval(this._taskTimerInterval);
+    this._taskTimerInterval = setInterval(() => this._onTaskTimerTick(), 1000);
+    this._saveTaskTimerState();
+    this._refreshAfterTimerChange();
+  },
+
+  _stopTaskTimer(suppressRefresh) {
+    if (this._runningTaskId == null) return;
+    clearInterval(this._taskTimerInterval);
+    this._taskTimerInterval = null;
+    const t = (AppState.tasks || []).find(x => x.id === this._runningTaskId);
+    if (t && this._taskElapsed >= 60) {
+      const min = Math.round(this._taskElapsed / 60);
+      t.timeSessions = t.timeSessions || [];
+      t.timeSessions.push({ id: Date.now(), startedAt: this._taskStartedAt, endedAt: new Date().toISOString(), min });
+      t.actualMin = t.timeSessions.reduce((s, x) => s + x.min, 0);
+      t.modifiedAt = new Date().toISOString();
+      AppState.save();
+    }
+    this._runningTaskId = null;
+    this._taskElapsed = 0;
+    this._taskStartedAt = null;
+    this._clearTaskTimerState();
+    if (!suppressRefresh) this._refreshAfterTimerChange();
+  },
+
+  _onTaskTimerTick() {
+    this._taskElapsed++;
+    document.querySelectorAll(`[data-timer-display-tid="${this._runningTaskId}"]`).forEach(el => {
+      el.textContent = this._fmtTimerTask(this._taskElapsed);
+    });
+    if (this._taskElapsed % 10 === 0) this._saveTaskTimerState();
+  },
+
+  _refreshAfterTimerChange() {
+    if (document.querySelector('.task-edit-area')) {
+      document.querySelectorAll('.task-timer-btn').forEach(btn => {
+        const isRun = this._runningTaskId === parseInt(btn.dataset.timerTid);
+        btn.classList.toggle('task-timer-running', isRun);
+        btn.textContent = isRun ? '⏹' : '▶️';
+        btn.title = isRun ? 'Stop timer' : 'Start timer';
+      });
+      document.querySelectorAll('[data-timer-display-tid]').forEach(el => {
+        const isRun = this._runningTaskId === parseInt(el.dataset.timerDisplayTid);
+        el.textContent = isRun ? this._fmtTimerTask(this._taskElapsed) : '00:00';
+      });
+      this._renderStats();
+      this._renderAnalytics();
+    } else {
+      this.render();
+    }
+  },
+
   // ── Inline task editor ────────────────────────────────
   _openEditTask(tid) {
     document.querySelectorAll('.task-edit-area').forEach(a => a.remove());
@@ -700,6 +915,14 @@ const TasksTracker = {
         </select>
         <input type="number" class="task-edit-est" min="0" max="9999" step="5" value="${t.estimatedMin != null ? t.estimatedMin : ''}" placeholder="⏱ min" title="Estimated time (minutes)">
       </div>
+      <div class="task-edit-timer-row">
+        <button class="task-timer-btn${this._runningTaskId === t.id ? ' task-timer-running' : ''}" data-timer-tid="${t.id}" title="${this._runningTaskId === t.id ? 'Stop timer' : 'Start timer'}">${this._runningTaskId === t.id ? '⏹' : '▶️'}</button>
+        <span class="task-timer-badge" data-timer-display-tid="${t.id}">${this._runningTaskId === t.id ? this._fmtTimerTask(this._taskElapsed) : '00:00'}</span>
+        <span class="task-edit-timer-logged">Logged: ${this._fmtEst(t.actualMin || 0) || '0m'}</span>
+      </div>
+      <select class="task-edit-subject" title="Link to subject/activity">
+        ${this._allSubjectActivityOptions(t.subjectRef ? `${t.subjectRef.domain}:${t.subjectRef.type}:${t.subjectRef.id}` : '')}
+      </select>
       <div class="task-edit-subtasks">
         <div class="task-edit-subtasks-label">Subtasks</div>
         <div class="task-edit-subtask-list"></div>
@@ -777,6 +1000,11 @@ const TasksTracker = {
       });
     });
 
+    editDiv.querySelector('.task-edit-timer-row .task-timer-btn')?.addEventListener('click', () => {
+      if (this._runningTaskId === tid) this._stopTaskTimer();
+      else this._startTaskTimer(tid);
+    });
+
     const save = () => {
       const newTitle = editDiv.querySelector('.task-edit-title').value.trim();
       if (!newTitle) { editDiv.querySelector('.task-edit-title').focus(); return; }
@@ -789,6 +1017,7 @@ const TasksTracker = {
       t.estimatedMin = estRaw === '' ? null : Math.max(0, parseInt(estRaw) || 0);
       t.subtasks    = workingSubtasks;
       t.matrixQ     = workingMatrixQ;
+      t.subjectRef  = this._parseSubjectRefValue(editDiv.querySelector('.task-edit-subject')?.value);
       t.modifiedAt  = new Date().toISOString();
       AppState.save();
       this.render();
@@ -798,6 +1027,7 @@ const TasksTracker = {
     const cancel = () => {
       editDiv.remove();
       el.classList.remove('task-item-editing');
+      if (this._runningTaskId != null) this._renderMatrix();
     };
 
     editDiv.querySelector('.task-edit-save').addEventListener('click', save);

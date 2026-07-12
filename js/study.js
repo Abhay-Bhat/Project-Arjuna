@@ -104,10 +104,40 @@ const StudyTracker = {
     if (domain === 'tech' && typeof TechStudyTracker !== 'undefined') {
       const subjects = TechStudyTracker.getSubjects();
       const activities = TechStudyTracker.getActivities();
-      if (subSel) subSel.innerHTML = subjects.map(s =>
-        `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
-      if (actSel) actSel.innerHTML = activities.map(a =>
-        `<option value="${esc(a.id)}">${esc(a.tree||'🌱')} ${esc(a.label)}</option>`).join('');
+      if (subSel) {
+        subSel.innerHTML = subjects.map(s =>
+          `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
+        if (typeof SubjectActivityPicker !== 'undefined') {
+          SubjectActivityPicker.attach(subSel, {
+            kind: 'subject',
+            getList: () => TechStudyTracker.getSubjects(),
+            addItem: (label, emoji, color) => {
+              const id = 'custom_' + Date.now();
+              AppState.techStudySubjects = [...TechStudyTracker.getSubjects(), { id, label, emoji, color }];
+              AppState.save();
+              return id;
+            },
+            afterAdd: id => { this.switchDomain('tech'); subSel.value = id; subSel.dispatchEvent(new Event('change')); },
+          });
+        }
+      }
+      if (actSel) {
+        actSel.innerHTML = activities.map(a =>
+          `<option value="${esc(a.id)}">${esc(a.tree||'🌱')} ${esc(a.label)}</option>`).join('');
+        if (typeof SubjectActivityPicker !== 'undefined') {
+          SubjectActivityPicker.attach(actSel, {
+            kind: 'activity',
+            getList: () => TechStudyTracker.getActivities(),
+            addItem: (label, tree) => {
+              const id = 'custom_' + Date.now();
+              AppState.techStudyActivities = [...TechStudyTracker.getActivities(), { id, label, tree }];
+              AppState.save();
+              return id;
+            },
+            afterAdd: id => { this.switchDomain('tech'); actSel.value = id; actSel.dispatchEvent(new Event('change')); },
+          });
+        }
+      }
 
       const goalEl = document.getElementById('studyGoalInput');
       if (goalEl) {
@@ -385,6 +415,19 @@ const StudyTracker = {
       subSel.innerHTML = this.getSubjects().map(s =>
         `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
       if (cur) subSel.value = cur;
+      if (typeof SubjectActivityPicker !== 'undefined') {
+        SubjectActivityPicker.attach(subSel, {
+          kind: 'subject',
+          getList: () => this.getSubjects(),
+          addItem: (label, emoji, color) => {
+            const id = 'custom_' + Date.now();
+            AppState.studySubjects = [...this.getSubjects(), { id, label, emoji, color }];
+            AppState.save();
+            return id;
+          },
+          afterAdd: id => { this._populateSelects(); subSel.value = id; subSel.dispatchEvent(new Event('change')); },
+        });
+      }
     }
     if (actSel) {
       const cur = actSel.value;
@@ -394,6 +437,19 @@ const StudyTracker = {
       if (!actSel.dataset.init) {
         actSel.dataset.init = '1';
         actSel.addEventListener('change', () => this._updateLiveTree());
+      }
+      if (typeof SubjectActivityPicker !== 'undefined') {
+        SubjectActivityPicker.attach(actSel, {
+          kind: 'activity',
+          getList: () => this.getActivities(),
+          addItem: (label, tree) => {
+            const id = 'custom_' + Date.now();
+            AppState.studyActivities = [...this.getActivities(), { id, label, tree }];
+            AppState.save();
+            return id;
+          },
+          afterAdd: id => { this._populateSelects(); actSel.value = id; actSel.dispatchEvent(new Event('change')); },
+        });
       }
     }
   },
@@ -1157,8 +1213,17 @@ const StudyTracker = {
     this._manageTab === 'subjects' ? this._renderManageSubjects(content) : this._renderManageActivities(content);
   },
 
+  // Domain-aware list accessors/mutators — the manage panel edits/deletes whichever
+  // domain (UPSC or Tech) is currently active, since both share the same panel.
+  _isTechDomain() { return this._domain === 'tech' && typeof TechStudyTracker !== 'undefined'; },
+  _manageSubjects()   { return this._isTechDomain() ? TechStudyTracker.getSubjects()   : this.getSubjects(); },
+  _manageActivities() { return this._isTechDomain() ? TechStudyTracker.getActivities() : this.getActivities(); },
+  _setManageSubjects(list)   { if (this._isTechDomain()) AppState.techStudySubjects = list;   else AppState.studySubjects = list; },
+  _setManageActivities(list) { if (this._isTechDomain()) AppState.techStudyActivities = list; else AppState.studyActivities = list; },
+  _refreshManageSelects()    { if (this._isTechDomain()) this.switchDomain('tech'); else this._populateSelects(); },
+
   _renderManageSubjects(c) {
-    const list = this.getSubjects();
+    const list = this._manageSubjects();
     let html = '<div class="study-manage-list">';
     list.forEach((s, i) => {
       html += `<div class="study-manage-row">
@@ -1170,28 +1235,22 @@ const StudyTracker = {
       </div>`;
     });
     html += '</div>';
-    html += `<div class="study-manage-add-row">
-      <input id="mgNewSubjLabel" class="study-manage-input" placeholder="Subject name" style="flex:1">
-      <input id="mgNewSubjEmoji" class="study-manage-input study-manage-emo" placeholder="🏆" maxlength="4">
-      <input type="color" id="mgNewSubjColor" value="#5b7fff">
-      <button class="btn btn-primary btn-sm" onclick="StudyTracker._addSubject()">+ Add</button>
-    </div>`;
     c.innerHTML = html;
     c.querySelectorAll('[data-idx][data-field]').forEach(input => {
       input.addEventListener('change', () => {
-        const subjects = [...this.getSubjects()];
+        const subjects = [...this._manageSubjects()];
         const idx = parseInt(input.dataset.idx);
         subjects[idx] = { ...subjects[idx], [input.dataset.field]: input.value };
-        AppState.studySubjects = subjects;
+        this._setManageSubjects(subjects);
         AppState.save();
-        this._populateSelects();
+        this._refreshManageSelects();
         this._renderManageContent();
       });
     });
   },
 
   _renderManageActivities(c) {
-    const list = this.getActivities();
+    const list = this._manageActivities();
     let html = '<div class="study-manage-list">';
     list.forEach((a, i) => {
       html += `<div class="study-manage-row">
@@ -1202,56 +1261,30 @@ const StudyTracker = {
       </div>`;
     });
     html += '</div>';
-    html += `<div class="study-manage-add-row">
-      <input id="mgNewActLabel" class="study-manage-input" placeholder="Activity name" style="flex:1">
-      <input id="mgNewActTree"  class="study-manage-input study-manage-emo" placeholder="🌳" maxlength="4" title="Tree emoji">
-      <button class="btn btn-primary btn-sm" onclick="StudyTracker._addActivity()">+ Add</button>
-    </div>`;
     c.innerHTML = html;
     c.querySelectorAll('[data-idx][data-field]').forEach(input => {
       input.addEventListener('change', () => {
-        const activities = [...this.getActivities()];
+        const activities = [...this._manageActivities()];
         const idx = parseInt(input.dataset.idx);
         activities[idx] = { ...activities[idx], [input.dataset.field]: input.value };
-        AppState.studyActivities = activities;
+        this._setManageActivities(activities);
         AppState.save();
-        this._populateSelects();
+        this._refreshManageSelects();
         this._renderManageContent();
       });
     });
   },
 
-  _addSubject() {
-    const label = document.getElementById('mgNewSubjLabel')?.value?.trim();
-    const emoji = document.getElementById('mgNewSubjEmoji')?.value?.trim() || '📚';
-    const color = document.getElementById('mgNewSubjColor')?.value || '#5b7fff';
-    if (!label) return;
-    const s = [...this.getSubjects()];
-    s.push({ id: 'custom_' + Date.now(), label, emoji, color });
-    AppState.studySubjects = s; AppState.save();
-    this._populateSelects(); this._renderManageContent();
-  },
-
-  _addActivity() {
-    const label = document.getElementById('mgNewActLabel')?.value?.trim();
-    const tree  = document.getElementById('mgNewActTree')?.value?.trim() || '🌱';
-    if (!label) return;
-    const a = [...this.getActivities()];
-    a.push({ id: 'custom_' + Date.now(), label, tree });
-    AppState.studyActivities = a; AppState.save();
-    this._populateSelects(); this._renderManageContent();
-  },
-
   _deleteSubject(idx) {
-    const s = [...this.getSubjects()]; s.splice(idx, 1);
-    AppState.studySubjects = s; AppState.save();
-    this._populateSelects(); this._renderManageContent();
+    const s = [...this._manageSubjects()]; s.splice(idx, 1);
+    this._setManageSubjects(s); AppState.save();
+    this._refreshManageSelects(); this._renderManageContent();
   },
 
   _deleteActivity(idx) {
-    const a = [...this.getActivities()]; a.splice(idx, 1);
-    AppState.studyActivities = a; AppState.save();
-    this._populateSelects(); this._renderManageContent();
+    const a = [...this._manageActivities()]; a.splice(idx, 1);
+    this._setManageActivities(a); AppState.save();
+    this._refreshManageSelects(); this._renderManageContent();
   },
 
   deleteSession(id, domain) {
