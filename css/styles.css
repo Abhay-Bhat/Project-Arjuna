@@ -3787,6 +3787,11 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   border-radius: var(--radius-md); padding: 16px;
   display: flex; flex-direction: column; gap: 4px;
   min-height: 180px;
+  /* As a CSS Grid item, this would otherwise default its automatic
+     minimum width to its content's min-content size — which, for a
+     nowrap task title several levels deep, is the full unwrapped text
+     width, blowing the grid track (and this card) past its container. */
+  min-width: 0;
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
@@ -6668,9 +6673,14 @@ button:disabled, [disabled] {
 .tab-layout-3 { gap: 20px; padding: 24px 0; }
 .tab-layout-2 { gap: 20px; padding: 24px 0; }
 
-/* App content */
-.app-content {
-  padding: 0 clamp(12px, 2vw, 28px) 60px;
+/* App content — desktop-only: unscoped, this padding shorthand silently
+   flattens the mobile safe-area-aware bottom padding (set at the
+   @media(max-width:768px) rules above) to a flat 60px on every viewport,
+   same anti-pattern as the .nav-item/.side-nav fix. */
+@media (min-width: 769px) {
+  .app-content {
+    padding: 0 clamp(12px, 2vw, 28px) 60px;
+  }
 }
 
 /* Section titles */
@@ -7155,20 +7165,6 @@ button:disabled, [disabled] {
 .gx-card-wrap { margin-bottom: 24px; }
 .gx-card-hdr { padding: 18px 22px; }
 .gx-card-body { padding: 0 22px 22px; }
-
-/* ──────────────────────────────────────────────────────────────────
-   S. RESPONSIVE — Tighten spacing on mobile to compensate.
-   ────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 960px) {
-  .tab-layout-3, .tab-layout-2 { padding: 16px 0; gap: 14px; }
-  .tab-layout-3 .pane-left,
-  .tab-layout-3 .pane-right,
-  .tab-layout-2 .pane-left {
-    flex: 0 0 240px;
-    width: 240px;
-  }
-}
 
 @media (max-width: 600px) {
   .pane-card { padding: 16px 18px; margin-bottom: 16px; }
