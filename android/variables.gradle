@@ -2,6 +2,10 @@ ext {
     minSdkVersion = 24
     compileSdkVersion = 36
     targetSdkVersion = 36
+    // Required for @capacitor-firebase/authentication's Google Sign-In support.
+    // Without this the plugin's Google/Credential Manager classes are compileOnly
+    // and get stripped from the APK, so signInWithGoogle() fails at runtime.
+    rgcfaIncludeGoogle = true
     androidxActivityVersion = '1.11.0'
     androidxAppCompatVersion = '1.7.1'
     androidxCoordinatorLayoutVersion = '1.3.0'

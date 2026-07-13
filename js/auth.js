@@ -106,10 +106,6 @@ const Auth = {
     if (window.Capacitor?.isNativePlatform?.()) {
       try {
         const { FirebaseAuthentication } = window.Capacitor.Plugins;
-        // Initialize the plugin with Firebase config before use
-        await FirebaseAuthentication.initialize({
-          skipNativeAuth: false,
-        });
         const { credential } = await FirebaseAuthentication.signInWithGoogle();
         await firebase.auth().signInWithCredential(
           firebase.auth.GoogleAuthProvider.credential(credential.idToken)
@@ -117,7 +113,12 @@ const Auth = {
       } catch (e) {
         console.error('Skadi: Native sign-in failed:', e);
         if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
-        if (errEl) { errEl.textContent = 'Sign-in failed. Please try again.'; errEl.style.display = 'block'; }
+        // Surface the real native error (not a generic message) so it's visible
+        // without needing adb logcat access on a physical device.
+        if (errEl) {
+          errEl.textContent = 'Sign-in failed: ' + (e?.message || e?.code || String(e));
+          errEl.style.display = 'block';
+        }
       }
       return;
     }
