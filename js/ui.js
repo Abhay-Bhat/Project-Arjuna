@@ -1176,6 +1176,7 @@ const UI = {
       const isLight = document.documentElement.getAttribute('data-theme') === 'light';
       const next    = isLight ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', next);
+      if (typeof NativeIntegration !== 'undefined') NativeIntegration.syncStatusBarTheme(next);
       AppState.theme = next;
       AppState.save();
       btn.textContent = next === 'dark' ? '☀️ Theme' : '🌙 Theme';

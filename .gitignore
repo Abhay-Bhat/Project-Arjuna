@@ -24,6 +24,10 @@ js/firebase-config.js
 test-*.html
 CALENDAR_FIX_SUMMARY.md
 
+# Playwright output
+test-results/
+playwright-report/
+
 # OS
 .DS_Store
 Thumbs.db
