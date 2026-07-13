@@ -106,6 +106,10 @@ const Auth = {
     if (window.Capacitor?.isNativePlatform?.()) {
       try {
         const { FirebaseAuthentication } = window.Capacitor.Plugins;
+        // Initialize the plugin with Firebase config before use
+        await FirebaseAuthentication.initialize({
+          skipNativeAuth: false,
+        });
         const { credential } = await FirebaseAuthentication.signInWithGoogle();
         await firebase.auth().signInWithCredential(
           firebase.auth.GoogleAuthProvider.credential(credential.idToken)
