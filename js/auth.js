@@ -103,7 +103,7 @@ const Auth = {
     // (disallowed_useragent), so the Android wrapper must use the native
     // Google Sign-In SDK instead, then hand the resulting credential to
     // the same Firebase Auth JS SDK the web build already uses.
-    if (window.Capacitor?.isNativePlatform?.()) {
+    if (Platform.isNative()) {
       try {
         const { FirebaseAuthentication } = window.Capacitor.Plugins;
         const { credential } = await FirebaseAuthentication.signInWithGoogle();

@@ -28,6 +28,12 @@
   --topbar-h: 54px;
   --sidebar-w: 210px;
   --sidebar-w-collapsed: 60px;
+  /* Derived: grows the fixed top/bottom bars by the device's real safe-area
+     inset instead of letting padding shrink a fixed-height box into it.
+     env() resolves to its 0 fallback on web/desktop, so these are
+     byte-identical to --topbar-h there. */
+  --topbar-safe-h: calc(var(--topbar-h) + env(safe-area-inset-top, 0));
+  --navbar-safe-h: calc(var(--topbar-h) + env(safe-area-inset-bottom, 0));
 }
 
 [data-theme="light"] {
@@ -5583,7 +5589,7 @@ html { scroll-behavior: smooth; }
 /* ── Top bar ── */
 .app-topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  height: var(--topbar-h);
+  height: var(--topbar-safe-h);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 16px;
   background: rgba(7,9,26,0.92);
@@ -5650,8 +5656,8 @@ html { scroll-behavior: smooth; }
 /* ── App layout ── */
 .app-layout {
   display: flex;
-  min-height: calc(100vh - var(--topbar-h));
-  margin-top: var(--topbar-h);
+  min-height: calc(100vh - var(--topbar-safe-h));
+  margin-top: var(--topbar-safe-h);
 }
 
 /* ── Sidebar ── */
@@ -5659,8 +5665,8 @@ html { scroll-behavior: smooth; }
   width: var(--sidebar-w);
   flex-shrink: 0;
   position: fixed;
-  top: var(--topbar-h); left: 0;
-  height: calc(100vh - var(--topbar-h));
+  top: var(--topbar-safe-h); left: 0;
+  height: calc(100vh - var(--topbar-safe-h));
   display: flex; flex-direction: column;
   background: var(--surface);
   border-right: 1px solid var(--border);
@@ -5718,7 +5724,7 @@ html { scroll-behavior: smooth; }
 
 /* Quote strip — sticky just below the fixed topbar */
 .app-content .quote-strip {
-  position: sticky; top: var(--topbar-h); z-index: 10;
+  position: sticky; top: var(--topbar-safe-h); z-index: 10;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   margin: 0 calc(-1 * clamp(12px, 2vw, 32px));
@@ -5735,7 +5741,7 @@ html { scroll-behavior: smooth; }
 @media (max-width: 768px) {
   .app-sidebar {
     width: 100% !important;
-    height: var(--topbar-h);
+    height: var(--navbar-safe-h);
     top: auto; bottom: 0; left: 0; right: 0;
     flex-direction: row;
     border-right: none;
@@ -6590,10 +6596,13 @@ button:disabled, [disabled] {
 /* ── 40. Mobile bottom nav safe area ──────────────────────────── */
 @media (max-width: 768px) {
   .app-sidebar {
+    /* .app-sidebar's height already grew by this inset (see the ≤768px
+       block above) — this padding pushes nav content up within that
+       taller box instead of shrinking it. */
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
   .app-content {
-    padding-bottom: calc(var(--topbar-h) + env(safe-area-inset-bottom, 0) + 24px);
+    padding-bottom: calc(var(--navbar-safe-h) + 24px);
   }
 }
 
@@ -7137,7 +7146,8 @@ button:disabled, [disabled] {
 
 /* ── Shell: Topbar ── */
 .app-topbar {
-  height: var(--topbar-h) !important;
+  height: var(--topbar-safe-h) !important;
+  padding-top: env(safe-area-inset-top, 0);
   background: linear-gradient(90deg, var(--surface) 0%, color-mix(in srgb, var(--accent-blue) 6%, var(--surface)) 100%) !important;
   border-bottom: 1px solid var(--border-bright) !important;
   box-shadow: 0 2px 20px rgba(0,0,0,0.45) !important;

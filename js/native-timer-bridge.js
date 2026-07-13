@@ -7,7 +7,7 @@
 
 const NativeTimerBridge = {
   isNative() {
-    return typeof window !== 'undefined' && !!window.Capacitor?.isNativePlatform?.();
+    return Platform.isNative();
   },
 
   async start(taskId, title) {
