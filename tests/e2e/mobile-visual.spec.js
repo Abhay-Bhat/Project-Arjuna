@@ -160,3 +160,106 @@ test.describe('info-icon tooltip width clamp on narrow phones', () => {
     expect(maxWidthPx).toBeLessThanOrEqual(250 - 32 + 1);
   });
 });
+
+test.describe('pane-left/pane-right render full width on mobile, not the stale 240px sidebar', () => {
+  const targets = [
+    { tab: 'today', selector: '#tab-today .pane-left' },
+    { tab: 'today', selector: '#tab-today .pane-right' },
+    { tab: 'upsc', selector: '#tab-upsc .pane-left' },
+    { tab: 'finance', selector: '#tab-finance .pane-left' },
+    { tab: 'health', selector: '#tab-health .pane-left' },
+    { tab: 'growth', selector: '#tab-growth .pane-left' },
+  ];
+  for (const { tab, selector } of targets) {
+    test(`${selector} at 390px`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await gotoApp(page);
+      await page.click(`.tab-btn[data-tab="${tab}"]`);
+      await expect(page.locator(`#tab-${tab}`)).toHaveClass(/active/);
+
+      const width = await page.locator(selector).evaluate(el => el.getBoundingClientRect().width);
+      const containerWidth = await page.locator('.app-content').evaluate(el => el.getBoundingClientRect().width);
+      // 240px was the bug value; a fixed, real pane should comfortably fill
+      // the container minus its own side padding, not a stuck-narrow column.
+      expect(width).toBeGreaterThan(containerWidth * 0.9);
+    });
+  }
+
+  test('tablet range (800px) still applies its own untouched 260px rule', async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 900 });
+    await gotoApp(page);
+    await page.click('.tab-btn[data-tab="health"]');
+    await expect(page.locator('#tab-health')).toHaveClass(/active/);
+    const width = await page.locator('#tab-health .pane-left').evaluate(el => el.getBoundingClientRect().width);
+    expect(width).toBeCloseTo(260, 0);
+  });
+});
+
+test.describe('matrix quadrant never overflows its container, even with a long task title', () => {
+  test('long title task row stays within the container width, no horizontal scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await gotoApp(page);
+    await page.click('.tab-btn[data-tab="tasks"]');
+    await expect(page.locator('#tab-tasks')).toHaveClass(/active/);
+
+    await page.fill('#qaTitle', 'Finish drafting the comprehensive quarterly compliance and risk-assessment report for the regional audit committee');
+    await page.click('#qaSubmit');
+    await page.waitForTimeout(300);
+
+    const geo = await page.evaluate(() => {
+      const wrap = document.querySelector('.tasks-main-wrap');
+      const quadrants = Array.from(document.querySelectorAll('.matrix-quadrant'));
+      return {
+        wrapRight: wrap.getBoundingClientRect().right,
+        quadrantRights: quadrants.map(q => q.getBoundingClientRect().right),
+        docScrollWidth: document.documentElement.scrollWidth,
+        viewportWidth: window.innerWidth,
+      };
+    });
+
+    for (const right of geo.quadrantRights) {
+      expect(right).toBeLessThanOrEqual(geo.wrapRight + 1);
+    }
+    expect(geo.docScrollWidth).toBeLessThanOrEqual(geo.viewportWidth + 1);
+  });
+});
+
+test.describe('tasks stats strip separation from the first quadrant card', () => {
+  test('no unexplained gap between the stats strip and the first quadrant', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await gotoApp(page);
+    await page.click('.tab-btn[data-tab="tasks"]');
+    await expect(page.locator('#tab-tasks')).toHaveClass(/active/);
+
+    const geo = await page.evaluate(() => {
+      const leftPane = document.querySelector('.tasks-left-pane');
+      const firstQuadrant = document.querySelector('.matrix-quadrant');
+      return {
+        leftPaneBottom: leftPane.getBoundingClientRect().bottom,
+        firstQuadrantTop: firstQuadrant.getBoundingClientRect().top,
+      };
+    });
+
+    // A large gap here would indicate a real layout bug; ordinary
+    // card-to-card spacing is small. This was investigated and not
+    // reproduced from static CSS reads alone — this measurement is the
+    // actual verification, not a guess.
+    expect(geo.firstQuadrantTop - geo.leftPaneBottom).toBeLessThan(40);
+  });
+});
+
+test.describe('.app-content bottom padding stays safe-area-aware on mobile after v66 rescoping', () => {
+  test('mobile: bottom padding derives from --navbar-safe-h, not the flat 60px desktop value', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await gotoApp(page);
+    const paddingBottom = await page.locator('.app-content').evaluate(el => getComputedStyle(el).paddingBottom);
+    expect(parseFloat(paddingBottom)).not.toBeCloseTo(60, 0);
+  });
+
+  test('desktop: bottom padding is the flat 60px v66 value', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await gotoApp(page);
+    const paddingBottom = await page.locator('.app-content').evaluate(el => getComputedStyle(el).paddingBottom);
+    expect(parseFloat(paddingBottom)).toBeCloseTo(60, 0);
+  });
+});
