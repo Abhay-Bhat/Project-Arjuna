@@ -122,6 +122,10 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
   font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
   border: 1px solid; border-radius: 20px; padding: 3px 10px;
   width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: all var(--transition);
 }
 
@@ -2061,6 +2065,18 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 }
 .info-icon:hover::after,
 .info-icon:hover::before { display: block; }
+
+/* Pragmatic width clamp so the centered tooltip bubble can never be wider
+   than the viewport on narrow phones — doesn't fully solve near-edge
+   clipping for icons close to the screen edge (would need JS-measured
+   positioning for that), but this rarely triggers on Android WebView
+   touch anyway (:hover-only), so the cheap fix is the right tradeoff. */
+@media (max-width: 480px) {
+  .info-icon::after {
+    max-width: min(240px, calc(100vw - 32px));
+    min-width: min(180px, calc(100vw - 32px));
+  }
+}
 
 /* Wrapper that keeps button + icon aligned */
 .btn-with-info {
@@ -5641,12 +5657,22 @@ html { scroll-behavior: smooth; }
   display: flex; align-items: center; gap: 8px;
   flex: 1; justify-content: center;
   cursor: pointer; min-width: 0;
+  overflow: hidden;
+  align-self: stretch;
 }
 .topbar-center #dateDisplay {
   font-size: 13px; font-weight: 600; color: var(--text-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+  min-width: 70px;
 }
-.topbar-center #phaseBadge { margin: 0; }
+.topbar-center #phaseBadge {
+  margin: 0;
+  flex-shrink: 1;
+  min-width: 60px;
+}
 
 .topbar-right {
   display: flex; align-items: center; gap: 8px;
@@ -5735,6 +5761,23 @@ html { scroll-behavior: smooth; }
 }
 [data-theme="light"] .app-content .quote-strip {
   background: var(--surface);
+}
+
+/* Guaranteed visual separation from the sticky quote strip above for
+   whatever renders directly after it (currently #milestoneBanner) — a
+   reported clipping bug there wasn't reproducible in headless Chromium
+   at any tested width, but this is a harmless, zero-cost floor in case
+   it's a real device/WebView-specific compositor timing quirk. */
+.app-content .quote-strip + * {
+  margin-top: 2px;
+}
+
+/* Same guaranteed floor for every tab's first-rendered content (e.g.
+   #upscLagBanner on UPSC) — these live inside <main>, not as a direct
+   sibling of .quote-strip, so the adjacent-sibling rule above can't
+   reach them; this generalizes to any current/future tab uniformly. */
+main {
+  padding-top: 2px;
 }
 
 /* ── Mobile: bottom rail (≤768px) ── */
@@ -6551,8 +6594,13 @@ input[type=checkbox]:focus-visible, input[type=radio]:focus-visible {
 }
 
 /* ── 33. Sidebar nav item hover bg radius ─────────────────────── */
-.nav-item {
-  border-radius: 10px;
+/* Desktop-only: unscoped, this outranks the mobile bottom-rail's
+   border-radius:0 (same selector, later source order), leaving rounded
+   corners on the flush bottom-tab-bar segments. */
+@media (min-width: 769px) {
+  .nav-item {
+    border-radius: 10px;
+  }
 }
 
 /* ── 34. Card body content padding uniformity ─────────────────── */
@@ -7011,10 +7059,15 @@ button:disabled, [disabled] {
 
 /* ──────────────────────────────────────────────────────────────────
    H. SIDEBAR — Wider item padding, relaxed nav items.
+   Desktop-only: unscoped, these silently outrank the mobile bottom-rail
+   sizing at ≤768px (same selector, later source order) and starve the
+   nav bar of the vertical space its icon+label need.
    ────────────────────────────────────────────────────────────────── */
 
-.side-nav { padding: 12px 10px; gap: 3px; }
-.nav-item { padding: 11px 14px; font-size: 13.5px; }
+@media (min-width: 769px) {
+  .side-nav { padding: 12px 10px; gap: 3px; }
+  .nav-item { padding: 11px 14px; font-size: 13.5px; }
+}
 
 /* ──────────────────────────────────────────────────────────────────
    I. ROUTINE SCHEDULE — Cleaner slot appearance.

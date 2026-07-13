@@ -58,6 +58,20 @@ const SubjectActivityPicker = {
       </div>`;
     btn.after(pop);
 
+    // The CSS anchor (right:0) overflows past the left edge when the
+    // trigger button sits near a narrow phone's left side — clamp it
+    // back on-screen.
+    const margin = 8;
+    const rect = pop.getBoundingClientRect();
+    if (rect.left < margin) {
+      pop.style.right = 'auto';
+      pop.style.left = '0';
+      const reRect = pop.getBoundingClientRect();
+      if (reRect.right > window.innerWidth - margin) {
+        pop.style.width = Math.max(200, window.innerWidth - reRect.left - margin) + 'px';
+      }
+    }
+
     let selectedIcon = icons[0];
     pop.querySelectorAll('.sac-icon-btn').forEach(ib => {
       ib.addEventListener('click', () => {
