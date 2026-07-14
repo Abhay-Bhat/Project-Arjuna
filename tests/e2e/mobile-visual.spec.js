@@ -263,3 +263,81 @@ test.describe('.app-content bottom padding stays safe-area-aware on mobile after
     expect(parseFloat(paddingBottom)).toBeCloseTo(60, 0);
   });
 });
+
+test.describe('sac-popover Save/Cancel stay reachable on short mobile viewports', () => {
+  test('activity popover: Save button is fully on-screen and the save flow completes', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 700 });
+    await gotoApp(page);
+
+    const addBtns = page.locator('.sac-add-btn');
+    const activityAddBtn = addBtns.nth(1); // subject is index 0, activity is index 1
+    await activityAddBtn.scrollIntoViewIfNeeded();
+    await activityAddBtn.click();
+    await expect(page.locator('.sac-popover')).toBeVisible();
+
+    const geo = await page.evaluate(() => {
+      const saveBtn = document.querySelector('.sac-save-btn');
+      const r = saveBtn.getBoundingClientRect();
+      return {
+        top: r.top, bottom: r.bottom, left: r.left, right: r.right,
+        viewportHeight: window.innerHeight, viewportWidth: window.innerWidth,
+      };
+    });
+    expect(geo.top).toBeGreaterThanOrEqual(0);
+    expect(geo.bottom).toBeLessThanOrEqual(geo.viewportHeight);
+    expect(geo.left).toBeGreaterThanOrEqual(0);
+    expect(geo.right).toBeLessThanOrEqual(geo.viewportWidth);
+
+    // Prove it end-to-end, not just geometrically: actually save.
+    await page.fill('.sac-name-input', 'Playwright Test Activity');
+    await page.locator('.sac-save-btn').click();
+    await expect(page.locator('.sac-popover')).toHaveCount(0);
+  });
+
+  test('subject popover on an extremely short viewport: Save is reachable via internal scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 350 });
+    await gotoApp(page);
+
+    const subjectAddBtn = page.locator('.sac-add-btn').first();
+    await subjectAddBtn.scrollIntoViewIfNeeded();
+    await subjectAddBtn.click();
+    await expect(page.locator('.sac-popover')).toBeVisible();
+
+    const noOverflow = await page.evaluate(() => {
+      const pop = document.querySelector('.sac-popover');
+      const r = pop.getBoundingClientRect();
+      return r.top >= -1 && r.bottom <= window.innerHeight + 1;
+    });
+    expect(noOverflow).toBe(true);
+
+    await page.fill('.sac-name-input', 'Extreme Short Viewport Subject');
+    const saveBtn = page.locator('.sac-save-btn');
+    await saveBtn.scrollIntoViewIfNeeded();
+    await saveBtn.click();
+    await expect(page.locator('.sac-popover')).toHaveCount(0);
+  });
+});
+
+test.describe('hdr-dropdown stays within the viewport on short screens', () => {
+  test('dropdown with sync/sign-out rows visible does not overflow a short viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 400 });
+    await gotoApp(page);
+
+    // Simulate the taller signed-in menu state (sync/sign-out rows shown).
+    await page.evaluate(() => {
+      document.getElementById('syncNowBtn').style.display = 'inline-flex';
+      document.getElementById('syncStatusRow').style.display = 'flex';
+      document.getElementById('signOutBtn').style.display = 'inline-flex';
+    });
+
+    await page.click('#headerMenuBtn');
+    await expect(page.locator('.hdr-dropdown')).toHaveClass(/open/);
+
+    const geo = await page.evaluate(() => {
+      const dd = document.querySelector('.hdr-dropdown');
+      const r = dd.getBoundingClientRect();
+      return { bottom: r.bottom, viewportHeight: window.innerHeight };
+    });
+    expect(geo.bottom).toBeLessThanOrEqual(geo.viewportHeight + 1);
+  });
+});
