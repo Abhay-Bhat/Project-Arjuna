@@ -186,6 +186,11 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .hdr-dropdown {
   position: absolute; top: calc(100% + 10px); right: 0;
   min-width: 210px;
+  /* Safety net for short viewports (landscape phone, split-screen) or a
+     future-grown menu — without this the menu can extend past the
+     bottom of the screen with no way to reach items past the fold. */
+  max-height: calc(100vh - var(--topbar-safe-h) - 20px);
+  overflow-y: auto;
   background: rgba(14, 20, 42, 0.94);
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
@@ -8348,10 +8353,19 @@ details.section-card[open] > summary {
 .sac-add-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
 
 .sac-popover {
-  position: absolute; top: 100%; right: 0; z-index: 500; margin-top: 6px;
+  /* Positioned entirely by JS (js/subject-picker.js _positionPopover) —
+     appended directly to <body> and fixed to the viewport so it can
+     never be clipped by an ancestor's overflow:hidden (e.g. .pane-card)
+     or trapped by an ancestor's CSS containing block (e.g. .tab-panel
+     .active's persistent entrance-animation transform). max-height is
+     a last-resort safety net so Save/Cancel stay reachable by scrolling
+     within the popover itself if the viewport is ever too short for
+     both flip-above and flip-below to fit. */
+  position: fixed; z-index: 500;
   background: var(--card); border: 1px solid var(--border-bright);
   border-radius: var(--radius-md); box-shadow: var(--shadow-md);
   padding: 12px; width: 260px;
+  overflow-y: auto;
 }
 .sac-name-input {
   width: 100%; padding: 7px 9px; font-size: 13px; box-sizing: border-box;
