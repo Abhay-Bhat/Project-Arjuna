@@ -6,7 +6,9 @@
 const SCHEDULE_DATA = {
 
   // ══════════════════════════════════════════════════════════
-  // STAGE 1 — Weeks 1–2 (Jul 13–26, 2026)
+  // STAGE 1 — Days 1–2 (Jul 13–14, 2026) — cut short by an 11-week
+  // interview-prep sprint (Jul 15–Sep 30, 2026, see js/phases.js),
+  // during which UPSC is fully paused. Stage 2 resumes Oct 1, 2026.
   // Evening block 7:15–9:00 PM → UPSC 1h + Tech 45m
   // ══════════════════════════════════════════════════════════
 
@@ -53,7 +55,7 @@ const SCHEDULE_DATA = {
   ],
 
   // ══════════════════════════════════════════════════════════
-  // STAGE 2 — Weeks 3–4 (Jul 27–Aug 9, 2026)
+  // STAGE 2 — Weeks 3–4 (Oct 1–14, 2026)
   // Evening block extends to 9:30 PM → UPSC 1.5h + Tech 30m
   // ══════════════════════════════════════════════════════════
 
@@ -102,7 +104,7 @@ const SCHEDULE_DATA = {
   ],
 
   // ══════════════════════════════════════════════════════════
-  // STAGE 3 — Weeks 5–6 (Aug 10–23, 2026)
+  // STAGE 3 — Weeks 5–6 (Oct 15–28, 2026)
   // Evening to 9:55 PM → UPSC 2h + Tech 30m
   // ══════════════════════════════════════════════════════════
 
@@ -158,7 +160,7 @@ const SCHEDULE_DATA = {
   ],
 
   // ══════════════════════════════════════════════════════════
-  // STAGE 4 — Weeks 7–8 (Aug 24–Sep 6, 2026)
+  // STAGE 4 — Weeks 7–8 (Oct 29–Nov 11, 2026)
   // Evening to 10:15 PM → UPSC 2.5h + Tech 30m
   // ══════════════════════════════════════════════════════════
 
@@ -219,7 +221,7 @@ const SCHEDULE_DATA = {
   ],
 
   // ══════════════════════════════════════════════════════════
-  // SUSTAINED — Week 9+ (Sep 7, 2026 onward)
+  // SUSTAINED — Week 9+ (Nov 12, 2026 onward)
   // 27.5h UPSC + 4.5h Tech + 5h CA per week
   // ══════════════════════════════════════════════════════════
 

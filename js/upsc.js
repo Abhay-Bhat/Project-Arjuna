@@ -1,39 +1,48 @@
 // ============================================================
 // Skadi — UPSC Tracking System (Integrated Master Plan)
 //
-// Phase 4 — Sequential Subject Classes (Sep 14, 2026 – Dec 31, 2027)
+// Phase 4 — Sequential Subject Classes (originally Sep 14, 2026 – Dec
+// 31, 2027; shifted +73 days below — see UPDATE note).
 // All 18 subjects studied one after another in a fixed order.
 // Phases 1-3 (Orientation + NCERT + Syllabus mapping) precede this.
-// All classes complete by Dec 31, 2027.
-// Mock phase Jan–Apr 2028 → Prelims May/Jun 2028.
+// Mock phase Mar–May 2028 → Prelims May/Jun 2028.
+//
+// UPDATE (2026-07-14): an 11-week ad-hoc interview-prep sprint (Jul 15
+// – Sep 30, 2026, see js/phases.js) pauses UPSC entirely. Every subject
+// below is shifted +73 days from its original date (NCERT Foundation's
+// original Jul 20 start lands on Oct 1 — the day the sprint ends — and
+// every subsequent subject carries the same +73-day offset to preserve
+// the original sequence/spacing). All classes now complete ~Mar 13,
+// 2028 instead of Dec 31, 2027 — Prelims/Mains/Interview exam dates
+// below are real, externally-fixed dates and are NOT shifted.
 // ============================================================
 
 const UPSC_SUBJECTS = [
-  { id:  0, name: "NCERT Foundation (Class 6-12)", classes: 160, hours: 560, start: '2026-07-20', end: '2026-09-06' },
+  { id:  0, name: "NCERT Foundation (Class 6-12)", classes: 160, hours: 560, start: '2026-10-01', end: '2026-11-18' },
   // Sequential order per Integrated Master Plan Phase 4
-  { id:  1, name: "Indian Polity",                             classes: 39,  hours: 136.5, start: '2026-09-14', end: '2026-10-18' },
-  { id:  2, name: "Modern History & Post-Independence",        classes: 32,  hours: 112,   start: '2026-10-19', end: '2026-11-15' },
-  { id:  3, name: "Geography",                                 classes: 39,  hours: 136.5, start: '2026-11-16', end: '2026-12-20' },
-  { id:  4, name: "Economy",                                   classes: 33,  hours: 115.5, start: '2026-12-21', end: '2027-01-17' },
-  { id:  5, name: "Indian Society & Social Justice",           classes: 31,  hours: 108.5, start: '2027-01-18', end: '2027-02-14' },
-  { id:  6, name: "CSAT",                                      classes: 69,  hours: 241.5, start: '2027-02-15', end: '2027-04-12' },
-  { id:  7, name: "Ancient & Medieval History, Art & Culture", classes: 36,  hours: 126,   start: '2027-04-13', end: '2027-05-10' },
-  { id:  8, name: "Environment & Ecology",                     classes: 16,  hours: 56,    start: '2027-05-11', end: '2027-05-24' },
-  { id:  9, name: "Science & Technology",                      classes: 34,  hours: 119,   start: '2027-05-25', end: '2027-06-21' },
-  { id: 10, name: "International Relations",                   classes: 26,  hours: 91,    start: '2027-06-22', end: '2027-07-12' },
-  { id: 11, name: "Governance",                                classes: 11,  hours: 38.5,  start: '2027-07-13', end: '2027-07-22' },
-  { id: 12, name: "Internal Security",                         classes: 14,  hours: 49,    start: '2027-07-23', end: '2027-08-05' },
-  { id: 13, name: "Disaster Management",                       classes:  4,  hours: 14,    start: '2027-08-06', end: '2027-08-09' },
-  { id: 14, name: "World History",                              classes: 12,  hours: 42,    start: '2027-08-10', end: '2027-08-20' },
-  { id: 15, name: "Ethics, Integrity & Aptitude",              classes: 30,  hours: 105,   start: '2027-08-21', end: '2027-09-17' },
-  { id: 16, name: "Sociology — Paper 01",                      classes: 105, hours: 367.5, start: '2027-09-18', end: '2027-12-10' },
-  { id: 17, name: "Sociology — Paper 02",                      classes: 30,  hours: 105,   start: '2027-12-11', end: '2027-12-31' },
-  { id: 18, name: "Essay",                                      classes:  5,  hours: 17.5,  start: '2027-12-15', end: '2027-12-31' }
+  { id:  1, name: "Indian Polity",                             classes: 39,  hours: 136.5, start: '2026-11-26', end: '2026-12-30' },
+  { id:  2, name: "Modern History & Post-Independence",        classes: 32,  hours: 112,   start: '2026-12-31', end: '2027-01-27' },
+  { id:  3, name: "Geography",                                 classes: 39,  hours: 136.5, start: '2027-01-28', end: '2027-03-03' },
+  { id:  4, name: "Economy",                                   classes: 33,  hours: 115.5, start: '2027-03-04', end: '2027-03-31' },
+  { id:  5, name: "Indian Society & Social Justice",           classes: 31,  hours: 108.5, start: '2027-04-01', end: '2027-04-28' },
+  { id:  6, name: "CSAT",                                      classes: 69,  hours: 241.5, start: '2027-04-29', end: '2027-06-24' },
+  { id:  7, name: "Ancient & Medieval History, Art & Culture", classes: 36,  hours: 126,   start: '2027-06-25', end: '2027-07-22' },
+  { id:  8, name: "Environment & Ecology",                     classes: 16,  hours: 56,    start: '2027-07-23', end: '2027-08-05' },
+  { id:  9, name: "Science & Technology",                      classes: 34,  hours: 119,   start: '2027-08-06', end: '2027-09-02' },
+  { id: 10, name: "International Relations",                   classes: 26,  hours: 91,    start: '2027-09-03', end: '2027-09-23' },
+  { id: 11, name: "Governance",                                classes: 11,  hours: 38.5,  start: '2027-09-24', end: '2027-10-03' },
+  { id: 12, name: "Internal Security",                         classes: 14,  hours: 49,    start: '2027-10-04', end: '2027-10-17' },
+  { id: 13, name: "Disaster Management",                       classes:  4,  hours: 14,    start: '2027-10-18', end: '2027-10-21' },
+  { id: 14, name: "World History",                              classes: 12,  hours: 42,    start: '2027-10-22', end: '2027-11-01' },
+  { id: 15, name: "Ethics, Integrity & Aptitude",              classes: 30,  hours: 105,   start: '2027-11-02', end: '2027-11-29' },
+  { id: 16, name: "Sociology — Paper 01",                      classes: 105, hours: 367.5, start: '2027-11-30', end: '2028-02-21' },
+  { id: 17, name: "Sociology — Paper 02",                      classes: 30,  hours: 105,   start: '2028-02-22', end: '2028-03-13' },
+  { id: 18, name: "Essay",                                      classes:  5,  hours: 17.5,  start: '2028-02-26', end: '2028-03-13' }
 ];
 
 const CA_START = '2026-07-13';
 
-const SCHEDULE_VERSION = 5;
+const SCHEDULE_VERSION = 6;
 
 // Bump to force a one-time reset of AppState.upscSubjectProgress (e.g. after
 // a UPSC timeline restart) for existing users — mirrors SCHEDULE_VERSION.

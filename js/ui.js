@@ -621,7 +621,8 @@ const UI = {
     }
     const phase = PhaseManager.getPhase();
     const tips = {
-      ramp1:     'Weeks 1–2: Build the anchor habit. Same wake time, same study block. Nothing else matters yet.',
+      ramp1:          'Weeks 1–2: Build the anchor habit. Same wake time, same study block. Nothing else matters yet.',
+      interview_prep: 'Interview prep sprint: UPSC is fully paused — all in on interview readiness until Sep 30.',
       ramp2:     'Weeks 3–4: You extended the evening block. Protect the 7:15 PM start — it\'s your UPSC gate.',
       ramp3:     'Weeks 5–6: 2 hours UPSC/day reached. Consistency > intensity. Don\'t chase lost days.',
       ramp4:     'Weeks 7–8: Full capacity. NCERT is closing out. CKA prep parallel. You\'re building something real.',
@@ -910,31 +911,35 @@ const UI = {
     const todayStr = today.toISOString().split('T')[0];
     const DAY_MS = 864e5;
 
+    // Dates shifted (2026-07-14) for the 11-week interview-prep sprint
+    // pause (Jul 15 - Sep 30, 2026, see js/phases.js) — kept in lockstep
+    // with UPSC_SUBJECTS in js/upsc.js. 'prelims'/'mains-rank' keep their
+    // real, externally-fixed exam dates unshifted.
     const PREP_PHASES = [
       {
         key: 'foundation', icon: '📖', name: 'Foundation (NCERT)',
-        start: '2026-07-20', end: '2026-09-06', color: 'var(--accent-amber)',
+        start: '2026-10-01', end: '2026-11-18', color: 'var(--accent-amber)',
         target: 'Complete NCERT Foundation Classes',
         description: 'Cover NCERT Class 6-12 across all subjects. Build conceptual base.',
         subjectIds: [0]
       },
       {
         key: 'mains-prep', icon: '✍️', name: 'Mains Subject Coverage',
-        start: '2026-09-14', end: '2027-09-17', color: 'var(--accent-blue)',
+        start: '2026-11-26', end: '2027-11-29', color: 'var(--accent-blue)',
         target: 'Complete all Mains-oriented subjects',
         description: 'Sequential coverage of GS subjects, CSAT, and Optional. Develop answer writing.',
         subjectIds: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
       },
       {
         key: 'optional-deep', icon: '📚', name: 'Optional + Essay Mastery',
-        start: '2027-09-18', end: '2027-12-31', color: 'var(--accent-violet)',
+        start: '2027-11-30', end: '2028-03-13', color: 'var(--accent-violet)',
         target: 'Complete Sociology Optional + Essay',
-        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by Dec 31.',
+        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by ~Mar 13, 2028.',
         subjectIds: [16, 17, 18]
       },
       {
         key: 'prelims', icon: '📝', name: 'Prelims Preparation',
-        start: '2028-01-01', end: '2028-05-25', color: 'var(--accent-rose)',
+        start: '2028-03-14', end: '2028-05-25', color: 'var(--accent-rose)',
         target: 'Prelims Exam: May 26, 2028',
         description: 'Full syllabus revision, mock tests, current affairs consolidation, PYQ practice.',
         subjectIds: []
