@@ -43,8 +43,7 @@ const UI = {
           'f': 'finance',
           'h': 'health',
           'g': 'growth',
-          'k': 'tasks',
-          'x': 'tech-study'
+          'k': 'tasks'
         };
         const tab = tabMap[e.key.toLowerCase()];
         if (tab) {
@@ -331,7 +330,6 @@ const UI = {
       case 'health':   this._renderHealth();  break;
       case 'growth':   this._renderGrowth();  break;
       case 'tasks':    this._renderTasks();   break;
-      case 'tech-study': this._renderTechStudy(); break;
     }
   },
 
@@ -347,6 +345,9 @@ const UI = {
     this._renderCalendarNav();
     this._renderHolidayToggle();
     this._renderTasksDueBanner();
+    if (typeof TimeMatrix !== 'undefined') TimeMatrix.render();
+    if (typeof StudyTracker !== 'undefined') StudyTracker.render();
+    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   _syncTodayHabits() {
@@ -364,8 +365,24 @@ const UI = {
       el.classList.toggle('th-done', item.checked);
       el.title = item.label + (item.checked ? ' ✓' : '');
     });
-    // Also refresh Health tab checklist if it's already rendered
     if (typeof updateNutritionScore === 'function') updateNutritionScore();
+
+    const summaryCount = document.getElementById('nutrition-summary-count');
+    if (summaryCount) summaryCount.textContent = `${done}/${total}`;
+
+    const streakEl = document.getElementById('nutritionStreakBadge');
+    if (streakEl && typeof ArjunaHealth !== 'undefined' && ArjunaHealth.getNutritionStreak) {
+      const streak = ArjunaHealth.getNutritionStreak();
+      streakEl.textContent = streak > 0 ? `🔥 ${streak} day streak` : `🔥 Start your streak`;
+    }
+
+    if (done === total && total > 0) {
+      const icons = document.getElementById('todayHabitsIcons');
+      if (icons && !icons.classList.contains('celebrating')) {
+        icons.classList.add('celebrating');
+        setTimeout(() => icons.classList.remove('celebrating'), 2500);
+      }
+    }
   },
 
   _renderTasksDueBanner() {
@@ -440,37 +457,42 @@ const UI = {
     if (!grid) return;
 
     const upscDone = Object.values(AppState.upscSubjectProgress || {}).reduce((s, n) => s + n, 0);
-    const upscTotal = 586;
-    const upscPct = Math.round((upscDone / upscTotal) * 100);
+    const upscTotal = typeof UPSCTracker !== 'undefined' ? UPSCTracker.totalClasses() : 726;
+    const upscPct = upscTotal ? Math.round((upscDone / upscTotal) * 100) : 0;
 
     const financeAED = AppState.getTotalSavedAED();
-    const financePct = Math.round((financeAED / 199800) * 100);
+    const finTarget = typeof FINANCE_TARGET_AED !== 'undefined' ? FINANCE_TARGET_AED : 144000;
+    const financePct = finTarget ? Math.round((financeAED / finTarget) * 100) : 0;
 
     const todayHealth = AppState.getSelectedHealth();
     const healthScore = (
       (todayHealth.sleep_h ? Math.min(todayHealth.sleep_h / 8 * 100, 100) : 0) * 0.4 +
       (todayHealth.gym ? 100 : 0) * 0.3 +
-      (todayHealth.phone_h ? Math.max(0, (2 - todayHealth.phone_h) / 2 * 100) : 50) * 0.3
+      (todayHealth.phone_h != null ? Math.max(0, (2 - todayHealth.phone_h) / 2 * 100) : 0) * 0.3
     );
     const healthPct = Math.round(healthScore);
 
     const careerDone = Object.values(AppState.careerLog || {}).filter(c => c.done).length;
-    const careerPct = Math.round((careerDone / 5) * 100);
+    const careerTotal = typeof DEVOPS_PLAN !== 'undefined' ? DEVOPS_PLAN.length : 8;
+    const careerPct = careerTotal ? Math.round((careerDone / careerTotal) * 100) : 0;
 
     const selectedKey = AppState.getDateKey();
     const routine = AppState.dailyHistory[selectedKey];
     const routinePct = routine ? Math.round((routine.completed / routine.total) * 100) : 0;
 
+    const goalsPct = typeof GoalsTracker !== 'undefined' ? GoalsTracker._avgProgress() : 0;
+
     const domains = [
-      { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: 'On Track',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
+      { id: 'upsc',    emoji: '📚', name: 'UPSC',    metric: `${upscDone}/${upscTotal}`, label: 'classes done',  pct: upscPct,    status: upscPct >= 5 ? 'On Track' : 'Begin',  tip: 'Click to open UPSC tab — track study classes and CA reading' },
       { id: 'finance', emoji: '💰', name: 'Finance', metric: `${financeAED.toLocaleString('en-IN')}`, label: 'AED saved', pct: financePct, status: financePct >= 80 ? 'On Track' : 'Behind',  tip: 'Click to open Finance tab — savings, investments, currency converter' },
       { id: 'health',  emoji: '❤️', name: 'Health',  metric: `${healthPct}%`,            label: 'today\'s score', pct: healthPct,  status: healthPct >= 70 ? '✓ Good' : 'Need Work', tip: 'Click to open Health tab — sleep, gym, phone usage, cholesterol' },
-      { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/5`,           label: 'milestones',    pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
-      { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' }
+      { id: 'growth',  emoji: '🌱', name: 'Growth',  metric: `${careerDone}/${careerTotal}`,  label: 'phases done',   pct: careerPct,  status: careerDone >= 2 ? 'On Track' : 'Begin',    tip: 'Click to open Growth tab — career milestones, books, weekly reviews' },
+      { id: 'routine', emoji: '⏱️', name: 'Routine', metric: `${routinePct}%`,            label: 'today done',   pct: routinePct, status: routinePct >= 70 ? 'Great Day' : 'Keep Going', tip: 'Click to scroll to Daily Routine — check off today\'s activities' },
+      { id: 'goals',   emoji: '🎯', name: 'Goals',   metric: `${goalsPct}%`,             label: 'avg progress', pct: goalsPct,   status: goalsPct >= 50 ? 'On Track' : 'Early Days', tip: 'Click to open Growth tab — SMART Goals progress' }
     ];
 
     grid.innerHTML = domains.map(d => `
-      <div class="domain-card ${d.id}" data-tab="${d.id === 'routine' ? 'today' : d.id}">
+      <div class="domain-card ${d.id}" data-tab="${d.id === 'routine' ? 'today' : d.id === 'goals' ? 'growth' : d.id}">
         <div class="domain-header">
           <span class="domain-emoji">${d.emoji}</span>
           <span class="domain-name">${d.name}</span>
@@ -599,16 +621,14 @@ const UI = {
     }
     const phase = PhaseManager.getPhase();
     const tips = {
-      notice:       'This is your last impression at BLR. Knowledge transfer done right = reputation that travels. Make it count.',
-      settle:       'The gym starts Day 3, not Day 10. Every day you skip in the first 2 weeks makes the habit 2x harder to form.',
-      foundation:   'Your 5:45 AM study block is your highest ROI activity. Protect it like it\'s sacred — nothing borrows from it.',
-      prelims_sprint:'Mock exam → immediate review → weak subject drill. That cycle, repeated daily, is Prelims prep.',
-      exit:         'Clean exit = reference letter. Reference letter = global optionality. Be the person they remember fondly.',
-      reset:        '2 weeks of genuine rest now will give you 18 months of consistent energy. Do not skip the recovery.',
-      mains:        'Answer writing is the difference between clearing and topping. Write one answer every single day.',
-      upsc2028:     'This is your real attempt. Everything you built in the last 2 years points here. Trust the process.'
+      ramp1:          'Weeks 1–2: Build the anchor habit. Same wake time, same study block. Nothing else matters yet.',
+      interview_prep: 'Interview prep sprint: UPSC is fully paused — all in on interview readiness until Sep 30.',
+      ramp2:     'Weeks 3–4: You extended the evening block. Protect the 7:15 PM start — it\'s your UPSC gate.',
+      ramp3:     'Weeks 5–6: 2 hours UPSC/day reached. Consistency > intensity. Don\'t chase lost days.',
+      ramp4:     'Weeks 7–8: Full capacity. NCERT is closing out. CKA prep parallel. You\'re building something real.',
+      sustained: 'Week 9+: Cruise altitude. 27.5h UPSC + 4.5h Tech/week. Trust the system — it\'s designed to last 76 weeks.'
     };
-    el.textContent = tips[phase?.id] || tips.foundation;
+    el.textContent = tips[phase?.id] || tips.sustained;
   },
 
   // Quick check-in row on Today tab
@@ -716,17 +736,21 @@ const UI = {
 
     const indicator = document.getElementById('dayIndicator');
     const labels = {
-      notice_weekday: '🏁 Notice Period — Weekday',
-      notice_weekend: '🏁 Notice Period — Weekend',
-      settle_weekday: '✈️ Dubai Settle — Weekday',
-      settle_weekend: '✈️ Dubai Settle — Weekend',
-      dubai_weekday:  '🏗️ Dubai Foundation — Weekday',
-      dubai_saturday: '🏗️ Dubai Foundation — Saturday',
-      dubai_sunday:   '🏗️ Dubai Foundation — Sunday',
-      sprint_weekday: '🎯 Prelims Sprint — Weekday',
-      sprint_weekend: '🎯 Prelims Sprint — Weekend',
-      india_weekday:  '🏡 India Full-time — Weekday',
-      india_weekend:  '🏡 India Full-time — Weekend'
+      ramp1_weekday:       '🏁 Stage 1 — Settling In (Weekday)',
+      ramp1_saturday:      '🏁 Stage 1 — Settling In (Saturday)',
+      ramp1_sunday:        '🏁 Stage 1 — Settling In (Sunday)',
+      ramp2_weekday:       '🔧 Stage 2 — Building Momentum (Weekday)',
+      ramp2_saturday:      '🔧 Stage 2 — Building Momentum (Saturday)',
+      ramp2_sunday:        '🔧 Stage 2 — Building Momentum (Sunday)',
+      ramp3_weekday:       '📈 Stage 3 — Deepening (Weekday)',
+      ramp3_saturday:      '📈 Stage 3 — Deepening (Saturday)',
+      ramp3_sunday:        '📈 Stage 3 — Deepening (Sunday)',
+      ramp4_weekday:       '🔥 Stage 4 — Full Capacity (Weekday)',
+      ramp4_saturday:      '🔥 Stage 4 — Full Capacity (Saturday)',
+      ramp4_sunday:        '🔥 Stage 4 — Full Capacity (Sunday)',
+      sustained_weekday:   '⚡ Sustained Cruise (Weekday)',
+      sustained_saturday:  '⚡ Sustained Cruise (Saturday)',
+      sustained_sunday:    '⚡ Sustained Cruise (Sunday)'
     };
     if (indicator) indicator.textContent = labels[scheduleKey] || scheduleKey;
   },
@@ -874,53 +898,166 @@ const UI = {
 
   // ── UPSC tab ─────────────────────────────────────────────
   _renderUPSC() {
-    if (typeof StudyTracker !== 'undefined') StudyTracker.render();
     UPSCTracker.updateMetrics();
-    this._renderUPSCScheduleTable();
+    this._renderExamPhases();
     UPSCTracker.renderCASection();
   },
 
-  _renderUPSCScheduleTable() {
-    const tbody = document.getElementById('upscScheduleBody');
-    if (!tbody) return;
+  _renderExamPhases() {
+    const container = document.getElementById('upscExamPhases');
+    if (!container) return;
 
-    const completed = AppState.upscSubjectProgress || {};
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    const DAY_MS = 864e5;
 
-    const getDateRange = (subj) => {
-      if (subj.priority === 1) {
-        return 'Oct 2026 — May 2027';
-      } else {
-        return 'Aug 2027 — May 2028';
+    // Dates shifted (2026-07-14) for the 11-week interview-prep sprint
+    // pause (Jul 15 - Sep 30, 2026, see js/phases.js) — kept in lockstep
+    // with UPSC_SUBJECTS in js/upsc.js. 'prelims'/'mains-rank' keep their
+    // real, externally-fixed exam dates unshifted.
+    const PREP_PHASES = [
+      {
+        key: 'foundation', icon: '📖', name: 'Foundation (NCERT)',
+        start: '2026-10-01', end: '2026-11-18', color: 'var(--accent-amber)',
+        target: 'Complete NCERT Foundation Classes',
+        description: 'Cover NCERT Class 6-12 across all subjects. Build conceptual base.',
+        subjectIds: [0]
+      },
+      {
+        key: 'mains-prep', icon: '✍️', name: 'Mains Subject Coverage',
+        start: '2026-11-26', end: '2027-11-29', color: 'var(--accent-blue)',
+        target: 'Complete all Mains-oriented subjects',
+        description: 'Sequential coverage of GS subjects, CSAT, and Optional. Develop answer writing.',
+        subjectIds: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+      },
+      {
+        key: 'optional-deep', icon: '📚', name: 'Optional + Essay Mastery',
+        start: '2027-11-30', end: '2028-03-13', color: 'var(--accent-violet)',
+        target: 'Complete Sociology Optional + Essay',
+        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by ~Mar 13, 2028.',
+        subjectIds: [16, 17, 18]
+      },
+      {
+        key: 'prelims', icon: '📝', name: 'Prelims Preparation',
+        start: '2028-03-14', end: '2028-05-25', color: 'var(--accent-rose)',
+        target: 'Prelims Exam: May 26, 2028',
+        description: 'Full syllabus revision, mock tests, current affairs consolidation, PYQ practice.',
+        subjectIds: []
+      },
+      {
+        key: 'mains-rank', icon: '🏆', name: 'Mains Rank Enhancer',
+        start: '2028-05-27', end: '2028-09-19', color: 'var(--accent-teal)',
+        target: 'Mains Exam: Sep 20, 2028',
+        description: 'Mains revision, answer writing drills, mock tests, optional deep revision.',
+        subjectIds: []
       }
-    };
+    ];
 
-    tbody.innerHTML = UPSC_SUBJECTS.map(subj => {
-      const done = completed[subj.id] || 0;
-      const pct = Math.round((done / subj.classes) * 100);
-      const priorityLabel = subj.priority === 1 ? '🎯 P1' : '📚 P2';
-      const trackLabel = {
-        'main': 'GS',
-        'sociology': 'Soc',
-        'csat': 'CSAT',
-        'essay': 'Essay'
-      }[subj.track] || subj.track;
-      const dateRange = getDateRange(subj);
+    const totalSpan = new Date(PREP_PHASES[PREP_PHASES.length - 1].end) - new Date(PREP_PHASES[0].start);
+    const timelineStart = new Date(PREP_PHASES[0].start);
+    const todayOffset = Math.max(0, Math.min(100, ((today - timelineStart) / totalSpan) * 100));
 
-      return `
-        <tr>
-          <td><strong>${subj.name}</strong></td>
-          <td style="font-size: 12px; color: var(--text-muted);">${dateRange}</td>
-          <td>${done}/${subj.classes}</td>
-          <td><span class="status-badge">${trackLabel}</span></td>
-          <td>${priorityLabel}</td>
-          <td>
-            <div class="prog-bar-track" style="height: 4px; margin: 4px 0;">
-              <div class="prog-bar-fill" style="width: ${pct}%;"></div>
-            </div>
-            <span style="font-size: 11px; color: var(--text-muted);">${pct}%</span>
-          </td>
-        </tr>`;
+    const timelineHtml = `
+      <div class="upsc-prep-timeline">
+        ${PREP_PHASES.map(p => {
+          const s = new Date(p.start), e = new Date(p.end);
+          const left = ((s - timelineStart) / totalSpan) * 100;
+          const width = Math.max(2, ((e - s) / totalSpan) * 100);
+          const isActive = todayStr >= p.start && todayStr <= p.end;
+          return `<div class="upsc-prep-timeline-seg ${isActive ? 'active' : ''}" style="left:${left}%;width:${width}%;background:${p.color};" title="${p.name}" data-phase="${p.key}"></div>`;
+        }).join('')}
+        <div class="upsc-prep-timeline-marker" style="left:${todayOffset}%;" title="Today"></div>
+      </div>`;
+
+    const progress = AppState.upscSubjectProgress || {};
+    const subjects = typeof UPSC_SUBJECTS !== 'undefined' ? UPSC_SUBJECTS : [];
+    const milestones = typeof MILESTONES !== 'undefined' ? MILESTONES : [];
+
+    const cardsHtml = PREP_PHASES.map(p => {
+      const startD = new Date(p.start + 'T00:00:00');
+      const endD = new Date(p.end + 'T00:00:00');
+      const totalDays = Math.max(1, Math.round((endD - startD) / DAY_MS));
+      const elapsed = Math.max(0, Math.round((today - startD) / DAY_MS));
+      const isDone = todayStr > p.end;
+      const isActive = todayStr >= p.start && todayStr <= p.end;
+
+      let pct = 0;
+      let subjectChips = '';
+      if (p.subjectIds.length > 0) {
+        let totalClasses = 0, doneClasses = 0;
+        const chips = p.subjectIds.map(sid => {
+          const subj = subjects.find(s => s.id === sid);
+          if (!subj) return '';
+          const total = UPSCTracker._subjectTotal(subj);
+          const done = progress[sid] || 0;
+          totalClasses += total;
+          doneClasses += Math.min(done, total);
+          const subjPct = total > 0 ? Math.round((Math.min(done, total) / total) * 100) : 0;
+          const chipCls = subjPct >= 100 ? 'chip-done' : (todayStr >= subj.start && todayStr <= subj.end) ? 'chip-active' : '';
+          return `<span class="phase-subject-chip ${chipCls}" title="${subj.name}: ${done}/${total} classes (${subjPct}%)">${subj.name.split('(')[0].split('—')[0].trim().slice(0, 18)}${subjPct >= 100 ? ' ✓' : ` ${subjPct}%`}</span>`;
+        }).filter(Boolean);
+        pct = isDone ? 100 : totalClasses > 0 ? Math.min(100, Math.round((doneClasses / totalClasses) * 100)) : 0;
+        if (chips.length > 0) subjectChips = `<div class="phase-subject-chips">${chips.join('')}</div>`;
+      } else {
+        pct = isDone ? 100 : isActive ? Math.min(100, Math.round((elapsed / totalDays) * 100)) : 0;
+      }
+
+      let countdownHtml = '';
+      if (!isActive && !isDone) {
+        const daysUntil = Math.max(0, Math.ceil((startD - today) / DAY_MS));
+        countdownHtml = `<div class="phase-countdown"><span class="phase-countdown-n">${daysUntil}</span><span class="phase-countdown-label">days until start</span></div>`;
+      } else if (isActive) {
+        const daysLeft = Math.max(0, Math.ceil((endD - today) / DAY_MS));
+        countdownHtml = `<div class="phase-countdown active"><span class="phase-countdown-n">${daysLeft}</span><span class="phase-countdown-label">days remaining</span></div>`;
+      } else {
+        countdownHtml = `<div class="phase-countdown done"><span class="phase-countdown-n">✓</span><span class="phase-countdown-label">Completed</span></div>`;
+      }
+
+      const phaseMilestones = milestones.filter(m => m.date >= p.start && m.date <= p.end);
+      const milestonesHtml = phaseMilestones.length ? `
+        <div class="phase-milestones">
+          ${phaseMilestones.map(m => {
+            const mDone = m.date <= todayStr;
+            return `<div class="phase-milestone-row ${mDone ? 'done' : ''}"><span class="pm-dot" style="background:${mDone ? p.color : 'var(--border-bright)'}"></span><span class="pm-label">${m.label}</span></div>`;
+          }).join('')}
+        </div>` : '';
+
+      const statusCls = isDone ? 'ep-done' : isActive ? 'ep-active-card' : '';
+
+      return `<div class="upsc-phase-card phase-${p.key} ${statusCls}" id="phase-${p.key}">
+        <div class="ep-top">
+          <span class="upsc-phase-icon">${p.icon}</span>
+          <div class="ep-title-wrap">
+            <div class="upsc-phase-name">${p.name}</div>
+            <div class="ep-phase-desc">${p.description}</div>
+          </div>
+          ${countdownHtml}
+        </div>
+        <div class="ep-target"><span class="ep-target-label">${p.target}</span></div>
+        <div class="ep-dates-row">
+          <span class="ep-date-chip">${p.start.replace(/-/g, '/')}</span>
+          <span class="ep-date-arrow">→</span>
+          <span class="ep-date-chip">${p.end.replace(/-/g, '/')}</span>
+        </div>
+        <div class="ep-progress">
+          <div class="prog-bar-track" style="height:6px;">
+            <div class="prog-bar-fill${isDone ? ' green' : ''}" style="width:${pct}%;${isActive ? 'background:' + p.color + ';box-shadow:0 0 8px ' + p.color + ';' : ''}"></div>
+          </div>
+          <span class="ep-pct">${pct}%</span>
+        </div>
+        ${subjectChips}
+        ${milestonesHtml}
+      </div>`;
     }).join('');
+
+    container.innerHTML = timelineHtml + cardsHtml;
+
+    container.querySelectorAll('.upsc-prep-timeline-seg').forEach(seg => {
+      seg.addEventListener('click', () => {
+        const target = document.getElementById(`phase-${seg.dataset.phase}`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    });
   },
 
   _renderPhaseTimeline() {
@@ -1004,18 +1141,13 @@ const UI = {
 
   // ── Growth tab ───────────────────────────────────────────
   _renderGrowth() {
+    if (typeof GoalsTracker !== 'undefined') GoalsTracker.render();
     GrowthTracker.render();
-    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tasks tab ────────────────────────────────────────────
   _renderTasks() {
     TasksTracker.render();
-  },
-
-  // ── Tech Study tab ───────────────────────────────────────
-  _renderTechStudy() {
-    if (typeof TechStudyTracker !== 'undefined') TechStudyTracker.render();
   },
 
   // ── Tab navigation ───────────────────────────────────────
@@ -1049,6 +1181,7 @@ const UI = {
       const isLight = document.documentElement.getAttribute('data-theme') === 'light';
       const next    = isLight ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', next);
+      if (typeof NativeIntegration !== 'undefined') NativeIntegration.syncStatusBarTheme(next);
       AppState.theme = next;
       AppState.save();
       btn.textContent = next === 'dark' ? '☀️ Theme' : '🌙 Theme';
@@ -1066,6 +1199,10 @@ const UI = {
       }
       if (tab === 'finance')  FinanceTracker.renderCharts();
       if (tab === 'growth')   GrowthTracker.renderWeeklyReviewChart();
+      if (tab === 'today') {
+        if (typeof StudyTracker !== 'undefined') StudyTracker._renderForestContent?.();
+        if (typeof TechStudyTracker !== 'undefined') TechStudyTracker._renderForestContent?.();
+      }
     });
     btn.textContent = AppState.theme === 'dark' ? '☀️ Theme' : '🌙 Theme';
   },

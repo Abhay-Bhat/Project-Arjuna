@@ -60,6 +60,7 @@ const AppState = {
   weeklyReviews:   {},   // { 'YYYY-Www': { q1..q10, submitted_at } }
   monthlyReviews:  {},   // { 'YYYY-MM': { domains, submitted_at } }
   partnerLog:      [],   // [{ date, type:'msg'|'call'|'meet', note }]
+  habitStacks:     {},   // { stack1: true, ... } — Habit Stack Rollout (Jul 2026)
 
   // ── Dubai Checklist ──────────────────────────────────────
   dubaiChecklist:  {},   // { item_id: true }
@@ -69,6 +70,10 @@ const AppState = {
   tasks:                [],   // [{ id, bucketId, title, dueDate, priority, done, createdAt }]
   tasksOrderedAt:       null, // ISO — updated on drag-and-drop reorder; used to pick ordering in merge
   taskBucketsOrderedAt: null, // ISO — updated on bucket drag-and-drop reorder
+
+  // ── SMART Goals (Growth tab) ──────────────────────────────
+  goals: [], // [{ id, title, domain, specific, measurable, achievable, relevant,
+              //    timebound, targetDate, progress, status, milestones, createdAt, modifiedAt }]
 
   // ── Study Log ────────────────────────────────────────────
   studyLog:        [],   // [{ id, date, subject, activity, duration_min, started_at }]
@@ -171,11 +176,13 @@ const AppState = {
       this.weeklyReviews        = pick('weeklyReviews',   {});
       this.monthlyReviews       = pick('monthlyReviews',  {});
       this.partnerLog           = pick('partnerLog',      []);
+      this.habitStacks          = pick('habitStacks',     {});
       this.dubaiChecklist       = pick('dubaiChecklist',  {});
       this.taskBuckets          = pick('taskBuckets',     []);
       this.tasks                = pick('tasks',           []);
       this.tasksOrderedAt       = d.tasksOrderedAt       ?? null;
       this.taskBucketsOrderedAt = d.taskBucketsOrderedAt ?? null;
+      this.goals                = pick('goals',           []);
       this.studyLog             = pick('studyLog',        []);
       this.studySubjects        = d.studySubjects  ?? null;
       this.studyActivities      = d.studyActivities ?? null;
@@ -240,11 +247,13 @@ const AppState = {
       weeklyReviews: this.weeklyReviews,
       monthlyReviews: this.monthlyReviews,
       partnerLog: this.partnerLog,
+      habitStacks: this.habitStacks,
       dubaiChecklist: this.dubaiChecklist,
       taskBuckets:          this.taskBuckets,
       tasks:                this.tasks,
       tasksOrderedAt:       this.tasksOrderedAt,
       taskBucketsOrderedAt: this.taskBucketsOrderedAt,
+      goals:                this.goals,
       studyLog:        this.studyLog,
       studySubjects:   this.studySubjects,
       studyActivities: this.studyActivities,
@@ -378,6 +387,7 @@ const AppState = {
       investments:     _byId(local.investments,      cloudData.investments),
       financeEntries:  _byId(local.financeEntries,   cloudData.financeEntries),
       monthlyExpenses: _byId(local.monthlyExpenses,  cloudData.monthlyExpenses),
+      goals:           _byId(local.goals,            cloudData.goals),
       // Arrays without id
       cholesterol: _byDate(local.cholesterol,     cloudData.cholesterol),
       pastimeLog:  _byDateType(local.pastimeLog || local.nofapLog, cloudData.pastimeLog || cloudData.nofapLog),
@@ -393,6 +403,7 @@ const AppState = {
       booksLog:            _mergeObj(local.booksLog,            cloudData.booksLog),
       weeklyReviews:       _mergeObj(local.weeklyReviews,       cloudData.weeklyReviews),
       monthlyReviews:      _mergeObj(local.monthlyReviews,      cloudData.monthlyReviews),
+      habitStacks:         _mergeObj(local.habitStacks,         cloudData.habitStacks),
       dubaiChecklist:      _mergeObj(local.dubaiChecklist,      cloudData.dubaiChecklist),
       upscSubjectProgress: _lwwObj(
         local.upscSubjectProgress, cloudData.upscSubjectProgress,

@@ -1,47 +1,52 @@
 // ============================================================
-// Skadi — UPSC Tracking System (Recalibrated)
+// Skadi — UPSC Tracking System (Integrated Master Plan)
 //
-// Schedule design:
-//  Track A — GS Main (Subjects 1–14): Mon–Fri, 1 class/day
-//             Light phase May–Jun'26: Mon/Wed/Fri only
-//             Full pause Jul 1 – Sep 30, 2026
-//  Track B — CSAT (Subject 17): Tue/Thu from Nov 1, 2026
-//  Track C — Sociology P1 (Subject 15): Saturdays from Oct 1, 2026
-//  Track D — Sociology P2 (Subject 16): Saturdays, after P1
-//  Track E — Essay (Subject 18): after main track + buffer
+// Phase 4 — Sequential Subject Classes (originally Sep 14, 2026 – Dec
+// 31, 2027; shifted +73 days below — see UPDATE note).
+// All 18 subjects studied one after another in a fixed order.
+// Phases 1-3 (Orientation + NCERT + Syllabus mapping) precede this.
+// Mock phase Mar–May 2028 → Prelims May/Jun 2028.
 //
-// Strategic priority for Prelims 2027:
-//  Priority subjects (1–8) targeted before May 2027 Prelims.
-//  Remaining subjects + Soc + Essay continue towards Prelims 2028.
+// UPDATE (2026-07-14): an 11-week ad-hoc interview-prep sprint (Jul 15
+// – Sep 30, 2026, see js/phases.js) pauses UPSC entirely. Every subject
+// below is shifted +73 days from its original date (NCERT Foundation's
+// original Jul 20 start lands on Oct 1 — the day the sprint ends — and
+// every subsequent subject carries the same +73-day offset to preserve
+// the original sequence/spacing). All classes now complete ~Mar 13,
+// 2028 instead of Dec 31, 2027 — Prelims/Mains/Interview exam dates
+// below are real, externally-fixed dates and are NOT shifted.
 // ============================================================
 
 const UPSC_SUBJECTS = [
-  // GS Spine — Prelims 2027 priority
-  { id:  1, name: "Indian Polity",                                 classes: 39,  track: 'main',     priority: 1 },
-  { id:  2, name: "Modern History & Post-Independence",            classes: 32,  track: 'main',     priority: 1 },
-  { id:  3, name: "Geography",                                     classes: 39,  track: 'main',     priority: 1 },
-  { id:  4, name: "Economy",                                       classes: 33,  track: 'main',     priority: 1 },
-  { id:  5, name: "Ancient & Medieval History, Art & Culture",     classes: 36,  track: 'main',     priority: 1 },
-  { id:  6, name: "Environment & Ecology",                         classes: 16,  track: 'main',     priority: 1 },
-  { id:  7, name: "Science & Technology",                          classes: 34,  track: 'main',     priority: 1 },
-  // GS Extended — Prelims 2028
-  { id:  8, name: "International Relations",                       classes: 26,  track: 'main',     priority: 2 },
-  { id:  9, name: "Governance",                                    classes: 11,  track: 'main',     priority: 2 },
-  { id: 10, name: "Indian Society & Social Justice",               classes: 31,  track: 'main',     priority: 2 },
-  { id: 11, name: "Internal Security",                             classes: 14,  track: 'main',     priority: 2 },
-  { id: 12, name: "Disaster Management",                           classes:  4,  track: 'main',     priority: 2 },
-  { id: 13, name: "World History",                                 classes: 12,  track: 'main',     priority: 2 },
-  { id: 14, name: "Ethics, Integrity & Aptitude",                  classes: 30,  track: 'main',     priority: 2 },
-  // Optional — Parallel
-  { id: 15, name: "Sociology — Paper 01",                          classes: 105, track: 'sociology', priority: 1 },
-  { id: 16, name: "Sociology — Paper 02",                          classes: 30,  track: 'sociology', priority: 1 },
-  // CSAT — Parallel from Nov 2026
-  { id: 17, name: "CSAT",                                          classes: 69,  track: 'csat',     priority: 1 },
-  // Essay
-  { id: 18, name: "Essay",                                         classes:  5,  track: 'essay',    priority: 2 }
+  { id:  0, name: "NCERT Foundation (Class 6-12)", classes: 160, hours: 560, start: '2026-10-01', end: '2026-11-18' },
+  // Sequential order per Integrated Master Plan Phase 4
+  { id:  1, name: "Indian Polity",                             classes: 39,  hours: 136.5, start: '2026-11-26', end: '2026-12-30' },
+  { id:  2, name: "Modern History & Post-Independence",        classes: 32,  hours: 112,   start: '2026-12-31', end: '2027-01-27' },
+  { id:  3, name: "Geography",                                 classes: 39,  hours: 136.5, start: '2027-01-28', end: '2027-03-03' },
+  { id:  4, name: "Economy",                                   classes: 33,  hours: 115.5, start: '2027-03-04', end: '2027-03-31' },
+  { id:  5, name: "Indian Society & Social Justice",           classes: 31,  hours: 108.5, start: '2027-04-01', end: '2027-04-28' },
+  { id:  6, name: "CSAT",                                      classes: 69,  hours: 241.5, start: '2027-04-29', end: '2027-06-24' },
+  { id:  7, name: "Ancient & Medieval History, Art & Culture", classes: 36,  hours: 126,   start: '2027-06-25', end: '2027-07-22' },
+  { id:  8, name: "Environment & Ecology",                     classes: 16,  hours: 56,    start: '2027-07-23', end: '2027-08-05' },
+  { id:  9, name: "Science & Technology",                      classes: 34,  hours: 119,   start: '2027-08-06', end: '2027-09-02' },
+  { id: 10, name: "International Relations",                   classes: 26,  hours: 91,    start: '2027-09-03', end: '2027-09-23' },
+  { id: 11, name: "Governance",                                classes: 11,  hours: 38.5,  start: '2027-09-24', end: '2027-10-03' },
+  { id: 12, name: "Internal Security",                         classes: 14,  hours: 49,    start: '2027-10-04', end: '2027-10-17' },
+  { id: 13, name: "Disaster Management",                       classes:  4,  hours: 14,    start: '2027-10-18', end: '2027-10-21' },
+  { id: 14, name: "World History",                              classes: 12,  hours: 42,    start: '2027-10-22', end: '2027-11-01' },
+  { id: 15, name: "Ethics, Integrity & Aptitude",              classes: 30,  hours: 105,   start: '2027-11-02', end: '2027-11-29' },
+  { id: 16, name: "Sociology — Paper 01",                      classes: 105, hours: 367.5, start: '2027-11-30', end: '2028-02-21' },
+  { id: 17, name: "Sociology — Paper 02",                      classes: 30,  hours: 105,   start: '2028-02-22', end: '2028-03-13' },
+  { id: 18, name: "Essay",                                      classes:  5,  hours: 17.5,  start: '2028-02-26', end: '2028-03-13' }
 ];
 
-const CA_START = '2026-10-01'; // Current Affairs daily from Oct 2026
+const CA_START = '2026-07-13';
+
+const SCHEDULE_VERSION = 6;
+
+// Bump to force a one-time reset of AppState.upscSubjectProgress (e.g. after
+// a UPSC timeline restart) for existing users — mirrors SCHEDULE_VERSION.
+const PROGRESS_RESET_VERSION = 1;
 
 const UPSCTracker = {
 
@@ -55,21 +60,31 @@ const UPSCTracker = {
 
   initSchedule(force = false) {
     if (!Array.isArray(AppState.upscSchedule)) AppState.upscSchedule = [];
-    if (force || AppState.upscSchedule.length === 0) {
+    let stale = false;
+    try { stale = localStorage.getItem('skadi_schedule_version') !== String(SCHEDULE_VERSION); } catch (e) {}
+    if (force || AppState.upscSchedule.length === 0 || stale) {
       AppState.upscSchedule = this._buildSchedule();
       AppState.save();
+      try { localStorage.setItem('skadi_schedule_version', String(SCHEDULE_VERSION)); } catch (e) {}
     }
+    this._resetProgressIfStale();
+  },
+
+  _resetProgressIfStale() {
+    let stale = false;
+    try { stale = localStorage.getItem('skadi_progress_reset_version') !== String(PROGRESS_RESET_VERSION); } catch (e) {}
+    if (!stale) return;
+    AppState.upscSubjectProgress = {};
+    AppState.upscProgress = 0;
+    AppState.upscSubjectProgressUpdatedAt = new Date().toISOString();
+    AppState.save();
+    try { localStorage.setItem('skadi_progress_reset_version', String(PROGRESS_RESET_VERSION)); } catch (e) {}
   },
 
   _buildSchedule() {
     const schedule = [];
     const DAY = 864e5;
-
     const str = d => d.toISOString().split('T')[0];
-
-    const isPaused   = d => { const s = str(d); return s >= '2026-07-01' && s <= '2026-09-30'; };
-    const isLight    = d => { const s = str(d); return s >= '2026-05-10' && s <= '2026-06-26'; };
-    const isSprint   = d => { const s = str(d); return s >= '2027-04-01' && s <= '2027-05-25'; };
 
     const push = (d, subj, classNum) => schedule.push({
       date:         str(d),
@@ -77,84 +92,18 @@ const UPSCTracker = {
       subject_id:   subj.id,
       subject_name: subj.name,
       class_number: classNum,
-      total_classes: subj.classes,
-      track:        subj.track,
-      priority:     subj.priority
+      total_classes: subj.classes
     });
 
-    // ── TRACK A: GS Main (subjects 1–14) ──────────────────
-    const mainSubjects = UPSC_SUBJECTS.filter(s => s.track === 'main');
-    let mainDate = new Date('2026-05-11'); // First Mon in light phase
-
-    for (const subj of mainSubjects) {
+    for (const subj of UPSC_SUBJECTS) {
+      let d = new Date(subj.start);
       let left = subj.classes;
       while (left > 0) {
-        // Skip pause
-        while (isPaused(mainDate)) mainDate = new Date(mainDate.getTime() + DAY);
-        // Skip Sunday always
-        while (mainDate.getDay() === 0) mainDate = new Date(mainDate.getTime() + DAY);
-        // Light phase: Mon/Wed/Fri only
-        if (isLight(mainDate) && ![1,3,5].includes(mainDate.getDay())) {
-          mainDate = new Date(mainDate.getTime() + DAY);
-          continue;
-        }
-        // Sprint phase (Apr–May 2027): revision only, no new schedule entries on this track
-        // We'll still schedule but mark as sprint
-        push(mainDate, subj, subj.classes - left + 1);
+        while (d.getDay() === 0) d = new Date(d.getTime() + DAY);
+        push(d, subj, subj.classes - left + 1);
         left--;
-        mainDate = new Date(mainDate.getTime() + DAY);
+        d = new Date(d.getTime() + DAY);
       }
-      // 2-working-day buffer after each subject
-      for (let i = 0; i < 2; i++) {
-        mainDate = new Date(mainDate.getTime() + DAY);
-        while (mainDate.getDay() === 0 || isPaused(mainDate)) mainDate = new Date(mainDate.getTime() + DAY);
-      }
-    }
-
-    // ── TRACK B: CSAT — Tue & Thu from Nov 1, 2026 ────────
-    const csat = UPSC_SUBJECTS.find(s => s.id === 17);
-    let csatDate = new Date('2026-11-01');
-    // Advance to first Tuesday
-    while (csatDate.getDay() !== 2) csatDate = new Date(csatDate.getTime() + DAY);
-    let csatLeft = csat.classes;
-    while (csatLeft > 0) {
-      while (![2,4].includes(csatDate.getDay())) csatDate = new Date(csatDate.getTime() + DAY);
-      push(csatDate, csat, csat.classes - csatLeft + 1);
-      csatLeft--;
-      csatDate = new Date(csatDate.getTime() + DAY);
-    }
-
-    // ── TRACK C: Sociology P1 — Saturdays from Oct 4, 2026 ─
-    const socP1 = UPSC_SUBJECTS.find(s => s.id === 15);
-    let socDate = new Date('2026-10-03');
-    while (socDate.getDay() !== 6) socDate = new Date(socDate.getTime() + DAY);
-    let socLeft = socP1.classes;
-    while (socLeft > 0) {
-      push(socDate, socP1, socP1.classes - socLeft + 1);
-      socLeft--;
-      socDate = new Date(socDate.getTime() + 7 * DAY); // next Saturday
-    }
-
-    // ── TRACK D: Sociology P2 — Saturdays after P1 ends ───
-    const socP2 = UPSC_SUBJECTS.find(s => s.id === 16);
-    let soc2Left = socP2.classes;
-    while (soc2Left > 0) {
-      push(socDate, socP2, socP2.classes - soc2Left + 1);
-      soc2Left--;
-      socDate = new Date(socDate.getTime() + 7 * DAY);
-    }
-
-    // ── TRACK E: Essay — after main track, 2-week buffer ──
-    const essay = UPSC_SUBJECTS.find(s => s.id === 18);
-    const mainEnd = schedule
-      .filter(e => e.track === 'main')
-      .map(e => e.date).sort().pop();
-    let essayDate = mainEnd ? new Date(new Date(mainEnd).getTime() + 14 * DAY) : new Date('2027-12-01');
-    while (essayDate.getDay() === 0) essayDate = new Date(essayDate.getTime() + DAY);
-    for (let i = 0; i < essay.classes; i++) {
-      while (essayDate.getDay() === 0) essayDate = new Date(essayDate.getTime() + DAY);
-      push(essayDate, essay, i + 1);
-      essayDate = new Date(essayDate.getTime() + DAY);
     }
 
     return schedule.sort((a, b) => a.date.localeCompare(b.date) ||
@@ -170,6 +119,8 @@ const UPSCTracker = {
   },
 
   getDateRange(subjectId) {
+    const subj = UPSC_SUBJECTS.find(s => s.id === subjectId);
+    if (subj) return { start: subj.start, end: subj.end };
     const rows = (AppState.upscSchedule || [])
       .filter(e => e.subject_id === subjectId)
       .map(e => e.date).sort();
@@ -177,17 +128,13 @@ const UPSCTracker = {
     return { start: rows[0], end: rows[rows.length - 1] };
   },
 
-  // ── Prelims 2027 milestone coverage ──────────────────────
-  getPrelims2027Coverage() {
-    const cutoff = '2027-05-22';
-    const p1Subjects = UPSC_SUBJECTS.filter(s => s.priority === 1 && s.track === 'main');
-    let totalP1 = 0, scheduledBeforePrelims = 0;
-    p1Subjects.forEach(s => {
-      totalP1 += s.classes;
-      scheduledBeforePrelims += (AppState.upscSchedule || [])
-        .filter(e => e.subject_id === s.id && e.date <= cutoff).length;
+  getPrelimsCoverage() {
+    const total = UPSC_SUBJECTS.reduce((s, sub) => s + sub.classes, 0);
+    let done = 0;
+    UPSC_SUBJECTS.forEach(s => {
+      done += (AppState.upscSubjectProgress?.[s.id] || 0);
     });
-    return { scheduled: scheduledBeforePrelims, total: totalP1 };
+    return { done, total };
   },
 
   // ── Weekly count (from per-subject progress vs schedule) ─
@@ -255,9 +202,8 @@ const UPSCTracker = {
     set('upscCurrentSubject', cur ? cur.subject.name : '✅ All subjects complete');
     set('upscCurrentProgress', cur ? `${cur.done} / ${cur.subject.classes} classes` : '');
 
-    // Prelims 2027 coverage
-    const cov = this.getPrelims2027Coverage();
-    const covPct = cov.total > 0 ? Math.round((cov.scheduled / cov.total) * 100) : 0;
+    const cov = this.getPrelimsCoverage();
+    const covPct = cov.total > 0 ? Math.round((cov.done / cov.total) * 100) : 0;
     set('prelims2027Cov', covPct + '%');
     setW('prelims2027Bar', covPct);
 
@@ -350,10 +296,9 @@ const UPSCTracker = {
     const classes = this.getForDate(dateKey);
     el.innerHTML = classes.length
       ? classes.map(c =>
-          `<div class="today-class-item track-${c.track}">
+          `<div class="today-class-item">
             <span class="tc-num">Class ${c.class_number}/${c.total_classes}</span>
             <span class="tc-name">${c.subject_name}</span>
-            <span class="tc-track">${c.track.toUpperCase()}</span>
           </div>`).join('')
       : `<div class="empty-state">No classes scheduled for ${dateLabel}</div>`;
   },
@@ -370,10 +315,8 @@ const UPSCTracker = {
       const status = pct === 100 ? 'completed' : pct > 0 ? 'in-progress' : 'not-started';
       const { start, end } = this.getDateRange(s.id);
 
-      const trackClass = `track-badge-${s.track}`;
-      const priorityBadge = s.priority === 1
-        ? '<span class="priority-badge">2027</span>'
-        : '<span class="priority-badge p2">2028</span>';
+      const statusLabel = status === 'completed' ? 'Done' : status === 'in-progress' ? 'Active' : 'Upcoming';
+      const statusBadgeClass = status === 'completed' ? 'done' : status === 'in-progress' ? 'active' : 'upcoming';
 
       const card = document.createElement('div');
       card.className = `upsc-card status-${status}`;
@@ -381,8 +324,7 @@ const UPSCTracker = {
         <div class="upsc-card-header">
           <div class="upsc-card-title">${s.name}</div>
           <div class="upsc-card-badges">
-            ${priorityBadge}
-            <span class="${trackClass} track-badge">${s.track.toUpperCase()}</span>
+            <span class="status-badge ${statusBadgeClass}">${statusLabel}</span>
           </div>
         </div>
         <div class="upsc-card-progress">
@@ -645,5 +587,162 @@ const UPSCTracker = {
     document.body.appendChild(n);
     requestAnimationFrame(() => n.classList.add('show'));
     setTimeout(() => { n.classList.remove('show'); setTimeout(() => n.remove(), 400); }, 3000);
+  },
+
+  // ── Yearlong Study Calendar ───────────────────────────────
+  _calMonth: null,
+
+  renderCalendar() {
+    if (!this._calMonth) this._calMonth = new Date();
+    this.initSchedule(false);
+    this._renderCalGrid();
+    this._bindCalendar();
+  },
+
+  _calDateStr(y, mo, day) {
+    const p = n => String(n).padStart(2, '0');
+    return `${y}-${p(mo + 1)}-${p(day)}`;
+  },
+
+  _calMonthLabel() {
+    const d = this._calMonth || new Date();
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  },
+
+  _calDayState(entries, dateStr) {
+    if (!entries.length) return 'empty';
+    const prog   = AppState.upscSubjectProgress || {};
+    const today  = AppState.getTodayKey();
+    const allDone = entries.every(e => (prog[e.subject_id] || 0) >= e.class_number);
+    const anyDone = entries.some(e =>  (prog[e.subject_id] || 0) >= e.class_number);
+    if (allDone)          return 'complete';
+    if (anyDone)          return 'partial';
+    if (dateStr < today)  return 'behind';
+    return 'future';
+  },
+
+  _renderCalGrid() {
+    const grid = document.getElementById('upscCalGrid');
+    if (!grid) return;
+    const detail = document.getElementById('upscCalDetail');
+    if (detail) { detail.classList.remove('show'); detail.innerHTML = ''; }
+
+    const d     = this._calMonth || new Date();
+    const y     = d.getFullYear();
+    const mo    = d.getMonth();
+    const today = AppState.getTodayKey();
+
+    const firstDay = new Date(y, mo, 1);
+    const lastDay  = new Date(y, mo + 1, 0);
+    // Start grid on Monday (0=Mon … 6=Sun)
+    const startDow = (firstDay.getDay() + 6) % 7;
+
+    const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const trackDotClass = { main: 'upsc-dot-main', sociology: 'upsc-dot-sociology', csat: 'upsc-dot-csat', essay: 'upsc-dot-essay' };
+
+    let html = `
+      <div class="upsc-cal-nav">
+        <button class="btn btn-sm" id="upscCalPrev">‹</button>
+        <span class="upsc-cal-label">${this._calMonthLabel()}</span>
+        <button class="btn btn-sm" id="upscCalNext">›</button>
+        <button class="btn btn-sm" id="upscCalToday">Today</button>
+      </div>
+      <div class="upsc-cal-weekdays">${DAYS.map(w => `<div class="upsc-cal-wd">${w}</div>`).join('')}</div>
+      <div class="upsc-cal-cells">`;
+
+    for (let i = 0; i < startDow; i++) html += `<div class="upsc-cal-day other-month"></div>`;
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      const dateStr = this._calDateStr(y, mo, day);
+      const entries = this.getForDate(dateStr);
+      const tasks   = (AppState.tasks || []).filter(t => !t.deleted && !t.done && t.dueDate === dateStr);
+      const state   = this._calDayState(entries, dateStr);
+      const isToday = dateStr === today;
+
+      const cls = ['upsc-cal-day', state !== 'empty' && state !== 'future' ? state : '', isToday ? 'today' : ''].filter(Boolean).join(' ');
+      const tracks = [...new Set(entries.map(e => e.track))];
+      const dots   = tracks.map(tr => `<span class="upsc-cal-dot ${trackDotClass[tr] || ''}" title="${tr}"></span>`).join('');
+      const taskDot = tasks.length ? `<span class="upsc-cal-dot upsc-dot-task" title="${tasks.length} task(s) due"></span>` : '';
+
+      html += `<div class="${cls}" data-date="${dateStr}" title="${dateStr}">
+        <span class="upsc-cal-day-num">${day}</span>
+        <div class="upsc-cal-day-dots">${dots}${taskDot}</div>
+        ${entries.length ? `<span class="upsc-cal-day-count">${entries.length} class${entries.length > 1 ? 'es' : ''}</span>` : ''}
+      </div>`;
+    }
+
+    html += '</div>';
+    grid.innerHTML = html;
+  },
+
+  _calDetailHTML(dateStr) {
+    const entries = this.getForDate(dateStr);
+    const tasks   = (AppState.tasks || []).filter(t => !t.deleted && !t.done && t.dueDate === dateStr);
+    const prog    = AppState.upscSubjectProgress || {};
+    const escFn   = typeof esc === 'function' ? esc : s => s;
+
+    const [y, m, dd] = dateStr.split('-').map(Number);
+    const dt      = new Date(y, m - 1, dd);
+    const heading = dt.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+    const classRows  = entries.length
+      ? entries.map(e => {
+          const done = (prog[e.subject_id] || 0) >= e.class_number;
+          return `<div class="upsc-cal-entry ${done ? 'done' : ''}">
+            <span class="upsc-cal-entry-num">Class ${e.class_number}/${e.total_classes}</span>
+            <span class="upsc-cal-entry-name">${escFn(e.subject_name)}</span>
+            <span class="upsc-cal-entry-status">${done ? '✅' : '⬜'}</span>
+          </div>`;
+        }).join('')
+      : `<div class="upsc-cal-empty-day">No classes scheduled for this date.</div>`;
+
+    const taskRows = tasks.length
+      ? `<div class="upsc-cal-detail-section">Tasks Due</div>` +
+        tasks.map(t => `<div class="upsc-cal-task-row">
+          <span class="upsc-cal-task-dot" style="background:var(--accent-violet)"></span>
+          <span class="upsc-cal-task-title">${escFn(t.title)}</span>
+          <span class="upsc-cal-task-pri">${t.priority}</span>
+        </div>`).join('')
+      : '';
+
+    return `<div class="upsc-cal-detail-heading">${heading}</div>
+      <div class="upsc-cal-detail-section">Classes</div>
+      ${classRows}${taskRows}`;
+  },
+
+  _bindCalendar() {
+    const grid   = document.getElementById('upscCalGrid');
+    const detail = document.getElementById('upscCalDetail');
+    if (!grid) return;
+
+    const nav = (delta) => {
+      const d = this._calMonth || new Date();
+      this._calMonth = new Date(d.getFullYear(), d.getMonth() + delta, 1);
+      this._renderCalGrid();
+      this._bindCalendar();
+    };
+
+    grid.querySelector('#upscCalPrev')?.addEventListener('click', () => nav(-1));
+    grid.querySelector('#upscCalNext')?.addEventListener('click', () => nav(+1));
+    grid.querySelector('#upscCalToday')?.addEventListener('click', () => {
+      this._calMonth = new Date();
+      this._renderCalGrid();
+      this._bindCalendar();
+      if (detail) {
+        detail.innerHTML = this._calDetailHTML(AppState.getTodayKey());
+        detail.classList.add('show');
+      }
+    });
+
+    grid.querySelectorAll('.upsc-cal-day[data-date]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        grid.querySelectorAll('.upsc-cal-day').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+        if (detail) {
+          detail.innerHTML = this._calDetailHTML(cell.dataset.date);
+          detail.classList.add('show');
+        }
+      });
+    });
   }
 };

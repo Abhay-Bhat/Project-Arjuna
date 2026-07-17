@@ -99,6 +99,30 @@ const Auth = {
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
     if (errEl) errEl.style.display = 'none';
 
+    // Google blocks OAuth popups/redirects inside an embedded WebView
+    // (disallowed_useragent), so the Android wrapper must use the native
+    // Google Sign-In SDK instead, then hand the resulting credential to
+    // the same Firebase Auth JS SDK the web build already uses.
+    if (Platform.isNative()) {
+      try {
+        const { FirebaseAuthentication } = window.Capacitor.Plugins;
+        const { credential } = await FirebaseAuthentication.signInWithGoogle();
+        await firebase.auth().signInWithCredential(
+          firebase.auth.GoogleAuthProvider.credential(credential.idToken)
+        );
+      } catch (e) {
+        console.error('Skadi: Native sign-in failed:', e);
+        if (btn) { btn.disabled = false; btn.textContent = 'Sign in with Google'; }
+        // Surface the real native error (not a generic message) so it's visible
+        // without needing adb logcat access on a physical device.
+        if (errEl) {
+          errEl.textContent = 'Sign-in failed: ' + (e?.message || e?.code || String(e));
+          errEl.style.display = 'block';
+        }
+      }
+      return;
+    }
+
     const provider = new firebase.auth.GoogleAuthProvider();
 
     // signInWithRedirect is broken on modern Android Chrome AND iOS Safari:

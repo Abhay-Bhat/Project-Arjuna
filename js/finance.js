@@ -21,10 +21,11 @@ function currentEPFRate() {
   return EPF_FY_RATES[`${yr}-${String(yr+1).slice(2)}`] || 8.25;
 }
 
-const FINANCE_TARGET_AED  = 199800;
-const FINANCE_TARGET_INR  = 4600000;
+// Dubai savings target: ~12,000 AED/month (22,000 income - 10,000 expenses) x 12 months
+const FINANCE_TARGET_AED  = 144000;
+const FINANCE_TARGET_INR  = 3300000;
 const FINANCE_BASELINE    = 0;
-const FINANCE_TOTAL_GOAL  = 5900000;
+const FINANCE_TOTAL_GOAL  = 4600000;
 const MONTHLY_TRANSFER    = 250000;
 
 // API Keys for stock price providers (optional, improves reliability)
@@ -92,6 +93,8 @@ const EXPENSE_CATEGORIES = [
 ];
 
 const FinanceTracker = {
+
+  _inv() { return (AppState.investments || []).filter(i => !i.deleted); },
 
   render() {
     this.renderSummary();
@@ -674,18 +677,18 @@ const FinanceTracker = {
   },
 
   calculateTrueWealth() {
-    return (AppState.investments || []).reduce((sum, inv) => sum + this.calculateInvestmentWealth(inv), 0);
+    return this._inv().reduce((sum, inv) => sum + this.calculateInvestmentWealth(inv), 0);
   },
 
   getTotalCoverAmount() {
-    return (AppState.investments || [])
+    return this._inv()
       .filter(inv => inv.type === 'Insurance' && inv.coverAmount > 0 && (inv.status || 'active') === 'active')
       .reduce((sum, inv) => sum + (inv.coverAmount || 0), 0);
   },
 
   getWealthBreakdown() {
     const bd = { liquid: 0, growth: 0, secured: 0, retirement: 0, real: 0, speculative: 0 };
-    (AppState.investments || []).forEach(inv => {
+    this._inv().forEach(inv => {
       const v = this.calculateInvestmentWealth(inv);
       switch (inv.type) {
         case 'Deposits':    bd.liquid += v; break;
@@ -710,7 +713,7 @@ const FinanceTracker = {
 
   getInvestmentBreakdown() {
     const bd = {};
-    (AppState.investments || [])
+    this._inv()
       .filter(inv => !['withdrawn','closed','reinvested'].includes(inv.status || 'active') || (inv.status === 'withdrawn' && inv.withdrawnAmount > 0))
       .forEach(inv => {
         const v = this.calculateInvestmentWealth(inv);
@@ -722,12 +725,12 @@ const FinanceTracker = {
   },
 
   getTotalInvested() {
-    return (AppState.investments || []).reduce((s, inv) => s + (inv.amount || 0), 0);
+    return this._inv().reduce((s, inv) => s + (inv.amount || 0), 0);
   },
 
   getUpcomingMaturities() {
     const now = new Date();
-    return (AppState.investments || [])
+    return this._inv()
       .filter(inv => inv.maturityDate && !['withdrawn','closed','reinvested'].includes(inv.status || ''))
       .map(inv => {
         const matDate  = new Date(inv.maturityDate);
@@ -742,14 +745,12 @@ const FinanceTracker = {
   renderInvestments() {
     this.renderNetWorthCard();
     this.renderSummary();
-    this.renderInvestmentSummary();
     this.renderPortfolioSummary();
     this.renderInvestmentChart();
     this.renderWealthByNature();
     this.renderMaturityAlerts();
     this.renderInvestmentSections();
     this.renderAITips();
-    this.renderFinancialTip();
     this.renderHelpSection();
   },
 
@@ -778,15 +779,6 @@ const FinanceTracker = {
     bd.innerHTML = items.length
       ? items.map(i => `<div class="nw-item"><div class="nw-item-label">${i.label}</div><div class="nw-item-value">₹${this._lakh(i.value)}</div></div>`).join('')
       : '<div style="color:var(--text-muted);font-size:11px;grid-column:1/-1;text-align:center;padding:6px 0;">Add investments to see breakdown</div>';
-  },
-
-  renderInvestmentSummary() {
-    const wealth = this.calculateTrueWealth();
-    const count  = (AppState.investments || []).filter(i => !['closed'].includes(i.status || '')).length;
-    const el     = document.getElementById('totalInvested');
-    const cnt    = document.getElementById('investmentCount');
-    if (el)  el.textContent  = '₹' + this._lakh(wealth);
-    if (cnt) cnt.textContent = count + ' investment' + (count !== 1 ? 's' : '') + ' tracked';
   },
 
   renderPortfolioSummary() {
@@ -1096,8 +1088,7 @@ const FinanceTracker = {
       }).join('');
     };
 
-    renderTo('maturityAlertsMain', 10);
-    renderTo('maturityAlertsSidebar', 4);
+    renderTo('maturityAlertsSidebar', 6);
 
     // Update badge count on section header
     const badge = document.getElementById('maturityBadge');
@@ -1118,7 +1109,7 @@ const FinanceTracker = {
   renderInvestmentSections() {
   const el = document.getElementById('investmentSections');
   if (!el) return;
-  const all = AppState.investments || [];
+  const all = this._inv();
   const L = v => this._lakh(v);
 
   const gainHtml = (val, invested) => {
@@ -1417,18 +1408,6 @@ const FinanceTracker = {
     ${sec('Other',  '🥇', 'Gold · Bonds · Real Estate · Crypto', otherInvs, otherTbl)}
   `;
 },
-
-  renderFinancialTip() {
-    const tipEl = document.getElementById('finTipText');
-    if (!tipEl) return;
-    const total = this.calculateTrueWealth();
-    if (!total) {
-      tipEl.textContent = 'Start adding investments to get personalized AI tips.';
-      return;
-    }
-    const tips = this._generateDetailedAITips();
-    if (tips.length) tipEl.textContent = tips[0].icon + ' ' + tips[0].title + ': ' + tips[0].desc;
-  },
 
   renderAITips() {
     const container = document.getElementById('aiTipsContainer');
@@ -1949,12 +1928,15 @@ const FinanceTracker = {
       maturityDate = start.toISOString().split('T')[0];
     }
 
+    const now = new Date().toISOString();
     const inv = {
       id:               Date.now(),
+      createdAt:        now,
+      modifiedAt:       now,
       type,
       amount:           parseFloat(formData.amount) || 0,
       notes:            formData.notes || '',
-      date:             formData.date || new Date().toISOString().split('T')[0],
+      date:             formData.date || now.split('T')[0],
       bankAccount:      bank,
       tenure,
       tenureUnit,
@@ -1983,7 +1965,10 @@ const FinanceTracker = {
   },
 
   deleteInvestment(id) {
-    AppState.investments = (AppState.investments || []).filter(inv => inv.id !== id);
+    const now = new Date().toISOString();
+    AppState.investments = (AppState.investments || []).map(inv =>
+      inv.id !== id ? inv : { ...inv, deleted: true, deletedAt: now, modifiedAt: now }
+    );
     AppState.save();
     this.renderInvestments();
     UI.showToast('🗑️ Investment removed');
@@ -1992,7 +1977,7 @@ const FinanceTracker = {
   // ═══ Withdrawal Modal ════════════════════════════════════
 
   openWithdrawalModal(id) {
-    const inv = (AppState.investments || []).find(i => i.id === id);
+    const inv = this._inv().find(i => i.id === id);
     if (!inv) return;
     document.getElementById('wdModalTitle').textContent = `${inv.type}${inv.bankAccount ? ' — ' + inv.bankAccount : ''}`;
     document.getElementById('wdModalValue').textContent  = 'Invested: ₹' + this._lakh(inv.amount);
@@ -2012,7 +1997,7 @@ const FinanceTracker = {
     const date   = document.getElementById('wdDate').value;
     const idx    = (AppState.investments || []).findIndex(i => i.id === id);
     if (idx === -1) return;
-    AppState.investments[idx] = { ...AppState.investments[idx], status: 'withdrawn', withdrawnAmount: amount, withdrawalDate: date };
+    AppState.investments[idx] = { ...AppState.investments[idx], status: 'withdrawn', withdrawnAmount: amount, withdrawalDate: date, modifiedAt: new Date().toISOString() };
     AppState.save();
     this.closeWithdrawalModal();
     this.renderInvestments();
@@ -2022,7 +2007,7 @@ const FinanceTracker = {
   // ═══ Maturity Modal ══════════════════════════════════════
 
   openMaturityModal(id) {
-    const inv = (AppState.investments || []).find(i => i.id === id);
+    const inv = this._inv().find(i => i.id === id);
     if (!inv) return;
     document.getElementById('matModalTitle').textContent = `${inv.type}${inv.bankAccount ? ' — ' + inv.bankAccount : ''}`;
     document.getElementById('matModalValue').textContent  = 'Est. value: ₹' + this._lakh(this.calculateInvestmentWealth(inv));
@@ -2042,7 +2027,7 @@ const FinanceTracker = {
     const date   = document.getElementById('matWithdrawalDate').value;
     const idx    = (AppState.investments || []).findIndex(i => i.id === id);
     if (idx === -1) return;
-    AppState.investments[idx] = { ...AppState.investments[idx], status: 'withdrawn', withdrawnAmount: amount, withdrawalDate: date };
+    AppState.investments[idx] = { ...AppState.investments[idx], status: 'withdrawn', withdrawnAmount: amount, withdrawalDate: date, modifiedAt: new Date().toISOString() };
     AppState.save();
     this.closeMaturityModal();
     this.renderInvestments();
@@ -2057,7 +2042,7 @@ const FinanceTracker = {
     if (idx === -1) return;
 
     const old = AppState.investments[idx];
-    AppState.investments[idx] = { ...old, status: 'reinvested' };
+    AppState.investments[idx] = { ...old, status: 'reinvested', modifiedAt: new Date().toISOString() };
 
     AppState.investments.push({
       id:               Date.now(),
@@ -2253,7 +2238,7 @@ const FinanceTracker = {
   // ═══ EPF Monthly Log Management ══════════════════════════
 
   addEPFLogEntry(invId) {
-    const inv = (AppState.investments || []).find(i => i.id === invId);
+    const inv = this._inv().find(i => i.id === invId);
     if (!inv) return;
 
     const month = document.getElementById(`epfMonth_${invId}`)?.value;
@@ -2283,7 +2268,7 @@ const FinanceTracker = {
   },
 
   deleteEPFLogEntry(invId, month, type) {
-    const inv = (AppState.investments || []).find(i => i.id === invId);
+    const inv = this._inv().find(i => i.id === invId);
     if (!inv || !inv.epfLog) return;
     inv.epfLog = inv.epfLog.filter(e => !(e.month === month && e.type === type));
     AppState.save();
@@ -2294,7 +2279,7 @@ const FinanceTracker = {
   // ═══ Edit Investment Modal ════════════════════════════════
 
   openEditInvModal(id) {
-    const inv = (AppState.investments || []).find(i => i.id === id);
+    const inv = this._inv().find(i => i.id === id);
     if (!inv) return;
     const isShares = inv.type === 'Shares';
     const isSIP    = inv.type === 'SIP';
@@ -2367,6 +2352,7 @@ const FinanceTracker = {
       inv.amfiCode = document.getElementById('editInvAmfi')?.value || '';
     }
 
+    inv.modifiedAt = new Date().toISOString();
     AppState.save();
     this.closeEditInvModal();
     this.renderInvestments();

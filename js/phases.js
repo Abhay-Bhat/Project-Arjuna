@@ -1,129 +1,132 @@
 // ============================================================
-// Skadi — Phase Detection Engine
-// Every phase has a schedule key, color, description, and date range.
+// Skadi — Phase Detection Engine (Routine v4 — Integrated Master Plan)
+// 5 ramp stages + sustained, aligned to Jul 13 2026 start.
+// UPDATE (2026-07-14): an 11-week ad-hoc interview-prep sprint (Jul 15 –
+// Sep 30, 2026) for an India-based role switch pauses UPSC entirely.
+// Stage 1 is cut short (was Jul 13–26, now Jul 13–14) and every ramp
+// stage from Stage 2 onward is pushed back by exactly the days the
+// sprint costs net of that shortening (78 pause days − 12 days saved
+// by cutting Stage 1 short = 66 days). All downstream UPSC dates
+// (milestones, UPSC_SUBJECTS in upsc.js) shift accordingly — see the
+// dated comments below and in upsc.js for the exact math.
 // ============================================================
 
 const PHASES = [
   {
-    id: 'notice',
-    name: 'Notice Period',
+    id: 'ramp1',
+    name: 'Stage 1 — Settling In',
     emoji: '🏁',
-    start: '2026-05-10',
-    end: '2026-06-26',
+    start: '2026-07-13',
+    end: '2026-07-14',
     color: '#ffb230',
-    description: 'Close Bangalore cleanly. Light UPSC reading begins.',
-    scheduleBase: 'notice'
+    description: 'Days 1–2. Evening block 7:15–9 PM. UPSC 1h + Tech 45m. Build the habit anchor. Cut short by the interview-prep sprint.',
+    scheduleBase: 'ramp1'
   },
   {
-    id: 'settle',
-    name: 'Dubai — Settle In',
-    emoji: '✈️',
-    start: '2026-06-27',
+    id: 'interview_prep',
+    name: 'Interview Prep Sprint',
+    emoji: '💼',
+    start: '2026-07-15',
     end: '2026-09-30',
     color: '#ff5c80',
-    description: 'Relocate. Build your routine & energy. UPSC fully paused.',
-    scheduleBase: 'settle'
+    description: '11-week ad-hoc interview prep for an India-based role switch. UPSC fully paused for this window; resumes at Stage 2 the day the sprint ends.',
+    scheduleBase: 'ramp1'
   },
   {
-    id: 'foundation',
-    name: 'Dubai Foundation',
-    emoji: '🏗️',
+    id: 'ramp2',
+    name: 'Stage 2 — Building Momentum',
+    emoji: '🔧',
     start: '2026-10-01',
-    end: '2027-03-31',
-    color: '#4d79ff',
-    description: 'Deep UPSC work mornings. Full focus at Emirates NBD.',
-    scheduleBase: 'dubai'
+    end: '2026-10-14',
+    color: '#0ea5e9',
+    description: 'Weeks 3–4. Evening extends to 9:30 PM. UPSC 1.5h + Tech 30m. Docker foundations.',
+    scheduleBase: 'ramp2'
   },
   {
-    id: 'prelims_sprint',
-    name: 'Prelims Sprint',
-    emoji: '🎯',
-    start: '2027-04-01',
-    end: '2027-05-25',
+    id: 'ramp3',
+    name: 'Stage 3 — Deepening',
+    emoji: '📈',
+    start: '2026-10-15',
+    end: '2026-10-28',
+    color: '#7b42bc',
+    description: 'Weeks 5–6. Evening to 9:55 PM. UPSC 2h + Tech 30m. Kubernetes core begins.',
+    scheduleBase: 'ramp3'
+  },
+  {
+    id: 'ramp4',
+    name: 'Stage 4 — Full Capacity',
+    emoji: '🔥',
+    start: '2026-10-29',
+    end: '2026-11-11',
     color: '#00d4c8',
-    description: 'Attempt 1 — Prelims May 2027. Daily mocks + CSAT.',
-    scheduleBase: 'sprint'
+    description: 'Weeks 7–8. Evening to 10:15 PM. UPSC 2.5h + Tech 30m. NCERT + CKA prep.',
+    scheduleBase: 'ramp4'
   },
   {
-    id: 'exit',
-    name: 'Dubai Exit Phase',
-    emoji: '🚪',
-    start: '2027-05-26',
-    end: '2027-07-01',
-    color: '#a56eff',
-    description: 'Give 30-day notice Jun 1. Pack up. Fly home Jul 1.',
-    scheduleBase: 'dubai'
-  },
-  {
-    id: 'reset',
-    name: 'Return & Reset',
-    emoji: '🏡',
-    start: '2027-07-02',
-    end: '2027-07-31',
-    color: '#00d47c',
-    description: 'Two-week full rest at home. Decompress completely.',
-    scheduleBase: 'india'
-  },
-  {
-    id: 'mains',
-    name: 'Mains Preparation',
-    emoji: '📜',
-    start: '2027-08-01',
-    end: '2027-11-30',
-    color: '#4d79ff',
-    description: 'Full-time UPSC. Mains attempt Nov 2027.',
-    scheduleBase: 'india'
-  },
-  {
-    id: 'upsc2028',
-    name: 'UPSC 2028 — Real Attempt',
+    id: 'sustained',
+    name: 'Stage 5 — Sustained Cruise',
     emoji: '⚡',
-    start: '2028-01-01',
-    end: '2028-05-31',
-    color: '#ff5c80',
-    description: 'Serious, fully prepared attempt. All savings deployed.',
-    scheduleBase: 'india'
+    start: '2026-11-12',
+    end: '2028-12-31',
+    color: '#0ea5e9',
+    description: 'Week 9 onward. 27.5h UPSC + 4.5h Tech + 5h CA/week. All classes by ~Mar 2028.',
+    scheduleBase: 'sustained'
   }
 ];
 
 const MILESTONES = [
-  { label: 'Give Landlord Notice',    date: '2026-05-10', done: false },
-  { label: 'NRI Account Live',        date: '2026-06-15', done: false },
-  { label: 'Last Day — Bangalore',    date: '2026-06-26', done: false },
-  { label: 'Dubai Day 1',             date: '2026-07-01', done: false },
-  { label: 'Gym Starts (Day 3)',       date: '2026-07-03', done: false },
-  { label: 'Flat Signed',             date: '2026-07-14', done: false },
-  { label: 'SIP ₹50K Starts',         date: '2026-08-01', done: false },
-  { label: 'UPSC Study Resumes',      date: '2026-10-01', done: false },
-  { label: 'CKA Cert Exam',           date: '2026-12-01', done: false },
-  { label: 'Home Visit — Christmas',  date: '2026-12-20', done: false },
-  { label: 'Book Return Flight',      date: '2026-10-15', done: false },
-  { label: 'Apply UPSC Prelims',      date: '2026-11-01', done: false },
-  { label: 'Prelims 2027',            date: '2027-05-25', done: false },
-  { label: 'Give Dubai Notice',       date: '2027-06-01', done: false },
-  { label: 'Return to India',         date: '2027-07-01', done: false },
-  { label: 'Prelims 2028',            date: '2028-05-25', done: false }
+  { label: 'Dubai Day 1 — Job starts',               date: '2026-07-01', done: false },
+  { label: 'Routine v4 begins',                      date: '2026-07-13', done: false },
+  { label: 'Interview Prep Sprint begins — UPSC paused', date: '2026-07-15', done: false },
+  { label: 'Interview Prep Sprint ends — UPSC resumes (Stage 2)', date: '2026-09-30', done: false },
+  { label: 'Stage 3 — UPSC 2h/day reached',          date: '2026-10-15', done: false },
+  { label: 'NCERT Phase Complete (~Nov 11)',          date: '2026-11-11', done: false },
+  { label: 'Sustained Cruise begins (Wk 9)',         date: '2026-11-12', done: false },
+  { label: 'CKA Exam (~Oct 2026)',                   date: '2026-10-04', done: false },
+  { label: 'Indian Polity complete (~Dec 30)',        date: '2026-12-30', done: false },
+  { label: 'Geography complete (~Mar 3, 2027)',       date: '2027-03-03', done: false },
+  { label: 'Terraform Associate (~Mar 2027)',         date: '2027-03-21', done: false },
+  { label: 'CSAT complete (~Jun 24, 2027)',           date: '2027-06-24', done: false },
+  { label: 'AWS SAA Exam (~May 2027)',                date: '2027-05-16', done: false },
+  { label: 'Ethics complete (~Nov 29, 2027)',         date: '2027-11-29', done: false },
+  { label: 'Sociology P1 complete (~Feb 21, 2028)',   date: '2028-02-21', done: false },
+  { label: 'ALL CLASSES COMPLETE',                    date: '2028-03-13', done: false },
+  { label: 'PSM I Exam (~Dec 2027)',                  date: '2027-12-12', done: false },
+  { label: 'Mock Phase begins',                      date: '2028-03-14', done: false },
+  { label: 'UPSC Prelims 2028',                      date: '2028-05-26', done: false },
+  { label: 'UPSC Mains 2028',                        date: '2028-09-20', done: false },
+  { label: 'Interview Prep begins',                  date: '2028-10-01', done: false },
+  { label: 'UPSC Personality Test 2028',              date: '2029-02-15', done: false }
 ];
 
 const PhaseManager = {
   getPhase(date = new Date()) {
     const s = this._toStr(date);
-    return PHASES.find(p => s >= p.start && s <= p.end) || PHASES[PHASES.length - 1];
+    const found = PHASES.find(p => s >= p.start && s <= p.end);
+    if (found) return found;
+    return s < PHASES[0].start ? PHASES[0] : PHASES[PHASES.length - 1];
+  },
+
+  getLocation() { return 'dubai'; },
+  setLocation() {},
+
+  getScenarioNote() {
+    return 'Dubai track: Job + UPSC + Tech in parallel. 27.5h UPSC + 4.5h Tech/week sustained.';
   },
 
   isUPSCPaused(date = new Date()) {
     const s = this._toStr(date);
-    return s >= '2026-07-01' && s <= '2026-09-30';
+    return s >= '2026-07-15' && s <= '2026-09-30';
   },
 
   isLightUPSC(date = new Date()) {
     const s = this._toStr(date);
-    return s >= '2026-05-10' && s <= '2026-06-26';
+    return s >= '2026-07-13' && s <= '2026-11-11';
   },
 
   isPrelimsRevision(date = new Date()) {
     const s = this._toStr(date);
-    return s >= '2027-04-01' && s <= '2027-05-25';
+    return s >= '2028-03-14' && s <= '2028-05-15';
   },
 
   getScheduleKey(date = new Date()) {
@@ -132,22 +135,17 @@ const PhaseManager = {
     const isSat = day === 6;
     const isSun = day === 0;
 
-    if (phase.scheduleBase === 'notice') {
-      return isSun ? 'notice_weekend' : (isSat ? 'notice_weekend' : 'notice_weekday');
+    const base = phase.scheduleBase;
+
+    if (base === 'sustained') {
+      if (isSat) return 'sustained_saturday';
+      if (isSun) return 'sustained_sunday';
+      return 'sustained_weekday';
     }
-    if (phase.scheduleBase === 'settle') {
-      return (isSat || isSun) ? 'settle_weekend' : 'settle_weekday';
-    }
-    if (phase.scheduleBase === 'sprint') {
-      return (isSat || isSun) ? 'sprint_weekend' : 'sprint_weekday';
-    }
-    if (phase.scheduleBase === 'india') {
-      return (isSat || isSun) ? 'india_weekend' : 'india_weekday';
-    }
-    // Dubai Foundation / Exit
-    if (isSun) return 'dubai_sunday';
-    if (isSat) return 'dubai_saturday';
-    return 'dubai_weekday';
+
+    if (isSat) return base + '_saturday';
+    if (isSun) return base + '_sunday';
+    return base + '_weekday';
   },
 
   getUpcomingMilestones(n = 3) {

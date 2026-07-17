@@ -1,6 +1,11 @@
 # Dependencies
 node_modules/
 
+# Android build/copy artifacts — android/.gitignore covers build outputs;
+# these two are Android-specific credentials/generated files it doesn't.
+android/app/google-services.json
+www/
+
 # Firebase credentials — injected at deploy time via GitHub Actions secrets
 js/firebase-config.js
 
@@ -18,6 +23,10 @@ js/firebase-config.js
 # Test / scratch files
 test-*.html
 CALENDAR_FIX_SUMMARY.md
+
+# Playwright output
+test-results/
+playwright-report/
 
 # OS
 .DS_Store

@@ -7,11 +7,47 @@ const HealthTracker = {
   render() {
     this.renderTodayForm();
     this.renderWeekSummary();
+    this.renderHealthScoreHero();
     this.renderSleepChart();
     this.renderPhoneChart();
     this.renderCholesterolLog();
     this.renderGymHeatmap();
     this._initHealthModules();
+  },
+
+  renderHealthScoreHero() {
+    const el = document.getElementById('healthScoreHero');
+    if (!el) return;
+
+    const h = AppState.getSelectedHealth();
+    const sleepScore = h.sleep_h ? Math.min(h.sleep_h / 7 * 25, 25) : 0;
+    const gymScore = h.gym ? 25 : 0;
+    const phoneScore = h.phone_h != null ? Math.max(0, (2 - h.phone_h) / 2 * 25) : 0;
+
+    let nutritionDone = 0;
+    if (window.ArjunaHealth) {
+      const log = ArjunaHealth.getTodayNutritionLog();
+      nutritionDone = log ? Object.values(log).filter(Boolean).length : 0;
+    }
+    const nutritionScore = (nutritionDone / 7) * 25;
+    const total = Math.round(sleepScore + gymScore + phoneScore + nutritionScore);
+
+    const chip = (label, val, threshold) => {
+      const cls = val >= threshold ? 'good' : val > 0 ? 'warn' : 'bad';
+      return `<span class="health-chip ${cls}">${label}</span>`;
+    };
+
+    el.innerHTML = `
+      <div class="health-score-label">TODAY'S HEALTH SCORE</div>
+      <div class="health-score-big">${total}</div>
+      <div class="health-score-label" style="margin-top:4px;">out of 100</div>
+      <div class="health-status-chips">
+        ${chip(h.sleep_h ? '😴 ' + h.sleep_h + 'h sleep' : '😴 No sleep data', sleepScore, 20)}
+        ${chip(h.gym ? '🏋️ Gym done' : '🏋️ No gym', gymScore, 25)}
+        ${chip(h.phone_h != null ? '📱 ' + h.phone_h + 'h phone' : '📱 No phone data', phoneScore, 15)}
+        ${chip('🥗 ' + nutritionDone + '/7 nutrition', nutritionScore, 18)}
+      </div>
+    `;
   },
 
   // ── Health Modules init (blood markers, nutrition, meal plan, supplements) ──

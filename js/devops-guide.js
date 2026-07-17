@@ -30,46 +30,48 @@ const GUIDE_MODULES = [
 
   // ── MODULE 0: PREP STRATEGY ────────────────────────────────
   { id:'prep', icon:'🎯', title:'Prep Strategy',
-    subtitle:'6-week plan + self-assessment + your real story',
+    subtitle:'12-month roadmap + self-assessment + your real story',
     content: ()=>`
-      ${_note('Your 3 stated gaps: <strong>CD/GitOps</strong> (Module 6), <strong>fundamentals</strong> (Modules 1, 2, 10), and <strong>articulating wins in interviews</strong>. This guide closes all three.')}
-      ${_sec('6-WEEK PLAN', `
+      ${_note('Your 3 stated gaps: <strong>CD/GitOps</strong>, <strong>fundamentals</strong> (Docker/K8s/AWS), and <strong>articulating wins in interviews</strong>. This roadmap closes all three.')}
+      ${_sec('76-WEEK TECH ROADMAP', `
         <table class="gfl-table">
-          <tr><th>Week</th><th>Focus</th><th>Modules</th></tr>
-          <tr><td>1</td><td>Foundations</td><td>Linux (M1) + Networking (M2)</td></tr>
-          <tr><td>2</td><td>Containers + K8s core</td><td>Docker (M3) + K8s (M4 pt 1)</td></tr>
-          <tr><td>3</td><td>K8s adv + OpenShift</td><td>K8s (M4 pt 2) + OpenShift (M5)</td></tr>
-          <tr><td>4</td><td>CD/GitOps + IaC</td><td>CI/CD (M6) + Terraform/Helm (M7)</td></tr>
-          <tr><td>5</td><td>Cloud + Observability + SRE</td><td>AWS (M8) + Observability (M9) + SRE (M10)</td></tr>
-          <tr><td>6</td><td>Security + System Design + Mock</td><td>Security (M11) + Design (M12) + Mocks (M14)</td></tr>
+          <tr><th>Phase</th><th>Period</th><th>Hours</th><th>Focus</th><th>Cert Target</th></tr>
+          <tr><td>1</td><td>Wk 1–2 · Jul 2026</td><td>9h</td><td>Docker Foundations</td><td>—</td></tr>
+          <tr><td>2</td><td>Wk 3–12 · Jul–Sep 2026</td><td>45h</td><td>Kubernetes + CKA</td><td>CKA (Wk 10–12)</td></tr>
+          <tr><td>3</td><td>Wk 13–18 · Oct–Nov 2026</td><td>27h</td><td>OpenShift Deep-dive</td><td>—</td></tr>
+          <tr><td>4</td><td>Wk 19–30 · Nov 2026–Feb 2027</td><td>54h</td><td>Groovy + Jenkins + ArgoCD</td><td>—</td></tr>
+          <tr><td>5</td><td>Wk 31–44 · Feb–May 2027</td><td>63h</td><td>Terraform + AWS SAA</td><td>Terraform Assoc (Wk 34–36), AWS SAA (Wk 43–44)</td></tr>
+          <tr><td>6</td><td>Wk 45–54 · May–Aug 2027</td><td>45h</td><td>Python + Networking + Mesh</td><td>—</td></tr>
+          <tr><td>7</td><td>Wk 55–63 · Aug–Sep 2027</td><td>40h</td><td>Observability + Security</td><td>—</td></tr>
+          <tr><td>8</td><td>Wk 64–76 · Sep–Dec 2027</td><td>58h</td><td>System Design + GenAI + PSM I</td><td>PSM I (Wk 74)</td></tr>
         </table>
+        ${_note('Cadence: 30 min weekdays + 1h Saturdays ≈ 4.5 hrs/week ≈ 341 hrs total over 76 weeks.')}
       `)}
-      ${_sec('SELF-ASSESSMENT (score 1–5)', `
+      ${_sec('SELF-ASSESSMENT — Scores = operational depth without AI/docs help (1–10)', `
         <table class="gfl-table">
-          <tr><th>Area</th><th>Score</th><th>Priority</th></tr>
-          <tr><td>Linux/OS</td><td>3</td><td>Revise process/signal/perf tools</td></tr>
-          <tr><td>Networking</td><td>3</td><td>DNS, TLS, iptables rules</td></tr>
-          <tr><td>Docker</td><td>4</td><td>Multi-stage builds, layer caching</td></tr>
-          <tr><td>Kubernetes</td><td>4</td><td>Networking internals, autoscaling</td></tr>
-          <tr><td>OpenShift</td><td>5</td><td>Your specialisation — own this</td></tr>
-          <tr><td>CI/CD & GitOps</td><td>2</td><td>★ Biggest gap — ArgoCD, GitOps loop</td></tr>
-          <tr><td>IaC (Terraform)</td><td>3</td><td>State, modules, DRY patterns</td></tr>
-          <tr><td>AWS</td><td>3</td><td>EKS/IRSA, VPC, IAM</td></tr>
-          <tr><td>Observability</td><td>3</td><td>SLI/SLO, PromQL, alert design</td></tr>
-          <tr><td>SRE</td><td>2</td><td>Error budgets, blameless PMs</td></tr>
-          <tr><td>Security</td><td>3</td><td>RBAC, NetworkPolicy, supply chain</td></tr>
-          <tr><td>System Design</td><td>3</td><td>7-step framework + failure modes</td></tr>
-          <tr><td>Scripting (Bash/Python)</td><td>2</td><td>Practical automation patterns</td></tr>
+          <tr><th>Area</th><th>Score</th><th>Priority</th><th>Gap</th></tr>
+          <tr><td>Docker</td><td>2</td><td>🔴 High — Start here</td><td>Networking / volumes / layer caching</td></tr>
+          <tr><td>Kubernetes</td><td>1</td><td>🔴 Critical</td><td>Pod lifecycle / scheduling / StatefulSets</td></tr>
+          <tr><td>AWS</td><td>1</td><td>🔴 High</td><td>VPC / IAM / EKS / CloudWatch</td></tr>
+          <tr><td>CI/CD & GitOps</td><td>2</td><td>🔴 High — Biggest gap</td><td>ArgoCD / GitOps loop / pipeline design</td></tr>
+          <tr><td>IaC / Terraform</td><td>1</td><td>🟡 Low — skip</td><td>Learn on job</td></tr>
+          <tr><td>OpenShift</td><td>5</td><td>🟢 Specialisation</td><td>Own this</td></tr>
+          <tr><td>Observability</td><td>2</td><td>🟡 Low — skip</td><td>—</td></tr>
+          <tr><td>SRE</td><td>2</td><td>🟡 Low — skip</td><td>—</td></tr>
+          <tr><td>Linux/OS</td><td>3</td><td>🟡 Medium</td><td>Process / signal / perf tools</td></tr>
+          <tr><td>Networking</td><td>3</td><td>🟡 Medium</td><td>DNS / TLS / iptables</td></tr>
+          <tr><td>Security</td><td>3</td><td>🟡 Medium</td><td>RBAC / NetworkPolicy / supply chain</td></tr>
+          <tr><td>System Design</td><td>3</td><td>🟡 Medium</td><td>7-step framework</td></tr>
+          <tr><td>Scripting</td><td>3</td><td>🟡 Medium</td><td>Automation patterns</td></tr>
         </table>
       `)}
       ${_sec('YOUR REAL WINS (use in behavioral rounds)', `
         <table class="gfl-table">
           <tr><th>Theme</th><th>Story</th></tr>
-          <tr><td>Technical win</td><td>5h → 1.5h build time (70% reduction) via profiling + parallelisation</td></tr>
-          <tr><td>Innovation</td><td>RAG documentation tool cutting onboarding 3wk → 1wk</td></tr>
-          <tr><td>Leadership</td><td>Power Automate flow, 63% turnaround improvement, as Scrum Master</td></tr>
-          <tr><td>Cross-team</td><td>Code-signing standardisation across BUs, 40% fewer incidents</td></tr>
-          <tr><td>Learning fast</td><td>Mastering OpenShift + RHCOA in months on Emirates NBD platform</td></tr>
+          <tr><td>Technical Win</td><td>5h → 1.5h build time (70% reduction) — ZENworks macOS agent pipeline via profiling + parallelisation of Maven/Bash stages</td></tr>
+          <tr><td>Innovation</td><td>RAG documentation tool cutting onboarding 3wk → 1wk; LLM pipeline log investigator cutting triage time 40%</td></tr>
+          <tr><td>Leadership</td><td>Power Automate flow reducing DevOps request turnaround 63% (3.5 days → 1.3 days); Scrum Master role</td></tr>
+          <tr><td>Cross-team Impact</td><td>Code-signing standardisation across BUs, 40% fewer incidents; 10+ repo GitHub → GitLab zero-loss migration</td></tr>
         </table>
       `)}
     `

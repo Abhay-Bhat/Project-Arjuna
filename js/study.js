@@ -64,6 +64,7 @@ const StudyTracker = {
   _pomoWorkMin:    25,
   _pomoBreakMin:   5,
   _pomoLongMin:    15,
+  _domain:        'upsc',  // 'upsc' | 'tech'
 
   // ── Accessors ─────────────────────────────────────────────
 
@@ -81,6 +82,106 @@ const StudyTracker = {
       AppState.studySubjects = [...AppState.studySubjects, ...missing];
       AppState.save();
     }
+  },
+
+  // ── Combined sessions (UPSC + Tech) for analytics ─────────
+
+  _getAllSessions() {
+    const upsc = (AppState.studyLog || []).map(s => ({ ...s, domain: 'upsc' }));
+    const tech = (AppState.techStudyLog || []).map(s => ({ ...s, domain: 'tech' }));
+    return [...upsc, ...tech].sort((a, b) => (b.id || 0) - (a.id || 0));
+  },
+
+  // ── Domain switching (UPSC / Tech) ────────────────────────
+
+  switchDomain(domain) {
+    if (this._running) this._stopTimer();
+    this._domain = domain;
+
+    const subSel = document.getElementById('studySubjectSel');
+    const actSel = document.getElementById('studyActivitySel');
+
+    if (domain === 'tech' && typeof TechStudyTracker !== 'undefined') {
+      const subjects = TechStudyTracker.getSubjects();
+      const activities = TechStudyTracker.getActivities();
+      if (subSel) {
+        subSel.innerHTML = subjects.map(s =>
+          `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
+        if (typeof SubjectActivityPicker !== 'undefined') {
+          SubjectActivityPicker.attach(subSel, {
+            kind: 'subject',
+            getList: () => TechStudyTracker.getSubjects(),
+            addItem: (label, emoji, color) => {
+              const id = 'custom_' + Date.now();
+              AppState.techStudySubjects = [...TechStudyTracker.getSubjects(), { id, label, emoji, color }];
+              AppState.save();
+              return id;
+            },
+            afterAdd: id => { this.switchDomain('tech'); subSel.value = id; subSel.dispatchEvent(new Event('change')); },
+          });
+        }
+      }
+      if (actSel) {
+        actSel.innerHTML = activities.map(a =>
+          `<option value="${esc(a.id)}">${esc(a.tree||'🌱')} ${esc(a.label)}</option>`).join('');
+        if (typeof SubjectActivityPicker !== 'undefined') {
+          SubjectActivityPicker.attach(actSel, {
+            kind: 'activity',
+            getList: () => TechStudyTracker.getActivities(),
+            addItem: (label, tree) => {
+              const id = 'custom_' + Date.now();
+              AppState.techStudyActivities = [...TechStudyTracker.getActivities(), { id, label, tree }];
+              AppState.save();
+              return id;
+            },
+            afterAdd: id => { this.switchDomain('tech'); actSel.value = id; actSel.dispatchEvent(new Event('change')); },
+          });
+        }
+      }
+
+      const goalEl = document.getElementById('studyGoalInput');
+      if (goalEl) {
+        goalEl.value = Math.round((AppState.techStudyDailyGoal || 30));
+        goalEl.max = 240;
+        const lbl = goalEl.parentElement?.querySelector('label');
+        if (lbl) lbl.textContent = 'Daily goal (min)';
+        const unit = goalEl.nextSibling;
+        if (unit && unit.nodeType === 3) unit.textContent = ' min';
+      }
+    } else {
+      this._populateSelects();
+      const goalEl = document.getElementById('studyGoalInput');
+      if (goalEl) {
+        goalEl.value = Math.round((AppState.studyDailyGoal || 240) / 60);
+        goalEl.max = 24;
+        const lbl = goalEl.parentElement?.querySelector('label');
+        if (lbl) lbl.textContent = 'Daily goal';
+        const unit = goalEl.nextSibling;
+        if (unit && unit.nodeType === 3) unit.textContent = ' h';
+      }
+    }
+
+    const toggle = document.getElementById('studyDomainToggle');
+    if (toggle) {
+      toggle.querySelectorAll('.study-domain-btn').forEach(btn => {
+        const active = btn.dataset.domain === domain;
+        btn.classList.toggle('active', active);
+        btn.style.background = active ? 'var(--accent-blue)' : 'transparent';
+        btn.style.color = active ? '#fff' : 'var(--text-muted)';
+      });
+    }
+
+    this._updateTodayStats();
+    this._renderForestPanel();
+  },
+
+  _bindDomainToggle() {
+    const toggle = document.getElementById('studyDomainToggle');
+    if (!toggle || toggle.dataset.init) return;
+    toggle.dataset.init = '1';
+    toggle.querySelectorAll('.study-domain-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.switchDomain(btn.dataset.domain));
+    });
   },
 
   // ── Tree logic: 25 min = full tree ────────────────────────
@@ -146,12 +247,18 @@ const StudyTracker = {
 
   // ── Session queries ───────────────────────────────────────
 
+  _currentLog() {
+    return this._domain === 'tech'
+      ? (AppState.techStudyLog || [])
+      : (AppState.studyLog || []);
+  },
+
   getTodaySessions()    { return this.getSessionsForRange('today'); },
   getTodayTotalMin()    { return this.getTodaySessions().reduce((s,x) => s + x.duration_min, 0); },
-  getSessionsForDate(k) { return (AppState.studyLog||[]).filter(s => s.date === k); },
+  getSessionsForDate(k) { return this._currentLog().filter(s => s.date === k); },
 
   getSessionsForRange(range) {
-    const all = AppState.studyLog || [];
+    const all = this._currentLog();
     const tk  = AppState.getTodayKey();
     if (range === 'today') return all.filter(s => s.date === tk);
     if (range === 'all')   return all;
@@ -161,6 +268,19 @@ const StudyTracker = {
     if (range === '3m')  cut.setMonth(cut.getMonth() - 3);
     const ck = AppState.getDateKey(cut);
     return all.filter(s => s.date >= ck);
+  },
+
+  _getAllSessionsForRange(range) {
+    const combined = this._getAllSessions();
+    const tk = AppState.getTodayKey();
+    if (range === 'today') return combined.filter(s => s.date === tk);
+    if (range === 'all') return combined;
+    const cut = new Date();
+    if (range === '7d')  cut.setDate(cut.getDate() - 6);
+    if (range === '30d') cut.setDate(cut.getDate() - 29);
+    if (range === '3m')  cut.setMonth(cut.getMonth() - 3);
+    const ck = AppState.getDateKey(cut);
+    return combined.filter(s => s.date >= ck);
   },
 
   getStreak() {
@@ -175,6 +295,7 @@ const StudyTracker = {
 
   render() {
     this._ensureDefaultSubjects();
+    this._bindDomainToggle();
     this._renderClock();
     this._startClock();
     this._renderTimerPanel();
@@ -241,7 +362,15 @@ const StudyTracker = {
 
       document.getElementById('studyGoalInput')?.addEventListener('change', e => {
         const v = parseInt(e.target.value);
-        if (v > 0) { AppState.studyDailyGoal = v * 60; AppState.save(); this._updateTodayStats(); }
+        if (v > 0) {
+          if (this._domain === 'tech') {
+            AppState.techStudyDailyGoal = v;
+          } else {
+            AppState.studyDailyGoal = v * 60;
+          }
+          AppState.save();
+          this._updateTodayStats();
+        }
       });
 
       // Pomodoro duration inputs — persist to AppState and sync runtime vars
@@ -286,6 +415,19 @@ const StudyTracker = {
       subSel.innerHTML = this.getSubjects().map(s =>
         `<option value="${esc(s.id)}">${esc(s.emoji)} ${esc(s.label)}</option>`).join('');
       if (cur) subSel.value = cur;
+      if (typeof SubjectActivityPicker !== 'undefined') {
+        SubjectActivityPicker.attach(subSel, {
+          kind: 'subject',
+          getList: () => this.getSubjects(),
+          addItem: (label, emoji, color) => {
+            const id = 'custom_' + Date.now();
+            AppState.studySubjects = [...this.getSubjects(), { id, label, emoji, color }];
+            AppState.save();
+            return id;
+          },
+          afterAdd: id => { this._populateSelects(); subSel.value = id; subSel.dispatchEvent(new Event('change')); },
+        });
+      }
     }
     if (actSel) {
       const cur = actSel.value;
@@ -295,6 +437,19 @@ const StudyTracker = {
       if (!actSel.dataset.init) {
         actSel.dataset.init = '1';
         actSel.addEventListener('change', () => this._updateLiveTree());
+      }
+      if (typeof SubjectActivityPicker !== 'undefined') {
+        SubjectActivityPicker.attach(actSel, {
+          kind: 'activity',
+          getList: () => this.getActivities(),
+          addItem: (label, tree) => {
+            const id = 'custom_' + Date.now();
+            AppState.studyActivities = [...this.getActivities(), { id, label, tree }];
+            AppState.save();
+            return id;
+          },
+          afterAdd: id => { this._populateSelects(); actSel.value = id; actSel.dispatchEvent(new Event('change')); },
+        });
       }
     }
   },
@@ -354,7 +509,9 @@ const StudyTracker = {
 
   _updateTodayStats() {
     const min  = this.getTodayTotalMin();
-    const goal = AppState.studyDailyGoal || 240;
+    const goal = this._domain === 'tech'
+      ? (AppState.techStudyDailyGoal || 30)
+      : (AppState.studyDailyGoal || 240);
     const pct  = goal > 0 ? Math.min(100, Math.round((min / goal) * 100)) : 0;
     const s    = id => document.getElementById(id);
     if (s('studyTodayTotal')) s('studyTodayTotal').textContent = this.fmtDur(min);
@@ -362,7 +519,9 @@ const StudyTracker = {
     if (s('studyGoalPct'))    s('studyGoalPct').textContent  = `${pct}% of ${this.fmtDur(goal)} goal`;
     if (s('studyTodayBadge')) s('studyTodayBadge').textContent = this.fmtDur(min) + ' today';
     if (s('studyGoalInput') && !s('studyGoalInput').dataset.set) {
-      s('studyGoalInput').value = Math.round(goal / 60);
+      s('studyGoalInput').value = this._domain === 'tech'
+        ? Math.round(goal)
+        : Math.round(goal / 60);
       s('studyGoalInput').dataset.set = '1';
     }
   },
@@ -645,8 +804,9 @@ const StudyTracker = {
 
   _saveSession(durationMin, completed) {
     if (durationMin < 1) return;
-    if (!AppState.studyLog) AppState.studyLog = [];
-    AppState.studyLog.push({
+    const logKey = this._domain === 'tech' ? 'techStudyLog' : 'studyLog';
+    if (!AppState[logKey]) AppState[logKey] = [];
+    AppState[logKey].push({
       id:           Date.now(),
       date:         AppState.getTodayKey(),
       subject:      this._activeSubject  || 'history',
@@ -678,13 +838,14 @@ const StudyTracker = {
   },
 
   _renderForestContent() {
-    const sessions = this.getSessionsForRange(this._range);
-    this._renderCanvasTrees(sessions);
-    this._renderStats(sessions);
-    this._renderSubjBars(sessions);
-    this._renderActivityBars(sessions);
-    this._renderSessionList(sessions);
-    if (window.StudyAnalytics) StudyAnalytics.render(sessions, this._range);
+    const combined = this._getAllSessionsForRange(this._range);
+    const domainSessions = this.getSessionsForRange(this._range);
+    this._renderCanvasTrees(combined);
+    this._renderStats(combined);
+    this._renderSubjBars(domainSessions);
+    this._renderActivityBars(domainSessions);
+    this._renderSessionList(combined);
+    if (window.StudyAnalytics) StudyAnalytics.render(domainSessions, this._range);
   },
 
   // ── Isometric Forest Canvas ───────────────────────────────────────────────
@@ -996,17 +1157,22 @@ const StudyTracker = {
     const shown = [...sessions].reverse().slice(0, 30);
     let html = '<div class="study-sessions-hdr">Recent Sessions</div>';
     shown.forEach(s => {
-      const subj      = this.getSubject(s.subject);
-      const act       = this.getActivity(s.activity);
+      const isTech    = s.domain === 'tech';
+      const tracker   = isTech && typeof TechStudyTracker !== 'undefined' ? TechStudyTracker : this;
+      const subj      = tracker.getSubject(s.subject);
+      const act       = tracker.getActivity(s.activity);
       const completed = s.completed !== false;
-      const emoji     = this.treeEmoji(s.duration_min, s.activity, completed);
+      const emoji     = tracker.treeEmoji(s.duration_min, s.activity, completed);
+      const badge     = isTech
+        ? '<span style="font-size:9px;background:var(--accent-teal);color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;">TECH</span>'
+        : '<span style="font-size:9px;background:var(--accent-blue);color:#fff;border-radius:3px;padding:1px 4px;margin-left:4px;">UPSC</span>';
       html += `<div class="study-session-row${completed ? '' : ' study-session-dead'}">
         <span class="study-session-tree">${emoji}</span>
-        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}</span>
+        <span class="study-session-subj" style="color:${subj.color}">${subj.emoji} ${subj.label}${badge}</span>
         <span class="study-session-act">${act?.label||s.activity}</span>
         <span class="study-session-date">${s.date !== AppState.getTodayKey() ? s.date : ''}</span>
         <span class="study-session-dur">${this.fmtDur(s.duration_min)}${completed ? '' : ' <span class="study-dead-badge">incomplete</span>'}</span>
-        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id})">✕</button>
+        <button class="btn-xs btn-danger" onclick="StudyTracker.deleteSession(${s.id},'${isTech ? 'tech' : 'upsc'}')">✕</button>
       </div>`;
     });
     el.innerHTML = html;
@@ -1047,8 +1213,17 @@ const StudyTracker = {
     this._manageTab === 'subjects' ? this._renderManageSubjects(content) : this._renderManageActivities(content);
   },
 
+  // Domain-aware list accessors/mutators — the manage panel edits/deletes whichever
+  // domain (UPSC or Tech) is currently active, since both share the same panel.
+  _isTechDomain() { return this._domain === 'tech' && typeof TechStudyTracker !== 'undefined'; },
+  _manageSubjects()   { return this._isTechDomain() ? TechStudyTracker.getSubjects()   : this.getSubjects(); },
+  _manageActivities() { return this._isTechDomain() ? TechStudyTracker.getActivities() : this.getActivities(); },
+  _setManageSubjects(list)   { if (this._isTechDomain()) AppState.techStudySubjects = list;   else AppState.studySubjects = list; },
+  _setManageActivities(list) { if (this._isTechDomain()) AppState.techStudyActivities = list; else AppState.studyActivities = list; },
+  _refreshManageSelects()    { if (this._isTechDomain()) this.switchDomain('tech'); else this._populateSelects(); },
+
   _renderManageSubjects(c) {
-    const list = this.getSubjects();
+    const list = this._manageSubjects();
     let html = '<div class="study-manage-list">';
     list.forEach((s, i) => {
       html += `<div class="study-manage-row">
@@ -1060,28 +1235,22 @@ const StudyTracker = {
       </div>`;
     });
     html += '</div>';
-    html += `<div class="study-manage-add-row">
-      <input id="mgNewSubjLabel" class="study-manage-input" placeholder="Subject name" style="flex:1">
-      <input id="mgNewSubjEmoji" class="study-manage-input study-manage-emo" placeholder="🏆" maxlength="4">
-      <input type="color" id="mgNewSubjColor" value="#5b7fff">
-      <button class="btn btn-primary btn-sm" onclick="StudyTracker._addSubject()">+ Add</button>
-    </div>`;
     c.innerHTML = html;
     c.querySelectorAll('[data-idx][data-field]').forEach(input => {
       input.addEventListener('change', () => {
-        const subjects = [...this.getSubjects()];
+        const subjects = [...this._manageSubjects()];
         const idx = parseInt(input.dataset.idx);
         subjects[idx] = { ...subjects[idx], [input.dataset.field]: input.value };
-        AppState.studySubjects = subjects;
+        this._setManageSubjects(subjects);
         AppState.save();
-        this._populateSelects();
+        this._refreshManageSelects();
         this._renderManageContent();
       });
     });
   },
 
   _renderManageActivities(c) {
-    const list = this.getActivities();
+    const list = this._manageActivities();
     let html = '<div class="study-manage-list">';
     list.forEach((a, i) => {
       html += `<div class="study-manage-row">
@@ -1092,60 +1261,35 @@ const StudyTracker = {
       </div>`;
     });
     html += '</div>';
-    html += `<div class="study-manage-add-row">
-      <input id="mgNewActLabel" class="study-manage-input" placeholder="Activity name" style="flex:1">
-      <input id="mgNewActTree"  class="study-manage-input study-manage-emo" placeholder="🌳" maxlength="4" title="Tree emoji">
-      <button class="btn btn-primary btn-sm" onclick="StudyTracker._addActivity()">+ Add</button>
-    </div>`;
     c.innerHTML = html;
     c.querySelectorAll('[data-idx][data-field]').forEach(input => {
       input.addEventListener('change', () => {
-        const activities = [...this.getActivities()];
+        const activities = [...this._manageActivities()];
         const idx = parseInt(input.dataset.idx);
         activities[idx] = { ...activities[idx], [input.dataset.field]: input.value };
-        AppState.studyActivities = activities;
+        this._setManageActivities(activities);
         AppState.save();
-        this._populateSelects();
+        this._refreshManageSelects();
         this._renderManageContent();
       });
     });
   },
 
-  _addSubject() {
-    const label = document.getElementById('mgNewSubjLabel')?.value?.trim();
-    const emoji = document.getElementById('mgNewSubjEmoji')?.value?.trim() || '📚';
-    const color = document.getElementById('mgNewSubjColor')?.value || '#5b7fff';
-    if (!label) return;
-    const s = [...this.getSubjects()];
-    s.push({ id: 'custom_' + Date.now(), label, emoji, color });
-    AppState.studySubjects = s; AppState.save();
-    this._populateSelects(); this._renderManageContent();
-  },
-
-  _addActivity() {
-    const label = document.getElementById('mgNewActLabel')?.value?.trim();
-    const tree  = document.getElementById('mgNewActTree')?.value?.trim() || '🌱';
-    if (!label) return;
-    const a = [...this.getActivities()];
-    a.push({ id: 'custom_' + Date.now(), label, tree });
-    AppState.studyActivities = a; AppState.save();
-    this._populateSelects(); this._renderManageContent();
-  },
-
   _deleteSubject(idx) {
-    const s = [...this.getSubjects()]; s.splice(idx, 1);
-    AppState.studySubjects = s; AppState.save();
-    this._populateSelects(); this._renderManageContent();
+    const s = [...this._manageSubjects()]; s.splice(idx, 1);
+    this._setManageSubjects(s); AppState.save();
+    this._refreshManageSelects(); this._renderManageContent();
   },
 
   _deleteActivity(idx) {
-    const a = [...this.getActivities()]; a.splice(idx, 1);
-    AppState.studyActivities = a; AppState.save();
-    this._populateSelects(); this._renderManageContent();
+    const a = [...this._manageActivities()]; a.splice(idx, 1);
+    this._setManageActivities(a); AppState.save();
+    this._refreshManageSelects(); this._renderManageContent();
   },
 
-  deleteSession(id) {
-    AppState.studyLog = (AppState.studyLog||[]).filter(s => s.id !== id);
+  deleteSession(id, domain) {
+    const logKey = domain === 'tech' ? 'techStudyLog' : 'studyLog';
+    AppState[logKey] = (AppState[logKey]||[]).filter(s => s.id !== id);
     AppState.save();
     this._updateTodayStats();
     this._renderForestPanel();

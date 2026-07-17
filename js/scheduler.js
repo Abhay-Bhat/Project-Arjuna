@@ -1,246 +1,364 @@
 // ============================================================
-// Skadi — Schedule Data (All Phases)
+// Skadi — Schedule Data (Routine v4 — Integrated Master Plan)
+// Ramp stages 1–4 (Wk 1–8) + Sustained (Wk 9+)
 // ============================================================
 
 const SCHEDULE_DATA = {
 
-  // ── 1. Notice Period Weekday (May–Jun 2026) ──────────────
-  notice_weekday: [
-    { time:"06:30–06:50", activity:"Wake, drink water, no phone for 20 min",        duration:0.33, category:"Daily"      },
-    { time:"06:50–07:10", activity:"20-minute morning walk",                          duration:0.33, category:"Fitness"    },
-    { time:"07:10–07:40", activity:"UPSC — Syllabus read / Laxmikanth light",         duration:0.5,  category:"Learning"   },
-    { time:"07:40–08:00", activity:"Breakfast + prep",                                duration:0.33, category:"Break"      },
-    { time:"08:00–18:00", activity:"Office — KT, handover, exit with full reputation", duration:10,   category:"Work"       },
-    { time:"18:30–19:00", activity:"Cook / prep a simple cholesterol-safe dinner",    duration:0.5,  category:"Daily"      },
-    { time:"19:30–20:00", activity:"Book reading (30 min, see books queue)",          duration:0.5,  category:"Hobby"      },
-    { time:"20:30–21:00", activity:"Journal 3 lines + plan next day",                 duration:0.5,  category:"Reflection" },
-    { time:"21:00–21:30", activity:"Grooming / wind-down — no screens",               duration:0.5,  category:"Daily"      },
-    { time:"22:30",       activity:"Sleep — 7 hrs non-negotiable, phone outside room",duration:7,    category:"Health"     }
+  // ══════════════════════════════════════════════════════════
+  // STAGE 1 — Days 1–2 (Jul 13–14, 2026) — cut short by an 11-week
+  // interview-prep sprint (Jul 15–Sep 30, 2026, see js/phases.js),
+  // during which UPSC is fully paused. Stage 2 resumes Oct 1, 2026.
+  // Evening block 7:15–9:00 PM → UPSC 1h + Tech 45m
+  // ══════════════════════════════════════════════════════════
+
+  ramp1_weekday: [
+    { time:"06:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"06:00–06:30", activity:"Freshen up",                                        duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:00", activity:"Breakfast + household",                             duration:0.5,  category:"Break"      },
+    { time:"07:00–08:00", activity:"Commute (current affairs reading on phone)",        duration:1,    category:"Learning"   },
+    { time:"08:00–16:15", activity:"Work",                                              duration:8.25, category:"Work"       },
+    { time:"16:15–17:15", activity:"Commute home",                                     duration:1,    category:"Daily"      },
+    { time:"17:15–17:45", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:45–18:45", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:45–19:05", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"19:05–19:15", activity:"Transition",                                        duration:0.17, category:"Daily"      },
+    { time:"19:15–20:15", activity:"⭐ UPSC (1h)",                                     duration:1,    category:"Learning"   },
+    { time:"20:15–21:00", activity:"Tech study — Docker foundations (45m)",              duration:0.75, category:"Learning"   },
+    { time:"21:00–21:10", activity:"Journal",                                           duration:0.17, category:"Reflection" },
+    { time:"21:10–23:00", activity:"Wind-down",                                         duration:1.83, category:"Daily"      },
+    { time:"23:00",       activity:"Sleep — 7h non-negotiable",                         duration:7,    category:"Health"     }
   ],
 
-  notice_weekend: [
-    { time:"07:00–07:30", activity:"Wake, water, light stretch",                      duration:0.5,  category:"Daily"      },
-    { time:"07:30–09:00", activity:"UPSC — Laxmikanth or NCERT reading block",        duration:1.5,  category:"Learning"   },
-    { time:"09:00–09:30", activity:"Breakfast",                                        duration:0.5,  category:"Break"      },
-    { time:"10:00–11:30", activity:"Household chores batch / errands",                 duration:1.5,  category:"Daily"      },
-    { time:"12:00–13:00", activity:"Cook + lunch",                                     duration:1,    category:"Break"      },
-    { time:"14:00–16:00", activity:"UPSC revision or books reading",                   duration:2,    category:"Learning"   },
-    { time:"17:00–18:30", activity:"Family time / outing / rest",                      duration:1.5,  category:"Hobby"      },
-    { time:"19:30–20:30", activity:"Dinner + light chores",                            duration:1,    category:"Break"      },
-    { time:"21:00–21:30", activity:"Journal + plan next week",                         duration:0.5,  category:"Reflection" },
-    { time:"22:30",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  ramp1_saturday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–11:00", activity:"⭐ UPSC Block (3h)",                                duration:3,    category:"Learning"   },
+    { time:"11:00–13:00", activity:"Tech study — Docker (2h)",                          duration:2,    category:"Learning"   },
+    { time:"13:00–14:00", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"14:00 onward",activity:"Personal time",                                     duration:4,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"23:00",       activity:"Sleep",                                             duration:8,    category:"Health"     }
   ],
 
-  // ── 2. Dubai Settle Weekday (Jul–Sep 2026) ───────────────
-  settle_weekday: [
-    { time:"05:30–06:00", activity:"Wake, water, quick freshen up — no phone",        duration:0.5,  category:"Daily"      },
-    { time:"06:00–07:00", activity:"Morning walk or gym (start Day 3, not Day 10!)",  duration:1,    category:"Fitness"    },
-    { time:"07:00–07:30", activity:"Breakfast — Indian home-cooked meal",             duration:0.5,  category:"Break"      },
-    { time:"07:30–08:30", activity:"Commute + settle in",                              duration:1,    category:"Daily"      },
-    { time:"08:30–18:30", activity:"Emirates NBD — onboard, build relationships, deliver", duration:10, category:"Work"   },
-    { time:"18:45–19:15", activity:"Walk outside — no phone, decompression ritual",   duration:0.5,  category:"Fitness"    },
-    { time:"19:15–20:00", activity:"Cook Indian dinner (cholesterol-safe)",            duration:0.75, category:"Daily"      },
-    { time:"20:00–20:30", activity:"DevOps/AI reading — 3–4 days/week",               duration:0.5,  category:"Learning"   },
-    { time:"20:30–21:00", activity:"Book reading (from Books Queue)",                  duration:0.5,  category:"Hobby"      },
-    { time:"21:00–21:30", activity:"Pastime check-in + journal if needed",            duration:0.5,  category:"Mind"       },
-    { time:"21:30–22:15", activity:"Wind down — no screens, light stretch",           duration:0.75, category:"Daily"      },
-    { time:"22:30",       activity:"Sleep — 7 hrs. Everything depends on this.",       duration:7,    category:"Health"     }
+  ramp1_sunday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–11:00", activity:"⭐ UPSC Block (3h)",                                duration:3,    category:"Learning"   },
+    { time:"11:00–13:00", activity:"Tech study — Docker (2h)",                          duration:2,    category:"Learning"   },
+    { time:"13:00–14:00", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"14:00 onward",activity:"Personal time",                                     duration:4,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"22:30",       activity:"Sleep — protect Monday 6 AM anchor",                duration:7.5,  category:"Health"     }
   ],
 
-  settle_weekend: [
-    { time:"06:00–07:00", activity:"Longer walk or outdoor time — mental reset",      duration:1,    category:"Fitness"    },
-    { time:"07:00–07:30", activity:"Breakfast",                                        duration:0.5,  category:"Break"      },
-    { time:"08:00–10:00", activity:"Flat search / errands / laundry / groceries",     duration:2,    category:"Daily"      },
-    { time:"10:00–12:00", activity:"Explore one Dubai area — Metro adventure",        duration:2,    category:"Hobby"      },
-    { time:"12:00–14:00", activity:"Cook proper Indian meal + rest / power nap",      duration:2,    category:"Break"      },
-    { time:"15:00–17:00", activity:"DevOps reading or Unacademy orientation (no study pressure)", duration:2, category:"Learning" },
-    { time:"18:00–19:00", activity:"📞 Video call — parents (every Saturday)",        duration:1,    category:"Mind"       },
-    { time:"19:00–21:00", activity:"Free — movie, read, social if available",         duration:2,    category:"Hobby"      },
-    { time:"21:30–22:00", activity:"Journal — what is working (not just what isn't)", duration:0.5,  category:"Reflection" },
-    { time:"22:30",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  // ══════════════════════════════════════════════════════════
+  // STAGE 2 — Weeks 3–4 (Oct 1–14, 2026)
+  // Evening block extends to 9:30 PM → UPSC 1.5h + Tech 30m
+  // ══════════════════════════════════════════════════════════
+
+  ramp2_weekday: [
+    { time:"06:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"06:00–06:30", activity:"Freshen up",                                        duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:00", activity:"Breakfast + household",                             duration:0.5,  category:"Break"      },
+    { time:"07:00–08:00", activity:"Commute (current affairs reading)",                 duration:1,    category:"Learning"   },
+    { time:"08:00–16:15", activity:"Work",                                              duration:8.25, category:"Work"       },
+    { time:"16:15–17:15", activity:"Commute home",                                     duration:1,    category:"Daily"      },
+    { time:"17:15–17:45", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:45–18:45", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:45–19:05", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"19:05–19:15", activity:"Transition",                                        duration:0.17, category:"Daily"      },
+    { time:"19:15–20:45", activity:"⭐ UPSC (1.5h)",                                   duration:1.5,  category:"Learning"   },
+    { time:"20:50–21:20", activity:"Tech study — Docker/K8s (30m)",                     duration:0.5,  category:"Learning"   },
+    { time:"21:20–21:30", activity:"Journal",                                           duration:0.17, category:"Reflection" },
+    { time:"21:30–23:00", activity:"Wind-down",                                         duration:1.5,  category:"Daily"      },
+    { time:"23:00",       activity:"Sleep — 7h non-negotiable",                         duration:7,    category:"Health"     }
   ],
 
-  // ── 3. Dubai Foundation Weekday (Oct 2026–Mar 2027) ─────
-  dubai_weekday: [
-    { time:"05:30–05:35", activity:"Wake. Drink water. No phone.",                     duration:0.08, category:"Daily"      },
-    { time:"05:35–05:45", activity:"4-7-8 breathing + intention setting (3 min each)", duration:0.17, category:"Mind"       },
-    { time:"05:45–07:15", activity:"⭐ UPSC Study — Unacademy / notes (core block)",   duration:1.5,  category:"Learning"   },
-    { time:"07:15–08:00", activity:"Gym / walk + shower",                              duration:0.75, category:"Fitness"    },
-    { time:"08:00–08:30", activity:"Breakfast + The Hindu audio editorial",            duration:0.5,  category:"Break"      },
-    { time:"09:00–18:30", activity:"Emirates NBD — full professional focus",           duration:9.5,  category:"Work"       },
-    { time:"18:45–19:15", activity:"Walk outside — no phone, brain decompression",    duration:0.5,  category:"Fitness"    },
-    { time:"19:15–20:00", activity:"Cook + eat dinner (Indian, low oil)",              duration:0.75, category:"Daily"      },
-    { time:"20:00–20:30", activity:"DevOps / AI reading — 3–4 days/week",             duration:0.5,  category:"Learning"   },
-    { time:"20:30–21:00", activity:"Book 10 pages OR gratitude journal",               duration:0.5,  category:"Hobby"      },
-    { time:"21:00–21:30", activity:"Pastime check — log in Mind tab if needed",        duration:0.5,  category:"Mind"       },
-    { time:"21:30–22:15", activity:"Wind down — no screens, light stretch",           duration:0.75, category:"Daily"      },
-    { time:"22:30",       activity:"Sleep — 7 hrs. Non-negotiable.",                  duration:7,    category:"Health"     }
+  ramp2_saturday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–12:45", activity:"⭐ UPSC Block (4.75h)",                             duration:4.75, category:"Learning"   },
+    { time:"12:45–13:45", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"13:45–15:15", activity:"Tech study — Docker/K8s (1.5h)",                    duration:1.5,  category:"Learning"   },
+    { time:"15:15–16:15", activity:"Break / errands",                                   duration:1,    category:"Daily"      },
+    { time:"16:15 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"23:00",       activity:"Sleep",                                             duration:8,    category:"Health"     }
   ],
 
-  dubai_saturday: [
-    { time:"06:00–07:00", activity:"Longer walk or outdoor time — mental reset",      duration:1,    category:"Fitness"    },
-    { time:"07:30–11:30", activity:"⭐ UPSC — 4 hrs: revision, mocks, notes + Soc",  duration:4,    category:"Learning"   },
-    { time:"12:00–14:00", activity:"Cook proper Indian meal + rest / power nap",      duration:2,    category:"Break"      },
-    { time:"15:00–17:00", activity:"Explore Dubai / errands / laundry / groceries",   duration:2,    category:"Daily"      },
-    { time:"18:00–19:00", activity:"📞 Video call — parents (non-negotiable)",        duration:1,    category:"Mind"       },
-    { time:"19:00–21:00", activity:"Free — movie, read, social if available",         duration:2,    category:"Hobby"      },
-    { time:"21:30–22:00", activity:"Weekly review (20 min, see Reviews tab)",         duration:0.5,  category:"Reflection" },
-    { time:"22:30",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  ramp2_sunday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–12:45", activity:"⭐ UPSC Block (4.75h)",                             duration:4.75, category:"Learning"   },
+    { time:"12:45–13:45", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"13:45–15:15", activity:"Tech study (1.5h)",                                 duration:1.5,  category:"Learning"   },
+    { time:"15:15–16:15", activity:"Break",                                             duration:1,    category:"Daily"      },
+    { time:"16:15 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"22:30",       activity:"Sleep — protect Monday 6 AM anchor",                duration:7.5,  category:"Health"     }
   ],
 
-  dubai_sunday: [
-    { time:"07:00–07:30", activity:"Wake, slower morning",                             duration:0.5,  category:"Daily"      },
-    { time:"08:00–09:30", activity:"UPSC short review (1.5 hrs)",                      duration:1.5,  category:"Learning"   },
-    { time:"10:00–11:00", activity:"Walk + laundry / light chores",                    duration:1,    category:"Daily"      },
-    { time:"11:00–13:00", activity:"Batch cook meals for the week",                    duration:2,    category:"Daily"      },
-    { time:"13:00–14:00", activity:"Lunch + rest",                                     duration:1,    category:"Break"      },
-    { time:"14:00–16:00", activity:"DevOps reading / cert prep",                       duration:2,    category:"Learning"   },
-    { time:"16:00–18:00", activity:"Free time — book, walk, explore",                  duration:2,    category:"Hobby"      },
-    { time:"18:00–18:30", activity:"📞 Call parents if not called Saturday",           duration:0.5,  category:"Mind"       },
-    { time:"19:00–20:00", activity:"Dinner + wind down",                               duration:1,    category:"Break"      },
-    { time:"21:00–21:30", activity:"Weekly check-in / plan upcoming week",             duration:0.5,  category:"Reflection" },
-    { time:"22:30",       activity:"Sleep — same wake time keeps Sunday sleep strong", duration:7,    category:"Health"     }
+  // ══════════════════════════════════════════════════════════
+  // STAGE 3 — Weeks 5–6 (Oct 15–28, 2026)
+  // Evening to 9:55 PM → UPSC 2h + Tech 30m
+  // ══════════════════════════════════════════════════════════
+
+  ramp3_weekday: [
+    { time:"06:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"06:00–06:30", activity:"Freshen up",                                        duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:00", activity:"Breakfast + household",                             duration:0.5,  category:"Break"      },
+    { time:"07:00–08:00", activity:"Commute (current affairs reading)",                 duration:1,    category:"Learning"   },
+    { time:"08:00–16:15", activity:"Work",                                              duration:8.25, category:"Work"       },
+    { time:"16:15–17:15", activity:"Commute home",                                     duration:1,    category:"Daily"      },
+    { time:"17:15–17:45", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:45–18:45", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:45–19:05", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"19:05–19:15", activity:"Transition",                                        duration:0.17, category:"Daily"      },
+    { time:"19:15–21:15", activity:"⭐ UPSC (2h)",                                     duration:2,    category:"Learning"   },
+    { time:"21:20–21:50", activity:"Tech study — K8s/CKA (30m)",                        duration:0.5,  category:"Learning"   },
+    { time:"22:00–23:00", activity:"Wind-down",                                         duration:1,    category:"Daily"      },
+    { time:"23:00",       activity:"Sleep — 7h non-negotiable",                         duration:7,    category:"Health"     }
   ],
 
-  // ── 4. Prelims Sprint Weekday (Apr–May 2027) ─────────────
-  sprint_weekday: [
-    { time:"05:30–05:45", activity:"Wake, water, breathing + intention",               duration:0.25, category:"Mind"       },
-    { time:"05:45–07:45", activity:"⭐ UPSC Mock Test — full 2-hr timed session",     duration:2,    category:"Learning"   },
-    { time:"07:45–08:30", activity:"Gym + shower",                                     duration:0.75, category:"Fitness"    },
-    { time:"08:30–09:00", activity:"Breakfast + The Hindu scan (headlines only)",      duration:0.5,  category:"Break"      },
-    { time:"09:00–18:30", activity:"Emirates NBD — steady, no overload",               duration:9.5,  category:"Work"       },
-    { time:"18:45–19:15", activity:"Walk — mental decompression",                      duration:0.5,  category:"Fitness"    },
-    { time:"19:15–20:00", activity:"Cook + dinner",                                    duration:0.75, category:"Daily"      },
-    { time:"20:00–21:00", activity:"CSAT 30 min + mock analysis 30 min",               duration:1,    category:"Learning"   },
-    { time:"21:00–22:00", activity:"Wind down — book, no reels, reduce caffeine",     duration:1,    category:"Hobby"      },
-    { time:"22:00",       activity:"Sleep — max sleep mode. Protect this.",            duration:7.5,  category:"Health"     }
+  ramp3_saturday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:45", activity:"⭐ UPSC Block 2 (2.5h)",                            duration:2.5,  category:"Learning"   },
+    { time:"12:45–13:00", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"13:00–15:00", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"15:00–16:00", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"16:00–17:00", activity:"Tech study — K8s/CKA (1h)",                         duration:1,    category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"23:00",       activity:"Sleep",                                             duration:8,    category:"Health"     }
   ],
 
-  sprint_weekend: [
-    { time:"06:00–07:00", activity:"Walk + breathing — pre-exam calm protocol",        duration:1,    category:"Mind"       },
-    { time:"07:30–10:30", activity:"⭐ 3-hr Prelims mock under exam conditions",       duration:3,    category:"Learning"   },
-    { time:"10:30–12:00", activity:"Mock analysis — wrong answers + weak areas",       duration:1.5,  category:"Learning"   },
-    { time:"12:00–14:00", activity:"Lunch + full rest",                                duration:2,    category:"Break"      },
-    { time:"14:00–16:00", activity:"CSAT practice set + CA quick revision",            duration:2,    category:"Learning"   },
-    { time:"17:00–18:00", activity:"Walk / light exercise — no screens",               duration:1,    category:"Fitness"    },
-    { time:"18:00–19:00", activity:"📞 Video call — parents",                          duration:1,    category:"Mind"       },
-    { time:"19:00–21:00", activity:"Light reading / free time",                        duration:2,    category:"Hobby"      },
-    { time:"22:00",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  ramp3_sunday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:45", activity:"⭐ UPSC Block 2 (2.5h)",                            duration:2.5,  category:"Learning"   },
+    { time:"12:45–13:00", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"13:00–15:00", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"15:00–16:00", activity:"Lunch + rest",                                      duration:1,    category:"Break"      },
+    { time:"16:00–17:00", activity:"Tech study (1h)",                                   duration:1,    category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"22:30",       activity:"Sleep — protect Monday 6 AM anchor",                duration:7.5,  category:"Health"     }
   ],
 
-  // ── 5. India Full-time (Jul 2027 onwards) ────────────────
-  india_weekday: [
-    { time:"05:30–05:45", activity:"Wake, water, breathing",                           duration:0.25, category:"Mind"       },
-    { time:"05:45–09:45", activity:"⭐ UPSC deep study — primary block (4 hrs)",      duration:4,    category:"Learning"   },
-    { time:"09:45–10:30", activity:"Exercise + shower",                                duration:0.75, category:"Fitness"    },
-    { time:"10:30–11:00", activity:"Breakfast + The Hindu",                            duration:0.5,  category:"Break"      },
-    { time:"11:00–13:30", activity:"UPSC secondary block — notes + revision",         duration:2.5,  category:"Learning"   },
-    { time:"13:30–14:30", activity:"Lunch + rest / power nap",                        duration:1,    category:"Break"      },
-    { time:"14:30–17:00", activity:"UPSC tertiary block — answer writing / mocks",    duration:2.5,  category:"Learning"   },
-    { time:"17:00–18:30", activity:"Walk + family time / errands",                    duration:1.5,  category:"Daily"      },
-    { time:"19:00–20:00", activity:"Book reading / DevOps light (keep skills fresh)", duration:1,    category:"Hobby"      },
-    { time:"20:00–21:00", activity:"Dinner + journal",                                duration:1,    category:"Reflection" },
-    { time:"22:00",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  // ══════════════════════════════════════════════════════════
+  // STAGE 4 — Weeks 7–8 (Oct 29–Nov 11, 2026)
+  // Evening to 10:15 PM → UPSC 2.5h + Tech 30m
+  // ══════════════════════════════════════════════════════════
+
+  ramp4_weekday: [
+    { time:"06:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"06:00–06:30", activity:"Freshen up",                                        duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:00", activity:"Breakfast + household",                             duration:0.5,  category:"Break"      },
+    { time:"07:00–08:00", activity:"Commute (current affairs reading)",                 duration:1,    category:"Learning"   },
+    { time:"08:00–16:15", activity:"Work",                                              duration:8.25, category:"Work"       },
+    { time:"16:15–17:15", activity:"Commute home",                                     duration:1,    category:"Daily"      },
+    { time:"17:15–17:45", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:45–18:45", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:45–19:05", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"19:05–19:15", activity:"Transition",                                        duration:0.17, category:"Daily"      },
+    { time:"19:15–21:45", activity:"⭐ UPSC (2.5h)",                                   duration:2.5,  category:"Learning"   },
+    { time:"21:45–22:15", activity:"Tech study — CKA prep (30m)",                       duration:0.5,  category:"Learning"   },
+    { time:"22:15–22:25", activity:"Journal",                                           duration:0.17, category:"Reflection" },
+    { time:"22:25–23:00", activity:"Wind-down",                                         duration:0.58, category:"Daily"      },
+    { time:"23:00",       activity:"Sleep — 7h non-negotiable",                         duration:7,    category:"Health"     }
   ],
 
-  india_weekend: [
-    { time:"06:00–07:00", activity:"Longer walk / outdoor reset",                      duration:1,    category:"Fitness"    },
-    { time:"07:30–12:00", activity:"⭐ UPSC — deep revision, mocks, essay writing",   duration:4.5,  category:"Learning"   },
-    { time:"12:00–14:00", activity:"Lunch + rest",                                     duration:2,    category:"Break"      },
-    { time:"14:00–17:00", activity:"UPSC continued — answer writing or Sociology",    duration:3,    category:"Learning"   },
-    { time:"17:00–19:00", activity:"Family time / outing",                             duration:2,    category:"Hobby"      },
-    { time:"19:00–20:00", activity:"Dinner",                                           duration:1,    category:"Break"      },
-    { time:"20:00–21:00", activity:"Weekly review + plan",                             duration:1,    category:"Reflection" },
-    { time:"22:00",       activity:"Sleep",                                             duration:7.5,  category:"Health"     }
+  ramp4_saturday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:15", activity:"⭐ UPSC Block 2 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"12:15–12:30", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"12:30–14:30", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"14:30–15:00", activity:"Break",                                             duration:0.5,  category:"Break"      },
+    { time:"15:00–17:00", activity:"⭐ UPSC Block 4 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30–18:30", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:30–18:50", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"18:50–19:50", activity:"Tech study — CKA (1h)",                             duration:1,    category:"Learning"   },
+    { time:"19:50 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"23:00",       activity:"Sleep (soft cap 11 PM Sat)",                        duration:8,    category:"Health"     }
+  ],
+
+  ramp4_sunday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:15", activity:"⭐ UPSC Block 2 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"12:15–12:30", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"12:30–14:30", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"14:30–15:00", activity:"Break",                                             duration:0.5,  category:"Break"      },
+    { time:"15:00–17:00", activity:"⭐ UPSC Block 4 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30–18:30", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:30–18:50", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"18:50–19:50", activity:"Tech study (1h)",                                   duration:1,    category:"Learning"   },
+    { time:"19:50 onward",activity:"Personal time",                                     duration:2.5,  category:"Hobby"      },
+    { time:"22:30",       activity:"Sleep — protect Monday 6 AM anchor",                duration:7.5,  category:"Health"     }
+  ],
+
+  // ══════════════════════════════════════════════════════════
+  // SUSTAINED — Week 9+ (Nov 12, 2026 onward)
+  // 27.5h UPSC + 4.5h Tech + 5h CA per week
+  // ══════════════════════════════════════════════════════════
+
+  sustained_weekday: [
+    { time:"06:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"06:00–06:30", activity:"Freshen up",                                        duration:0.5,  category:"Daily"      },
+    { time:"06:30–07:00", activity:"Breakfast + household",                             duration:0.5,  category:"Break"      },
+    { time:"07:00–08:00", activity:"Commute (current affairs reading on phone)",        duration:1,    category:"Learning"   },
+    { time:"08:00–16:15", activity:"Work",                                              duration:8.25, category:"Work"       },
+    { time:"16:15–17:15", activity:"Commute home",                                     duration:1,    category:"Daily"      },
+    { time:"17:15–17:45", activity:"Exercise — 30 min non-negotiable",                  duration:0.5,  category:"Fitness"    },
+    { time:"17:45–18:45", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:45–19:05", activity:"Call parents — daily non-negotiable",                duration:0.33, category:"Mind"       },
+    { time:"19:05–19:15", activity:"Transition",                                        duration:0.17, category:"Daily"      },
+    { time:"19:15–21:45", activity:"⭐ UPSC (2.5h)",                                   duration:2.5,  category:"Learning"   },
+    { time:"21:45–22:15", activity:"Tech study (30m)",                                  duration:0.5,  category:"Learning"   },
+    { time:"22:15–22:25", activity:"Journal",                                           duration:0.17, category:"Reflection" },
+    { time:"22:25–23:00", activity:"Wind-down",                                         duration:0.58, category:"Daily"      },
+    { time:"23:00",       activity:"Sleep — 7h non-negotiable",                         duration:7,    category:"Health"     }
+  ],
+
+  sustained_saturday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:15", activity:"⭐ UPSC Block 2 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"12:15–13:15", activity:"Lunch",                                             duration:1,    category:"Break"      },
+    { time:"13:15–15:15", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"15:15–15:30", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"15:30–17:00", activity:"⭐ UPSC Block 4 (1.5h)",                            duration:1.5,  category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30–18:30", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"18:30–18:50", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"18:50–19:50", activity:"Tech study (1h)",                                   duration:1,    category:"Learning"   },
+    { time:"19:50 onward",activity:"Personal time",                                     duration:3,    category:"Hobby"      },
+    { time:"23:00",       activity:"Sleep (Sat night soft cap 11 PM)",                  duration:8,    category:"Health"     }
+  ],
+
+  sustained_sunday: [
+    { time:"07:00",       activity:"Wake",                                              duration:0,    category:"Daily"      },
+    { time:"07:00–07:30", activity:"Freshen + breakfast",                               duration:0.5,  category:"Break"      },
+    { time:"07:30–08:00", activity:"Household",                                         duration:0.5,  category:"Daily"      },
+    { time:"08:00–10:00", activity:"⭐ UPSC Block 1 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"10:00–10:15", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"10:15–12:15", activity:"⭐ UPSC Block 2 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"12:15–13:15", activity:"Lunch",                                             duration:1,    category:"Break"      },
+    { time:"13:15–15:15", activity:"⭐ UPSC Block 3 (2h)",                              duration:2,    category:"Learning"   },
+    { time:"15:15–15:30", activity:"Break",                                             duration:0.25, category:"Break"      },
+    { time:"15:30–17:00", activity:"⭐ UPSC Block 4 (1.5h)",                            duration:1.5,  category:"Learning"   },
+    { time:"17:00–17:30", activity:"Exercise",                                          duration:0.5,  category:"Fitness"    },
+    { time:"17:30–18:00", activity:"Weekly review + next week planning",                duration:0.5,  category:"Reflection" },
+    { time:"18:00–19:00", activity:"Dinner + household",                                duration:1,    category:"Break"      },
+    { time:"19:00–19:20", activity:"Call parents",                                      duration:0.33, category:"Mind"       },
+    { time:"19:20–20:20", activity:"Tech study (1h)",                                   duration:1,    category:"Learning"   },
+    { time:"20:20 onward",activity:"Personal time",                                     duration:2,    category:"Hobby"      },
+    { time:"22:30",       activity:"Wind-down — protect Monday 6 AM anchor",            duration:0,    category:"Daily"      },
+    { time:"23:00",       activity:"Sleep",                                             duration:7,    category:"Health"     }
   ]
 };
 
-// Category → color mapping
 const CATEGORY_COLORS = {
-  Learning:   '#4d79ff',
-  Work:       '#a56eff',
+  Learning:   '#0ea5e9',
+  Work:       '#64748b',
   Fitness:    '#00d47c',
   Health:     '#00d4c8',
   Break:      '#ffb230',
   Daily:      '#697098',
   Hobby:      '#ff5c80',
   Mind:       '#00d4c8',
-  Reflection: '#a56eff'
+  Reflection: '#a78bfa'
 };
 
-// Smart navigation: match activity text → description + tab link
-// desc = what is expected; navTab = tab to switch to; focusId = element to highlight; logHint = reminder after check
 const ACTIVITY_META = [
   {
     match: /sleep/i,
-    desc:  'Sleep 7 hrs non-negotiable. Phone stays outside the room.',
+    desc:  'Sleep 7h non-negotiable. Phone stays outside the room.',
     expect:'Log tonight\'s sleep hours in the Health tab before marking done.',
     navTab:'health', focusId:'hSleep',
-    logHint:'📝 Log sleep hours in Health tab'
+    logHint:'Log sleep hours in Health tab'
   },
   {
-    match: /gym|morning walk|walk or gym|longer walk/i,
-    desc:  'Complete your fitness activity — walk, gym, or outdoor time.',
-    expect:'Mark Gym Done ✓ in the Health tab.',
+    match: /exercise|gym/i,
+    desc:  '30 min/day — walk, gym, or outdoor time. Protected floor.',
+    expect:'Mark Gym Done in the Health tab.',
     navTab:'health', focusId:'hGym',
-    logHint:'🏋️ Mark Gym Done in Health tab'
+    logHint:'Mark Gym Done in Health tab'
   },
   {
-    match: /upsc|laxmikanth|ncert|unacademy|revision|mocks/i,
-    desc:  'Study session from the UPSC schedule. Use Unacademy or notes.',
+    match: /upsc|ncert|revision|mocks/i,
+    desc:  'Study session from the UPSC schedule.',
     expect:'Update class progress in the UPSC tab under Subject Progress.',
     navTab:'upsc', focusId:'upscSubjectsGrid',
-    logHint:'📚 Update UPSC class progress in UPSC tab'
+    logHint:'Update UPSC class progress'
   },
   {
-    match: /book reading|books queue|book 10 pages/i,
-    desc:  'Read from the current month\'s book (see Growth → Books Queue).',
-    expect:'Log pages read in Growth → Books Queue.',
-    navTab:'growth', focusId:'booksContainer',
-    logHint:'📖 Log pages read in Growth → Books'
+    match: /tech study|docker|k8s|cka|openshift|jenkins|argocd|terraform|aws|python|istio|prometheus|vault|system design|genai|psm/i,
+    desc:  'Tech upskilling session — follow the 76-week plan.',
+    expect:'Log progress in Growth tab.',
+    navTab:'growth', focusId:'techStudyModeToggle',
+    logHint:'Log tech study in Growth tab'
   },
   {
-    match: /journal|plan next day/i,
-    desc:  'Evening journal — reflect on the day and plan tomorrow.',
-    expect:'Write in your journal.',
-    navTab:null, focusId:null,
-    logHint:'📓 Journal done'
-  },
-  {
-    match: /ca reading|current affairs/i,
+    match: /current affairs/i,
     desc:  'Read current affairs — newspaper or Unacademy CA module.',
-    expect:'Mark CA Reading Done ✓ in the Health tab.',
+    expect:'Mark CA Reading Done in the Health tab.',
     navTab:'health', focusId:'hCA',
-    logHint:'📰 Mark CA Done in Health tab'
+    logHint:'Mark CA Done in Health tab'
   },
   {
-    match: /journal|plan next day|plan next week/i,
-    desc:  'Write 3 lines in your journal and plan tomorrow\'s priorities.',
-    expect:'No log needed — just check this off after writing.',
+    match: /call parents/i,
+    desc:  'Daily parents call — non-negotiable protected floor.',
+    expect:'No log needed — just check off after calling.',
     navTab: null
   },
   {
-    match: /devops|ai reading|cert prep/i,
-    desc:  'Read DevOps / AI articles or work on certification prep.',
-    expect:'No log needed — mark done after reading.',
+    match: /journal|weekly review/i,
+    desc:  'Reflect on the day and plan tomorrow\'s priorities.',
+    expect:'No log needed — check off after writing.',
     navTab: null
   },
   {
-    match: /weekly review/i,
-    desc:  'Complete the Sunday weekly review — 10 questions, 1–5 score each.',
-    expect:'Fill in the Weekly Review form in the Growth tab.',
-    navTab:'growth', focusId:'weeklyReviewForm',
-    logHint:'📋 Complete Weekly Review in Growth tab'
+    match: /book reading|books queue/i,
+    desc:  'Read from the current month\'s book (see Growth > Books Queue).',
+    expect:'Log pages read in Growth > Books Queue.',
+    navTab:'growth', focusId:'booksContainer',
+    logHint:'Log pages read in Growth'
   },
   {
-    match: /cholesterol|dinner/i,
-    desc:  'Cook a simple, cholesterol-safe Indian meal — low oil, high fibre.',
-    expect:'No log needed. If you had a cheat meal, note it in Health → Cholesterol.',
+    match: /dinner|breakfast|lunch/i,
+    desc:  'Meal time — cholesterol-safe, low oil, high fibre.',
+    expect:'No log needed.',
     navTab: null
   }
 ];
 
-// ── Scheduler ──────────────────────────────────────────────
 const Scheduler = {
 
   renderSchedule(scheduleKey, containerId) {
@@ -295,22 +413,16 @@ const Scheduler = {
           <span class="checkmark"></span>
         </label>`;
 
-      // Checkbox: for navTab activities, block and navigate; otherwise toggle normally
       const cb = slot.querySelector('input[type=checkbox]');
       cb.addEventListener('change', e => {
         if (e.target.checked && meta?.navTab) {
-          // Prevent the check — user must log data first
           e.target.checked = false;
 
           if (typeof UI !== 'undefined') {
-            // Store pending state
             UI.setPendingActivity({ key, scheduleKey, activityName: item.activity, meta, cb });
-
-            // Navigate to the relevant tab
             UI._setActiveTab(meta.navTab);
             UI._renderTab(meta.navTab);
 
-            // Scroll to / focus the target element
             if (meta.focusId) {
               setTimeout(() => {
                 const el = document.getElementById(meta.focusId);
@@ -327,13 +439,11 @@ const Scheduler = {
           return;
         }
 
-        // Normal toggle (no navTab, or unchecking)
         AppState.toggleActivity(key, e.target.checked);
         slot.classList.toggle('completed', e.target.checked);
         this.updateProgress(scheduleKey);
       });
 
-      // Nav button: switch tab + highlight target
       const navBtnEl = slot.querySelector('.slot-nav-btn');
       if (navBtnEl) {
         navBtnEl.addEventListener('click', e => {
@@ -349,7 +459,6 @@ const Scheduler = {
                 if (el) {
                   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   if (el.focus) el.focus();
-                  // Brief highlight pulse
                   el.style.transition = 'box-shadow 0.3s';
                   el.style.boxShadow = `0 0 0 3px var(--accent-blue)`;
                   setTimeout(() => { el.style.boxShadow = ''; }, 2000);
@@ -394,6 +503,14 @@ const Scheduler = {
     set('remainingCount', remaining);
     set('completedHours', doneHours.toFixed(1) + 'h');
     setW('progressBar', pct);
+
+    if (pct === 100 && total > 0) {
+      const card = document.getElementById('progressBar')?.closest('.stat-card, .pane-card');
+      if (card && !card.classList.contains('celebrating')) {
+        card.classList.add('celebrating');
+        setTimeout(() => card.classList.remove('celebrating'), 2500);
+      }
+    }
 
     AppState.setDailyHistory(dateKey, completed, total);
   },

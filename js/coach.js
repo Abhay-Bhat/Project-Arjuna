@@ -131,11 +131,11 @@ const CoachEngine = {
     if (!tips.length) {
       const phase = typeof PhaseManager !== 'undefined' ? PhaseManager.getPhase() : null;
       const map = {
-        notice:          'Last impression at BLR. Knowledge transfer done right = reputation that travels.',
-        settle:          'Gym starts Day 3, not Day 10. First 2 weeks set the habit baseline.',
-        foundation:      'Morning study block is your highest ROI activity. Protect it — nothing borrows from it.',
-        prelims_sprint:  'Mock exam → immediate review → weak subject drill. That cycle daily is Prelims prep.',
-        mains:           'Answer writing is the difference between clearing and topping. One answer every day.',
+        ramp1:     'Settling in — build the evening habit anchor. Even 1 focused hour beats zero.',
+        ramp2:     'Momentum building. Docker foundations + extended UPSC block. Consistency compounds.',
+        ramp3:     'Deepening phase. Kubernetes begins — the learning curve is steep but short. Push through.',
+        ramp4:     'Full capacity. 2.5h UPSC evenings are the new normal. Protect the routine.',
+        sustained: 'Cruise altitude. Protect the morning block — nothing borrows from it.',
       };
       return { icon: '💡', text: map[phase?.id] || 'Consistency over intensity. Show up every day — even imperfectly.', tab: null };
     }
@@ -149,7 +149,7 @@ const CoachEngine = {
     const schedule  = AppState.upscSchedule || [];
     const todayKey  = AppState.getTodayKey();
     const completed = Object.values(AppState.upscSubjectProgress || {}).reduce((s, v) => s + v, 0);
-    const total     = schedule.length || 586;
+    const total     = schedule.length || (typeof UPSCTracker !== 'undefined' ? UPSCTracker.totalClasses() : 726);
     const remaining = Math.max(0, total - completed);
 
     // 30-day pace: count schedule slots that were covered

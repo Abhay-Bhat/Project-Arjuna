@@ -24,11 +24,17 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap">
-    <link rel="stylesheet" href="css/styles.css?v=59">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
+    <link rel="stylesheet" href="css/styles.css?v=81">
 
     <!-- Inline: apply stored theme before first paint to prevent flash of wrong theme -->
     <script>(function(){try{var t=localStorage.getItem('skadi_theme')||localStorage.getItem('athena_theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){}}());</script>
+
+    <!-- Non-deferred, before every other script: window.Capacitor (when present)
+         is injected synchronously by the native WebView, so this must run first
+         to set .is-native on <html> before first paint, with zero flash risk. -->
+    <script src="js/platform.js?v=1"></script>
 
     <!-- All CDN scripts served via jsDelivr with Subresource Integrity.
          defer = download in parallel with HTML parsing, execute in order after parse.
@@ -200,7 +206,6 @@
           <span class="nav-label">Tasks</span>
         </button>
 
-
       </nav>
     </aside><!-- /.app-sidebar -->
 
@@ -226,6 +231,72 @@
 
     <!-- ═ TODAY TAB ═ -->
     <div id="tab-today" class="tab-panel active">
+
+      <!-- ═ STUDY TIMER — top of home page ═ -->
+      <div class="section-title" style="margin-top:0;">📚 Integrated Study Timer</div>
+      <div class="study-timer-panel pane-card" style="margin-bottom:20px;">
+        <div class="study-domain-toggle" id="studyDomainToggle" style="display:flex;gap:0;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);">
+          <button class="study-domain-btn active" data-domain="upsc" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:var(--accent-blue);color:#fff;transition:background 0.15s,color 0.15s;">📚 UPSC</button>
+          <button class="study-domain-btn" data-domain="tech" style="flex:1;padding:10px 0;font-size:13px;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--text-muted);transition:background 0.15s,color 0.15s;">💻 Tech</button>
+        </div>
+        <div class="study-timer-toprow">
+          <div class="study-mode-toggle" id="studyModeToggle">
+            <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
+            <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
+            <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
+          </div>
+          <div class="study-goal-inline">
+            <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
+            <input type="number" id="studyGoalInput" min="1" max="24" value="4" style="width:44px;text-align:center;"> h
+          </div>
+        </div>
+        <div class="study-timer-desc" id="studyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
+        <div class="study-pomo-status" id="studyPomoStatus" style="display:none">
+          <span class="study-pomo-phase" id="studyPomoPhase">🍅</span>
+          <span class="study-pomo-round" id="studyPomoRound">Ready to start</span>
+        </div>
+        <div class="study-timer-main-row">
+          <div class="study-live-tree-col">
+            <div class="study-live-tree" id="studyLiveTree">🌱</div>
+            <div class="study-live-tree-label" id="studyLiveTreeLabel" style="display:none"></div>
+          </div>
+          <div class="study-timer-center-col">
+            <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
+              <input type="number" id="studyCountHours" min="0" max="23" placeholder="0" aria-label="Hours"> <span>h</span>
+              <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25" aria-label="Minutes"> <span>m</span>
+            </div>
+            <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
+              <span class="study-pomo-cfg-lbl">Focus</span>
+              <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25" aria-label="Focus minutes"> <span>m</span>
+              <span class="study-pomo-cfg-lbl">Break</span>
+              <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5" aria-label="Break minutes"> <span>m</span>
+              <span class="study-pomo-cfg-lbl">Long</span>
+              <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15" aria-label="Long break minutes"> <span>m</span>
+            </div>
+            <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
+            <div class="study-timer-btns">
+              <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
+              <button id="studyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
+            </div>
+          </div>
+          <div class="study-selectors-col">
+            <div class="form-field" style="margin-bottom:8px;">
+              <label>Subject</label>
+              <select id="studySubjectSel"></select>
+            </div>
+            <div class="form-field" style="margin-bottom:10px;">
+              <label>Activity</label>
+              <select id="studyActivitySel"></select>
+            </div>
+            <div class="study-today-mini">
+              Today: <strong id="studyTodayTotal">0m</strong>
+              <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
+              <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 4h goal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="tab-layout-3">
 
         <!-- ── LEFT PANE: Calendar + Quick Check-Ins ── -->
@@ -285,6 +356,9 @@
               <div class="prog-bar-track" style="flex:1;height:4px;margin:0;"><div class="prog-bar-fill" id="todayHabitsBar" style="width:0%"></div></div>
               <span id="todayHabitsScore" style="font-size:10px;color:var(--text-muted);white-space:nowrap;">0 / 7 habits</span>
             </div>
+            <div class="today-streaks-row">
+              <span class="streak-badge" id="nutritionStreakBadge">🔥 Start your streak</span>
+            </div>
           </div>
 
           <div class="pane-card">
@@ -295,17 +369,12 @@
             <div id="todayUpscClasses"></div>
           </div>
 
+          <div id="tasksDueBanner" class="tasks-due-banner" style="display:none;"></div>
+
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN PANE: Routine ── -->
+        <!-- ── MAIN PANE: Routine → Matrix → Study ── -->
         <div class="pane-main">
-
-          <div class="pro-tip-card">
-            <span class="pro-tip-icon">💡</span>
-            <div class="pro-tip-text" id="proTipText">Loading personalized tip...</div>
-          </div>
-
-          <div id="tasksDueBanner" class="tasks-due-banner" style="display:none;"></div>
 
           <div class="section-title">Daily Routine</div>
           <div class="controls-bar">
@@ -350,9 +419,152 @@
             </div>
           </div>
 
+          <div class="pane-card">
+            <div class="pane-card-title">💡 Daily Tip</div>
+            <div class="pro-tip-card" style="border:none;padding:0;background:transparent;">
+              <span class="pro-tip-icon">💡</span>
+              <div class="pro-tip-text" id="proTipText">Loading personalized tip...</div>
+            </div>
+          </div>
+
         </div><!-- end pane-right -->
 
       </div><!-- end tab-layout-3 -->
+
+      <!-- ── Study Log ── -->
+      <div class="section-title">Study Log</div>
+
+      <div class="study-panel" style="margin-bottom:24px;">
+
+        <!-- Forest canvas: isometric growing forest -->
+        <div class="study-forest-canvas">
+          <canvas id="studyForestCanvas"></canvas>
+          <div class="study-canvas-header">
+            <div class="study-canvas-clock">
+              <span class="study-clock-time" id="studyClockTime">--:--</span>
+              <span class="study-clock-date" id="studyClockDate"></span>
+            </div>
+            <div class="study-canvas-today">
+              <span id="studyTodayBadge">0m today</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Streak Heatmap (always 90 days, range-independent) ── -->
+        <div class="sa-section">
+          <div class="sa-section-hdr">
+            <span class="sa-section-title">Study Streak</span>
+            <span class="sa-streak-count" id="saStreakCount"></span>
+          </div>
+          <div id="saHeatmap"></div>
+          <div class="sa-heatmap-legend">
+            <span>Less</span>
+            <div class="sa-hm-dot sa-hm-l1"></div>
+            <div class="sa-hm-dot sa-hm-l2"></div>
+            <div class="sa-hm-dot sa-hm-l3"></div>
+            <div class="sa-hm-dot sa-hm-l4"></div>
+            <div class="sa-hm-dot sa-hm-l5"></div>
+            <span>More</span>
+          </div>
+        </div>
+
+        <!-- Range selector -->
+        <div class="study-range-row" id="studyRangeRow">
+          <button class="study-range-btn active" data-range="today">Today</button>
+          <button class="study-range-btn" data-range="7d">7 Days</button>
+          <button class="study-range-btn" data-range="30d">30 Days</button>
+          <button class="study-range-btn" data-range="3m">3 Months</button>
+          <button class="study-range-btn" data-range="all">All Time</button>
+        </div>
+
+        <!-- Summary stats -->
+        <div class="study-summary-row" id="studySummaryRow"></div>
+
+        <!-- ── Comparison stat chips ── -->
+        <div class="sa-comparison-row" id="saComparisonRow"></div>
+
+        <!-- ── Contextual insight one-liner ── -->
+        <div class="sa-insight" id="saInsight"></div>
+
+        <!-- ── Trend + Peak-hours charts ── -->
+        <div class="sa-charts-row">
+          <div class="sa-chart-card">
+            <div class="sa-chart-hdr">
+              <span class="sa-chart-title" id="saTrendTitle">Daily Trend</span>
+            </div>
+            <div class="sa-chart-wrap"><canvas id="saTrendChart"></canvas></div>
+          </div>
+          <div class="sa-chart-card">
+            <div class="sa-chart-hdr">
+              <span class="sa-chart-title">Peak Study Hours</span>
+            </div>
+            <div class="sa-chart-wrap"><canvas id="saHourChart"></canvas></div>
+          </div>
+        </div>
+
+        <!-- ── Activity + Subject doughnut charts ── -->
+        <div class="sa-charts-row">
+          <div class="sa-chart-card">
+            <div class="sa-chart-hdr"><span class="sa-chart-title">By Activity</span></div>
+            <div class="sa-donut-wrap">
+              <canvas id="saActivityChart"></canvas>
+              <div class="sa-donut-legend" id="saActivityLegend"></div>
+            </div>
+          </div>
+          <div class="sa-chart-card">
+            <div class="sa-chart-hdr"><span class="sa-chart-title">By Subject</span></div>
+            <div class="sa-donut-wrap">
+              <canvas id="saSubjectChart"></canvas>
+              <div class="sa-donut-legend" id="saSubjectLegend"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed bars (subject + activity breakdown) -->
+        <div class="study-analytics-row">
+          <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
+          <div class="study-subj-bars-wrap" id="studyActBarsMain"></div>
+        </div>
+
+        <!-- Session list -->
+        <div class="study-sessions-wrap" id="studySessionsList"></div>
+
+        <!-- ── Focus Guard ── -->
+        <div class="fg-section">
+          <div class="fg-section-hdr">
+            <span class="fg-section-title">🛡️ Focus Guard</span>
+            <div id="fgStatus"><span class="fg-badge fg-badge-off">Checking extension…</span></div>
+          </div>
+          <p class="fg-desc">Block distracting sites during study sessions. Add domains you <em>need</em> — everything else is blocked when the timer runs.</p>
+          <div class="fg-input-row">
+            <input type="text" id="fgDomainInput" placeholder="ncert.nic.in" class="fg-input" aria-label="Domain to allow" />
+            <button class="fg-add-btn" id="fgAddBtn">Add</button>
+          </div>
+          <ul class="fg-domain-list" id="fgDomainList">
+            <li class="fg-empty">No domains added yet</li>
+          </ul>
+          <p class="fg-install-note">
+            Requires the
+            <strong>Skadi Focus Guard</strong> Chrome extension —
+            <a href="https://github.com/abhay-bhat/project-arjuna/tree/main/extension" target="_blank" rel="noopener">install from source →</a>
+          </p>
+        </div>
+
+        <!-- Manage subjects & activities -->
+        <div class="study-manage-wrap">
+          <button class="study-manage-toggle" id="studyManageToggle">⚙️ Manage Subjects &amp; Activities</button>
+          <div class="study-manage-panel" id="studyManagePanel" style="display:none">
+            <div class="study-manage-tabs" id="studyManageTabs">
+              <button class="study-mtab-btn active" data-mtab="subjects">Subjects</button>
+              <button class="study-mtab-btn" data-mtab="activities">Activities</button>
+            </div>
+            <div id="studyManageContent"></div>
+          </div>
+        </div>
+
+      </div>
+
+
     </div><!-- end TODAY TAB -->
 
     <!-- ═ UPSC TAB ═ -->
@@ -369,30 +581,32 @@
               <div class="stat-card-title">Overall</div>
               <div class="stat-card-value" id="upscOverallPct">0%</div>
               <div class="prog-bar-track"><div class="prog-bar-fill" id="upscOverallBar" style="width:0%;"></div></div>
-              <div class="stat-card-sub"><span id="upscCompletedCount">0</span> / <span id="upscTotalCount">586</span> classes</div>
+              <div class="stat-card-sub"><span id="upscCompletedCount">0</span> / <span id="upscTotalCount">726</span> classes <span class="info-icon" data-tip="726 classes = 160 NCERT Foundation + 566 Subject Classes (18 subjects from Polity to Essay)">i</span></div>
             </div>
             <div class="stat-card" style="margin-bottom:10px;">
               <div class="stat-card-title">Current Subject</div>
               <div class="stat-card-value" style="font-size:14px;color:var(--accent-teal);" id="upscCurrentSubject">—</div>
               <div class="stat-card-sub" id="upscCurrentProgress">—</div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <div class="stat-card">
-                <div class="stat-card-title">This Week</div>
-                <div class="stat-card-value" style="font-size:22px;" id="upscWeeklyCount">0</div>
-                <div class="stat-card-sub">classes</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-card-title">Prelims 2027</div>
-                <div class="stat-card-value" style="font-size:22px;" id="prelims2027Cov">0%</div>
-                <div class="prog-bar-track" style="height:3px;"><div class="prog-bar-fill" id="prelims2027Bar" style="width:0%;"></div></div>
-              </div>
+            <div class="stat-card">
+              <div class="stat-card-title">This Week</div>
+              <div class="stat-card-value" style="font-size:22px;" id="upscWeeklyCount">0</div>
+              <div class="stat-card-sub">classes completed</div>
             </div>
           </div>
 
           <div class="pane-card">
-            <div class="pane-card-title">🎯 Deadline Tracker</div>
-            <div id="upscDeadlineTracker"></div>
+            <div class="pane-card-title">🎯 UPSC 2028 Milestones</div>
+            <div id="upscMilestones" style="font-size:12px;line-height:2;">
+              <div>📋 All Classes Complete — <strong>~Mar 13, 2028</strong></div>
+              <div>📝 Prelims Prep Begins — <strong>~Mar 14, 2028</strong></div>
+              <div>📣 UPSC CSE 2028 Notification — <strong>~Feb 2028</strong></div>
+              <div>📜 Prelims 2028 — <strong>May 26, 2028</strong></div>
+              <div>✍️ Mains Prep Phase — <strong>Jun–Sep 2028</strong></div>
+              <div>📑 Mains 2028 — <strong>Sep 20, 2028</strong></div>
+              <div>🎤 Interview Prep — <strong>Oct 2028–Mar 2029</strong></div>
+              <div>🏛️ Personality Test — <strong>~Feb/Mar 2029</strong></div>
+            </div>
           </div>
 
           <div class="pane-card">
@@ -410,230 +624,11 @@
         <!-- ── MAIN: Study Log + Schedule Table + Subjects + CA Log ── -->
         <div class="pane-main">
 
-          <!-- ── Study Timer Panel (full-width, top of main pane) ── -->
-          <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
-
-            <!-- Mode toggle + daily goal -->
-            <div class="study-timer-toprow">
-              <div class="study-mode-toggle" id="studyModeToggle">
-                <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
-                <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
-                <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
-              </div>
-              <div class="study-goal-inline">
-                <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
-                <input type="number" id="studyGoalInput" min="1" max="24" value="4" style="width:44px;text-align:center;"> h
-              </div>
-            </div>
-            <!-- Mode description -->
-            <div class="study-timer-desc" id="studyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
-
-            <!-- Pomodoro phase status (hidden in other modes) -->
-            <div class="study-pomo-status" id="studyPomoStatus" style="display:none">
-              <span class="study-pomo-phase" id="studyPomoPhase">🍅</span>
-              <span class="study-pomo-round" id="studyPomoRound">Ready to start</span>
-            </div>
-
-            <!-- 3-col layout: live tree | timer display | selectors -->
-            <div class="study-timer-main-row">
-
-              <!-- Live growing tree -->
-              <div class="study-live-tree-col">
-                <div class="study-live-tree" id="studyLiveTree">🌱</div>
-                <div class="study-live-tree-label" id="studyLiveTreeLabel" style="display:none"></div>
-              </div>
-
-              <!-- Timer display + countdown inputs + buttons -->
-              <div class="study-timer-center-col">
-                <div class="study-countdown-set" id="studyCountdownSet" style="display:none">
-                  <input type="number" id="studyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
-                  <input type="number" id="studyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
-                </div>
-                <div class="study-pomo-config" id="studyPomoConfig" style="display:none">
-                  <span class="study-pomo-cfg-lbl">Focus</span>
-                  <input type="number" id="pomoWorkMin"  min="1" max="120" placeholder="25"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Break</span>
-                  <input type="number" id="pomoBreakMin" min="1" max="60"  placeholder="5"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Long</span>
-                  <input type="number" id="pomoLongMin"  min="5" max="120" placeholder="15"> <span>m</span>
-                </div>
-                <div class="study-timer-display" id="studyTimerDisplay">00:00</div>
-                <div class="study-timer-btns">
-                  <button id="studyStartBtn" class="btn btn-primary">▶ Start</button>
-                  <button id="studyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
-                </div>
-              </div>
-
-              <!-- Subject + Activity selectors + today total -->
-              <div class="study-selectors-col">
-                <div class="form-field" style="margin-bottom:8px;">
-                  <label>Subject</label>
-                  <select id="studySubjectSel"></select>
-                </div>
-                <div class="form-field" style="margin-bottom:10px;">
-                  <label>Activity</label>
-                  <select id="studyActivitySel"></select>
-                </div>
-                <div class="study-today-mini">
-                  Today: <strong id="studyTodayTotal">0m</strong>
-                  <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="studyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="studyGoalPct">0% of 4h goal</div>
-                </div>
-              </div>
-
-            </div><!-- end 3-col -->
-          </div><!-- end study-timer-panel -->
-
-          <!-- ── Study Log ── -->
-          <div class="section-title">Study Log</div>
-
-          <div class="study-panel" style="margin-bottom:24px;">
-
-            <!-- Forest canvas: isometric growing forest -->
-            <div class="study-forest-canvas">
-              <canvas id="studyForestCanvas"></canvas>
-              <div class="study-canvas-header">
-                <div class="study-canvas-clock">
-                  <span class="study-clock-time" id="studyClockTime">--:--</span>
-                  <span class="study-clock-date" id="studyClockDate"></span>
-                </div>
-                <div class="study-canvas-today">
-                  <span id="studyTodayBadge">0m today</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Streak Heatmap (always 90 days, range-independent) ── -->
-            <div class="sa-section">
-              <div class="sa-section-hdr">
-                <span class="sa-section-title">Study Streak</span>
-                <span class="sa-streak-count" id="saStreakCount"></span>
-              </div>
-              <div id="saHeatmap"></div>
-              <div class="sa-heatmap-legend">
-                <span>Less</span>
-                <div class="sa-hm-dot sa-hm-l1"></div>
-                <div class="sa-hm-dot sa-hm-l2"></div>
-                <div class="sa-hm-dot sa-hm-l3"></div>
-                <div class="sa-hm-dot sa-hm-l4"></div>
-                <div class="sa-hm-dot sa-hm-l5"></div>
-                <span>More</span>
-              </div>
-            </div>
-
-            <!-- Range selector -->
-            <div class="study-range-row" id="studyRangeRow">
-              <button class="study-range-btn active" data-range="today">Today</button>
-              <button class="study-range-btn" data-range="7d">7 Days</button>
-              <button class="study-range-btn" data-range="30d">30 Days</button>
-              <button class="study-range-btn" data-range="3m">3 Months</button>
-              <button class="study-range-btn" data-range="all">All Time</button>
-            </div>
-
-            <!-- Summary stats -->
-            <div class="study-summary-row" id="studySummaryRow"></div>
-
-            <!-- ── Comparison stat chips ── -->
-            <div class="sa-comparison-row" id="saComparisonRow"></div>
-
-            <!-- ── Contextual insight one-liner ── -->
-            <div class="sa-insight" id="saInsight"></div>
-
-            <!-- ── Trend + Peak-hours charts ── -->
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr">
-                  <span class="sa-chart-title" id="saTrendTitle">Daily Trend</span>
-                </div>
-                <div class="sa-chart-wrap"><canvas id="saTrendChart"></canvas></div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr">
-                  <span class="sa-chart-title">Peak Study Hours</span>
-                </div>
-                <div class="sa-chart-wrap"><canvas id="saHourChart"></canvas></div>
-              </div>
-            </div>
-
-            <!-- ── Activity + Subject doughnut charts ── -->
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Activity</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="saActivityChart"></canvas>
-                  <div class="sa-donut-legend" id="saActivityLegend"></div>
-                </div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Subject</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="saSubjectChart"></canvas>
-                  <div class="sa-donut-legend" id="saSubjectLegend"></div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Detailed bars (subject + activity breakdown) -->
-            <div class="study-analytics-row">
-              <div class="study-subj-bars-wrap" id="studySubjBarsMain"></div>
-              <div class="study-subj-bars-wrap" id="studyActBarsMain"></div>
-            </div>
-
-            <!-- Session list -->
-            <div class="study-sessions-wrap" id="studySessionsList"></div>
-
-            <!-- ── Focus Guard ── -->
-            <div class="fg-section">
-              <div class="fg-section-hdr">
-                <span class="fg-section-title">🛡️ Focus Guard</span>
-                <div id="fgStatus"><span class="fg-badge fg-badge-off">Checking extension…</span></div>
-              </div>
-              <p class="fg-desc">Block distracting sites during study sessions. Add domains you <em>need</em> — everything else is blocked when the timer runs.</p>
-              <div class="fg-input-row">
-                <input type="text" id="fgDomainInput" placeholder="ncert.nic.in" class="fg-input" />
-                <button class="fg-add-btn" id="fgAddBtn">Add</button>
-              </div>
-              <ul class="fg-domain-list" id="fgDomainList">
-                <li class="fg-empty">No domains added yet</li>
-              </ul>
-              <p class="fg-install-note">
-                Requires the
-                <strong>Skadi Focus Guard</strong> Chrome extension —
-                <a href="https://github.com/abhay-bhat/project-arjuna/tree/main/extension" target="_blank" rel="noopener">install from source →</a>
-              </p>
-            </div>
-
-            <!-- Manage subjects & activities -->
-            <div class="study-manage-wrap">
-              <button class="study-manage-toggle" id="studyManageToggle">⚙️ Manage Subjects &amp; Activities</button>
-              <div class="study-manage-panel" id="studyManagePanel" style="display:none">
-                <div class="study-manage-tabs" id="studyManageTabs">
-                  <button class="study-mtab-btn active" data-mtab="subjects">Subjects</button>
-                  <button class="study-mtab-btn" data-mtab="activities">Activities</button>
-                </div>
-                <div id="studyManageContent"></div>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="section-title">Yearlong Schedule</div>
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Subject</th><th>Timeline</th><th>Classes</th>
-                  <th>Track</th><th>Priority</th><th>Progress</th>
-                </tr>
-              </thead>
-              <tbody id="upscScheduleBody">
-                <tr><td colspan="6" class="empty-td">Loading schedule...</td></tr>
-              </tbody>
-            </table>
-          </div>
-
           <div class="section-title">Subject Progress</div>
           <div class="upsc-grid" id="upscSubjectsGrid"></div>
+
+          <div class="section-title">🎯 UPSC CSE 2028 — Exam Preparation Phases</div>
+          <div class="upsc-exam-phases" id="upscExamPhases"></div>
 
           <div class="section-title">Current Affairs Log</div>
           <div class="card" style="margin-bottom:16px;padding:18px;">
@@ -694,7 +689,7 @@
               <div class="prog-bar-track" style="height:6px;margin:10px 0;">
                 <div class="prog-bar-fill" id="finTargetBar" style="width:0%;"></div>
               </div>
-              <div class="fh-target"><span id="finTotalAED">0 AED</span> / <span id="finTargetAED">199,800 AED</span></div>
+              <div class="fh-target"><span id="finTotalAED">0 AED</span> / <span id="finTargetAED">144,000 AED</span></div>
             </div>
           </div>
 
@@ -705,7 +700,7 @@
               <div class="prog-bar-track" style="height:6px;margin:10px 0;">
                 <div class="prog-bar-fill green" id="finCorpusBar" style="width:0%;"></div>
               </div>
-              <div class="fh-target" style="font-size:11px;">₹<span id="finBaseline">0L</span> + ₹<span id="finEstINR">0L</span> = ₹<span id="finGoalINR">59L</span></div>
+              <div class="fh-target" style="font-size:11px;">₹<span id="finBaseline">0L</span> + ₹<span id="finEstINR">0L</span> = ₹<span id="finGoalINR">46L</span></div>
             </div>
           </div>
 
@@ -764,42 +759,8 @@
 
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN: Converter, forms, charts, logs ── -->
+        <!-- ── MAIN: Entry forms → Charts → Logs → Portfolio → Currency ── -->
         <div class="pane-main">
-
-          <div class="section-title">Currency Converter</div>
-          <div class="currency-converter-card">
-            <div class="converter-row">
-              <div class="converter-field">
-                <label>From</label>
-                <select id="currencyFrom">
-                  <option value="INR">₹ INR</option>
-                  <option value="AED">د.إ AED</option>
-                  <option value="USD">$ USD</option>
-                  <option value="EUR">€ EUR</option>
-                  <option value="GBP">£ GBP</option>
-                </select>
-              </div>
-              <div class="converter-field">
-                <label>Amount</label>
-                <input type="number" id="converterAmount" placeholder="Enter amount" step="0.01">
-              </div>
-              <div class="converter-field">
-                <label>To</label>
-                <select id="currencyTo">
-                  <option value="AED">د.إ AED</option>
-                  <option value="INR">₹ INR</option>
-                  <option value="USD">$ USD</option>
-                  <option value="EUR">€ EUR</option>
-                  <option value="GBP">£ GBP</option>
-                </select>
-              </div>
-            </div>
-            <div class="converter-result" id="converterResult">
-              <div class="result-value" id="convertedAmount">—</div>
-              <div class="result-rate" id="exchangeRate">Exchange rate: —</div>
-            </div>
-          </div>
 
           <div class="section-title">Monthly Entry</div>
           <form id="finEntryForm">
@@ -816,7 +777,7 @@
           <div class="data-table-wrap">
             <table class="data-table">
               <thead><tr><th>Month</th><th>Saved (AED)</th><th>Transferred (INR)</th><th>Notes</th><th>Action</th></tr></thead>
-              <tbody id="finLogBody"><tr><td colspan="5" class="empty-td">No entries yet.</td></tr></tbody>
+              <tbody id="finLogBody"><tr><td colspan="5" class="empty-td">✍️ No entries yet — log your first month's savings above!</td></tr></tbody>
             </table>
           </div>
 
@@ -899,7 +860,7 @@
           <div class="data-table-wrap">
             <table class="data-table">
               <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Savings</th><th>Rate / Action</th></tr></thead>
-              <tbody id="expenseLogBody"><tr><td colspan="5" class="empty-td">No expense entries yet.</td></tr></tbody>
+              <tbody id="expenseLogBody"><tr><td colspan="5" class="empty-td">📊 No expenses tracked yet — start logging for spending insights!</td></tr></tbody>
             </table>
           </div>
 
@@ -1089,30 +1050,13 @@
             <button type="submit" class="btn btn-primary" style="margin-top:14px;">Add Investment</button>
           </form>
 
-          <div class="stat-card" style="margin:20px 0;">
-            <div class="stat-card-title">Total Portfolio Wealth (True Value)</div>
-            <div class="stat-card-value" style="font-size:28px;" id="totalInvested">₹0</div>
-            <div class="stat-card-sub" id="investmentCount">0 investments tracked</div>
-          </div>
-
           <div class="section-title">Portfolio Summary</div>
           <div id="portfolioSummaryContainer">
             <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:20px 0;">Add investments to see your portfolio breakdown.</div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
-            <div>
-              <div class="section-title">Investment Breakdown</div>
-              <div class="chart-wrap" style="height:280px;"><canvas id="investmentChart"></canvas></div>
-            </div>
-            <div>
-              <div class="section-title">AI Financial Insight</div>
-              <div class="pro-tip-card" id="finTipCard">
-                <span class="pro-tip-icon">💡</span>
-                <div class="pro-tip-text" id="finTipText">Start adding investments to get personalized AI tips.</div>
-              </div>
-            </div>
-          </div>
+          <div class="section-title">Investment Breakdown</div>
+          <div class="chart-wrap" style="height:280px;"><canvas id="investmentChart"></canvas></div>
 
           <div class="section-title">Wealth by Nature</div>
           <div class="wealth-grid" id="wealthGrid">
@@ -1124,10 +1068,7 @@
             <div class="wealth-card"><div class="wealth-icon">⚡</div><div class="wealth-label">Speculative</div><div class="wealth-amount">₹0</div><div class="wealth-sub">Crypto, Other</div></div>
           </div>
 
-          <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;">Maturity &amp; Deadline Reminders<span id="maturityBadge" style="display:none;background:var(--accent-rose);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;"></span></div>
-          <div id="maturityAlertsMain">
-            <div style="color:var(--text-muted);font-size:12px;text-align:center;padding:14px 0;">No maturities within 6 months. Add maturity dates when logging investments.</div>
-          </div>
+
 
           <div class="section-title">Investment Portfolio</div>
           <div id="investmentSections"></div>
@@ -1145,6 +1086,40 @@
 
           <div class="section-title">Finance Help & Education</div>
           <div id="finHelpContainer"></div>
+
+          <div class="section-title">Currency Converter</div>
+          <div class="currency-converter-card">
+            <div class="converter-row">
+              <div class="converter-field">
+                <label>From</label>
+                <select id="currencyFrom">
+                  <option value="INR">₹ INR</option>
+                  <option value="AED">د.إ AED</option>
+                  <option value="USD">$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="GBP">£ GBP</option>
+                </select>
+              </div>
+              <div class="converter-field">
+                <label>Amount</label>
+                <input type="number" id="converterAmount" placeholder="Enter amount" step="0.01">
+              </div>
+              <div class="converter-field">
+                <label>To</label>
+                <select id="currencyTo">
+                  <option value="AED">د.إ AED</option>
+                  <option value="INR">₹ INR</option>
+                  <option value="USD">$ USD</option>
+                  <option value="EUR">€ EUR</option>
+                  <option value="GBP">£ GBP</option>
+                </select>
+              </div>
+            </div>
+            <div class="converter-result" id="converterResult">
+              <div class="result-value" id="convertedAmount">—</div>
+              <div class="result-rate" id="exchangeRate">Exchange rate: —</div>
+            </div>
+          </div>
 
         </div><!-- end pane-main -->
 
@@ -1205,8 +1180,10 @@
 
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN: Charts + Cholesterol ── -->
+        <!-- ── MAIN: Health dashboard ── -->
         <div class="pane-main">
+
+          <div class="section-card health-hero" id="healthScoreHero"></div>
 
           <!-- ═══════════════════════════════════════════════════════
                MODULE 1: BLOOD MARKERS PANEL
@@ -1348,135 +1325,47 @@
 </section>
 
 
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 2: DAILY NUTRITION CHECKLIST
-               ═══════════════════════════════════════════════════════ -->
-<section class="section-card" id="nutrition-checklist">
-  <div class="section-header">
-    <h3>✅ Nutrition Checklist</h3>
-    <span class="section-meta">Streak: <strong id="nutrition-streak-val">—</strong> days</span>
-  </div>
-  <p class="section-subtext">These 7 habits directly target your out-of-range markers. Log daily.</p>
+          <!-- ── Charts Grid (moved from sidebar) ── -->
+          <div class="health-charts-grid">
+            <div class="section-card">
+              <div class="pane-card-title">😴 Sleep Trend (14d)</div>
+              <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
+            </div>
+            <div class="section-card">
+              <div class="pane-card-title">📱 Phone Usage (14d)</div>
+              <div class="chart-wrap"><canvas id="phoneChart"></canvas></div>
+            </div>
+          </div>
 
-  <div class="checklist-grid" id="nutrition-checklist-items">
-    <!-- Rendered by JS: renderNutritionChecklist() -->
-    <!-- Each item is a toggleable card: icon + label + target marker badge -->
+          <!-- ── Cholesterol Log ── -->
+          <section class="section-card" id="cholesterol-section">
+            <div class="section-header"><h3>🧪 Cholesterol Log</h3></div>
+            <form id="cholForm">
+              <div class="fin-form-grid">
+                <div class="form-field"><label>Test Date</label><input type="date" id="cholDate"></div>
+                <div class="form-field"><label>LDL</label><input type="number" id="cholLDL" placeholder="130"></div>
+                <div class="form-field"><label>HDL</label><input type="number" id="cholHDL" placeholder="50"></div>
+                <div class="form-field"><label>Total</label><input type="number" id="cholTotal" placeholder="200"></div>
+                <div class="form-field" style="grid-column:1/-1;"><label>Notes</label><input type="text" id="cholNotes" placeholder="Optional"></div>
+              </div>
+              <button type="submit" class="btn btn-primary">Log Test</button>
+            </form>
+            <div class="data-table-wrap" style="margin-top:16px;">
+              <table class="data-table">
+                <thead><tr><th>Date</th><th>LDL</th><th>HDL</th><th>Total</th><th>Notes</th><th>Action</th></tr></thead>
+                <tbody id="cholBody"><tr><td colspan="6" class="empty-td">🩸 No tests logged yet — your baseline markers are tracked above.</td></tr></tbody>
+              </table>
+            </div>
+            <div class="chart-wrap" style="margin-top:16px;"><canvas id="cholChart"></canvas></div>
+          </section>
 
-    <!-- STATIC FALLBACK (replace with JS render) -->
-    <div class="checklist-item" data-id="eggs" onclick="handleNutritionToggle('eggs')">
-      <span class="checklist-icon">🥚</span>
-      <div class="checklist-text">
-        <span class="checklist-label">2 eggs eaten</span>
-        <span class="checklist-tag tag-b12">B12</span>
-      </div>
-      <span class="checklist-check" id="check-eggs">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="fish" onclick="handleNutritionToggle('fish')">
-      <span class="checklist-icon">🐟</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Fish meal today</span>
-        <span class="checklist-tag tag-hdl">HDL</span>
-      </div>
-      <span class="checklist-check" id="check-fish">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="nuts" onclick="handleNutritionToggle('nuts')">
-      <span class="checklist-icon">🌰</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Almonds + walnut</span>
-        <span class="checklist-tag tag-hdl">HDL</span>
-      </div>
-      <span class="checklist-check" id="check-nuts">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="sun" onclick="handleNutritionToggle('sun')">
-      <span class="checklist-icon">☀️</span>
-      <div class="checklist-text">
-        <span class="checklist-label">15 min morning sun</span>
-        <span class="checklist-tag tag-vitd">Vit D</span>
-      </div>
-      <span class="checklist-check" id="check-sun">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="water" onclick="handleNutritionToggle('water')">
-      <span class="checklist-icon">💧</span>
-      <div class="checklist-text">
-        <span class="checklist-label">3L water</span>
-        <span class="checklist-tag tag-kidney">Kidneys</span>
-      </div>
-      <span class="checklist-check" id="check-water">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="noFried" onclick="handleNutritionToggle('noFried')">
-      <span class="checklist-icon">🚫</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Zero fried food</span>
-        <span class="checklist-tag tag-ldl">LDL↓</span>
-      </div>
-      <span class="checklist-check" id="check-noFried">○</span>
-    </div>
-
-    <div class="checklist-item" data-id="earlyDinner" onclick="handleNutritionToggle('earlyDinner')">
-      <span class="checklist-icon">🌙</span>
-      <div class="checklist-text">
-        <span class="checklist-label">Dinner before 8 PM</span>
-        <span class="checklist-tag tag-sugar">HbA1c</span>
-      </div>
-      <span class="checklist-check" id="check-earlyDinner">○</span>
-    </div>
-  </div>
-
-  <!-- Progress bar -->
-  <div style="margin-top:12px">
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-      <span>Today's score</span>
-      <span id="nutrition-score-label">0 / 7</span>
-    </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="nutrition-score-bar" style="width:0%"></div>
-    </div>
-  </div>
-</section>
-
-
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 3: TODAY'S MEAL PLAN
-               ═══════════════════════════════════════════════════════ -->
-<section class="section-card" id="todays-meal-plan">
-  <div class="section-header">
-    <h3>🍽️ Today's Meals</h3>
-    <span class="section-meta" id="meal-day-label">— Day</span>
-  </div>
-  <p class="section-subtext" id="meal-theme-label" style="margin-bottom:12px">Loading...</p>
-
-  <!-- Fish day banner (shown only on Tue/Thu/Sat) -->
-  <div id="fish-day-banner" style="display:none;background:var(--info-bg);border:1px solid var(--info-border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--info-text)">
-    🐟 <strong>Fish day</strong> — eat fish at lunch or dinner today. This is your most important HDL-boosting habit.
-  </div>
-
-  <div id="meal-plan-list">
-    <!-- Rendered dynamically by JS: renderTodayMealPlan() -->
-    <!-- Each slot: time + item + where + tag chips + swap (collapsed) -->
-  </div>
-
-  <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
-    💡 Tap any meal to see a swap option. All meals orderable on Swiggy/Zomato or from nearby eateries.
-  </div>
-</section>
-
-
-          <!-- ═══════════════════════════════════════════════════════
-               MODULE 4: SUPPLEMENT TRACKER
-               ═══════════════════════════════════════════════════════ -->
+          <!-- ── Supplements ── -->
 <section class="section-card" id="supplement-tracker">
   <div class="section-header">
     <h3>💊 Supplements</h3>
     <span class="section-meta">Doctor visit first for D3 + B12</span>
   </div>
-
   <div class="supplement-list">
-
     <div class="supplement-row" id="supp-vitd3">
       <div class="supp-icon">☀️</div>
       <div class="supp-info">
@@ -1492,7 +1381,6 @@
         <button class="btn-small btn-check" id="btn-log-vitd" onclick="logSupplement('vitd3')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
     <div class="supplement-row" id="supp-b12">
       <div class="supp-icon">🔴</div>
       <div class="supp-info">
@@ -1508,7 +1396,6 @@
         <button class="btn-small btn-check" id="btn-log-b12" onclick="logSupplement('b12')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
     <div class="supplement-row" id="supp-omega3">
       <div class="supp-icon">🐟</div>
       <div class="supp-info">
@@ -1523,36 +1410,42 @@
         <button class="btn-small btn-check" id="btn-log-omega3" onclick="logSupplement('omega3')" style="display:none">✓ Taken today</button>
       </div>
     </div>
-
   </div>
 </section>
 
-          <div class="section-title">Sleep Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="sleepChart"></canvas></div>
-
-          <div class="section-title">Phone Usage Trend (14 days)</div>
-          <div class="chart-wrap"><canvas id="phoneChart"></canvas></div>
-
-          <div class="section-title">Cholesterol Log</div>
-          <form id="cholForm">
-            <div class="fin-form-grid">
-              <div class="form-field"><label>Test Date</label><input type="date" id="cholDate"></div>
-              <div class="form-field"><label>LDL</label><input type="number" id="cholLDL" placeholder="130"></div>
-              <div class="form-field"><label>HDL</label><input type="number" id="cholHDL" placeholder="50"></div>
-              <div class="form-field"><label>Total</label><input type="number" id="cholTotal" placeholder="200"></div>
-              <div class="form-field" style="grid-column:1/-1;"><label>Notes</label><input type="text" id="cholNotes" placeholder="Optional"></div>
+          <!-- ── Collapsed: Nutrition Checklist ── -->
+          <details class="section-card" id="nutrition-checklist">
+            <summary>✅ Nutrition Checklist · <span id="nutrition-summary-count">0/7</span> · Streak: <strong id="nutrition-streak-val">—</strong> days</summary>
+            <p class="section-subtext" style="margin:12px 16px 8px;">These 7 habits directly target your out-of-range markers. Log daily.</p>
+            <div class="checklist-grid" id="nutrition-checklist-items" style="padding:0 16px;">
+              <div class="checklist-item" data-id="eggs" onclick="handleNutritionToggle('eggs')"><span class="checklist-icon">🥚</span><div class="checklist-text"><span class="checklist-label">2 eggs eaten</span><span class="checklist-tag tag-b12">B12</span></div><span class="checklist-check" id="check-eggs">○</span></div>
+              <div class="checklist-item" data-id="fish" onclick="handleNutritionToggle('fish')"><span class="checklist-icon">🐟</span><div class="checklist-text"><span class="checklist-label">Fish meal today</span><span class="checklist-tag tag-hdl">HDL</span></div><span class="checklist-check" id="check-fish">○</span></div>
+              <div class="checklist-item" data-id="nuts" onclick="handleNutritionToggle('nuts')"><span class="checklist-icon">🌰</span><div class="checklist-text"><span class="checklist-label">Almonds + walnut</span><span class="checklist-tag tag-hdl">HDL</span></div><span class="checklist-check" id="check-nuts">○</span></div>
+              <div class="checklist-item" data-id="sun" onclick="handleNutritionToggle('sun')"><span class="checklist-icon">☀️</span><div class="checklist-text"><span class="checklist-label">15 min morning sun</span><span class="checklist-tag tag-vitd">Vit D</span></div><span class="checklist-check" id="check-sun">○</span></div>
+              <div class="checklist-item" data-id="water" onclick="handleNutritionToggle('water')"><span class="checklist-icon">💧</span><div class="checklist-text"><span class="checklist-label">3L water</span><span class="checklist-tag tag-kidney">Kidneys</span></div><span class="checklist-check" id="check-water">○</span></div>
+              <div class="checklist-item" data-id="noFried" onclick="handleNutritionToggle('noFried')"><span class="checklist-icon">🚫</span><div class="checklist-text"><span class="checklist-label">Zero fried food</span><span class="checklist-tag tag-ldl">LDL↓</span></div><span class="checklist-check" id="check-noFried">○</span></div>
+              <div class="checklist-item" data-id="earlyDinner" onclick="handleNutritionToggle('earlyDinner')"><span class="checklist-icon">🌙</span><div class="checklist-text"><span class="checklist-label">Dinner before 8 PM</span><span class="checklist-tag tag-sugar">HbA1c</span></div><span class="checklist-check" id="check-earlyDinner">○</span></div>
             </div>
-            <button type="submit" class="btn btn-primary">Log Test</button>
-          </form>
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Date</th><th>LDL</th><th>HDL</th><th>Total</th><th>Notes</th><th>Action</th></tr></thead>
-              <tbody id="cholBody"><tr><td colspan="6" class="empty-td">No tests logged yet.</td></tr></tbody>
-            </table>
-          </div>
+            <div style="margin:12px 16px 16px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>Today's score</span><span id="nutrition-score-label">0 / 7</span></div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" id="nutrition-score-bar" style="width:0%"></div></div>
+            </div>
+          </details>
 
-          <div class="section-title">Cholesterol Trend</div>
-          <div class="chart-wrap"><canvas id="cholChart"></canvas></div>
+          <!-- ── Collapsed: Today's Meals ── -->
+          <details class="section-card" id="todays-meal-plan">
+            <summary>🍽️ Today's Meals · <span id="meal-day-label">—</span></summary>
+            <div style="padding:12px 16px;">
+              <p class="section-subtext" id="meal-theme-label" style="margin-bottom:12px">Loading...</p>
+              <div id="fish-day-banner" style="display:none;background:var(--info-bg);border:1px solid var(--info-border);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--info-text)">
+                🐟 <strong>Fish day</strong> — eat fish at lunch or dinner today. This is your most important HDL-boosting habit.
+              </div>
+              <div id="meal-plan-list"></div>
+              <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">
+                💡 Tap any meal to see a swap option.
+              </div>
+            </div>
+          </details>
 
         </div><!-- end pane-main -->
 
@@ -1571,6 +1464,10 @@
             <div id="techSummary"></div>
             <button class="btn btn-sm btn-primary" id="openGuideBtn" style="margin-top:12px;width:100%;">📖 Interview Prep Guide</button>
           </div>
+
+          <div id="habitStackCard" class="gx-card-wrap"></div>
+
+          <div id="storyBankCard" class="gx-card-wrap"></div>
 
           <div class="pane-card">
             <div class="pane-card-title">💌 Contact Log</div>
@@ -1606,170 +1503,16 @@
 
         </div><!-- end pane-left -->
 
-        <!-- ── MAIN: Books, Reviews, Summary charts ── -->
+        <!-- ── MAIN: Tech Study → Career → Books → Coach → Goals → Reference ── -->
         <div class="pane-main">
 
-          <div class="section-title" style="margin-top:0;">DevOps Career Elevation — Semester Tracker</div>
+          <div class="section-title" style="margin-top:0;">🗺️ DevOps Career Elevation — Semester Tracker</div>
           <div id="techPlanContainer"></div>
 
-          <div class="section-title">⚙️ Tech Study Tracker</div>
-
-          <!-- ── Tech Study Timer Panel ── -->
-          <div class="study-timer-panel pane-card" style="margin-bottom:16px;">
-            <div class="study-timer-toprow">
-              <div class="study-mode-toggle" id="techStudyModeToggle">
-                <button class="study-mode-btn active" data-mode="stopwatch">⏱ Stopwatch</button>
-                <button class="study-mode-btn" data-mode="countdown">⏪ Countdown</button>
-                <button class="study-mode-btn" data-mode="pomodoro">🍅 Pomodoro</button>
-              </div>
-              <div class="study-goal-inline">
-                <label style="font-size:11px;color:var(--text-muted);">Daily goal</label>
-                <input type="number" id="techStudyGoalInput" min="1" max="240" value="30" style="width:54px;text-align:center;"> min
-              </div>
-            </div>
-            <div class="study-timer-desc" id="techStudyTimerDesc">Counts up freely — stop anytime to save. No target, no pressure.</div>
-
-            <div class="study-pomo-status" id="techStudyPomoStatus" style="display:none">
-              <span class="study-pomo-phase" id="techStudyPomoPhase">🍅</span>
-              <span class="study-pomo-round" id="techStudyPomoRound">Ready to start</span>
-            </div>
-
-            <div class="study-timer-main-row">
-              <div class="study-live-tree-col">
-                <div class="study-live-tree" id="techStudyLiveTree">🌱</div>
-                <div class="study-live-tree-label" id="techStudyLiveTreeLabel" style="display:none"></div>
-              </div>
-              <div class="study-timer-center-col">
-                <div class="study-countdown-set" id="techStudyCountdownSet" style="display:none">
-                  <input type="number" id="techStudyCountHours" min="0" max="23" placeholder="0"> <span>h</span>
-                  <input type="number" id="techStudyCountMins"  min="1" max="59" placeholder="25"> <span>m</span>
-                </div>
-                <div class="study-pomo-config" id="techStudyPomoConfig" style="display:none">
-                  <span class="study-pomo-cfg-lbl">Focus</span>
-                  <input type="number" id="techPomoWorkMin"  min="1" max="120" placeholder="25"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Break</span>
-                  <input type="number" id="techPomoBreakMin" min="1" max="60"  placeholder="5"> <span>m</span>
-                  <span class="study-pomo-cfg-lbl">Long</span>
-                  <input type="number" id="techPomoLongMin"  min="5" max="120" placeholder="15"> <span>m</span>
-                </div>
-                <div class="study-timer-display" id="techStudyTimerDisplay">00:00</div>
-                <div class="study-timer-btns">
-                  <button id="techStudyStartBtn" class="btn btn-primary">▶ Start</button>
-                  <button id="techStudyStopBtn"  class="btn btn-danger"    style="display:none">■ Stop &amp; Save</button>
-                </div>
-              </div>
-              <div class="study-selectors-col">
-                <div class="form-field" style="margin-bottom:8px;">
-                  <label>Subject</label>
-                  <select id="techStudySubjectSel"></select>
-                </div>
-                <div class="form-field" style="margin-bottom:10px;">
-                  <label>Activity</label>
-                  <select id="techStudyActivitySel"></select>
-                </div>
-                <div class="study-today-mini">
-                  Today: <strong id="techStudyTodayTotal">0m</strong>
-                  <div class="prog-bar-track" style="margin:5px 0 2px;"><div class="prog-bar-fill" id="techStudyGoalBar" style="width:0%;background:var(--accent);"></div></div>
-                  <div style="font-size:10px;color:var(--text-muted);text-align:right;" id="techStudyGoalPct">0% of 30m goal</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="study-panel" style="margin-bottom:24px;">
-            <div class="study-forest-canvas">
-              <canvas id="techStudyForestCanvas"></canvas>
-              <div class="study-canvas-header">
-                <div class="study-canvas-clock">
-                  <span class="study-clock-time" id="techStudyClockTime">--:--</span>
-                  <span class="study-clock-date" id="techStudyClockDate"></span>
-                </div>
-                <div class="study-canvas-today">
-                  <span id="techStudyTodayBadge">0m today</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="sa-section">
-              <div class="sa-section-hdr">
-                <span class="sa-section-title">Tech Study Streak</span>
-                <span class="sa-streak-count" id="tsaStreakCount"></span>
-              </div>
-              <div id="tsaHeatmap"></div>
-              <div class="sa-heatmap-legend">
-                <span>Less</span>
-                <div class="sa-hm-dot sa-hm-l1"></div>
-                <div class="sa-hm-dot sa-hm-l2"></div>
-                <div class="sa-hm-dot sa-hm-l3"></div>
-                <div class="sa-hm-dot sa-hm-l4"></div>
-                <div class="sa-hm-dot sa-hm-l5"></div>
-                <span>More</span>
-              </div>
-            </div>
-
-            <div class="study-range-row" id="techStudyRangeRow">
-              <button class="study-range-btn active" data-range="today">Today</button>
-              <button class="study-range-btn" data-range="7d">7 Days</button>
-              <button class="study-range-btn" data-range="30d">30 Days</button>
-              <button class="study-range-btn" data-range="3m">3 Months</button>
-              <button class="study-range-btn" data-range="all">All Time</button>
-            </div>
-
-            <div class="study-summary-row" id="techStudySummaryRow"></div>
-            <div class="sa-comparison-row" id="tsaComparisonRow"></div>
-            <div class="sa-insight" id="tsaInsight"></div>
-
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title" id="tsaTrendTitle">Daily Trend</span></div>
-                <div class="sa-chart-wrap"><canvas id="tsaTrendChart"></canvas></div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">Peak Study Hours</span></div>
-                <div class="sa-chart-wrap"><canvas id="tsaHourChart"></canvas></div>
-              </div>
-            </div>
-
-            <div class="sa-charts-row">
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Activity</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="tsaActivityChart"></canvas>
-                  <div class="sa-donut-legend" id="tsaActivityLegend"></div>
-                </div>
-              </div>
-              <div class="sa-chart-card">
-                <div class="sa-chart-hdr"><span class="sa-chart-title">By Subject</span></div>
-                <div class="sa-donut-wrap">
-                  <canvas id="tsaSubjectChart"></canvas>
-                  <div class="sa-donut-legend" id="tsaSubjectLegend"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="study-analytics-row">
-              <div class="study-subj-bars-wrap" id="techStudySubjBarsMain"></div>
-              <div class="study-subj-bars-wrap" id="techStudyActBarsMain"></div>
-            </div>
-
-            <div class="study-sessions-wrap" id="techStudySessionsList"></div>
-
-            <div class="study-manage-wrap">
-              <button class="study-manage-toggle" id="techStudyManageToggle">⚙️ Manage Subjects &amp; Activities</button>
-              <div class="study-manage-panel" id="techStudyManagePanel" style="display:none">
-                <div class="study-manage-tabs" id="techStudyManageTabs">
-                  <button class="study-mtab-btn active" data-mtab="subjects">Subjects</button>
-                  <button class="study-mtab-btn" data-mtab="activities">Activities</button>
-                </div>
-                <div id="techStudyManageContent"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-title">Books Queue</div>
+          <div class="section-title">📚 Books Queue</div>
           <div class="books-container" id="booksContainer"></div>
 
-          <div class="section-title">Coach Dashboard <span class="auto-badge">Auto</span></div>
+          <div class="section-title">🤖 Coach Dashboard <span class="auto-badge">Auto</span></div>
           <div id="coachDashboard"></div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-top:28px;">
@@ -1783,6 +1526,21 @@
             </div>
           </div>
 
+          <!-- ── SMART Goals (outcomes — shown after reflection) ── -->
+          <div class="goals-section-header">
+            <div class="section-title">🎯 SMART Goals</div>
+            <button class="btn btn-sm btn-primary" id="goalAddBtn">+ New Goal</button>
+          </div>
+          <div class="goals-grid" id="goalsGrid"></div>
+
+          <!-- ── Plan Reference — collapsed by default ── -->
+          <details class="ref-details">
+            <summary>📋 Plan Reference & Resilience</summary>
+            <div id="rewardSystemCard" class="gx-card-wrap"></div>
+            <div id="burnoutCheckCard" class="gx-card-wrap"></div>
+            <div id="crisisCard" class="gx-card-wrap"></div>
+          </details>
+
         </div><!-- end pane-main -->
 
       </div><!-- end tab-layout-2 -->
@@ -1792,34 +1550,34 @@
     <div id="tab-tasks" class="tab-panel">
       <div class="tasks-layout">
 
-        <!-- LEFT: Stats, filters, new bucket -->
+        <!-- LEFT: Quick Add, Filters, Stats -->
         <aside class="tasks-left-pane">
           <div class="tasks-pane-section">
-            <div class="tasks-pane-label">Overview</div>
-            <div class="tasks-stats-strip" id="tasksStats"></div>
+            <div class="tasks-pane-label">Quick Add</div>
+            <div id="tasksQuickAdd"></div>
           </div>
           <div class="tasks-pane-section">
             <div class="tasks-pane-label">Filter &amp; Sort</div>
             <div class="tasks-filters">
-              <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority">
+              <select id="taskFilterPriority" class="tasks-filter-select" title="Filter by priority" aria-label="Filter by priority">
                 <option value="all">All priorities</option>
                 <option value="urgent">🔴 Urgent</option>
                 <option value="high">🟠 High</option>
                 <option value="medium">🔵 Medium</option>
                 <option value="low">🟢 Low</option>
               </select>
-              <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status">
+              <select id="taskFilterStatus" class="tasks-filter-select" title="Filter by status" aria-label="Filter by status">
                 <option value="all">All statuses</option>
                 <option value="todo">○ Todo</option>
                 <option value="in-progress">⏳ In Progress</option>
               </select>
-              <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date">
+              <select id="taskFilterDue" class="tasks-filter-select" title="Filter by due date" aria-label="Filter by due date">
                 <option value="all">All dates</option>
                 <option value="overdue">⚠️ Overdue</option>
                 <option value="today">📅 Due today</option>
                 <option value="week">📆 Due this week</option>
               </select>
-              <select id="taskSort" class="tasks-filter-select" title="Sort tasks">
+              <select id="taskSort" class="tasks-filter-select" title="Sort tasks" aria-label="Sort tasks">
                 <option value="default">Sort: Default</option>
                 <option value="priority">Sort: Priority</option>
                 <option value="due">Sort: Due date</option>
@@ -1828,19 +1586,27 @@
             </div>
           </div>
           <div class="tasks-pane-section">
-            <div class="tasks-pane-label">New Bucket</div>
-            <div id="tasksNewBucketPane"></div>
+            <div class="tasks-pane-label">Overview</div>
+            <div class="tasks-stats-strip" id="tasksStats"></div>
           </div>
         </aside>
 
-        <!-- RIGHT: Kanban board -->
-        <div class="tasks-board-wrap">
-          <div class="tasks-board" id="tasksBoard"></div>
+        <!-- RIGHT: Eisenhower Matrix + Analytics -->
+        <div class="tasks-main-wrap">
+          <div class="matrix-grid" id="tasksMatrixGrid"></div>
+          <details class="task-completed-section" id="tasksCompletedSection">
+            <summary class="task-completed-header">
+              <span class="task-completed-label">Completed</span>
+              <span class="task-count-badge" id="tasksCompletedCount">0</span>
+            </summary>
+            <div class="task-completed-list" id="tasksCompletedList"></div>
+          </details>
+          <div class="section-title" style="margin-top:28px;">Analytics</div>
+          <div class="tasks-analytics-grid" id="tasksAnalytics"></div>
         </div>
 
       </div>
     </div><!-- end TASKS TAB -->
-
 
     </main>
 
@@ -1855,7 +1621,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="calendar-modal" id="phasesModal">
     <div class="calendar-content" style="max-width:660px;width:95%;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column;">
-        <button style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" id="phasesClose">×</button>
+        <button style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" id="phasesClose" aria-label="Close">×</button>
         <div style="margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);">
             <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">🗺️ Mission Phases — 2026–2028</h2>
             <p style="font-size:13px;color:var(--text-muted);">Your complete journey from Bangalore exit to UPSC success.</p>
@@ -1869,7 +1635,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="calendar-modal" id="calendarModal">
     <div class="calendar-content">
-        <button style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text);" id="calendarClose">×</button>
+        <button style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text);" id="calendarClose" aria-label="Close">×</button>
         <div class="calendar-header">
             <button class="calendar-nav-btn" id="prevMonth">← Prev</button>
             <h2 id="calendarMonthYear"></h2>
@@ -1884,7 +1650,7 @@
 <!-- ═════════════════════════════════════════════════════ -->
 <div class="onboarding-modal" id="onboardingModal">
     <div class="onboarding-content">
-        <button class="onboarding-close" id="onboardingClose">✕</button>
+        <button class="onboarding-close" id="onboardingClose" aria-label="Close">✕</button>
 
         <div class="onboarding-screen active" data-screen="1">
             <div class="obs-header">
@@ -1897,7 +1663,7 @@
                 </p>
                 <div class="obs-domains-preview">
                     <div class="odp-item">📚 <strong>UPSC</strong> — Civil Service exam prep (586 classes)</div>
-                    <div class="odp-item">💰 <strong>Finance</strong> — Dubai savings goal (199,800 AED)</div>
+                    <div class="odp-item">💰 <strong>Finance</strong> — Dubai savings goal (144,000 AED)</div>
                     <div class="odp-item">❤️ <strong>Health</strong> — Sleep, gym, cholesterol tracking</div>
 <div class="odp-item">🌱 <strong>Growth</strong> — Career milestones, books, reviews</div>
                     <div class="odp-item">⏱️ <strong>Routine</strong> — Daily schedule & habit tracking</div>
@@ -1989,7 +1755,7 @@
 <!-- GLOSSARY MODAL -->
 <div class="glossary-modal" id="glossaryModal">
     <div class="glossary-content">
-        <button class="glossary-close" id="glossaryClose">✕</button>
+        <button class="glossary-close" id="glossaryClose" aria-label="Close">✕</button>
         <h2>Glossary</h2>
         <div class="glossary-list">
             <div class="glos-item">
@@ -2145,6 +1911,72 @@
 </div>
 
 <!-- ═════════════════════════════════════════════════════ -->
+<!-- SMART GOAL MODAL -->
+<!-- ═════════════════════════════════════════════════════ -->
+<div class="fin-modal-overlay" id="goalModal">
+  <div class="fin-modal-box" style="max-width:600px;width:94%;">
+    <div class="fin-modal-title" id="goalModalTitle">🎯 New Goal</div>
+    <input type="hidden" id="goalId">
+    <div class="fin-form-grid" style="grid-template-columns:2fr 1fr;gap:12px;margin-top:12px;margin-bottom:0;">
+      <div class="form-field">
+        <label>Goal Title</label>
+        <input type="text" id="goalTitle" placeholder="e.g. Clear UPSC Prelims 2026">
+      </div>
+      <div class="form-field">
+        <label>Domain</label>
+        <select id="goalDomain">
+          <option value="upsc">📚 UPSC</option>
+          <option value="career">💻 Career</option>
+          <option value="finance">💰 Finance</option>
+          <option value="health">❤️ Health</option>
+          <option value="personal">🧠 Personal</option>
+        </select>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Target Date</label>
+        <input type="date" id="goalTargetDate">
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>S — Specific</label>
+        <textarea id="goalSpecific" rows="2" placeholder="What exactly do you want to achieve?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>M — Measurable</label>
+        <textarea id="goalMeasurable" rows="2" placeholder="How will you measure progress / success?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>A — Achievable</label>
+        <textarea id="goalAchievable" rows="2" placeholder="Is this realistic given your resources?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>R — Relevant</label>
+        <textarea id="goalRelevant" rows="2" placeholder="Why does this matter right now?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>T — Time-bound</label>
+        <textarea id="goalTimebound" rows="2" placeholder="What's the deadline / timeline?"></textarea>
+      </div>
+      <div class="form-field" style="grid-column:1/-1;">
+        <label>Milestones <span style="text-transform:none;font-weight:400;">(optional — drives progress automatically)</span></label>
+        <div id="goalMilestoneList"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input type="text" id="goalMilestoneInput" placeholder="Add a milestone…" style="flex:1;">
+          <button class="btn btn-sm" id="goalMilestoneAddBtn">+ Add</button>
+        </div>
+      </div>
+      <div class="form-field" id="goalProgressRow" style="grid-column:1/-1;">
+        <label>Progress: <span id="goalProgressVal">0</span>%</label>
+        <input type="range" id="goalProgress" min="0" max="100" step="5" value="0">
+      </div>
+    </div>
+    <div class="fin-modal-actions">
+      <button class="btn btn-primary" id="goalSaveBtn">✅ Save Goal</button>
+      <button class="btn" id="goalCancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════════════════════════════════════════════════ -->
 
 <div class="fin-modal-overlay" id="manualPriceModal">
   <div class="fin-modal-box" style="max-width:560px;width:94%;">
@@ -2181,7 +2013,7 @@
           Device ID: <code id="backupDeviceId" style="font-size:11px;background:var(--bg-secondary);padding:1px 5px;border-radius:3px;">—</code>
         </div>
       </div>
-      <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" onclick="BackupManager.closeModal()">×</button>
+      <button style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text);line-height:1;" onclick="BackupManager.closeModal()" aria-label="Close">×</button>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:16px;flex-shrink:0;flex-wrap:wrap;">
@@ -2252,31 +2084,36 @@
      Execution order is guaranteed (document order) by the defer spec. -->
 <!-- ═════════════════════════════════════════════════════ -->
 <script defer src="js/firebase-config.js?v=39"></script>
-<script defer src="js/auth.js?v=43"></script>
-<script defer src="js/sync.js?v=41"></script>
-<script defer src="js/phases.js?v=39"></script>
+<script defer src="js/auth.js?v=47"></script>
+<script defer src="js/sync.js?v=42"></script>
+<script defer src="js/phases.js?v=45"></script>
 <script defer src="js/storage.js?v=39"></script>
-<script defer src="js/state.js?v=51"></script>
-<script defer src="js/scheduler.js?v=40"></script>
-<script defer src="js/upsc.js?v=56"></script>
-<script defer src="js/finance.js?v=39"></script>
+<script defer src="js/state.js?v=54"></script>
+<script defer src="js/scheduler.js?v=44"></script>
+<script defer src="js/upsc.js?v=64"></script>
+<script defer src="js/finance.js?v=43"></script>
 <script defer src="js/health-data.js?v=39"></script>
-<script defer src="js/health.js?v=39"></script>
-<script defer src="js/growth.js?v=56"></script>
-<script defer src="js/tasks.js?v=59"></script>
-<script defer src="js/study.js?v=52"></script>
-<script defer src="js/study-analytics.js?v=51"></script>
-<script defer src="js/tech-study.js?v=2"></script>
+<script defer src="js/health.js?v=40"></script>
+<script defer src="js/growth.js?v=58"></script>
+<script defer src="js/native-timer-bridge.js?v=2"></script>
+<script defer src="js/tasks.js?v=64"></script>
+<script defer src="js/matrix.js?v=5"></script>
+<script defer src="js/goals.js?v=3"></script>
+<script defer src="js/subject-picker.js?v=3"></script>
+<script defer src="js/study.js?v=54"></script>
+<script defer src="js/study-analytics.js?v=52"></script>
+<script defer src="js/tech-study.js?v=3"></script>
 <script defer src="js/tech-study-analytics.js?v=1"></script>
 <script defer src="js/focus-guard.js?v=49"></script>
-<script defer src="js/coach.js?v=55"></script>
-<script defer src="js/ui.js?v=62"></script>
+<script defer src="js/coach.js?v=57"></script>
+<script defer src="js/ui.js?v=77"></script>
 <script defer src="js/events.js?v=39"></script>
 <script defer src="js/tooltips.js?v=52"></script>
 <script defer src="js/seed-data.js?v=39"></script>
 <script defer src="js/backup.js?v=39"></script>
-<script defer src="js/main.js?v=40"></script>
-<script defer src="js/devops-guide.js?v=35"></script>
+<script defer src="js/native-integration.js?v=1"></script>
+<script defer src="js/main.js?v=41"></script>
+<script defer src="js/devops-guide.js?v=37"></script>
 
 <!-- ═ DEVOPS INTERVIEW GUIDE MODAL ════════════════════════════ -->
 <div id="devopsGuideModal" class="guide-modal" role="dialog" aria-modal="true" aria-label="DevOps Interview Prep Guide">

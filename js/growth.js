@@ -3,141 +3,145 @@
 // Career · Books · Reviews · Life Partner
 // ============================================================
 
-// ── DevOps Career Elevation Plan (2026 Edition) ──────────────
-// 12-month plan based on the textbook personalised for Abhay Sreepathi Bhat.
-// Target: INR 35 LPA Senior DevOps role. Constraint: 30 minutes/day.
-// Prerequisite chain (left → right, do not skip any link):
-//   Linux+Networking → Docker → Kubernetes → Terraform → Python → CI/CD
-//   → DevSecOps → ArgoCD → Multi-Cloud → AIOps → System Design
+// ── Tech Upskilling — Compressed 76-Week Plan (~350h at 4.5h/week) ──
 const DEVOPS_PLAN = [
   {
-    id: 's1', label: 'Semester 1 — Foundations',
-    period: 'Months 1–3 · Jun–Aug 2026',
-    color: '#4d79ff', commitment: '30 min/day',
-    summary: 'Linux, Docker, and Kubernetes from first principles. Build organised K8s understanding from operational exposure.',
+    id: 'p1', label: 'Docker Foundations',
+    period: 'Wk 1–2 · Jul 13–26 · ~9h',
+    color: '#0ea5e9', commitment: '4.5h/week',
+    target: 'Docker for Beginners — KodeKloud',
+    summary: 'Images, containers, volumes, networking, multi-stage builds.',
     chapters: [
-      { id: 's1_f1',  code: 'F1',   label: 'Linux & Networking Fundamentals',     gap: 'Foundational' },
-      { id: 's1_f2',  code: 'F2',   label: 'Docker from First Principles',        gap: 'Foundational' },
-      { id: 's1_ch2', code: 'Ch 2', label: 'Kubernetes from Zero (CKA-level)',     gap: 'HIGH' },
+      { id: 'p1_c1', code: '1.1', label: 'Docker Architecture — images, containers, daemon, registry', gap: 'Foundational' },
+      { id: 'p1_c2', code: '1.2', label: 'Volumes & Persistent Data', gap: 'HIGH' },
+      { id: 'p1_c3', code: '1.3', label: 'Docker Networking — bridge, overlay, DNS', gap: 'HIGH' },
+      { id: 'p1_c4', code: '1.4', label: 'Multi-Stage Builds & Layer Optimisation', gap: 'HIGH' },
     ],
-    projects: [
-      { id: 's1_p_linux_audit',  label: 'linux-server-audit — Bash audit script (OS, disk, ports, SSH attempts)' },
-      { id: 's1_p_docker_flask', label: 'docker-flask-app — multi-stage Dockerfile + Compose + healthcheck' },
-      { id: 's1_p_k8s_msvc',     label: 'k8s-microservices-deploy — 3-svc app on k3s with NetPol + HPA' },
+    resources: [
+      { label: 'Docker for Beginners — KodeKloud', url: 'https://kodekloud.com', star: true },
     ],
-    cert: { id: 's1_cert_cka', label: 'CKA — Certified Kubernetes Administrator', cost: 'USD 395', priority: 'CRITICAL', targetMonth: 'End of Month 3' },
-    dubaiTrack: {
-      label: 'Dubai OpenShift Track — Phase 1: Foundation',
-      period: 'Jul – Sep 2026 · 2–3 hrs/week',
-      note: 'Parallel hands-on practice on OpenShift / Helm. Feeds the Sem-1 Kubernetes chapter.',
-      tasks: [
-        { id: 'github_repo',   label: 'Create GitHub repo: helm-charts (public + MIT license)' },
-        { id: 'helm_basics',   label: 'Learn Helm basics — chart structure, values.yaml, templates' },
-        { id: 'chart1_webapp', label: 'Chart 1: web-app (Deployment + Service + Route + ConfigMap)' },
-        { id: 'chart2_db',     label: 'Chart 2: database (PostgreSQL + PVC + Service)' },
-        { id: 'platform_arch', label: 'Understand OpenShift platform architecture & deploy 1 app' },
-      ],
-    },
   },
   {
-    id: 's2', label: 'Semester 2 — Core Infrastructure Tools',
-    period: 'Months 3–6 · Aug–Nov 2026',
-    color: '#7b42bc', commitment: '30 min/day',
-    summary: 'Close the Terraform gap (the #1 blocker on your resume). Build Python scripting fluency. Articulate your CI/CD depth.',
+    id: 'p2', label: 'Kubernetes Core + CKA',
+    period: 'Wk 3–12 · Jul 27–Oct 4 · ~45h',
+    color: '#7b42bc', commitment: '4.5h/week · CKA exam Wk 10–12',
+    target: 'CKA Certification — KodeKloud + killer.sh',
+    summary: 'K8s fundamentals through CKA deep prep. Mock exams and sit exam by Oct 2026.',
     chapters: [
-      { id: 's2_ch1',  code: 'Ch 1',  label: 'Terraform — IaC from Zero',           gap: 'CRITICAL' },
-      { id: 's2_ch4',  code: 'Ch 4',  label: 'Python for DevOps (scripting + DSA)', gap: 'HIGH' },
-      { id: 's2_chci', code: 'Ch CI', label: 'CI/CD Mastery — Jenkins, Groovy, Helm', gap: 'Articulation' },
+      { id: 'p2_c1', code: '2.1', label: 'Kubernetes core concepts (Wk 3–5)', gap: 'CRITICAL' },
+      { id: 'p2_c2', code: '2.2', label: 'CKA deep prep — scheduling, networking, storage (Wk 6–9)', gap: 'CRITICAL' },
+      { id: 'p2_c3', code: '2.3', label: 'CKA mock exams + sit exam (Wk 10–12)', gap: 'EXAM' },
     ],
-    projects: [
-      { id: 's2_p_aws_tf',     label: 'aws-infra-terraform — VPC/EC2/S3/RDS modules + remote state (Portfolio 1 core)' },
-      { id: 's2_p_aws_audit',  label: 'aws-audit-cli — boto3 governance tool (compliance scan, JSON/CSV output)' },
-      { id: 's2_p_cicd_cmp',   label: 'cicd-pipeline-comparison — same app via Jenkinsfile + GitLab CI + Actions' },
+    resources: [
+      { label: 'CKA Certification Course — KodeKloud', url: 'https://kodekloud.com', star: true },
+      { label: 'killer.sh — CKA simulator', url: 'https://killer.sh', star: true },
     ],
-    cert: { id: 's2_cert_tf', label: 'HashiCorp Terraform Associate', cost: 'USD 70', priority: 'CRITICAL', targetMonth: 'End of Month 5' },
-    dubaiTrack: {
-      label: 'Dubai OpenShift Track — Phase 2: RHCOA Cert Start',
-      period: 'Oct – Dec 2026 · 6–8 hrs/week',
-      note: 'RHCOA learning subscription begins. Concepts overlap with Sem-1 K8s and feed Sem-4 OpenShift chapter.',
-      tasks: [
-        { id: 'rhcoa_enroll', label: 'Enroll: RedHat Learning Subscription (USD 500)' },
-        { id: 'modules_1_6',  label: 'RHCOA Modules 1–6: architecture, RBAC, networking, storage' },
-        { id: 'chart3_cache', label: 'Chart 3: cache (Redis + ConfigMap + Service)' },
-        { id: 'modules_7_9',  label: 'RHCOA Modules 7–9: advanced + troubleshooting' },
-        { id: 'helm_docs',    label: 'Full chart documentation & README written' },
-      ],
-    },
   },
   {
-    id: 's3', label: 'Semester 3 — Advanced Topics',
-    period: 'Months 6–9 · Nov 2026–Feb 2027',
-    color: '#00d47c', commitment: '30 min/day',
-    summary: 'DevSecOps, GitOps (ArgoCD), and Multi-Cloud translation. AWS SAA formalises your existing operational AWS depth.',
+    id: 'p3', label: 'OpenShift',
+    period: 'Wk 13–18 · Oct 5–Nov 15 · ~27h',
+    color: '#ef4444', commitment: '4.5h/week',
+    target: 'OpenShift fundamentals + advanced — Udemy + KodeKloud',
+    summary: 'OCP foundations then advanced OCP 4 topics.',
     chapters: [
-      { id: 's3_ch5', code: 'Ch 5', label: 'DevSecOps — Snyk, Trivy, Vault, Checkov', gap: 'MEDIUM-HIGH' },
-      { id: 's3_ch6', code: 'Ch 6', label: 'GitOps — ArgoCD & Pull-Based Delivery',  gap: 'HIGH' },
-      { id: 's3_ch3', code: 'Ch 3', label: 'Multi-Cloud — AWS depth + Azure/GCP translation', gap: 'MEDIUM' },
+      { id: 'p3_c1', code: '3.1', label: 'OpenShift fundamentals (Wk 13–15)', gap: 'BUILDING' },
+      { id: 'p3_c2', code: '3.2', label: 'OpenShift 4 advanced (Wk 16–18)', gap: 'DEPTH' },
     ],
-    projects: [
-      { id: 's3_p_sec_pipe',  label: 'secure-pipeline-template — SAST + Snyk + Trivy + Checkov + Gitleaks (Portfolio 3)' },
-      { id: 's3_p_gitops_lab', label: 'gitops-homelab — ArgoCD App of Apps + two-repo CI/CD pattern' },
-      { id: 's3_p_azure_tf',   label: 'azure-terraform-bridge — Add AKS via azurerm provider to aws-infra-terraform' },
+    resources: [
+      { label: 'OpenShift for Absolute Beginners — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'OpenShift 4 — KodeKloud', url: 'https://kodekloud.com' },
     ],
-    cert: { id: 's3_cert_aws', label: 'AWS Solutions Architect Associate (SAA-C03)', cost: 'USD 150', priority: 'HIGH', targetMonth: 'End of Month 8 · AZ-900 optional same week' },
-    dubaiTrack: {
-      label: 'Dubai OpenShift Track — Phase 3: Certification Push',
-      period: 'Jan – Mar 2027 · 3–5 hrs/week',
-      note: 'Three mock exams scaling 65% → 75%. Chart 4 monitoring extends portfolio.',
-      tasks: [
-        { id: 'mock_exam_1',    label: 'Mock Exam 1 — target score 65%+ (mid-Jan)' },
-        { id: 'mock_exam_2',    label: 'Mock Exam 2 — target score 70%+ (mid-Feb)' },
-        { id: 'mock_exam_3',    label: 'Mock Exam 3 — target score 75%+ (mid-Mar)' },
-        { id: 'chart4_monitor', label: 'Chart 4: monitoring (Prometheus sidecar, optional)' },
-      ],
-    },
   },
   {
-    id: 's4', label: 'Semester 4 — Specialisation & Career',
-    period: 'Months 9–12 · Feb–May 2027',
-    color: '#ff9933', commitment: '30 min/day',
-    summary: 'Make your AI work visible (open-source ci-log-analyst). Master infra system design via PACED. Apply, interview, negotiate.',
+    id: 'p4', label: 'Groovy + Jenkins + ArgoCD',
+    period: 'Wk 19–30 · Nov 16–Feb 7 · ~54h',
+    color: '#f59e0b', commitment: '4.5h/week',
+    target: 'Groovy → Jenkins pipelines → ArgoCD GitOps',
+    summary: 'CI/CD pipeline mastery: Groovy DSL, Jenkins shared libraries, ArgoCD fundamentals + advanced.',
     chapters: [
-      { id: 's4_ch8',     code: 'Ch 8',     label: 'AIOps — your strategic moat (RAG, LLMs)',    gap: 'LOW gap, RARE moat' },
-      { id: 's4_ch7',     code: 'Ch 7',     label: 'OpenShift — BFSI/Enterprise (optional)',    gap: 'Conditional' },
-      { id: 's4_chsd',    code: 'Ch SD',    label: 'System Design — PACED framework, 6 scenarios', gap: 'HIGH' },
-      { id: 's4_ch11',    code: 'Ch 11',    label: 'Coding Strategy — 50 easy LeetCode',         gap: 'Sustaining' },
-      { id: 's4_ch12_13', code: 'Ch 12–13', label: 'Applications, Referrals, STAR Interviews',   gap: 'Closing' },
+      { id: 'p4_c1', code: '4.1', label: 'Groovy language (Wk 19–21)', gap: 'HIGH' },
+      { id: 'p4_c2', code: '4.2', label: 'Jenkins pipelines + shared libraries (Wk 22–24)', gap: 'CRITICAL' },
+      { id: 'p4_c3', code: '4.3', label: 'ArgoCD fundamentals (Wk 25–27)', gap: 'CRITICAL' },
+      { id: 'p4_c4', code: '4.4', label: 'ArgoCD advanced + hands-on project (Wk 28–30)', gap: 'DEPTH' },
     ],
-    projects: [
-      { id: 's4_p_ci_log',  label: 'ci-log-analyst — FastAPI + Ollama/OpenAI LLM tool (Portfolio 2 — your differentiator)' },
-      { id: 's4_p_design',  label: 'design-docs — 3 PACED architecture docs (CI/CD, Observability, Secrets)' },
-      { id: 's4_p_lc50',    label: 'LeetCode 50-easy — arrays, strings, hashmaps only' },
-      { id: 's4_p_5_star',  label: '5 STAR stories — written, timed at 90–120s, practiced aloud' },
-      { id: 's4_p_apply',   label: '5+ Tier-A applications submitted (PhonePe, Razorpay, CRED, BrowserStack…)' },
+    resources: [
+      { label: 'Groovy for Developers — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'Jenkins CI/CD Pipelines w/ Groovy DSL — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'GitOps with ArgoCD — KodeKloud', url: 'https://kodekloud.com', star: true },
     ],
-    cert: { id: 's4_cert_cks', label: 'CKS or AZ-104 (role-dependent, optional)', cost: 'USD 395 / 165', priority: 'CONDITIONAL', targetMonth: 'Month 11–12 if BFSI/Security roles in pipeline' },
-    dubaiTrack: {
-      label: 'Dubai OpenShift Track — Phase 4: RHCOA Exam & Wrap-Up',
-      period: 'Apr – Jun 2027 · 1–3 hrs/week',
-      note: 'EX280 exam culminates the Dubai track and the OpenShift chapter (Ch 7) together.',
-      tasks: [
-        { id: 'final_review',   label: 'Final weak-area review & confidence building' },
-        { id: 'rhcoa_exam',     label: '🎯 RHCOA Exam (EX280) — May 31, 2027' },
-        { id: 'portfolio_done', label: 'GitHub portfolio polished — 3–4 charts, complete docs' },
-        { id: 'blog_post',      label: 'Technical blog post published (500–1000 words)' },
-      ],
-    },
   },
-];
-
-// Aggregated certifications view — for the cert roadmap card
-const DEVOPS_CERTS = [
-  { id: 'cert_cka',      label: 'CKA — Certified Kubernetes Administrator', cost: 'USD 395', month: 3,  priority: 'CRITICAL', via: 'KodeKloud labs + every mock' },
-  { id: 'cert_tf',       label: 'HashiCorp Terraform Associate',            cost: 'USD 70',  month: 5,  priority: 'CRITICAL', via: 'KodeKloud Terraform Associate course' },
-  { id: 'cert_aws_saa',  label: 'AWS Solutions Architect Associate (SAA-C03)', cost: 'USD 150', month: 8, priority: 'HIGH',     via: 'Stephane Maarek Udemy + Tutorials Dojo' },
-  { id: 'cert_az_900',   label: 'AZ-900 Azure Fundamentals (optional)',      cost: 'USD 165', month: 8,  priority: 'OPTIONAL', via: '1-week prep alongside SAA' },
-  { id: 'cert_cks',      label: 'CKS — Kubernetes Security Specialist',     cost: 'USD 395', month: 12, priority: 'BFSI/SEC',  via: 'Requires CKA. Add only if role demands.' },
-  { id: 'cert_az_104',   label: 'AZ-104 Azure Administrator',                cost: 'USD 165', month: 12, priority: 'BFSI/MNC',  via: '~6 weeks prep. Add only if Azure roles active.' },
+  {
+    id: 'p5', label: 'Terraform + AWS SAA',
+    period: 'Wk 31–44 · Feb 8–May 16 · ~63h',
+    color: '#00d47c', commitment: '4.5h/week · Terraform cert Wk 34–36 · AWS SAA Wk 43–44',
+    target: 'Terraform Associate + AWS SAA certifications',
+    summary: 'IaC with Terraform then full AWS Solutions Architect path.',
+    chapters: [
+      { id: 'p5_c1', code: '5.1', label: 'Terraform fundamentals (Wk 31–33)', gap: 'HIGH' },
+      { id: 'p5_c2', code: '5.2', label: 'Terraform Associate prep + exam (Wk 34–36)', gap: 'EXAM' },
+      { id: 'p5_c3', code: '5.3', label: 'AWS IAM, EC2, VPC (Wk 37–39)', gap: 'CRITICAL' },
+      { id: 'p5_c4', code: '5.4', label: 'AWS storage, DB, HA, serverless (Wk 40–42)', gap: 'HIGH' },
+      { id: 'p5_c5', code: '5.5', label: 'AWS SAA exam prep + sit exam (Wk 43–44)', gap: 'EXAM' },
+    ],
+    resources: [
+      { label: 'AWS Workshop with Terraform — KodeKloud', url: 'https://kodekloud.com', star: true },
+      { label: 'AWS SAA — KodeKloud', url: 'https://kodekloud.com', star: true },
+    ],
+  },
+  {
+    id: 'p6', label: 'Adv Python + Networking + Service Mesh',
+    period: 'Wk 45–54 · May 17–Jul 25 · ~45h',
+    color: '#3b82f6', commitment: '4.5h/week',
+    target: 'Python DevOps → Networking → Istio + 3scale',
+    summary: 'Advanced Python automation, networking fundamentals, Istio service mesh, 3scale API management.',
+    chapters: [
+      { id: 'p6_c1', code: '6.1', label: 'Advanced Python for DevOps (Wk 45–48)', gap: 'HIGH' },
+      { id: 'p6_c2', code: '6.2', label: 'Networking fundamentals — TCP/IP, DNS, HTTP (Wk 49)', gap: 'FOUNDATIONAL' },
+      { id: 'p6_c3', code: '6.3', label: 'Istio service mesh (Wk 50–52)', gap: 'HIGH' },
+      { id: 'p6_c4', code: '6.4', label: '3scale + advanced mesh (Wk 53–54)', gap: 'DEPTH' },
+    ],
+    resources: [
+      { label: 'Python for DevOps — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'Istio Hands-on Fundamentals — Udemy', url: 'https://udemy.com', star: true },
+    ],
+  },
+  {
+    id: 'p7', label: 'Observability + Security',
+    period: 'Wk 55–63 · Jul 26–Sep 26 · ~40h',
+    color: '#f97316', commitment: '4.5h/week',
+    target: 'Prometheus/Grafana → Vault → Container Security',
+    summary: 'Full observability stack plus secrets management and supply chain security.',
+    chapters: [
+      { id: 'p7_c1', code: '7.1', label: 'Prometheus + PromQL (Wk 55–57)', gap: 'HIGH' },
+      { id: 'p7_c2', code: '7.2', label: 'Grafana + OpenTelemetry basics (Wk 58–59)', gap: 'HIGH' },
+      { id: 'p7_c3', code: '7.3', label: 'Vault secrets management (Wk 60–62)', gap: 'HIGH' },
+      { id: 'p7_c4', code: '7.4', label: 'Container scanning (Trivy) + OPA (Wk 63)', gap: 'BUILDING' },
+    ],
+    resources: [
+      { label: 'PCA — KodeKloud', url: 'https://kodekloud.com', star: true },
+      { label: 'HashiCorp Vault — Udemy', url: 'https://udemy.com', star: true },
+    ],
+  },
+  {
+    id: 'p8', label: 'System Design + GenAI + PSM I',
+    period: 'Wk 64–76 · Sep 27–Dec 27 · ~58h',
+    color: '#a78bfa', commitment: '4.5h/week · PSM I exam Wk 74',
+    target: 'System Design → GenAI for DevOps → PSM I cert',
+    summary: 'Architecture interviews, AI-augmented DevOps, and Scrum certification.',
+    chapters: [
+      { id: 'p8_c1', code: '8.1', label: 'System Design fundamentals (Wk 64–66)', gap: 'HIGH' },
+      { id: 'p8_c2', code: '8.2', label: 'System Design mocks + portfolio (Wk 67–68)', gap: 'DEPTH' },
+      { id: 'p8_c3', code: '8.3', label: 'GenAI for DevOps (Wk 69–71)', gap: 'BUILDING' },
+      { id: 'p8_c4', code: '8.4', label: 'Advanced GenAI — RAG, agents (Wk 72–73)', gap: 'DEPTH' },
+      { id: 'p8_c5', code: '8.5', label: 'PSM I prep + sit exam (Wk 74)', gap: 'EXAM' },
+      { id: 'p8_c6', code: '8.6', label: 'Buffer / catch-up / revision (Wk 75–76)', gap: 'SUSTAINING' },
+    ],
+    resources: [
+      { label: 'System Design Masterclass — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'Generative AI for DevOps Engineers — Udemy', url: 'https://udemy.com', star: true },
+      { label: 'PSM I Certification Training — Udemy', url: 'https://udemy.com', star: true },
+    ],
+  },
 ];
 
 // ── Books queue (from the plan) ────────────────────────────
@@ -178,6 +182,56 @@ const MONTHLY_DOMAINS = [
   { id: 'exit_clock', label: 'Exit Clock',  q: 'Months to Jun 1, 2027 notice date? On track for clean exit?' }
 ];
 
+// ── Behavioral Round — Story Bank (real wins, STAR-ready) ─
+const STORY_BANK = [
+  { label: '⚙️ Technical Win',       text: '5h → 1.5h build time (70% reduction) — ZENworks macOS agent pipeline, achieved via profiling and parallelisation of Maven/Bash build stages.' },
+  { label: '💡 Innovation',          text: 'Built a RAG-based documentation tool that cut new-hire onboarding from 3 weeks to 1 week. Built an LLM-powered pipeline log investigator that cut triage time by 40%.' },
+  { label: '🧭 Leadership',          text: 'Built a Power Automate flow that reduced DevOps request turnaround by 63% (3.5 days → 1.3 days). Served as Scrum Master.' },
+  { label: '🤝 Cross-team Impact',   text: 'Standardised code-signing across business units, cutting related incidents by 40%. Led a zero-data-loss migration of 10+ repos from GitHub to GitLab.' },
+];
+
+// ── Habit Stack Rollout — 5 stacks, 2-week implementation windows (Jul–Aug 2026) ─
+// Auto-locks once a window closes if the underlying daily routine was completed
+// on ≥10 of the 14 days (a "good day" = ≥70% of that day's schedule checked off).
+const HABIT_STACKS = [
+  { id: 'stack1', emoji: '🌅', label: 'Stack 1 — Morning Anchor', window: 'Wk 1–2 · Jul 1–14, 2026', start: '2026-07-01', end: '2026-07-14',
+    desc: '6:00 AM wake → breakfast prep → set the day’s intention.' },
+  { id: 'stack2', emoji: '💻', label: 'Stack 2 — Evening Tech', window: 'Wk 3–4 · Jul 15–28, 2026', start: '2026-07-15', end: '2026-07-28',
+    desc: '6:00 PM tech study session — Mon / Wed / Thu.' },
+  { id: 'stack3', emoji: '🍳', label: 'Stack 3 — Cooking Split', window: 'Wk 3–4 · Jul 15–28, 2026', start: '2026-07-15', end: '2026-07-28',
+    desc: 'Dinner prep + cleanup, split into a repeatable routine.' },
+  { id: 'stack4', emoji: '📖', label: 'Stack 4 — UPSC Anchor', window: 'Wk 5–6 · Jul 29 – Aug 11, 2026', start: '2026-07-29', end: '2026-08-11',
+    desc: '8:00 PM UPSC block → break at 9:30 PM → revision until 11:30 PM.' },
+  { id: 'stack5', emoji: '🗒️', label: 'Stack 5 — Weekend Review', window: 'Wk 7–8 · Aug 12–25, 2026', start: '2026-08-12', end: '2026-08-25',
+    desc: 'Saturday chores + weekly review · Sunday planning for the week ahead.' },
+];
+
+// ── Reward System (optional, read-only) ──────────────────
+const REWARD_TIERS = [
+  { tier: 'Weekly',    trigger: 'Hit your weekly UPSC + tech study targets (Coach Dashboard all green).',          reward: 'A favourite meal, a movie night, or a few guilt-free hours of downtime.' },
+  { tier: 'Monthly',   trigger: 'Complete the month’s syllabus slice + habit stacks on track.',                reward: 'Something small you’ve been wanting — a book, a gadget accessory, a nice coffee run.' },
+  { tier: 'Quarterly', trigger: 'Complete a DevOps plan phase or UPSC subject block on schedule.',                    reward: 'A bigger treat — a day trip, a nice dinner out, a half-day off.' },
+  { tier: 'Milestone', trigger: 'Major milestones — Prelims cleared, Mains written, return to India.',               reward: 'A big reward — a trip home, a meaningful purchase, real celebration.' },
+];
+
+// ── Weekly Burnout Check — traffic-light thresholds ───────
+const BURNOUT_CHECKS = [
+  { metric: 'Sleep avg',       green: '≥ 7 hrs',                      yellow: '6–7 hrs',              red: '< 6 hrs',                  action: 'Protect the wind-down window; cut evening screens — sleep beats one extra revision pass.' },
+  { metric: 'Energy at desk',  green: 'Focused, steady',                   yellow: 'Afternoon dips',        red: 'Constant fatigue',         action: 'Take a half-day off; review workload; short walk + protein-forward meals.' },
+  { metric: 'Social contact',  green: 'Regular (friends/family/partner)',  yellow: 'Occasional',            red: 'Isolated > 1 week',        action: 'Reach out today — message parents, partner, or a friend. Don’t wait to "feel like it".' },
+  { metric: 'Exercise',        green: '4+ sessions/week',                  yellow: '2–3 sessions/week',     red: '0–1 sessions/week',        action: 'Re-anchor the morning habit stack; even a 15-min walk counts — restart small.' },
+  { metric: 'Learning quality', green: 'Retaining & applying material',    yellow: 'Surface-level reading', red: 'Re-reading, no retention', action: 'Switch to active recall / teach-back; take a rest day rather than push through.' },
+];
+
+// ── Predictable Crisis Points & Fixes ─────────────────────
+const CRISIS_POINTS = [
+  { crisis: 'Habit Friction',              timing: 'Month 1–2',  symptom: 'New routines feel exhausting; easy to skip "just today".',                  fix: 'Don’t add new habits until the current stack is automatic. Follow the 10/14-day rollout order — one stack at a time.' },
+  { crisis: 'Learning Plateau',            timing: 'Month 3–4',  symptom: 'Hours logged but progress feels stuck — UPSC and tech both feel "stale".',    fix: 'Switch method, not subject — active recall, teach-back, past-paper questions. Revisit fundamentals before adding new material.' },
+  { crisis: 'Work Chaos',                  timing: 'Month 5–6',  symptom: 'Job demands spike right before the exit/Dubai transition.',                   fix: 'Protect the UPSC block as non-negotiable. Communicate boundaries early; use leave strategically, not reactively.' },
+  { crisis: 'Decision Doubt',              timing: 'Month 8–10', symptom: 'Second-guessing the UPSC path; comparing your progress to others.',          fix: 'Revisit your original why. The plan was made with the best information available. One conversation with a mentor beats a week of rumination.' },
+  { crisis: 'Mock Exam Failure',           timing: 'Any time',   symptom: 'A bad mock score triggers a confidence spiral.',                              fix: 'One mock ≠ the real exam. Do error analysis, not self-judgment — log the weak areas and adjust the next cycle’s plan.' },
+];
+
 // ── Book cover images (keyed by month) — separate from content ─
 const BOOK_COVERS = {
   '2026-05': 'assets/img/books/atomic-habits.jpg',
@@ -202,22 +256,138 @@ const GrowthTracker = {
   render() {
     this.renderTechPlan();
     this.renderTechSummary();
+    this.renderHabitStacks();
+    this.renderStoryBank();
+    this.renderRewardSystem();
+    this.renderBurnoutCheck();
+    this.renderCrisisCard();
     this.renderBooks();
     this.renderAutoReview();
     this.renderPartnerLog();
     this.renderWeeklyReviewChart();
   },
 
+  // ── Collapsible info-card helper — preserves open/closed state across re-renders ──
+  _renderCollapsible(containerId, icon, title, bodyHtml, defaultOpen = false) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!el.dataset.built) {
+      el.dataset.built = '1';
+      el.classList.add('gx-card');
+      if (!defaultOpen) el.classList.add('collapsed');
+      el.innerHTML = `
+        <div class="gx-card-hdr" data-gx-toggle>
+          <span class="gx-card-title">${icon} ${esc(title)}</span>
+          <span class="gx-chev">▼</span>
+        </div>
+        <div class="gx-card-body"></div>`;
+      el.querySelector('[data-gx-toggle]').addEventListener('click', () => el.classList.toggle('collapsed'));
+    }
+    el.querySelector('.gx-card-body').innerHTML = bodyHtml;
+  },
+
+  _dateKey(d) {
+    const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+  },
+
+  // ── Behavioral Round — Story Bank ────────────────────────
+  renderStoryBank() {
+    const body = STORY_BANK.map(s => `
+      <div class="story-row">
+        <div class="story-label">${s.label}</div>
+        <div class="story-text">${esc(s.text)}</div>
+      </div>`).join('');
+    this._renderCollapsible('storyBankCard', '🏆', 'Behavioral Round — Story Bank', body, false);
+  },
+
+  // ── Habit Stack Rollout ───────────────────────────────────
+  renderHabitStacks() {
+    const log   = AppState.habitStacks || {};
+    const hist  = AppState.dailyHistory || {};
+    const today = AppState.getTodayKey();
+
+    const rows = HABIT_STACKS.map(stack => {
+      let goodDays = 0;
+      for (let d = new Date(stack.start + 'T00:00:00'); this._dateKey(d) <= stack.end; d.setDate(d.getDate() + 1)) {
+        const rec = hist[this._dateKey(d)];
+        if (rec && rec.total > 0 && (rec.completed / rec.total) >= 0.7) goodDays++;
+      }
+      const windowDone  = today > stack.end;
+      const autoLocked  = windowDone && goodDays >= 10;
+      const checked     = !!log[stack.id] || autoLocked;
+
+      return `
+        <div class="hs-row">
+          <button class="tp-chk${checked ? ' on' : ''}" data-habit-stack="${esc(stack.id)}" ${autoLocked ? 'disabled' : ''}>${checked ? '✓' : ''}</button>
+          <div class="hs-info">
+            <div class="hs-name">${stack.emoji} ${esc(stack.label)}</div>
+            <div class="hs-meta">${esc(stack.window)} — ${esc(stack.desc)}</div>
+            ${windowDone ? `<div class="hs-streak">${autoLocked ? '🔒 Auto-locked · ' : ''}${goodDays}/14 good days</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    this._renderCollapsible('habitStackCard', '🔄', 'Habit Stack Rollout', `<div class="hs-list">${rows}</div>`, true);
+
+    document.getElementById('habitStackCard')?.querySelectorAll('[data-habit-stack]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        AppState.habitStacks = AppState.habitStacks || {};
+        const id = btn.dataset.habitStack;
+        AppState.habitStacks[id] = !AppState.habitStacks[id];
+        AppState.save();
+        this.renderHabitStacks();
+      });
+    });
+  },
+
+  // ── Reward System (optional, read-only) ─────────────────
+  renderRewardSystem() {
+    const rows = REWARD_TIERS.map(r => `
+      <tr><td><strong>${esc(r.tier)}</strong></td><td>${esc(r.trigger)}</td><td class="notes-td">${esc(r.reward)}</td></tr>`).join('');
+    const body = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Tier</th><th>Trigger</th><th>Reward</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+    this._renderCollapsible('rewardSystemCard', '🎁', 'Reward System', body, false);
+  },
+
+  // ── Weekly Burnout Check ──────────────────────────────────
+  renderBurnoutCheck() {
+    const rows = BURNOUT_CHECKS.map(b => `
+      <tr>
+        <td><strong>${esc(b.metric)}</strong></td>
+        <td class="good">${esc(b.green)}</td>
+        <td class="warn">${esc(b.yellow)}</td>
+        <td style="color:var(--accent-rose);">${esc(b.red)}</td>
+        <td class="notes-td">${esc(b.action)}</td>
+      </tr>`).join('');
+    const body = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Metric</th><th>🟢 Green</th><th>🟡 Yellow</th><th>🔴 Red</th><th>Action if Red</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+    this._renderCollapsible('burnoutCheckCard', '🛡️', 'Weekly Burnout Check', body, false);
+  },
+
+  // ── Predictable Crisis Points & Fixes ─────────────────────
+  renderCrisisCard() {
+    const rows = CRISIS_POINTS.map(c => `
+      <tr>
+        <td><strong>${esc(c.crisis)}</strong><br><span style="font-size:10px;color:var(--text-faint);">${esc(c.timing)}</span></td>
+        <td class="notes-td">${esc(c.symptom)}</td>
+        <td class="notes-td">${esc(c.fix)}</td>
+      </tr>`).join('');
+    const body = `<div class="data-table-wrap"><table class="data-table">
+      <thead><tr><th>Crisis Point</th><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+    this._renderCollapsible('crisisCard', '⚠️', 'Predictable Crisis Points & Fixes', body, false);
+  },
+
   // ── DevOps Career Elevation Plan ─────────────────────────
-  // Counts: each semester has chapters + projects + 1 cert. Total items
-  // tracked toward semester progress = chapters.length + projects.length + 1.
+  // Total items tracked toward phase progress = chapters.length.
   _semesterItems(sem) {
-    return [
-      ...sem.chapters.map(c => c.id),
-      ...sem.projects.map(p => p.id),
-      sem.cert.id,
-      ...(sem.dubaiTrack?.tasks || []).map(t => t.id),
-    ];
+    return sem.chapters.map(c => c.id);
   },
   _semesterDone(sem, log) {
     return this._semesterItems(sem).filter(id => log[id]?.done).length;
@@ -235,7 +405,6 @@ const GrowthTracker = {
       const pct   = total ? Math.round((done / total) * 100) : 0;
       const isComplete = done === total;
       const isActive   = done > 0 && !isComplete;
-      const certDone = !!log[sem.cert.id]?.done;
 
       const chapterRows = sem.chapters.map(ch => {
         const s = log[ch.id] || {};
@@ -246,13 +415,11 @@ const GrowthTracker = {
         </div>`;
       }).join('');
 
-      const projectRows = sem.projects.map(pr => {
-        const s = log[pr.id] || {};
-        return `<div class="tp-task${s.done ? ' tp-done' : ''}">
-          <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(pr.id)}">${s.done ? '✓' : ''}</button>
-          <span class="tp-tlabel">🛠️ ${esc(pr.label)}</span>
-          ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
-        </div>`;
+      const resourceRows = (sem.resources || []).map(r => {
+        const label = `${r.star ? '⭐ ' : ''}${esc(r.label)}`;
+        return `<div style="font-size:12px;color:var(--text-muted);line-height:1.7;">${
+          r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-blue);">${label}</a>` : label
+        }</div>`;
       }).join('');
 
       return `
@@ -266,32 +433,13 @@ const GrowthTracker = {
             <div class="tp-score">${isComplete ? '<span class="tp-tick">✓</span>' : `${done}/${total}`}</div>
           </div>
           <div class="tp-bar"><div class="tp-fill" style="width:${pct}%;background:${sem.color}"></div></div>
-          <div style="font-size:11px;color:var(--text-muted);margin:6px 0 10px;line-height:1.5;">${esc(sem.summary)}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin:6px 0 4px;line-height:1.5;">${esc(sem.summary)}</div>
+          <div style="font-size:11px;font-weight:600;color:${sem.color};margin-bottom:10px;">🎯 ${esc(sem.target)}</div>
           <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:6px;">Chapters</div>
           <div class="tp-tasks">${chapterRows}</div>
-          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px;">Module Projects</div>
-          <div class="tp-tasks">${projectRows}</div>
-          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px;">Target Certification</div>
-          <div class="tp-tasks">
-            <div class="tp-task${certDone ? ' tp-done' : ''}" style="background:rgba(255,255,255,0.02);border:1px dashed ${sem.color};border-radius:6px;padding:6px 8px;">
-              <button class="tp-chk${certDone ? ' on' : ''}" data-phase-task="${esc(sem.cert.id)}">${certDone ? '✓' : ''}</button>
-              <span class="tp-tlabel">🎯 <strong>${esc(sem.cert.label)}</strong> — ${esc(sem.cert.cost)} · ${esc(sem.cert.priority)} · ${esc(sem.cert.targetMonth)}</span>
-              ${certDone && log[sem.cert.id]?.date ? `<span class="tp-tdate">${esc(log[sem.cert.id].date)}</span>` : ''}
-            </div>
-          </div>
-          ${sem.dubaiTrack ? `
-          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--accent-amber);text-transform:uppercase;letter-spacing:.05em;margin-top:14px;padding-top:10px;border-top:1px dashed var(--border);">🏗️ ${esc(sem.dubaiTrack.label)}</div>
-          <div style="font-size:11px;color:var(--text-faint);margin:2px 0 6px;line-height:1.5;"><strong style="color:var(--text-muted);">${esc(sem.dubaiTrack.period)}</strong> &nbsp;·&nbsp; <em>${esc(sem.dubaiTrack.note)}</em></div>
-          <div class="tp-tasks">
-            ${sem.dubaiTrack.tasks.map(t => {
-              const s = log[t.id] || {};
-              return `<div class="tp-task${s.done ? ' tp-done' : ''}">
-                <button class="tp-chk${s.done ? ' on' : ''}" data-phase-task="${esc(t.id)}">${s.done ? '✓' : ''}</button>
-                <span class="tp-tlabel">${esc(t.label)}</span>
-                ${s.done && s.date ? `<span class="tp-tdate">${esc(s.date)}</span>` : ''}
-              </div>`;
-            }).join('')}
-          </div>
+          ${resourceRows ? `
+          <div class="tp-section-label" style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-top:10px;">Resources</div>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:4px;">${resourceRows}</div>
           ` : ''}
         </div>`;
     }).join('');

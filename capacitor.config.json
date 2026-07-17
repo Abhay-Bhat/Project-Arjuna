@@ -1,0 +1,15 @@
+{
+  "appId": "com.abhaybhat.arjuna",
+  "appName": "Skadi",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": false,
+      "providers": ["google.com"]
+    }
+  }
+}
