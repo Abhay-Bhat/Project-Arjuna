@@ -75,10 +75,17 @@ const Auth = {
           return;
         }
 
-        // Subsequent state changes (sign-out)
+        // Subsequent state changes (sign-in after boot, or sign-out)
         if (user) {
           this._applyUserUI(user);
           this._hideOverlay();
+          // Fresh sign-in (user was null at boot, now authenticated) —
+          // CloudSync was never started because main.js skipped it when
+          // Auth.init() resolved with null. Start it now.
+          if (!CloudSync._enabled) {
+            CloudSync.init();
+            AppState.syncCloud().then(() => CloudSync.startListening());
+          }
         } else {
           this._showOverlay();
         }
