@@ -12,6 +12,7 @@ async function installCapacitorMock(page) {
       return Promise.resolve({});
     };
     let backButtonListener = null;
+    let pauseListener = null;
 
     window.Capacitor = {
       isNativePlatform: () => true,
@@ -20,6 +21,7 @@ async function installCapacitorMock(page) {
         App: {
           addListener: (event, cb) => {
             if (event === 'backButton') backButtonListener = cb;
+            if (event === 'pause') pauseListener = cb;
             return Promise.resolve({ remove: () => {} });
           },
           minimizeApp: record('App', 'minimizeApp'),
@@ -37,6 +39,8 @@ async function installCapacitorMock(page) {
     // (the actual event can only fire from native Android, never from a
     // browser) by invoking the same listener NativeIntegration registered.
     window.__fireBackButton = () => backButtonListener && backButtonListener();
+    // Same idea for the native 'pause' (app backgrounded) lifecycle event.
+    window.__firePause = () => pauseListener && pauseListener();
   });
 }
 

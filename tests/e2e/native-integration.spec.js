@@ -127,4 +127,15 @@ test.describe('native integration (mocked Capacitor)', () => {
     const after = await calls(page, 'Browser', 'open');
     expect(after.length).toBe(before.length);
   });
+
+  test('native "pause" lifecycle event triggers CloudSync.flushPush() (Android background-flush reliability)', async ({ page }) => {
+    await boot(page);
+    const flushCallCount = await page.evaluate(() => {
+      let count = 0;
+      CloudSync.flushPush = () => { count++; };
+      window.__firePause();
+      return count;
+    });
+    expect(flushCallCount).toBe(1);
+  });
 });
