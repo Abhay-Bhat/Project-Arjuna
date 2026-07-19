@@ -32,10 +32,21 @@ const KNOWN_DASHBOARDS = [
 let _readyResolve;
 const _ready = new Promise(resolve => { _readyResolve = resolve; });
 
-// Load persisted state on startup
+// Load persisted state on startup. `data` should always be an object per the
+// chrome.storage API, but if the read ever fails (lastError set — quota,
+// corrupted entry, or a transient issue at cold-start) it can come back
+// undefined; falling back to {} here is essential, not just defensive —
+// _readyResolve() is the last line, so any unhandled throw above it would
+// leave `_ready` permanently unresolved and silently hang every message
+// handler and tab-block check gated behind it for the rest of this service
+// worker's life.
 chrome.storage.local.get(
   [STORAGE_KEY_ACTIVE, STORAGE_KEY_ALLOWLIST, STORAGE_KEY_DASHBOARD],
   data => {
+    if (chrome.runtime.lastError) {
+      console.warn('Skadi Focus Guard: storage load error, using defaults:', chrome.runtime.lastError.message);
+    }
+    data = data || {};
     focusActive = !!data[STORAGE_KEY_ACTIVE];
     allowlist   = data[STORAGE_KEY_ALLOWLIST] || [];
     // Merge known dashboards with any saved ones

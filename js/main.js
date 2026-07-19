@@ -104,13 +104,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (icon) icon.textContent = '⟳';
       await AppState.syncCloud();
       btn.classList.remove('syncing');
-      btn.classList.add('synced');
-      if (icon) icon.textContent = '✓';
+      // Reflect what actually happened -- CloudSync.pull()/push() already set
+      // 'error' via _setSyncStatus() on a real failure, but syncCloud() itself
+      // always resolves successfully even when sync never got enabled at all
+      // (e.g. Firestore failed to initialize), so check that explicitly here
+      // rather than unconditionally claiming success.
+      const ok = CloudSync._enabled;
+      btn.classList.add(ok ? 'synced' : 'error');
+      if (icon) icon.textContent = ok ? '✓' : '!';
       setTimeout(() => {
-        btn.classList.remove('synced');
+        btn.classList.remove('synced', 'error');
         if (icon) icon.textContent = '☁';
         btn.disabled = false;
-      }, 2000);
+      }, ok ? 2000 : 4000);
     });
 
     // Auth.init() resolves with the current user (or null).
