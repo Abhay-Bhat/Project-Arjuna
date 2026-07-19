@@ -15,11 +15,22 @@ let dashOrigins  = [];  // Registered dashboard origins e.g. ["https://leafy-tru
 // Known dashboard URLs — always allowed, always act as admin console.
 // The extension communicates with these pages via the content.js bridge.
 const KNOWN_DASHBOARDS = [
+  'https://project-arjuna.pages.dev',
   'https://leafy-truffle-624881.netlify.app',
   'https://abhay-bhat.github.io',
   'http://localhost:8080',
   'http://localhost:3000',
 ];
+
+// Resolves once persisted state has loaded. MV3 service workers are evicted
+// after ~30s idle and respawn on the next event with fresh (default) module
+// state — gating every state-dependent check behind this promise stops a
+// cold-started worker from making a blocking decision (or answering a
+// message) against the default `focusActive = false` before the real
+// persisted value has loaded, which would otherwise get silently
+// overwritten a moment later when the load resolves.
+let _readyResolve;
+const _ready = new Promise(resolve => { _readyResolve = resolve; });
 
 // Load persisted state on startup
 chrome.storage.local.get(
@@ -30,6 +41,7 @@ chrome.storage.local.get(
     // Merge known dashboards with any saved ones
     const saved = data[STORAGE_KEY_DASHBOARD] || [];
     dashOrigins = [...new Set([...KNOWN_DASHBOARDS, ...saved])];
+    _readyResolve();
   }
 );
 
@@ -61,9 +73,11 @@ function _persist() {
 // ── Tab blocking ──────────────────────────────────────────────────────────
 
 function _checkTab(tabId, url) {
-  if (!focusActive || _isAllowed(url)) return;
-  const blocked = `${BLOCKED_PAGE}?from=${encodeURIComponent(url)}`;
-  chrome.tabs.update(tabId, { url: blocked });
+  _ready.then(() => {
+    if (!focusActive || _isAllowed(url)) return;
+    const blocked = `${BLOCKED_PAGE}?from=${encodeURIComponent(url)}`;
+    chrome.tabs.update(tabId, { url: blocked });
+  });
 }
 
 chrome.tabs.onUpdated.addListener((tabId, info, tab) => {
@@ -81,60 +95,78 @@ function _blockExistingTabs() {
   });
 }
 
+// When focus ends, restore any tabs currently sitting on blocked.html back
+// to the page they were trying to reach — without this, a tab that got
+// blocked while focus was on stays stuck on blocked.html forever, since
+// nothing else ever re-navigates it (this was the reported bug: toggling
+// focus OFF stopped new blocking but never undid existing blocks).
+function _unblockExistingTabs() {
+  chrome.tabs.query({}, tabs => {
+    tabs.forEach(t => {
+      if (!t.url || !t.url.startsWith(BLOCKED_PAGE)) return;
+      const from = new URL(t.url).searchParams.get('from');
+      if (from) chrome.tabs.update(t.id, { url: from });
+    });
+  });
+}
+
 // ── Message bridge from content.js ───────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  switch (msg.type) {
+  _ready.then(() => {
+    switch (msg.type) {
 
-    case 'SKADI_FOCUS_START':
-      focusActive = true;
-      chrome.storage.local.set({ focusStartedAt: Date.now() });
-      _persist();
-      _blockExistingTabs();
-      sendResponse({ ok: true });
-      break;
-
-    case 'SKADI_FOCUS_END':
-      focusActive = false;
-      _persist();
-      sendResponse({ ok: true });
-      break;
-
-    case 'SKADI_REGISTER_DASHBOARD':
-      if (msg.origin && !dashOrigins.includes(msg.origin)) {
-        dashOrigins.push(msg.origin);
+      case 'SKADI_FOCUS_START':
+        focusActive = true;
+        chrome.storage.local.set({ focusStartedAt: Date.now() });
         _persist();
-      }
-      sendResponse({ ok: true });
-      break;
+        _blockExistingTabs();
+        sendResponse({ ok: true });
+        break;
 
-    case 'SKADI_SET_ALLOWLIST':
-      allowlist = Array.isArray(msg.allowlist) ? msg.allowlist : [];
-      _persist();
-      sendResponse({ ok: true });
-      break;
-
-    case 'SKADI_GET_STATE':
-      sendResponse({ focusActive, allowlist, dashOrigins });
-      break;
-
-    case 'SKADI_ALLOW_TEMP': {
-      // Temporarily allow a domain for 5 minutes
-      const host = _hostname(msg.url);
-      if (host && !allowlist.includes(host)) {
-        allowlist.push(host);
+      case 'SKADI_FOCUS_END':
+        focusActive = false;
         _persist();
-        setTimeout(() => {
-          allowlist = allowlist.filter(h => h !== host);
+        _unblockExistingTabs();
+        sendResponse({ ok: true });
+        break;
+
+      case 'SKADI_REGISTER_DASHBOARD':
+        if (msg.origin && !dashOrigins.includes(msg.origin)) {
+          dashOrigins.push(msg.origin);
           _persist();
-        }, 5 * 60 * 1000);
-      }
-      sendResponse({ ok: true });
-      break;
-    }
+        }
+        sendResponse({ ok: true });
+        break;
 
-    default:
-      sendResponse({ ok: false, error: 'unknown message type' });
-  }
+      case 'SKADI_SET_ALLOWLIST':
+        allowlist = Array.isArray(msg.allowlist) ? msg.allowlist : [];
+        _persist();
+        sendResponse({ ok: true });
+        break;
+
+      case 'SKADI_GET_STATE':
+        sendResponse({ focusActive, allowlist, dashOrigins });
+        break;
+
+      case 'SKADI_ALLOW_TEMP': {
+        // Temporarily allow a domain for 5 minutes
+        const host = _hostname(msg.url);
+        if (host && !allowlist.includes(host)) {
+          allowlist.push(host);
+          _persist();
+          setTimeout(() => {
+            allowlist = allowlist.filter(h => h !== host);
+            _persist();
+          }, 5 * 60 * 1000);
+        }
+        sendResponse({ ok: true });
+        break;
+      }
+
+      default:
+        sendResponse({ ok: false, error: 'unknown message type' });
+    }
+  });
   return true; // keep channel open for async
 });
