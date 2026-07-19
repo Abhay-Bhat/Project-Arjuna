@@ -63,6 +63,20 @@ const NativeIntegration = {
     window.Capacitor.Plugins.App?.addListener('backButton', () => this.handleBackButton());
   },
 
+  // Android can suspend a backgrounded WebView's JS timers (OEM battery
+  // managers, Doze/App-Standby) before the DOM even reliably fires
+  // visibilitychange/pagehide, which is what js/main.js's flushPush()
+  // depends on — meaning a quick edit-then-background can drop the queued
+  // Firestore write within its 800ms debounce window. The native 'pause'
+  // event is driven directly by the Activity's onPause callback, firing
+  // before that suspension, so it's a more reliable backup trigger for
+  // exactly the same flush.
+  _bindAppStateChange() {
+    window.Capacitor.Plugins.App?.addListener('pause', () => {
+      if (typeof CloudSync !== 'undefined') CloudSync.flushPush();
+    });
+  },
+
   // Delegated so it covers every current and future external link with no
   // per-file changes — internal '#...'/relative links and the blob: export
   // links used for downloads are untouched (only absolute http(s) hrefs match).
@@ -92,6 +106,7 @@ const NativeIntegration = {
   init() {
     if (!Platform.isNative()) return;
     this._bindBackButton();
+    this._bindAppStateChange();
     this._bindExternalLinks();
     const theme = document.documentElement.getAttribute('data-theme') || 'dark';
     this.syncStatusBarTheme(theme);

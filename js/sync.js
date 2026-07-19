@@ -43,8 +43,12 @@ const CloudSync = {
       this._db      = firebase.firestore();
       this._enabled = true;
     } catch (e) {
+      // Genuinely unexpected (unlike the not-signed-in-yet branch above) --
+      // surface it so the user has *some* on-screen signal instead of sync
+      // silently never enabling with nothing but a console warning.
       console.warn('CloudSync: Firestore unavailable --', e.message);
       this._enabled = false;
+      this._setSyncStatus('error');
       return;
     }
     this._registerDevice();
