@@ -161,6 +161,16 @@
     }
     updateTimer();
     setInterval(updateTimer, 1000);
+
+    // Self-recover if focus turns off while this page is showing — the
+    // background script already tries to navigate blocked tabs back on
+    // SKADI_FOCUS_END, but this is a second, independent path so a stuck
+    // tab isn't solely dependent on that one message having fired/landed.
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area === 'local' && changes.focusActive && changes.focusActive.newValue === false && fromUrl) {
+        location.href = fromUrl;
+      }
+    });
   </script>
 </body>
 </html>
