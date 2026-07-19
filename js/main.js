@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       CloudSync.startListening();
     }
     // If !user: overlay is showing; sign-in is handled by authSignInBtn click.
-    // Auth.signInWithGoogle() calls CloudSync.init() + AppState.syncCloud() on success.
+    // onAuthStateChanged in auth.js triggers CloudSync.init() + syncCloud() on sign-in.
 
   } catch (err) {
     console.error('❌ Boot error:', err);
