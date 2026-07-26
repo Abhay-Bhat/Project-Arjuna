@@ -3,7 +3,9 @@
 //
 // Strategy: pull-on-load + push-on-save + real-time listener.
 // - On sign-in: pull() fetches the latest cloud state once.
-// - On every AppState.save(): push() writes to Firestore (debounced 2s).
+// - On every AppState.save(): push() writes to Firestore (debounced,
+//   diff-only — only fields that actually changed since the last
+//   successful push are written, via Firestore update()).
 //   Each push is tagged with a per-session _deviceId.
 // - startListening() registers an onSnapshot listener after the initial pull.
 //   Echo guard: skips snapshots where _deviceId === ours (our own writes).
@@ -33,6 +35,7 @@ const CloudSync = {
   _suppressBC:      false,   // true while applying a received BC message — breaks the re-broadcast loop
   _suppressBCTimer: null,
   _pendingPayload:  null,    // most-recent unsent payload; used by flushPush()
+  _lastPushedJsons: null,    // { field: JSON.stringify(value) } — baseline for diff comparison
 
   init() {
     if (!Auth.isAuthenticated || Auth.isLocalOnly) {
@@ -43,9 +46,6 @@ const CloudSync = {
       this._db      = firebase.firestore();
       this._enabled = true;
     } catch (e) {
-      // Genuinely unexpected (unlike the not-signed-in-yet branch above) --
-      // surface it so the user has *some* on-screen signal instead of sync
-      // silently never enabling with nothing but a console warning.
       console.warn('CloudSync: Firestore unavailable --', e.message);
       this._enabled = false;
       this._setSyncStatus('error');
@@ -96,6 +96,9 @@ const CloudSync = {
       delete data._ts;
       delete data._deviceId;
       this._lastPulledAt = data._savedAt || null;
+      // Snapshot pulled data so the post-merge push only writes fields
+      // this device actually changed, not the entire merged result.
+      this._lastPushedJsons = this._snapshotFields(data);
       return data;
     } catch (e) {
       console.error('CloudSync: pull failed —', e.code || e.message);
@@ -104,33 +107,93 @@ const CloudSync = {
     }
   },
 
+  // ── Diff helpers ───────────────────────────────────────────
+
+  _snapshotFields(payload) {
+    const snap = {};
+    for (const key of Object.keys(payload)) {
+      if (key === '_savedAt') continue;
+      snap[key] = JSON.stringify(payload[key]);
+    }
+    return snap;
+  },
+
+  // Returns:
+  //   null   — no baseline exists (first push: full set() needed)
+  //   false  — nothing changed since last push (skip write entirely)
+  //   Object — only the changed fields (use update())
+  _computeDiff(payload) {
+    if (!this._lastPushedJsons) return null;
+    const diff = {};
+    let count = 0;
+    for (const key of Object.keys(payload)) {
+      if (key === '_savedAt') continue;
+      const json = JSON.stringify(payload[key]);
+      if (json !== this._lastPushedJsons[key]) {
+        diff[key] = payload[key];
+        count++;
+      }
+    }
+    if (count === 0) return false;
+    diff._savedAt = payload._savedAt;
+    return diff;
+  },
+
+  // Shared write logic for push() and flushPush().
+  _doWrite(payload) {
+    const diff = this._computeDiff(payload);
+    if (diff === false) return;
+
+    this._setSyncStatus('syncing');
+    const meta = {
+      _deviceId: this._deviceId,
+      _ts: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    const onDone = () => {
+      this._lastPushedJsons = this._snapshotFields(payload);
+      this._setSyncStatus('synced');
+      this._pendingPayload = null;
+    };
+    const onError = (e) => {
+      console.warn('CloudSync: push failed --', e.message);
+      this._setSyncStatus('error');
+    };
+    const fullSet = () => {
+      const doc = Object.assign({}, payload, meta);
+      if (this._deviceRef) this._deviceRef.set(doc).catch(() => {});
+      return this._ref.set(doc);
+    };
+
+    if (diff === null) {
+      // First push — full document via set()
+      fullSet().then(onDone).catch(onError);
+    } else {
+      // Diff push — only changed fields via update()
+      const doc = Object.assign({}, diff, meta);
+      if (this._deviceRef) this._deviceRef.update(doc).catch(() => {});
+      this._ref.update(doc)
+        .then(onDone)
+        .catch(e => {
+          if (e.code === 'not-found') return fullSet().then(onDone).catch(onError);
+          onError(e);
+        });
+    }
+  },
+
   // Debounced push -- coalesces rapid saves into one Firestore write.
-  // Fires 800 ms after the LAST save, so checking 10 items in a row = 1 write.
-  // Writes to TWO docs: master (authoritative) + per-device (isolated recovery path).
+  // Only fields that actually changed since the last successful push are
+  // written (via Firestore update()), so checking one checkbox sends ~1 field
+  // instead of the entire 30-field state document.
   push(payload) {
     this._pendingPayload = payload; // keep the latest payload for flushPush()
     this._broadcastToTabs(payload); // notify other tabs immediately (works even in local-only mode)
     if (!this._enabled || !this._ref) return;
     if (this._pushTimer) clearTimeout(this._pushTimer);
     this._pushTimer = setTimeout(() => {
-      this._setSyncStatus('syncing');
-      const doc = Object.assign({}, this._pendingPayload, {
-        _deviceId: this._deviceId,
-        _ts: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      // Per-device write: isolated namespace — this device's state is never overwritten
-      // by another device, providing a safe recovery copy. Best-effort (silent failure).
-      if (this._deviceRef) this._deviceRef.set(doc).catch(() => {});
-      // Master write: authoritative merged state, read by all devices
-      this._ref
-        .set(doc)
-        .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
-        .catch((e) => {
-          console.warn('CloudSync: push failed --', e.message);
-          this._setSyncStatus('error');
-        });
+      this._doWrite(this._pendingPayload);
       this._pushTimer = null;
-    }, 800);
+    }, 500);
   },
 
   // Immediately writes any queued push — call on pagehide/visibilitychange:hidden.
@@ -138,15 +201,7 @@ const CloudSync = {
     if (!this._pendingPayload || !this._enabled || !this._ref) return;
     clearTimeout(this._pushTimer);
     this._pushTimer = null;
-    const doc = Object.assign({}, this._pendingPayload, {
-      _deviceId: this._deviceId,
-      _ts: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if (this._deviceRef) this._deviceRef.set(doc).catch(() => {});
-    this._ref
-      .set(doc)
-      .then(() => { this._setSyncStatus('synced'); this._pendingPayload = null; })
-      .catch(e => console.warn('CloudSync: flush failed --', e.message));
+    this._doWrite(this._pendingPayload);
   },
 
   // Cancel any queued push (called when cloud data is newer and just applied).
@@ -196,6 +251,9 @@ const CloudSync = {
         AppState.selectedDate  = activeDate;
         AppState.calendarMonth = activeMonth;
         Storage.save(mergedData);
+        // Update diff baseline to the cloud state so the next push only
+        // includes fields this device actually changes, not re-echoed cloud data.
+        this._lastPushedJsons = this._snapshotFields(cloudData);
         // If there's a queued push (from boot sync), refresh its payload to include
         // this device's changes — prevents the stale push from overwriting B's data.
         if (this._pendingPayload) this._pendingPayload = mergedData;
@@ -233,12 +291,10 @@ const CloudSync = {
       let data;
       try { data = JSON.parse(JSON.stringify(raw)); } catch { return; }
       // Suppress re-broadcasting for long enough to outlast the save (300ms)
-      // + push (2000ms) debounce chain that UI.updateAll() will trigger.
-      // Without this, Tab A → BC → Tab B → UI.updateAll() → save → push →
-      // broadcastToTabs → Tab A → loop.
+      // + push (500ms) debounce chain that UI.updateAll() will trigger.
       this._suppressBC = true;
       clearTimeout(this._suppressBCTimer);
-      this._suppressBCTimer = setTimeout(() => { this._suppressBC = false; }, 2500);
+      this._suppressBCTimer = setTimeout(() => { this._suppressBC = false; }, 1500);
       const activeDate  = new Date(AppState.selectedDate);
       const activeMonth = new Date(AppState.calendarMonth);
       AppState._applyLoaded(data);

@@ -170,6 +170,7 @@ window.SKADI = {
       lastPulledAt:    cs._lastPulledAt,
       lastSeenServerMs: cs._lastSeenServerMs,
       listenerActive:  !!cs._unsubscribe,
+      diffTracking:    !!cs._lastPushedJsons,
       pendingPush:     !!cs._pendingPayload,
       localBuckets:    AppState.taskBuckets?.length,
       localTasks:      AppState.tasks?.length,
