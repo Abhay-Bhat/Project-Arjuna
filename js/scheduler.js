@@ -328,9 +328,9 @@ const ACTIVITY_META = [
   {
     match: /current affairs/i,
     desc:  'Read current affairs — newspaper or Unacademy CA module.',
-    expect:'Mark CA Reading Done in the Health tab.',
-    navTab:'health', focusId:'hCA',
-    logHint:'Mark CA Done in Health tab'
+    expect:'Log your CA reading in the UPSC tab under Current Affairs.',
+    navTab:'upsc', focusId:'caTitle',
+    logHint:'Log CA reading in UPSC tab'
   },
   {
     match: /call parents/i,
