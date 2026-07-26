@@ -485,7 +485,7 @@ const AppState = {
 
   // ── Health helpers ───────────────────────────────────────
   getTodayHealth() {
-    return this.healthLog[this.getTodayKey()] || { sleep_h: null, gym: false, phone_h: null, ca_done: false };
+    return this.healthLog[this.getTodayKey()] || { sleep_h: null, gym: false, phone_h: null };
   },
 
   setTodayHealth(updates) {
@@ -495,7 +495,7 @@ const AppState = {
   },
 
   getSelectedHealth() {
-    return this.healthLog[this.getDateKey()] || { sleep_h: null, gym: false, phone_h: null, ca_done: false };
+    return this.healthLog[this.getDateKey()] || { sleep_h: null, gym: false, phone_h: null };
   },
 
   setSelectedHealth(updates) {
