@@ -8171,7 +8171,7 @@ details.section-card[open] > summary {
   min-width: 0;
 }
 .task-qa-quadrant {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px;
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 8px;
 }
 .task-qa-q-btn {
   font-size: 10px; padding: 5px 4px; border-radius: 6px;
@@ -8405,35 +8405,45 @@ details.section-card[open] > summary {
 .task-qa-subject, .task-edit-subject {
   width: 100%; padding: 6px 8px; font-size: 12px; box-sizing: border-box;
   background: var(--card); border: 1px solid var(--border);
-  border-radius: 6px; color: var(--text); margin-top: 8px;
+  border-radius: 6px; color: var(--text);
 }
+.task-qa-subject { margin-top: 8px; }
+.task-edit-subject { margin-top: 8px; }
 
 /* Quick Add — description & subtask fields */
 .task-qa-desc {
   width: 100%; padding: 6px 10px; font-size: 12px; resize: vertical;
   background: var(--card); border: 1px solid var(--border);
   border-radius: 6px; color: var(--text); box-sizing: border-box;
-  font-family: inherit; line-height: 1.4; margin-top: 6px;
+  font-family: inherit; line-height: 1.4; margin-top: 8px;
 }
 .task-qa-desc:focus { outline: none; border-color: var(--accent-blue); }
-.task-qa-subtasks { margin-top: 6px; }
-.task-qa-subtask-add { display: flex; gap: 6px; }
+.task-qa-subtasks { margin-top: 8px; }
+.task-qa-subtask-add { display: flex; gap: 6px; align-items: stretch; }
 .task-qa-subtask-input {
-  flex: 1; font-size: 12px; padding: 5px 8px;
+  flex: 1; font-size: 12px; padding: 6px 8px; min-width: 0;
   background: var(--card); border: 1px solid var(--border);
   border-radius: 6px; color: var(--text); box-sizing: border-box;
 }
 .task-qa-subtask-input:focus { outline: none; border-color: var(--accent-blue); }
+#qaSubtaskAddBtn {
+  width: 32px; height: auto; padding: 0; font-size: 16px; font-weight: 700;
+  line-height: 1; border-radius: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+#qaSubtaskAddBtn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
 .task-qa-subtask-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
 .task-qa-subtask-row {
-  display: flex; align-items: center; gap: 6px; font-size: 12px;
-  color: var(--text); padding: 3px 6px;
-  background: var(--surface); border-radius: 4px;
+  display: flex; align-items: center; gap: 8px; font-size: 12px;
+  color: var(--text); padding: 5px 8px;
+  background: var(--surface); border-radius: 6px;
 }
 .task-qa-subtask-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .task-qa-subtask-del {
   background: none; border: none; color: var(--text-faint); cursor: pointer;
-  font-size: 12px; padding: 0 2px; opacity: 0; transition: opacity 0.15s;
+  font-size: 12px; padding: 0 4px; opacity: 0; transition: opacity 0.15s;
 }
 .task-qa-subtask-row:hover .task-qa-subtask-del { opacity: 1; }
 .task-qa-subtask-del:hover { color: var(--accent-rose); }
