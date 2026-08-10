@@ -252,6 +252,17 @@ const TasksTracker = {
     const isRunning = this._runningTaskId === t.id;
     const actualMin = t.actualMin || 0;
     const subjMeta = this._subjectRefMeta(t.subjectRef);
+    const subtaskHTML = sub.total > 0 ? `
+          <details class="task-subtasks" data-tid="${t.id}">
+            <summary class="task-subtasks-summary">☑ ${sub.done}/${sub.total} subtasks</summary>
+            <div class="task-subtasks-list">
+              ${(t.subtasks || []).map((s, i) => `
+                <label class="task-subtask-row">
+                  <input type="checkbox" class="task-card-subtask-cb" data-tid="${t.id}" data-sidx="${i}" ${s.done ? 'checked' : ''}>
+                  <span class="${s.done ? 'task-subtask-done' : ''}">${this._esc(s.title)}</span>
+                </label>`).join('')}
+            </div>
+          </details>` : '';
     return `
       <div class="matrix-task-item${isRunning ? ' task-timer-active' : ''}" data-tid="${t.id}" draggable="true">
         <label class="matrix-task-cb-wrap" title="${t.done ? 'Mark incomplete' : 'Mark complete'}">
@@ -270,6 +281,7 @@ const TasksTracker = {
             ${isRunning ? `<span class="task-timer-badge task-timer-live-dot" data-timer-display-tid="${t.id}">${this._fmtTimerTask(this._taskElapsed)}</span>` : ''}
             ${status === 'in-progress' ? '<span class="task-status-badge status-inprogress" data-status-tid="' + t.id + '">⏳</span>' : ''}
           </div>
+          ${subtaskHTML}
         </div>
         <div class="matrix-task-actions">
           <button class="task-timer-btn${isRunning ? ' task-timer-running' : ''}" data-timer-tid="${t.id}" title="${isRunning ? 'Stop timer' : 'Start timer'}">${isRunning ? '⏹' : '▶️'}</button>
@@ -330,6 +342,7 @@ const TasksTracker = {
       el.dataset.init = '1';
       el.innerHTML = `
         <input class="task-qa-input" id="qaTitle" placeholder="New task…" maxlength="200">
+        <textarea class="task-qa-desc" id="qaDesc" placeholder="Description (optional)" rows="2" maxlength="1000"></textarea>
         <div class="task-qa-fields">
           <input type="date" class="task-qa-date" id="qaDate" title="Due date">
           <select class="task-qa-pri" id="qaPri" title="Priority">
@@ -337,6 +350,13 @@ const TasksTracker = {
           </select>
         </div>
         <select class="task-qa-subject" id="qaSubjectRef" title="Link to subject/activity"></select>
+        <div class="task-qa-subtasks">
+          <div class="task-qa-subtask-list" id="qaSubtaskList"></div>
+          <div class="task-qa-subtask-add">
+            <input class="task-qa-subtask-input" id="qaSubtaskInput" placeholder="Add subtask…" maxlength="200">
+            <button class="btn btn-xs" id="qaSubtaskAddBtn">+</button>
+          </div>
+        </div>
         <div class="task-qa-quadrant">
           <button class="task-qa-q-btn active" data-q="0">Auto</button>
           ${this.QUADRANTS.map(q => `<button class="task-qa-q-btn ${q.key}" data-q="${q.id}">${q.icon} Q${q.id}</button>`).join('')}
@@ -344,6 +364,8 @@ const TasksTracker = {
         <button class="btn btn-primary btn-xs" id="qaSubmit" style="width:100%;margin-top:8px;">+ Add Task</button>`;
 
       let selectedQ = 0;
+      let qaSubtasks = [];
+
       el.querySelectorAll('.task-qa-q-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           el.querySelectorAll('.task-qa-q-btn').forEach(b => b.classList.remove('active'));
@@ -352,9 +374,40 @@ const TasksTracker = {
         });
       });
 
+      const renderQASubtasks = () => {
+        const list = document.getElementById('qaSubtaskList');
+        if (!list) return;
+        list.innerHTML = qaSubtasks.map((s, i) => `
+          <div class="task-qa-subtask-row">
+            <span class="task-qa-subtask-text">${this._esc(s.title)}</span>
+            <button class="task-qa-subtask-del" data-idx="${i}" title="Remove">✕</button>
+          </div>`).join('');
+        list.querySelectorAll('.task-qa-subtask-del').forEach(btn => {
+          btn.addEventListener('click', () => {
+            qaSubtasks.splice(parseInt(btn.dataset.idx), 1);
+            renderQASubtasks();
+          });
+        });
+      };
+
+      const addQASubtask = () => {
+        const input = document.getElementById('qaSubtaskInput');
+        const title = input?.value.trim();
+        if (!title) return;
+        qaSubtasks.push({ id: `st-${Date.now()}-${Math.floor(Math.random() * 10000)}`, title, done: false });
+        input.value = '';
+        renderQASubtasks();
+        input.focus();
+      };
+      document.getElementById('qaSubtaskAddBtn')?.addEventListener('click', addQASubtask);
+      document.getElementById('qaSubtaskInput')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); addQASubtask(); }
+      });
+
       const save = () => {
         const title = document.getElementById('qaTitle')?.value.trim();
         if (!title) { document.getElementById('qaTitle')?.focus(); return; }
+        const description = document.getElementById('qaDesc')?.value.trim() || '';
         const dueDate = document.getElementById('qaDate')?.value || '';
         const priority = document.getElementById('qaPri')?.value || 'medium';
         const subjectRef = this._parseSubjectRefValue(document.getElementById('qaSubjectRef')?.value);
@@ -368,15 +421,18 @@ const TasksTracker = {
 
         AppState.tasks = AppState.tasks || [];
         AppState.tasks.push({
-          id: Date.now(), bucketId, title, description: '', dueDate, priority,
-          status: 'todo', done: false, completedAt: null, subtasks: [],
+          id: Date.now(), bucketId, title, description, dueDate, priority,
+          status: 'todo', done: false, completedAt: null, subtasks: [...qaSubtasks],
           estimatedMin: null, matrixQ: selectedQ > 0 ? selectedQ : null,
           subjectRef, timeSessions: [], actualMin: 0,
           createdAt: new Date().toISOString(),
         });
         AppState.save();
         document.getElementById('qaTitle').value = '';
+        document.getElementById('qaDesc').value = '';
         document.getElementById('qaDate').value = '';
+        qaSubtasks = [];
+        renderQASubtasks();
         this.render();
         if (typeof UI !== 'undefined') UI.showToast('Task added');
       };
@@ -700,6 +756,29 @@ const TasksTracker = {
         );
         AppState.save();
         this.render();
+      });
+    });
+
+    grid.querySelectorAll('.task-card-subtask-cb').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const t = (AppState.tasks || []).find(x => x.id === parseInt(cb.dataset.tid));
+        if (!t || !t.subtasks) return;
+        const idx = parseInt(cb.dataset.sidx);
+        if (t.subtasks[idx]) {
+          t.subtasks[idx].done = cb.checked;
+          t.modifiedAt = new Date().toISOString();
+          AppState.save();
+          const span = cb.nextElementSibling;
+          if (span) span.className = cb.checked ? 'task-subtask-done' : '';
+          const badge = cb.closest('.matrix-task-item')?.querySelector('.task-subtask-badge');
+          const summary = cb.closest('.task-subtasks')?.querySelector('.task-subtasks-summary');
+          if (badge || summary) {
+            const sub = this._subtaskProgress(t);
+            if (badge) badge.textContent = `☑ ${sub.done}/${sub.total}`;
+            if (summary) summary.textContent = `☑ ${sub.done}/${sub.total} subtasks`;
+          }
+        }
       });
     });
 
