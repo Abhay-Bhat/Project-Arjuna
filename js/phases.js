@@ -130,22 +130,8 @@ const PhaseManager = {
   },
 
   getScheduleKey(date = new Date()) {
-    const phase = this.getPhase(date);
     const day = date.getDay();
-    const isSat = day === 6;
-    const isSun = day === 0;
-
-    const base = phase.scheduleBase;
-
-    if (base === 'sustained') {
-      if (isSat) return 'sustained_saturday';
-      if (isSun) return 'sustained_sunday';
-      return 'sustained_weekday';
-    }
-
-    if (isSat) return base + '_saturday';
-    if (isSun) return base + '_sunday';
-    return base + '_weekday';
+    return (day === 0 || day === 6) ? 'weekend' : 'weekday';
   },
 
   getUpcomingMilestones(n = 3) {
