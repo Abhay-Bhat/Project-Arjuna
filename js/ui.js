@@ -736,21 +736,8 @@ const UI = {
 
     const indicator = document.getElementById('dayIndicator');
     const labels = {
-      ramp1_weekday:       '🏁 Stage 1 — Settling In (Weekday)',
-      ramp1_saturday:      '🏁 Stage 1 — Settling In (Saturday)',
-      ramp1_sunday:        '🏁 Stage 1 — Settling In (Sunday)',
-      ramp2_weekday:       '🔧 Stage 2 — Building Momentum (Weekday)',
-      ramp2_saturday:      '🔧 Stage 2 — Building Momentum (Saturday)',
-      ramp2_sunday:        '🔧 Stage 2 — Building Momentum (Sunday)',
-      ramp3_weekday:       '📈 Stage 3 — Deepening (Weekday)',
-      ramp3_saturday:      '📈 Stage 3 — Deepening (Saturday)',
-      ramp3_sunday:        '📈 Stage 3 — Deepening (Sunday)',
-      ramp4_weekday:       '🔥 Stage 4 — Full Capacity (Weekday)',
-      ramp4_saturday:      '🔥 Stage 4 — Full Capacity (Saturday)',
-      ramp4_sunday:        '🔥 Stage 4 — Full Capacity (Sunday)',
-      sustained_weekday:   '⚡ Sustained Cruise (Weekday)',
-      sustained_saturday:  '⚡ Sustained Cruise (Saturday)',
-      sustained_sunday:    '⚡ Sustained Cruise (Sunday)'
+      weekday: 'Weekday Routine',
+      weekend: 'Weekend Routine'
     };
     if (indicator) indicator.textContent = labels[scheduleKey] || scheduleKey;
   },
@@ -882,17 +869,24 @@ const UI = {
   _renderHolidayToggle() {
     const toggle  = document.getElementById('holidayToggle');
     const switchEl = document.getElementById('holidaySwitch');
+    const label   = document.getElementById('holidayToggleLabel');
     if (!toggle || !switchEl) return;
 
     const today   = new Date();
     const isToday = AppState.selectedDate.toDateString() === today.toDateString();
-    const day     = AppState.selectedDate.getDay();
-    const isWd    = day >= 1 && day <= 5;
 
-    toggle.style.display = (isToday && isWd) ? 'flex' : 'none';
-    if (isToday && isWd) {
-      const over = AppState.holidayOverrides[AppState.getDateKey()] === 'weekend';
-      switchEl.classList.toggle('on', over);
+    toggle.style.display = isToday ? 'flex' : 'none';
+    if (isToday) {
+      const key = AppState.getDateKey();
+      const day = AppState.selectedDate.getDay();
+      const isNaturalWeekend = (day === 0 || day === 6);
+      const override = AppState.holidayOverrides[key];
+      switchEl.classList.toggle('on', !!override);
+      if (label) {
+        label.textContent = isNaturalWeekend
+          ? '📅 Use weekday schedule?'
+          : '📅 Mark as Holiday/Weekend?';
+      }
     }
   },
 
@@ -1316,9 +1310,14 @@ const UI = {
 
     el.addEventListener('click', () => {
       const key = AppState.getDateKey();
-      const isWE = AppState.holidayOverrides[key] === 'weekend';
-      if (isWE) delete AppState.holidayOverrides[key];
-      else AppState.holidayOverrides[key] = 'weekend';
+      const day = AppState.selectedDate.getDay();
+      const isNaturalWeekend = (day === 0 || day === 6);
+      const currentOverride = AppState.holidayOverrides[key];
+      if (currentOverride) {
+        delete AppState.holidayOverrides[key];
+      } else {
+        AppState.holidayOverrides[key] = isNaturalWeekend ? 'weekday' : 'weekend';
+      }
       AppState.save();
       this.updateAll();
     });
