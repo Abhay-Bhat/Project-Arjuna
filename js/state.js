@@ -439,13 +439,10 @@ const AppState = {
   getScheduleKey() {
     const override = this.holidayOverrides[this.getDateKey()];
     const day = this.selectedDate.getDay();
-    let effectiveDay = day;
-    if (override === 'weekend') effectiveDay = 6;
-    if (override === 'weekday') effectiveDay = 1;
-
-    const tmpDate = new Date(this.selectedDate);
-    // Use a date with the overridden weekday for phase detection
-    return PhaseManager.getScheduleKey(tmpDate);
+    const isNaturalWeekend = (day === 0 || day === 6);
+    if (override === 'weekend') return 'weekend';
+    if (override === 'weekday') return 'weekday';
+    return isNaturalWeekend ? 'weekend' : 'weekday';
   },
 
   // ── Routine helpers ──────────────────────────────────────
