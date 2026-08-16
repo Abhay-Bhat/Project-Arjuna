@@ -35,6 +35,9 @@ const TimeMatrix = {
   _fromTasks() {
     return TasksTracker._tasks()
       .filter(t => !t.done)
+      // Backlog tasks (undated/future, or pinned to the Backlog bucket) are
+      // not today's focus — they surface once dated for today or dragged out.
+      .filter(t => TasksTracker._quadrantFor(t) !== 5)
       .map(t => {
         const daysUntil = t.dueDate
           ? Math.floor((new Date(t.dueDate) - new Date()) / 86400000)
