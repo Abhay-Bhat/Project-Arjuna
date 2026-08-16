@@ -19,6 +19,8 @@ const TasksTracker = {
     { id: 4, key: 'q4', label: 'Eliminate',      icon: '🌙', color: 'var(--accent-teal)',  desc: 'Neither Urgent nor Important' },
   ],
 
+  BACKLOG: { id: 5, key: 'backlog', label: 'Backlog', icon: '📥', color: 'var(--accent-violet)', desc: 'Planned — no date or future date. Drag into a quadrant when ready' },
+
   BUCKET_COLORS: [
     '#5b7fff', '#00d4c8', '#ff9933', '#ff5c80',
     '#a56eff', '#00d47c', '#ffc107', '#ff6b6b',
@@ -58,8 +60,16 @@ const TasksTracker = {
     return this.PRIORITIES.find(p => p.value === value) || this.PRIORITIES[2];
   },
 
+  _todayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+
   _quadrantFor(t) {
-    if (t.matrixQ >= 1 && t.matrixQ <= 4) return t.matrixQ;
+    if (t.matrixQ >= 1 && t.matrixQ <= 5) return t.matrixQ;
+    // Undated or future-dated tasks wait in the Backlog until their day
+    // arrives (or the user drags them into a quadrant).
+    if (!t.dueDate || t.dueDate > this._todayStr()) return 5;
     const p = t.priority || 'medium';
     const isUrgent = p === 'urgent' || (t.dueDate && (new Date(t.dueDate) - new Date()) < 3 * 864e5);
     const isImportant = p === 'urgent' || p === 'high';
@@ -219,13 +229,13 @@ const TasksTracker = {
     const active = allTasks.filter(t => !t.done);
     const filtered = this._applySort(this._filterTasks(active));
 
-    const grouped = { 1: [], 2: [], 3: [], 4: [] };
+    const grouped = { 1: [], 2: [], 3: [], 4: [], 5: [] };
     filtered.forEach(t => {
       const q = this._quadrantFor(t);
       grouped[q].push(t);
     });
 
-    grid.innerHTML = this.QUADRANTS.map(q => {
+    grid.innerHTML = [...this.QUADRANTS, this.BACKLOG].map(q => {
       const items = grouped[q.id] || [];
       return `
         <div class="matrix-quadrant ${q.key}" data-quadrant="${q.id}">
@@ -360,6 +370,7 @@ const TasksTracker = {
         <div class="task-qa-quadrant">
           <button class="task-qa-q-btn active" data-q="0">Auto</button>
           ${this.QUADRANTS.map(q => `<button class="task-qa-q-btn ${q.key}" data-q="${q.id}">${q.icon} Q${q.id}</button>`).join('')}
+          <button class="task-qa-q-btn backlog" data-q="5">${this.BACKLOG.icon} Backlog</button>
         </div>
         <button class="btn btn-primary btn-xs" id="qaSubmit" style="width:100%;margin-top:8px;">+ Add Task</button>`;
 
@@ -462,7 +473,7 @@ const TasksTracker = {
     const onTimePct = withDue.length ? Math.round((onTime / withDue.length) * 100) : 100;
 
     const qCounts = [0, 0, 0, 0];
-    active.forEach(t => { const q = this._quadrantFor(t); qCounts[q - 1]++; });
+    active.forEach(t => { const q = this._quadrantFor(t); if (q <= 4) qCounts[q - 1]++; });
 
     const q1Rate = qCounts[0] > 0 ? Math.max(0, 100 - qCounts[0] * 15) : 100;
     const overduePenalty = Math.min(20, overdue.length * 5);
@@ -475,10 +486,10 @@ const TasksTracker = {
 
     const weeklyData = this._weeklyActivity(done);
     const qEstimates = [0, 0, 0, 0];
-    active.forEach(t => { if (t.estimatedMin) qEstimates[this._quadrantFor(t) - 1] += t.estimatedMin; });
+    active.forEach(t => { const q = this._quadrantFor(t); if (t.estimatedMin && q <= 4) qEstimates[q - 1] += t.estimatedMin; });
 
     const qActuals = [0, 0, 0, 0];
-    all.forEach(t => { if (t.actualMin) qActuals[this._quadrantFor(t) - 1] += t.actualMin; });
+    all.forEach(t => { const q = this._quadrantFor(t); if (t.actualMin && q <= 4) qActuals[q - 1] += t.actualMin; });
 
     const withBoth = all.filter(t => t.estimatedMin > 0 && t.actualMin > 0);
     let overCount = 0, underCount = 0, accuracyPct = 100;
@@ -1045,6 +1056,7 @@ const TasksTracker = {
         <button class="task-edit-mq-btn q2${mqA(2)}" data-q="2">📅 Q2</button>
         <button class="task-edit-mq-btn q3${mqA(3)}" data-q="3">⚡ Q3</button>
         <button class="task-edit-mq-btn q4${mqA(4)}" data-q="4">🌙 Q4</button>
+        <button class="task-edit-mq-btn q5${mqA(5)}" data-q="5">📥 Backlog</button>
       </div>
       <div class="task-edit-actions">
         <button class="btn btn-xs btn-primary task-edit-save">Save</button>

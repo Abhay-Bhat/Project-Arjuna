@@ -3671,6 +3671,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .task-edit-mq-btn.q2.active { border-color: var(--accent-blue); }
 .task-edit-mq-btn.q3.active { border-color: var(--accent-amber); }
 .task-edit-mq-btn.q4.active { border-color: var(--accent-teal); }
+.task-edit-mq-btn.q5.active { border-color: var(--accent-violet); }
 .task-edit-actions { display: flex; gap: 6px; }
 
 /* Subtasks editor (inline edit area) */
@@ -3809,6 +3810,7 @@ h1, h2, h3 { font-weight: 600; line-height: 1.2; }
 .matrix-quadrant.q2 { --card-color: var(--accent-blue); }
 .matrix-quadrant.q3 { --card-color: var(--accent-amber); }
 .matrix-quadrant.q4 { --card-color: var(--accent-teal); }
+.matrix-quadrant.backlog { --card-color: var(--accent-violet); grid-column: 1 / -1; min-height: 120px; }
 
 .matrix-quadrant-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -8074,6 +8076,10 @@ details.section-card[open] > summary {
 .tasks-main-wrap .matrix-quadrant.q4 {
   background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-teal) 6%, var(--card)));
 }
+.tasks-main-wrap .matrix-quadrant.backlog {
+  min-height: 140px;
+  background: linear-gradient(160deg, var(--card), color-mix(in srgb, var(--accent-violet) 6%, var(--card)));
+}
 @media (max-width: 700px) {
   .tasks-main-wrap > .matrix-grid { grid-template-columns: 1fr; }
 }
@@ -8171,7 +8177,7 @@ details.section-card[open] > summary {
   min-width: 0;
 }
 .task-qa-quadrant {
-  display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 8px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px;
 }
 .task-qa-q-btn {
   font-size: 10px; padding: 5px 4px; border-radius: 6px;
@@ -8188,6 +8194,7 @@ details.section-card[open] > summary {
 .task-qa-q-btn.q2.active { background: var(--accent-blue); border-color: var(--accent-blue); }
 .task-qa-q-btn.q3.active { background: var(--accent-amber); border-color: var(--accent-amber); }
 .task-qa-q-btn.q4.active { background: var(--accent-teal); border-color: var(--accent-teal); }
+.task-qa-q-btn.backlog.active { background: var(--accent-violet); border-color: var(--accent-violet); }
 
 /* Analytics grid */
 .tasks-analytics-grid {
