@@ -106,6 +106,13 @@ const ACTIVITY_META = [
     logHint:'Log CA reading in UPSC tab'
   },
   {
+    match: /wind down|screens off/i,
+    desc:  'Wind down for the night — screens off, phone away.',
+    expect:'Log today\'s total phone screen time in the Health tab.',
+    navTab:'health', focusId:'hPhone',
+    logHint:'Log phone hours in Health tab'
+  },
+  {
     match: /meditation/i,
     desc:  'Morning meditation — clear the mind before the day starts.',
     expect:'No log needed — check off after completing.',
