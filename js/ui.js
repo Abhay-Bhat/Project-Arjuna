@@ -265,6 +265,206 @@ const UI = {
     document.getElementById('pendingActivityBanner')?.remove();
   },
 
+  // ── Quick Log — inline detail entry on the Today tab ─────
+  // Instead of redirecting to the target tab, capture the activity's
+  // data in a small modal right here. Writes go to the same AppState
+  // fields the target tab reads, so it shows up there automatically.
+
+  _quickLogKindFor(meta) {
+    if (!meta || !meta.navTab) return null;
+    if (meta.focusId === 'hSleep')  return 'sleep';
+    if (meta.focusId === 'hGym')    return 'gym';
+    if (meta.focusId === 'caTitle') return 'ca';
+    if (meta.navTab === 'upsc')     return 'upsc';
+    if (meta.navTab === 'growth' && meta.focusId === 'techStudyModeToggle') return 'tech';
+    return null;
+  },
+
+  // Returns true if a quick-log form was shown; false → caller falls back to navigation.
+  openQuickLog(ctx) {
+    const kind = this._quickLogKindFor(ctx.meta);
+    if (!kind) return false;
+
+    document.getElementById('quickLogOverlay')?.remove();
+
+    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const todayKey = AppState.getTodayKey();
+
+    let bodyHtml = '';
+    if (kind === 'sleep') {
+      const cur = AppState.getSelectedHealth().sleep_h;
+      bodyHtml = `
+        <div class="ql-field">
+          <label for="qlSleep">😴 Sleep hours (last night)</label>
+          <input type="number" id="qlSleep" min="0" max="14" step="0.5" value="${cur != null ? cur : ''}" placeholder="e.g. 7.5">
+        </div>`;
+    } else if (kind === 'gym') {
+      bodyHtml = `<div class="ql-note">🏃 Saving will mark today's exercise as done in the Health log.</div>`;
+    } else if (kind === 'ca') {
+      bodyHtml = `
+        <div class="ql-field">
+          <label for="qlCaSource">Source</label>
+          <input type="text" id="qlCaSource" value="Newspaper" maxlength="60">
+        </div>
+        <div class="ql-field">
+          <label for="qlCaTitle">Topic / headline <span class="ql-req">*</span></label>
+          <input type="text" id="qlCaTitle" placeholder="What did you read?" maxlength="200">
+        </div>
+        <div class="ql-field">
+          <label for="qlCaNotes">Notes (optional)</label>
+          <textarea id="qlCaNotes" rows="2" maxlength="1000" placeholder="Key takeaways…"></textarea>
+        </div>`;
+    } else if (kind === 'upsc') {
+      const subjects = typeof UPSC_SUBJECTS !== 'undefined' ? UPSC_SUBJECTS : [];
+      const activeSubj = subjects.find(s => todayKey >= s.start && todayKey <= s.end)
+        || subjects.find(s => (AppState.upscSubjectProgress?.[s.id] || 0) < (AppState.upscSubjectTotals?.[s.id] ?? s.classes))
+        || subjects[0];
+      if (!activeSubj) return false;
+      bodyHtml = `
+        <div class="ql-field">
+          <label for="qlUpscSubj">Subject</label>
+          <select id="qlUpscSubj">
+            ${subjects.map(s => {
+              const done = AppState.upscSubjectProgress?.[s.id] || 0;
+              const total = AppState.upscSubjectTotals?.[s.id] ?? s.classes;
+              return `<option value="${s.id}" ${s.id === activeSubj.id ? 'selected' : ''}>${esc(s.name)} (${done}/${total})</option>`;
+            }).join('')}
+          </select>
+        </div>
+        <div class="ql-field">
+          <label for="qlUpscN">Classes completed this session</label>
+          <input type="number" id="qlUpscN" min="1" max="20" value="1">
+        </div>`;
+    } else if (kind === 'tech') {
+      const techSubjects = (typeof TechStudyTracker !== 'undefined' && TechStudyTracker.getSubjects) ? TechStudyTracker.getSubjects() : [];
+      bodyHtml = `
+        ${techSubjects.length ? `
+        <div class="ql-field">
+          <label for="qlTechSubj">Subject</label>
+          <select id="qlTechSubj">
+            ${techSubjects.map(s => `<option value="${esc(s.id)}">${esc(s.emoji || s.tree || '📌')} ${esc(s.label)}</option>`).join('')}
+          </select>
+        </div>` : ''}
+        <div class="ql-field">
+          <label for="qlTechMin">Minutes studied</label>
+          <input type="number" id="qlTechMin" min="1" max="600" step="5" value="45">
+        </div>`;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'quickLogOverlay';
+    overlay.className = 'ql-overlay';
+    overlay.innerHTML = `
+      <div class="ql-modal" role="dialog" aria-modal="true">
+        <div class="ql-header">
+          <span class="ql-title">${esc(ctx.activityName)}</span>
+          <button class="ql-close" title="Cancel">✕</button>
+        </div>
+        <div class="ql-sub">${esc(ctx.meta?.expect || 'Log the details, then mark complete.')}</div>
+        <div class="ql-body">${bodyHtml}</div>
+        <div class="ql-error" style="display:none;"></div>
+        <div class="ql-actions">
+          <button class="btn btn-primary btn-sm ql-save">✓ Save &amp; Complete</button>
+          <button class="btn btn-sm ql-skip">Complete without details</button>
+          <button class="btn btn-sm ql-goto">Open ${esc(ctx.meta.navTab)} tab ↗</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    const close = () => overlay.remove();
+    const showError = (msg) => {
+      const errEl = overlay.querySelector('.ql-error');
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    };
+
+    const complete = () => {
+      AppState.toggleActivity(ctx.key, true);
+      if (ctx.cb) {
+        ctx.cb.checked = true;
+        ctx.cb.closest('.time-slot')?.classList.add('completed');
+      }
+      Scheduler.updateProgress(ctx.scheduleKey);
+      if (typeof this.syncQuickCheckins === 'function') this.syncQuickCheckins();
+      close();
+    };
+
+    const save = () => {
+      if (kind === 'sleep') {
+        const v = parseFloat(overlay.querySelector('#qlSleep')?.value);
+        if (isNaN(v) || v <= 0) { showError('Enter your sleep hours first — or use "Complete without details".'); return; }
+        AppState.setSelectedHealth({ sleep_h: v });
+      } else if (kind === 'gym') {
+        AppState.setSelectedHealth({ gym: true });
+      } else if (kind === 'ca') {
+        const title = overlay.querySelector('#qlCaTitle')?.value.trim();
+        if (!title) { showError('Enter the topic/headline first — or use "Complete without details".'); return; }
+        AppState.addCAArticle({
+          source: overlay.querySelector('#qlCaSource')?.value.trim() || 'Newspaper',
+          title,
+          notes: overlay.querySelector('#qlCaNotes')?.value.trim() || '',
+          url: '', attachmentKey: null, fileName: null
+        });
+      } else if (kind === 'upsc') {
+        const sid = parseInt(overlay.querySelector('#qlUpscSubj')?.value, 10);
+        const n = Math.max(1, parseInt(overlay.querySelector('#qlUpscN')?.value, 10) || 1);
+        const subj = (typeof UPSC_SUBJECTS !== 'undefined' ? UPSC_SUBJECTS : []).find(s => s.id === sid);
+        if (!subj) { showError('Pick a subject.'); return; }
+        const total = AppState.upscSubjectTotals?.[sid] ?? subj.classes;
+        AppState.upscSubjectProgress = AppState.upscSubjectProgress || {};
+        AppState.upscSubjectProgress[sid] = Math.min(total, (AppState.upscSubjectProgress[sid] || 0) + n);
+        AppState.upscSubjectProgressUpdatedAt = new Date().toISOString();
+        AppState.save();
+      } else if (kind === 'tech') {
+        const m = parseInt(overlay.querySelector('#qlTechMin')?.value, 10);
+        if (isNaN(m) || m < 1) { showError('Enter the minutes studied — or use "Complete without details".'); return; }
+        if (!AppState.techStudyLog) AppState.techStudyLog = [];
+        AppState.techStudyLog.push({
+          id: Date.now(),
+          date: todayKey,
+          subject: overlay.querySelector('#qlTechSubj')?.value || 'history',
+          activity: 'class',
+          duration_min: m,
+          completed: true,
+          started_at: new Date().toISOString(),
+        });
+        AppState.save();
+      }
+      complete();
+      this.showToast('✅ Logged & marked complete!');
+    };
+
+    overlay.querySelector('.ql-save').addEventListener('click', save);
+    overlay.querySelector('.ql-skip').addEventListener('click', () => {
+      complete();
+      this.showToast('✅ Activity marked complete');
+    });
+    overlay.querySelector('.ql-goto').addEventListener('click', () => {
+      close();
+      this.setPendingActivity(ctx);
+      this._setActiveTab(ctx.meta.navTab);
+      this._renderTab(ctx.meta.navTab);
+      if (ctx.meta.focusId) {
+        setTimeout(() => {
+          const el = document.getElementById(ctx.meta.focusId);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (typeof el.focus === 'function') el.focus();
+          }
+        }, 250);
+      }
+    });
+    overlay.querySelector('.ql-close').addEventListener('click', close);
+    overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+    });
+
+    const firstInput = overlay.querySelector('input, select, textarea');
+    if (firstInput) setTimeout(() => firstInput.focus(), 50);
+    return true;
+  },
+
   // Called by Health/UPSC/Mind/Growth save handlers after data is saved
   tryCompletePendingActivity(tab) {
     if (this._pendingActivity && this._pendingActivity.navTab === tab) {
@@ -625,7 +825,7 @@ const UI = {
       interview_prep: 'Interview prep sprint: UPSC is fully paused — all in on interview readiness until Sep 30.',
       ramp2:     'Weeks 3–4: You extended the evening block. Protect the 7:15 PM start — it\'s your UPSC gate.',
       ramp3:     'Weeks 5–6: 2 hours UPSC/day reached. Consistency > intensity. Don\'t chase lost days.',
-      ramp4:     'Weeks 7–8: Full capacity. NCERT is closing out. CKA prep parallel. You\'re building something real.',
+      ramp4:     'Weeks 7–8: Full capacity. Subject coverage is deepening. CKA prep parallel. You\'re building something real.',
       sustained: 'Week 9+: Cruise altitude. 27.5h UPSC + 4.5h Tech/week. Trust the system — it\'s designed to last 76 weeks.'
     };
     el.textContent = tips[phase?.id] || tips.sustained;
@@ -905,35 +1105,27 @@ const UI = {
     const todayStr = today.toISOString().split('T')[0];
     const DAY_MS = 864e5;
 
-    // Dates shifted (2026-07-14) for the 11-week interview-prep sprint
-    // pause (Jul 15 - Sep 30, 2026, see js/phases.js) — kept in lockstep
+    // Restarted 2026-08-23 (NCERT Foundation dropped) — kept in lockstep
     // with UPSC_SUBJECTS in js/upsc.js. 'prelims'/'mains-rank' keep their
     // real, externally-fixed exam dates unshifted.
     const PREP_PHASES = [
       {
-        key: 'foundation', icon: '📖', name: 'Foundation (NCERT)',
-        start: '2026-10-01', end: '2026-11-18', color: 'var(--accent-amber)',
-        target: 'Complete NCERT Foundation Classes',
-        description: 'Cover NCERT Class 6-12 across all subjects. Build conceptual base.',
-        subjectIds: [0]
-      },
-      {
         key: 'mains-prep', icon: '✍️', name: 'Mains Subject Coverage',
-        start: '2026-11-26', end: '2027-11-29', color: 'var(--accent-blue)',
+        start: '2026-08-23', end: '2027-08-26', color: 'var(--accent-blue)',
         target: 'Complete all Mains-oriented subjects',
         description: 'Sequential coverage of GS subjects, CSAT, and Optional. Develop answer writing.',
         subjectIds: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
       },
       {
         key: 'optional-deep', icon: '📚', name: 'Optional + Essay Mastery',
-        start: '2027-11-30', end: '2028-03-13', color: 'var(--accent-violet)',
+        start: '2027-08-27', end: '2027-12-09', color: 'var(--accent-violet)',
         target: 'Complete Sociology Optional + Essay',
-        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by ~Mar 13, 2028.',
+        description: 'Deep dive into Sociology P1 & P2. Essay practice. All classes complete by ~Dec 9, 2027.',
         subjectIds: [16, 17, 18]
       },
       {
         key: 'prelims', icon: '📝', name: 'Prelims Preparation',
-        start: '2028-03-14', end: '2028-05-25', color: 'var(--accent-rose)',
+        start: '2027-12-10', end: '2028-05-25', color: 'var(--accent-rose)',
         target: 'Prelims Exam: May 26, 2028',
         description: 'Full syllabus revision, mock tests, current affairs consolidation, PYQ practice.',
         subjectIds: []
