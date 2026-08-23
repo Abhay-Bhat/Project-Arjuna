@@ -8235,7 +8235,11 @@ details.section-card[open] > summary {
 
 .upsc-prep-timeline {
   position: relative; height: 18px; background: var(--border);
-  border-radius: 9px; margin-bottom: 24px; overflow: visible;
+  border-radius: 9px; margin-bottom: 10px; overflow: visible;
+  /* The timeline is the first child of the .upsc-exam-phases grid —
+     span every column so it sits as a full-width strip above the
+     cards instead of occupying (and stretching) the first cell. */
+  grid-column: 1 / -1;
 }
 .upsc-prep-timeline-seg {
   position: absolute; top: 0; height: 100%; border-radius: 9px;
@@ -8250,6 +8254,57 @@ details.section-card[open] > summary {
   background: var(--text); border-radius: 2px; z-index: 2;
   box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
+
+/* ── Quick Log modal (inline detail entry on Today tab) ── */
+.ql-overlay {
+  position: fixed; inset: 0; z-index: 400;
+  background: rgba(4, 8, 20, 0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.ql-modal {
+  width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto;
+  background: var(--card); border: 1px solid var(--border-bright);
+  border-radius: var(--radius-md); padding: 20px;
+  box-shadow: var(--shadow-lg);
+}
+.ql-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.ql-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.ql-close {
+  background: none; border: none; color: var(--text-faint); cursor: pointer;
+  font-size: 15px; padding: 2px 6px; flex-shrink: 0;
+}
+.ql-close:hover { color: var(--accent-rose); }
+.ql-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+.ql-body { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.ql-field { display: flex; flex-direction: column; gap: 5px; }
+.ql-field label { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
+.ql-req { color: var(--accent-rose); }
+.ql-field input, .ql-field select, .ql-field textarea {
+  width: 100%; padding: 8px 10px; font-size: 13px; box-sizing: border-box;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); font-family: inherit;
+}
+.ql-field input:focus, .ql-field select:focus, .ql-field textarea:focus {
+  outline: none; border-color: var(--accent-blue);
+}
+.ql-note {
+  font-size: 13px; color: var(--text); line-height: 1.5;
+  padding: 10px 12px; background: var(--surface); border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.ql-error {
+  margin-top: 10px; font-size: 12px; color: var(--accent-rose);
+  padding: 8px 10px; background: rgba(255,92,128,0.08);
+  border: 1px solid rgba(255,92,128,0.3); border-radius: 8px;
+}
+.ql-actions {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;
+}
+.ql-actions .ql-save { flex: 1 1 100%; }
+.ql-actions .ql-skip, .ql-actions .ql-goto { flex: 1 1 45%; }
 
 .phase-countdown {
   display: flex; flex-direction: column; align-items: center;

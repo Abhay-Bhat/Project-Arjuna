@@ -197,7 +197,12 @@ const Scheduler = {
           e.target.checked = false;
 
           if (typeof UI !== 'undefined') {
-            UI.setPendingActivity({ key, scheduleKey, activityName: item.activity, meta, cb });
+            const ctx = { key, scheduleKey, activityName: item.activity, meta, cb };
+            // Inline quick-log first — the data lands in AppState so the
+            // target tab shows it. Falls back to tab navigation for
+            // activities without a quick-log form.
+            if (UI.openQuickLog(ctx)) return;
+            UI.setPendingActivity(ctx);
             UI._setActiveTab(meta.navTab);
             UI._renderTab(meta.navTab);
 
