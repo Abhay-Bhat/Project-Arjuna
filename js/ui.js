@@ -274,6 +274,7 @@ const UI = {
     if (!meta || !meta.navTab) return null;
     if (meta.focusId === 'hSleep')  return 'sleep';
     if (meta.focusId === 'hGym')    return 'gym';
+    if (meta.focusId === 'hPhone')  return 'phone';
     if (meta.focusId === 'caTitle') return 'ca';
     if (meta.navTab === 'upsc')     return 'upsc';
     if (meta.navTab === 'growth' && meta.focusId === 'techStudyModeToggle') return 'tech';
@@ -300,6 +301,13 @@ const UI = {
         </div>`;
     } else if (kind === 'gym') {
       bodyHtml = `<div class="ql-note">🏃 Saving will mark today's exercise as done in the Health log.</div>`;
+    } else if (kind === 'phone') {
+      const cur = AppState.getSelectedHealth().phone_h;
+      bodyHtml = `
+        <div class="ql-field">
+          <label for="qlPhone">📱 Phone screen time today (hours)</label>
+          <input type="number" id="qlPhone" min="0" max="24" step="0.5" value="${cur != null ? cur : ''}" placeholder="e.g. 2.5">
+        </div>`;
     } else if (kind === 'ca') {
       bodyHtml = `
         <div class="ql-field">
@@ -396,6 +404,10 @@ const UI = {
         AppState.setSelectedHealth({ sleep_h: v });
       } else if (kind === 'gym') {
         AppState.setSelectedHealth({ gym: true });
+      } else if (kind === 'phone') {
+        const v = parseFloat(overlay.querySelector('#qlPhone')?.value);
+        if (isNaN(v) || v < 0) { showError('Enter today\'s phone hours first — or use "Complete without details".'); return; }
+        AppState.setSelectedHealth({ phone_h: v });
       } else if (kind === 'ca') {
         const title = overlay.querySelector('#qlCaTitle')?.value.trim();
         if (!title) { showError('Enter the topic/headline first — or use "Complete without details".'); return; }
