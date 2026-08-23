@@ -152,6 +152,8 @@ const HealthTracker = {
   renderSleepChart() {
     const canvas = document.getElementById('sleepChart');
     if (!canvas) return;
+    // Chart.js comes from a CDN — skip gracefully when it hasn't loaded (offline/APK cold start)
+    if (typeof Chart === 'undefined') return;
 
     const labels = [], data = [];
     for (let i = 13; i >= 0; i--) {
@@ -214,6 +216,7 @@ const HealthTracker = {
   renderPhoneChart() {
     const canvas = document.getElementById('phoneChart');
     if (!canvas) return;
+    if (typeof Chart === 'undefined') return;
 
     const labels = [], data = [];
     for (let i = 13; i >= 0; i--) {
@@ -381,6 +384,7 @@ const HealthTracker = {
   renderCholesterolChart() {
     const canvas = document.getElementById('cholChart');
     if (!canvas || !AppState.cholesterol?.length) return;
+    if (typeof Chart === 'undefined') return;
 
     const sorted = [...AppState.cholesterol].sort((a,b)=>a.date.localeCompare(b.date));
     const labels = sorted.map(r => r.date);
